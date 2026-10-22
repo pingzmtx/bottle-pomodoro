@@ -7,21 +7,15 @@
  * 这个应用改版频繁，缓存优先意味着用户永远停在旧版，还查不出原因。
  * 网络优先：在线时永远拿最新的，离线时才回落到上次的副本。
  *
- * 版本号由 tools/build_site.py 在构建时替换 22fb2395ff70（取 index.html 的 sha256 前 12 位），
+ * 版本号由 tools/build_site.py 在构建时替换 02630ab6dae9（取 index.html 的 sha256 前 12 位），
  * 每次改动内容都会生成新缓存名，旧缓存随之清掉。不要手改这个占位符。
  */
 
-const BUILD_ID = '22fb2395ff70';
+const BUILD_ID = '02630ab6dae9';
 const CACHE = 'bottle-pomodoro-' + BUILD_ID;
 
 /* 预缓存：只要这几个文件齐了，断网也能完整打开 */
-const PRECACHE = [
-  './',
-  './index.html',
-  './manifest.webmanifest',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
-];
+const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.39cd73fd10aa.css", "assets/app.9.c8d87a5e82d6.js", "assets/app.1.aa023a3a32ac.js", "assets/app.2.47dafe17ac48.js", "assets/app.3.1c696f110a06.js", "assets/app.4.67c4c89e82cc.js", "assets/app.5.a3b64918e591.js", "assets/app.6.fe9f093254f9.js", "assets/app.7.0a119dacef2a.js", "assets/app.8.117b3d25caff.js", "./icons/icon-192.png", "./icons/icon-512.png"];
 
 self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
@@ -30,6 +24,8 @@ self.addEventListener('install', (e) => {
     await Promise.all(PRECACHE.map((u) =>
       cache.add(new Request(u, { cache: 'reload' })).catch(() => {})
     ));
+    // 给这一代缓存盖时间戳：activate 要靠它决定「保留哪一代」，否则只能瞎删或全留
+    await cache.put('__meta__', new Response(String(Date.now())));
     await self.skipWaiting();
   })());
 });
@@ -37,7 +33,21 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil((async () => {
     const names = await caches.keys();
-    await Promise.all(names.map((n) => (n === CACHE ? null : caches.delete(n))));
+    const others = names.filter((n) => n !== CACHE);
+    // 只删「≥2 代之前」的：旧页面可能还活着、还在引用上一代的 assets，
+    // 立刻删掉会让它离线重载失败。留最近一代做宽限，等下次发版再清。
+    const stamped = [];
+    for (const n of others) {
+      let t = 0;
+      try {
+        const c = await caches.open(n);
+        const r = await c.match('__meta__');
+        if (r) t = Number(await r.text()) || 0;
+      } catch (e) { /* 老缓存没有 meta，按最旧处理 */ }
+      stamped.push([n, t]);
+    }
+    stamped.sort((a, b) => b[1] - a[1]);
+    await Promise.all(stamped.slice(1).map(([n]) => caches.delete(n)));
     await self.clients.claim();
   })());
 });
@@ -58,9 +68,11 @@ self.addEventListener('fetch', (e) => {
   if (isDoc) {
     e.respondWith((async () => {
       try {
-        // cache:'no-store' 绕开 HTTP 缓存：否则 fetch(req) 可能直接吐回浏览器里
-        // 那份旧的 3MB 页面，服务端发新版也永远到不了用户手上。
-        const fresh = await fetch(req, { cache: 'no-store' });
+        // cache:'no-cache' = 允许浏览器用 ETag/Last-Modified 去服务端「问一句」：
+        // 没变就吃 304（不重下 3MB），变了才重下。
+        // 原先是 'no-store'，每次都全量重下 —— 回访用户白付 950 KB。
+        // 注意：仍然**不能**用默认的 cache 模式，否则可能直接吐回浏览器里那份旧页面。
+        const fresh = await fetch(req, { cache: 'no-cache' });
         const cache = await caches.open(CACHE);
         cache.put(req, fresh.clone());
         return fresh;
@@ -75,6 +87,23 @@ self.addEventListener('fetch', (e) => {
           '<h2>现在离线</h2><p>这个页面还没被缓存过，联网后再打开一次即可离线使用。</p>',
           { headers: { 'Content-Type': 'text/html; charset=utf-8' }, status: 503 }
         );
+      }
+    })());
+    return;
+  }
+
+  // config.js 单独走 network-first：它要能被随时改动，落到下面 cache-first 会永远读旧值
+  if (url.pathname.slice(-10) === '/config.js') {
+    e.respondWith((async () => {
+      try {
+        const fresh = await fetch(req, { cache: 'no-cache' });
+        const cache = await caches.open(CACHE);
+        cache.put(req, fresh.clone());
+        return fresh;
+      } catch (err) {
+        const cache = await caches.open(CACHE);
+        return (await cache.match(req)) || new Response('window.TF_CONFIG=window.TF_CONFIG||{};',
+          { headers: { 'Content-Type': 'application/javascript' } });
       }
     })());
     return;
