@@ -7,11 +7,11 @@
  * 这个应用改版频繁，缓存优先意味着用户永远停在旧版，还查不出原因。
  * 网络优先：在线时永远拿最新的，离线时才回落到上次的副本。
  *
- * 版本号由 tools/build_site.py 在构建时替换 af87992b3119（取 index.html 的 sha256 前 12 位），
+ * 版本号由 tools/build_site.py 在构建时替换 613db60cab98（取 index.html 的 sha256 前 12 位），
  * 每次改动内容都会生成新缓存名，旧缓存随之清掉。不要手改这个占位符。
  */
 
-const BUILD_ID = 'af87992b3119';
+const BUILD_ID = '613db60cab98';
 const CACHE = 'bottle-pomodoro-' + BUILD_ID;
 
 /* 预缓存：只要这几个文件齐了，断网也能完整打开 */
