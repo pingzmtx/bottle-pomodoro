@@ -404,7 +404,9 @@ function skipMicroBreak(){if(timerState.microIv){clearInterval(timerState.microI
 finishMicroBreak();}
 let _soundMuteUntil=0;function showTomatoDropAnimation(){const layer=document.getElementById('tomatoDropLayer');if(!layer)return;const emojis=['🍅','🍅','🍅','🍅','🌿','✨'];for(let i=0;i<8;i++){const el=document.createElement('div');el.className='tomato-drop';el.textContent=emojis[i%emojis.length];el.style.left=Math.random()*90+5+'%';el.style.animationDelay=Math.random()*0.3+'s';el.style.fontSize=24+Math.random()*16+'px';layer.appendChild(el);setTimeout(()=>{if(el.parentNode)el.parentNode.removeChild(el);},1800);}
 const circle=document.getElementById('timerCircle');if(circle){circle.classList.add('timer-celebrate');setTimeout(()=>circle.classList.remove('timer-celebrate'),700);}}
-function notify(title,body){if(!appData.settings.notify)return;if(!('Notification'in window))return;if(Notification.permission==='granted'){try{new Notification(title,{body});}catch(e){if(window.__silent)window.__silent(e,'01c:notify');}}}
+function notify(title,body){if(!appData.settings.notify)return;var hasApi=('Notification'in window)&&typeof Notification!=='undefined';if(hasApi&&Notification.permission!=='granted')return;var sw=navigator.serviceWorker;if(sw&&sw.ready&&typeof sw.ready.then==='function'){sw.ready.then(function(reg){if(reg&&typeof reg.showNotification==='function'){return reg.showNotification(title,{body:body,icon:'icons/icon-192.png',badge:'icons/icon-192.png',tag:'bottle-pomodoro',renotify:true});}
+throw new Error('no showNotification');}).catch(function(){try{new Notification(title,{body:body});}catch(e){if(window.__silent)window.__silent(e,'01c:notify');}});return;}
+try{new Notification(title,{body});}catch(e){if(window.__silent)window.__silent(e,'01c:notify');}}
 function __replace_startPomodoro(fn){startPomodoro=fn;}
 function __replace_startPomodoroCore(fn){startPomodoroCore=fn;}
 function __replace_onTimerComplete(fn){onTimerComplete=fn;}
