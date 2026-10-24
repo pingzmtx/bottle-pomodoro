@@ -7,15 +7,15 @@
  * 这个应用改版频繁，缓存优先意味着用户永远停在旧版，还查不出原因。
  * 网络优先：在线时永远拿最新的，离线时才回落到上次的副本。
  *
- * 版本号由 tools/build_site.py 在构建时替换 4fbdb0ed4741（取 index.html 的 sha256 前 12 位），
+ * 版本号由 tools/build_site.py 在构建时替换 83847e45df32（取 index.html 的 sha256 前 12 位），
  * 每次改动内容都会生成新缓存名，旧缓存随之清掉。不要手改这个占位符。
  */
 
-const BUILD_ID = '4fbdb0ed4741';
+const BUILD_ID = '83847e45df32';
 const CACHE = 'bottle-pomodoro-' + BUILD_ID;
 
 /* 预缓存：只要这几个文件齐了，断网也能完整打开 */
-const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.e2df1d37e33e.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js", "./icons/icon-192.png", "./icons/icon-512.png"];
+const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.5d9135ca1311.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js", "./icons/icon-192.png", "./icons/icon-512.png"];
 
 self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
@@ -129,4 +129,30 @@ self.addEventListener('fetch', (e) => {
 // 页面里点「检查更新」会用得上：允许页面主动催新版本接管
 self.addEventListener('message', (e) => {
   if (e.data === 'SKIP_WAITING') self.skipWaiting();
+});
+
+/* 点通知 → 把已经开着的页面切到前台；一个都没开就新开一个。
+   ★ 没有这个处理时，通知点了什么都不会发生（浏览器只把通知关掉）——
+     对番茄钟来说这很别扭：休息结束的通知点不动，用户还得自己去切 App。
+   ★ 用 clients.matchAll 找同源窗口，优先 focus 而不是 openWindow：
+     openWindow 每次都新开一个标签页，切几次就攒七八个钟表页。 */
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const data = e.notification.data || {};
+  e.waitUntil(
+    (async () => {
+      const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      const sameOrigin = all.filter((c) => {
+        try { return new URL(c.url).origin === self.location.origin; } catch (err) { return false; }
+      });
+      if (sameOrigin.length) {
+        const c = sameOrigin[0];
+        try { await c.focus(); } catch (err) { /* 部分浏览器 focus 会抛，忽略 */ }
+        /* 带上来源标记，页面可以据此做点事（比如滚到对应视图） */
+        try { c.postMessage({ type: 'NOTIFY_CLICK', kind: data.kind || '' }); } catch (err) { /* 同上 */ }
+        return;
+      }
+      try { await self.clients.openWindow('./'); } catch (err) { /* 忽略 */ }
+    })()
+  );
 });
