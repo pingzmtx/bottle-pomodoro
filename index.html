@@ -265,7 +265,7 @@
 <meta data-page-node-id="QvAACMTbWxzccKOtGkixTn" content="番茄专注" name="apple-mobile-web-app-title">
 <meta data-page-node-id="vUERiOdt3gUjUmdr1jlNHy" content="black-translucent" name="apple-mobile-web-app-status-bar-style">
 <title data-page-node-id="aLYARGncyQlgcELCiGxuU1" data-pnid-children="3yqjw3HhflXfpy391ah9uQ">番茄专注</title>
-<link id="jyvx-css" rel="stylesheet" href="assets/style.39cd73fd10aa.css">
+<link id="jyvx-css" rel="stylesheet" href="assets/style.3087b3b659c3.css">
 <!-- 启动画面：静态首元素。
      必须写在这里（body 第一个节点、主样式块之后），而不是由 JS 动态创建：
      index.html 单文件里 slot1~slot9 的内联脚本全排在正文之后，等 JS 跑到
@@ -1353,6 +1353,40 @@
         <button class="save-btn" data-act="installApp" id="installBtn" style="margin-bottom:var(--sp-8)">📲 添加到主屏幕</button>
         <div id="installStatus" style="font-size:var(--fs-note); color:var(--text-light); line-height:1.6; opacity:.85; margin-bottom:var(--sp-6)"></div>
         <div id="installSteps" style="font-size:var(--fs-note); color:var(--text); line-height:1.7; background:var(--bg); border:1px dashed var(--border); border-radius:var(--radius); padding:var(--sp-10) var(--sp-12)"></div>
+      </div>
+    </div>
+
+    <!-- 🧩 更多：目前只有「关于」一项。三层折叠：更多 → 关于 → 关于借鉴 → 条目。
+         两级都用 setting-note-toggle，靠「开关与内容必须相邻」的约定各自找 nextElementSibling，
+         嵌套不会串（外层 toggle 只改外层自己的文案）。 -->
+    <div class="settings-group foldable" data-group="more">
+      <h3 class="group-header" data-act="toggleGroup" data-act-args='["more"]'>🧩 更多 <span class="group-arrow">▼</span></h3>
+      <div class="group-body">
+        <div class="setting-row">
+          <div class="setting-label">关于
+            <div class="setting-desc">番茄专注 · 由 B 站「瓶子满天星」制作 · MIT 协议开源</div>
+            <span class="setting-note-toggle" data-act="toggleNote" data-act-args='["@this"]'>展开说明</span>
+            <div class="setting-note-content">
+              <div class="about-ref-title">关于借鉴</div>
+              <div class="setting-desc" style="margin-top:var(--sp-2)">这个 App 不是从零想出来的，下面这些是它的来源。</div>
+              <span class="setting-note-toggle" data-act="toggleNote" data-act-args='["@this"]'>展开说明</span>
+              <div class="setting-note-content setting-note-content--sub">
+                <div class="about-ref-title">借鉴的开源项目</div>
+                <ul class="about-ref-list">
+                  <li><b>Uiverse.io</b><span class="about-ref-desc">开源 UI 片段库：按钮高光、扫线、玻璃卡片等显示技法</span></li>
+                  <li><b>Aceternity UI</b><span class="about-ref-desc">开源组件库：页面环境光背景、结算信息的编排节奏</span></li>
+                </ul>
+                <div class="about-ref-title">其它参考</div>
+                <ul class="about-ref-list">
+                  <li><b>Forest</b><span class="about-ref-desc">专注种树的 App（闭源，只借鉴思路）：「我的森林」一天一棵树、攒成一片林</span></li>
+                  <li><b>暂停实验室</b></li>
+                  <li><b>《为什么我能每天学习10小时》</b><span class="about-ref-desc">B 站视频：高频微休息的节奏就参考它</span></li>
+                  <li><b>王一同学的实验室</b><span class="about-ref-desc">日志回顾、日程表、复盘这三个功能都是借鉴自这里</span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
