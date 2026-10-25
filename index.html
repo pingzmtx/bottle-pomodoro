@@ -265,7 +265,7 @@
 <meta data-page-node-id="QvAACMTbWxzccKOtGkixTn" content="番茄专注" name="apple-mobile-web-app-title">
 <meta data-page-node-id="vUERiOdt3gUjUmdr1jlNHy" content="black-translucent" name="apple-mobile-web-app-status-bar-style">
 <title data-page-node-id="aLYARGncyQlgcELCiGxuU1" data-pnid-children="3yqjw3HhflXfpy391ah9uQ">番茄专注</title>
-<link id="jyvx-css" rel="stylesheet" href="assets/style.8bf44645922c.css">
+<link id="jyvx-css" rel="stylesheet" href="assets/style.98ef6f8ac122.css">
 <!-- 启动画面：静态首元素。
      必须写在这里（body 第一个节点、主样式块之后），而不是由 JS 动态创建：
      index.html 单文件里 slot1~slot9 的内联脚本全排在正文之后，等 JS 跑到
@@ -430,7 +430,9 @@
     </div>
 
     <div data-page-node-id="HZYzSt0plSZQtOvf8yxN9A" class="current-todo-section">
-      <div data-page-node-id="sNawpZwVGtgO0bY3hxfBIZ" id="encourageText" style="text-align:center; padding:var(--sp-10) var(--sp-12); font-size:var(--fs-title); line-height:1.5; color:var(--primary); font-weight:600; background:var(--card); border:2px solid var(--border); border-radius:var(--radius); margin-bottom:var(--sp-12)"></div>
+      <!-- 提示语是「说明」，不是「容器」：去掉整圈描边与卡片底，改成左侧 2px 强调竖线。
+           卡片里再套一个带框的盒子，会让读者以为这是一块独立功能区。 -->
+      <div data-page-node-id="sNawpZwVGtgO0bY3hxfBIZ" id="encourageText" style="padding:0 0 0 var(--sp-12); border-left:2px solid var(--primary); font-size:var(--fs-title); line-height:1.6; color:var(--primary); font-weight:var(--fw-medium); margin-bottom:var(--sp-14)"></div>
       <label data-page-node-id="IXzeRebvdzLh4qFIe9Gsmv" id="currentTodoSelectLabel"><!--pnid:M2kC3Yh9yiYcHcvgFFWJBT-->选择计划（可留空，也可手动输入）</label>
       <select data-page-node-id="hhPV1L7QBEZaocGoAWUWpb" class="current-todo-select" id="currentTodoSelect" data-change="onSelectTodoPlan" data-change-args='["@value"]'>
         <option data-page-node-id="TIQKpzKABRCR70qVcFOMXG" value><!--pnid:XWJ50Ec4WSrkOJKrDHAe4n-->— 手动输入任务 —</option>
@@ -439,7 +441,9 @@
       <input data-page-node-id="PtkHyoCgbPx1uNc2aCD9n0" class="current-todo-select" id="currentTodoInput" data-focus="todoInputFocus" placeholder="我要完成什么呢？" type="text">
       <label data-page-node-id="QRLlaJct0NKetRNydPx1Jm" style="margin-top:var(--sp-8)"><!--pnid:TlaFhAIP2awTXxBlYkZ71L-->备注（可留空）</label>
       <textarea data-page-node-id="QuiVU0UUTitxGKoW6FU1J4" class="current-todo-select" id="currentTodoNote" placeholder="这次番茄要做什么…（只记这一次，不改计划备注）" style="min-height:50px; resize:vertical"></textarea>
-      <div data-page-node-id="9x3DEhYq2RvnXOWrdcuayx" id="timerSubsBox" style="display:none; margin-top:var(--sp-10); padding:var(--sp-10); background:var(--card); border:1.5px solid var(--border); border-radius:var(--radius)"></div>
+      <!-- 子任务清单是卡片内的次级分组：与父级同底色时只能靠描边区分，
+           故用 surface-2 下沉一档 + 左侧竖线，不再整圈描边。 -->
+      <div data-page-node-id="9x3DEhYq2RvnXOWrdcuayx" id="timerSubsBox" style="display:none; margin-top:var(--sp-12); padding:var(--sp-10) var(--sp-12); background:var(--surface-2); border-left:2px solid var(--hairline); border-radius:var(--radius-sm)"></div>
       <div data-page-node-id="wgYd0XVQMClqWC8kA5dEBg" class="state-section" style="margin-top:var(--sp-10)">
         <div data-page-node-id="VACdweBIlP2JxHx9MpBjet" class="state-section-title"><!--pnid:DvjVSGyN550AZ4XpSq5rLv-->当前状态（选填，开始前打分）</div>
         <div data-page-node-id="D9LnuYs0eYvGRZ6iEbuXNF" class="state-row">
