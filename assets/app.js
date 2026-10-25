@@ -253,7 +253,7 @@ monthHtml+'</div>';}
 function toggleOverviewJump(){overviewCalJumpOpen=!overviewCalJumpOpen;renderOverviewJump();}
 function changeOverviewYear(delta){overviewCalYear+=Number(delta)||0;renderDiaryOverviewPage();}
 function overviewJumpMonth(m){overviewCalMonth=Math.max(0,Math.min(11,(Number(m)||1)-1));overviewCalJumpOpen=false;renderDiaryOverviewPage();}
-function changeOverviewMonth(delta){overviewCalMonth+=delta;if(overviewCalMonth<0){overviewCalMonth=11;overviewCalYear--;}else if(overviewCalMonth>11){overviewCalMonth=0;overviewCalYear++;}
+function changeOverviewMonth(delta){overviewCalMonth+=Number(delta)||0;if(overviewCalMonth<0){overviewCalMonth=11;overviewCalYear--;}else if(overviewCalMonth>11){overviewCalMonth=0;overviewCalYear++;}
 renderDiaryOverviewPage();}
 function goToDiaryDate(date){__set_currentDiaryDate(date);switchLogTab('diary');}
 function _cdSort(a,b){if(countdownSortMode==='added')return(Number(b.id)||0)-(Number(a.id)||0);const d=getDaysUntil(a.date)-getDaysUntil(b.date);return d!==0?d:String(a.title).localeCompare(String(b.title));}
@@ -365,9 +365,9 @@ const grid=document.getElementById('calendarGrid');const weekdays=['日','一','
 for(let day=1;day<=daysInMonth;day++){const dateStr=calendarYear+'-'+String(calendarMonth+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');const marked=pick?(typeof pick.mark==='function'?!!pick.mark(dateStr):false):!!appData.diaries[dateStr];const isToday=dateStr===today;const isFuture=!pick&&new Date(dateStr)>new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate());let cls='calendar-day';if(marked)cls+=' has-diary';if(isToday)cls+=' today';if(isFuture)cls+=' disabled';const onclick=!isFuture?`onclick="calendarDayPick('${dateStr}')"`:'';html+=`<div class="${cls}" ${onclick}>${day}</div>`;}
 grid.innerHTML=html;}
 function openCalendarJump(){const row=document.getElementById('calendarJumpRow');if(!row)return;row.style.display=row.style.display==='none'?'block':'none';}
-function changeCalendarYear(delta){calendarYear+=delta;renderCalendar();}
+function changeCalendarYear(delta){calendarYear+=Number(delta)||0;renderCalendar();}
 function jumpCalendarMonth(m){const mm=Math.max(1,Math.min(12,Number(m)||1))-1;__set_calendarMonth(mm);renderCalendar();}
-function changeCalendarMonth(delta){calendarMonth+=delta;if(calendarMonth<0){__set_calendarMonth(11);calendarYear--;}
+function changeCalendarMonth(delta){calendarMonth+=Number(delta)||0;if(calendarMonth<0){__set_calendarMonth(11);calendarYear--;}
 if(calendarMonth>11){__set_calendarMonth(0);calendarYear++;}
 renderCalendar();}
 function calendarDayPick(date){if(_calendarPick){const h=_calendarPick.onPick;_calendarPick=null;closeModal('calendarModal');h(date);return;}
@@ -870,7 +870,7 @@ function logRangeThisMonth(){setLogRange(logCalYear+'-'+String(logCalMonth+1).pa
 function logRangeToday(){pickLogDate(getTodayStr());}
 function openLogCalendar(){const now=new Date();const cur=logRangeValue();if(cur.length>=7){logCalYear=Number(cur.slice(0,4))||now.getFullYear();logCalMonth=(Number(cur.slice(5,7))||now.getMonth()+1)-1;}else{logCalYear=now.getFullYear();logCalMonth=now.getMonth();}
 _logCalJumpOpen=false;renderLogCalendar();showModal('logCalendarModal');}
-function changeLogCalendarMonth(d){logCalMonth+=d;if(logCalMonth<0){logCalMonth=11;logCalYear--;}else if(logCalMonth>11){logCalMonth=0;logCalYear++;}
+function changeLogCalendarMonth(d){logCalMonth+=Number(d)||0;if(logCalMonth<0){logCalMonth=11;logCalYear--;}else if(logCalMonth>11){logCalMonth=0;logCalYear++;}
 renderLogCalendar();}
 function pomoHeatLevel(n){const v=Number(n)||0;if(v>=7)return 4;if(v>=4)return 3;if(v>=2)return 2;if(v>=1)return 1;return 0;}
 function renderLogCalendar(){const title=document.getElementById('logCalTitle');const grid=document.getElementById('logCalGrid');if(!title||!grid)return;title.textContent=logCalYear+'年'+(logCalMonth+1)+'月';const startDow=new Date(logCalYear,logCalMonth,1).getDay();const dim=new Date(logCalYear,logCalMonth+1,0).getDate();const today=getTodayStr();const _hasDay={},_pomoDay={},_monCount={};(appData.records||[]).forEach(function(r){if(!r||!r.startTime)return;const ds=getDateStr(r.startTime);_hasDay[ds]=(_hasDay[ds]||0)+1;_pomoDay[ds]=(_pomoDay[ds]||0)+getPomos(r);const mk=ds.slice(0,7);_monCount[mk]=(_monCount[mk]||0)+1;});const _yBox=document.getElementById('logCalJumpYears');if(_yBox){const years=Object.keys(_monCount).map(function(k){return Number(k.slice(0,4));}).filter(function(y,i,a){return y&&a.indexOf(y)===i;}).sort(function(a,b){return b-a;});_yBox.innerHTML=years.length?years.map(function(y){return('<button class="cal-jump-btn" style="'+
@@ -896,7 +896,7 @@ d+'</span>'+
 html+='<div class="logcal-legend">少<span class="hm-cell c1"></span>'+'<span class="hm-cell c2"></span><span class="hm-cell c3"></span>'+'<span class="hm-cell c4"></span>多</div>';grid.innerHTML=html;const _jp=document.getElementById('logCalJump');if(_jp)_jp.style.display=_logCalJumpOpen?'block':'none';const _jy=document.getElementById('logCalJumpYear');if(_jy)_jy.textContent=logCalYear+'年';}
 function toggleLogCalJump(){_logCalJumpOpen=!_logCalJumpOpen;renderLogCalJump();}
 function renderLogCalJump(){renderLogCalendar();}
-function changeLogCalYear(d){logCalYear+=d;renderLogCalendar();}
+function changeLogCalYear(d){logCalYear+=Number(d)||0;renderLogCalendar();}
 function logCalJumpMonth(m){logCalMonth=m-1;_logCalJumpOpen=false;renderLogCalendar();}
 function pickLogDate(ds){const input=document.getElementById('logDateFilter');if(input)input.value=ds;_logPage=1;applyLogFilter();closeModal('logCalendarModal');const main=document.querySelector('.main');if(main)main.scrollTop=0;}
 function logCalJumpYear(y){logCalYear=Number(y)||logCalYear;_logCalJumpOpen=true;renderLogCalendar();}
@@ -1163,7 +1163,7 @@ function monStatShift(d){const c=_monCur();let m=c.m+d,y=c.y;if(m<0){m=11;y--;}e
 _monSet(y,m);renderMonthlyStat();}
 function yrStatShift(d){__set__yrY((_yrY||new Date().getFullYear())+d);renderYearlyStat();}
 function openMonthPicker(){const c=_monCur();__set__monthPickY(c.y);renderMonthPickGrid();showModal('monthPickModal');}
-function monthPickYearShift(d){_monthPickY+=d;renderMonthPickGrid();}
+function monthPickYearShift(d){__set__monthPickY((_monthPickY||new Date().getFullYear())+(Number(d)||0));renderMonthPickGrid();}
 function renderMonthPickGrid(){document.getElementById('monthPickYearLabel').textContent=_monthPickY+'年';const now=new Date();let html='';for(let m=0;m<12;m++){const isCur=_monthPickY===now.getFullYear()&&m===now.getMonth();const isView=_monthPickY===_monCur().y&&m===_monCur().m;html+='<button onclick="pickMonth('+
 m+')" style="padding:var(--sp-8) 0;border-radius:var(--radius);border:2px solid '+
 (isView?'var(--primary)':'var(--border)')+';background:'+
@@ -1275,9 +1275,9 @@ pageItems.map(function(b,ui){return cardOf(b,b.bioIndex,ui);}).join('')+'</div>'
 pagHtml;if(_keepFocus){const _ns=document.getElementById('bioSearch');if(_ns){try{_ns.focus({preventScroll:true});const _pos=Math.min(_caret||0,_ns.value.length);_ns.setSelectionRange(_pos,_pos);}catch(e){if(window.__silent)window.__silent(e,'01e7:renderBioSection');}}}}}
 function setBioSourceFilter(key){_bioSourceFilter=key==='bio'||key==='progress'||key==='gratitude'?key:'all';_bioPage=1;renderBioSection();}
 function openBioCalendar(){const d=_bioRange?new Date(Number(_bioRange.slice(0,4)),_bioRange.length>4?Number(_bioRange.slice(5,7))-1:0,1):new Date();_bioCalYear=isNaN(d.getTime())?new Date().getFullYear():d.getFullYear();_bioCalMonth=isNaN(d.getTime())?new Date().getMonth():d.getMonth();_bioCalJumpOpen=false;renderBioCalendar();showModal('bioCalModal');}
-function changeBioCalMonth(d){_bioCalMonth+=d;if(_bioCalMonth<0){_bioCalMonth=11;_bioCalYear--;}else if(_bioCalMonth>11){_bioCalMonth=0;_bioCalYear++;}
+function changeBioCalMonth(d){_bioCalMonth+=Number(d)||0;if(_bioCalMonth<0){_bioCalMonth=11;_bioCalYear--;}else if(_bioCalMonth>11){_bioCalMonth=0;_bioCalYear++;}
 renderBioCalendar();}
-function changeBioCalYear(d){_bioCalYear+=d;renderBioCalendar();}
+function changeBioCalYear(d){_bioCalYear+=Number(d)||0;renderBioCalendar();}
 function toggleBioCalJump(){_bioCalJumpOpen=!_bioCalJumpOpen;renderBioCalendar();}
 function bioCalJumpYear(y){_bioCalYear=Number(y)||_bioCalYear;renderBioCalendar();}
 function bioCalJumpMonth(m){_bioCalMonth=m-1;_bioCalJumpOpen=false;renderBioCalendar();}
