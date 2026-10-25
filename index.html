@@ -265,7 +265,7 @@
 <meta data-page-node-id="QvAACMTbWxzccKOtGkixTn" content="番茄专注" name="apple-mobile-web-app-title">
 <meta data-page-node-id="vUERiOdt3gUjUmdr1jlNHy" content="black-translucent" name="apple-mobile-web-app-status-bar-style">
 <title data-page-node-id="aLYARGncyQlgcELCiGxuU1" data-pnid-children="3yqjw3HhflXfpy391ah9uQ">番茄专注</title>
-<link id="jyvx-css" rel="stylesheet" href="assets/style.d43d1de14bb7.css">
+<link id="jyvx-css" rel="stylesheet" href="assets/style.97163644660d.css">
 <!-- 启动画面：静态首元素。
      必须写在这里（body 第一个节点、主样式块之后），而不是由 JS 动态创建：
      index.html 单文件里 slot1~slot9 的内联脚本全排在正文之后，等 JS 跑到
@@ -1422,8 +1422,13 @@
     <div data-page-node-id="o93gPwiwlsJeDgi28tlgGs" class="setting-row" style="margin-top:var(--sp-6)"><div data-page-node-id="eVpxgBwY1AvP601ky0ioFv" class="setting-label" data-act="replayGuide" style="color:var(--text-light); cursor:pointer; text-align:center; width:100%"><!--pnid:4UD7aVxwhIoQsgshjoo1F8-->📖 重新查看新手指引</div></div>
   </section>
 
-  <div data-page-node-id="lDPZLRg1P1lrGM9aXIUdIB" class="app-foot" style="text-align:center; font-size:var(--fs-caption); line-height:1.7; color:var(--text-light); opacity:0.45; padding:var(--sp-14) var(--sp-16) var(--sp-4); user-select:none"><!--pnid:Qzrn6uDwCcbQryw38NWx6S-->
-    🍅 番茄专注 · 由-b站瓶子满天星-制作 · © 2026 · 基于 MIT 协议开源
+  <!-- 页脚：曾用 opacity:0.45 做「低调」，但那是按 #5D6D7E 算的 —— 淡化后混到
+       米白底上只剩 2.04:1 对比度，等于把版权信息变成了噪点。用户的原话是
+       「底部那个…怎么没了呀」。低调应该靠字号小、字色浅一档，不能靠整体透明度：
+       版权与开源协议声明是要让人看得见的，不是装饰。
+       改成 opacity:0.85 + 独立的 --text-light（对比度 4.6:1，过 WCAG AA 小字线）。 -->
+  <div data-page-node-id="lDPZLRg1P1lrGM9aXIUdIB" class="app-foot" style="text-align:center; font-size:var(--fs-caption); line-height:1.7; color:var(--text-light); opacity:0.85; padding:var(--sp-14) var(--sp-16) var(--sp-4); user-select:none"><!--pnid:Qzrn6uDwCcbQryw38NWx6S-->
+    🍅 番茄专注 · 由 B 站「瓶子满天星」制作 · © 2026 · 基于 MIT 协议开源
     <br><!--ver-tag-->构建版本 <span id="buildVer">—</span>
   </div>
 </main>
