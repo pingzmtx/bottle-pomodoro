@@ -265,7 +265,7 @@
 <meta data-page-node-id="QvAACMTbWxzccKOtGkixTn" content="番茄专注" name="apple-mobile-web-app-title">
 <meta data-page-node-id="vUERiOdt3gUjUmdr1jlNHy" content="black-translucent" name="apple-mobile-web-app-status-bar-style">
 <title data-page-node-id="aLYARGncyQlgcELCiGxuU1" data-pnid-children="3yqjw3HhflXfpy391ah9uQ">番茄专注</title>
-<link id="jyvx-css" rel="stylesheet" href="assets/style.98ef6f8ac122.css">
+<link id="jyvx-css" rel="stylesheet" href="assets/style.f2ede9989d93.css">
 <!-- 启动画面：静态首元素。
      必须写在这里（body 第一个节点、主样式块之后），而不是由 JS 动态创建：
      index.html 单文件里 slot1~slot9 的内联脚本全排在正文之后，等 JS 跑到
@@ -304,7 +304,7 @@
     <div class="qp-title">快捷功能</div>
     <div class="qp-item" data-action="noise" data-after="closeQuickPanel" data-act="openNoiseModal"><span class="qp-ico">🎵</span><span class="qp-name">白噪音</span><span class="qp-go">›</span></div>
     <div class="qp-item" data-action="immerse" data-act="quickGoImmersive"><span class="qp-ico">🎮</span><span class="qp-name">全屏专注</span><span class="qp-go">›</span></div>
-    <a class="qp-item" data-action="docs" href="https://docs.qq.com/doc/DR2haQ1FHZG1BRWJk?dver=" target="_blank" rel="noopener noreferrer" data-act="closeQuickPanel" style="margin-top:var(--sp-4); padding-top:var(--sp-10); border-top:1px dashed var(--border); border-radius:0; text-decoration:none; color:var(--text)"><span class="qp-ico">📄</span><span class="qp-name">查看文档</span><span class="qp-go">↗</span></a>
+    <a class="qp-item" data-action="docs" href="https://docs.qq.com/doc/DR2haQ1FHZG1BRWJk?dver=" target="_blank" rel="noopener noreferrer" data-act="closeQuickPanel" style="margin-top:var(--sp-4); padding-top:var(--sp-10); border-top:1px solid var(--border); border-radius:0; text-decoration:none; color:var(--text)"><span class="qp-ico">📄</span><span class="qp-name">查看文档</span><span class="qp-go">↗</span></a>
   </div>
   <span class="header-spacer right" aria-hidden="true"></span>
 </header>
@@ -483,7 +483,7 @@
   <!--pnid:KOqFkPa8IpEgtzqW2XSRVg--><!-- ========== 计划页 ========== -->
   <section data-page-node-id="pfoPswAZ9wrxzHm8T2sjkC" class="view" id="view-plan">
     <!-- 计划页二级导航：计划 / 习惯 / 目标 / 提醒（定点提醒 + 定点休息） -->
-    <div data-page-node-id="3PGaHMbxBIa5SHruZofqkH" class="log-tabs log-tabs--plan" style="margin-bottom:var(--sp-14)">
+    <div data-page-node-id="3PGaHMbxBIa5SHruZofqkH" class="log-tabs">
       <div data-page-node-id="tNjTS6XyrZap4eojfjWr3w" class="log-tab active" data-tab="plan" data-act="switchPlanTab" data-act-args='["plan"]'><!--pnid:yRXxEQbIC7mmWOv5XdbRn3-->📋 计划</div>
       <div data-page-node-id="rIep7vApsBJFWW58RJrbFW" class="log-tab" data-tab="habit" data-act="switchPlanTab" data-act-args='["habit"]'><!--pnid:UgQATtQaPsR32fKQkzYl5Y-->🌱 习惯</div>
       <div class="log-tab" data-tab="goal" data-act="switchPlanTab" data-act-args='["goal"]'>🎯 目标</div>
@@ -616,9 +616,9 @@
                并进「全部类型」下拉（新增 value="pomo"）才不跟下拉打架。 -->
         <!-- 关键词搜索住在筛选面板里（2026-10-17 需求：搜索框挪到外面"丑得要死"）。
              面板收起来的只是**次要条件**，搜索框跟着类型下拉一起进退才是一套东西。 -->
-        <input data-page-node-id="gkC1yj0alEs8LF1ThVdud4" id="logSearch" data-input="applyLogFilter" placeholder="🔍 搜索 / 输入年份" style="width:100%; box-sizing:border-box; margin-bottom:var(--sp-6); border:2px solid var(--border); font-family:inherit; background:var(--card); color:var(--text)">
+        <input data-page-node-id="gkC1yj0alEs8LF1ThVdud4" id="logSearch" data-input="applyLogFilter" placeholder="🔍 搜索 / 输入年份" style="width:100%; box-sizing:border-box; margin-bottom:var(--sp-6); border:1px solid var(--border-strong); font-family:inherit; background:var(--card); color:var(--text)">
         <div data-page-node-id="01WQFlmeTol7aWOsMi8ztc" style="display:flex; gap:var(--sp-6); align-items:center">
-          <select data-page-node-id="LU83V4nGB9Lpp3nJI60Tk1" id="logTypeFilter" data-change="applyLogFilter" style="flex:0 0 auto; padding:var(--sp-6) var(--sp-4); border:2px solid var(--border); border-radius:var(--radius-sm); font-size:var(--fs-title); background:var(--card); color:var(--text)">
+          <select data-page-node-id="LU83V4nGB9Lpp3nJI60Tk1" id="logTypeFilter" data-change="applyLogFilter" style="flex:0 0 auto; padding:var(--sp-6) var(--sp-4); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title); background:var(--card); color:var(--text)">
             <option data-page-node-id="aban7NSMTJJYmgaHe1ZpUZ" value><!--pnid:6zM2RbbOX2eQELXZOmuDL8-->全部类型</option>
             <option data-page-node-id="A3rmTbSaAfris2FRJdDTFP" value="full"><!--pnid:4nLeFaa8GNVrFTJUTNaWdX-->完整🍅</option>
             <option data-page-node-id="rCcpeTdmqKSNYrQ9rKrOws" value="half"><!--pnid:mekIppwC4IRc6LTuxkuuUj-->半个🍅</option>
@@ -696,7 +696,7 @@
   <!--pnid:nBTiD6jbSq0eIerkRrkhv7--><!-- ========== 统计页 ========== -->
   <section data-page-node-id="FgVlsDIKsciAbzzeWBLuq2" class="view" id="view-stats">
     <!--pnid:GJB12Pzu4RlAjpSWhAKIz6--><!-- 统计页二级导航：数据分析 / 种植养成 / 段位战标组队 / 成就（加 sticky，滚动时粘在 .main 顶部不消失） -->
-    <div data-page-node-id="DtI7SXU8rW9cCrSyj57gp6" class="stats-nav" id="statsSubNav" style="margin-bottom:var(--sp-12); position:sticky; top:0; background:var(--bg); z-index:21; padding:var(--sp-6) 0 var(--sp-4); border-bottom:1px solid var(--border)">
+    <div data-page-node-id="DtI7SXU8rW9cCrSyj57gp6" class="stats-nav" id="statsSubNav" style="position:sticky; top:0; background:var(--bg); z-index:21">
       <div data-page-node-id="2WOyOYoPK2ijrvDwQQMEzh" class="stats-nav-item current" data-tab="data" data-act="switchStatsSubTab" data-act-args='["data"]'><!--pnid:58bHRDdEPYu5FHF97FJFBh-->📊 分析</div>
       <div data-page-node-id="Ak4zh5jXRzia8Ma4jLFeol" class="stats-nav-item" data-tab="tree" data-act="switchStatsSubTab" data-act-args='["tree"]'><!--pnid:kZgEtOjJY2lnyynk7kDO2D-->🌳 种树</div>
       <div data-page-node-id="pZ9ooK2KFQIm7rTqwpTF4R" class="stats-nav-item" data-tab="rank" data-act="switchStatsSubTab" data-act-args='["rank"]'><!--pnid:AHoo3hfvFetzjKvMlYq0b0-->⭐ 段位</div>
@@ -717,7 +717,7 @@
     <div data-page-node-id="U25qfOlNotdeXqKftmEn4U" id="statsJumpNav" style="display:flex; gap:var(--sp-6); overflow-x:auto; padding:var(--sp-4) var(--sp-2) var(--sp-8); margin:var(--sp-2) 0 var(--sp-4); -webkit-overflow-scrolling:touch; scrollbar-width:none; position:sticky; top:0; background:var(--bg); z-index:20"></div>
     <div data-page-node-id="b6oVzFRSMergRx9NxfufWn" id="statsJumpNavShadow" style="display:none; height:2px; background:linear-gradient(90deg,transparent,rgba(128,128,128,.25),transparent); margin-bottom:var(--sp-6)"></div>
 
-    <div data-page-node-id="yAXYkoEKBsB39xM0XZiqH8" id="todayAnalysisBox" style="margin-top:var(--sp-10); padding:var(--sp-10); background:var(--bg); border:1px dashed var(--border); border-radius:var(--radius); font-size:var(--fs-title); color:var(--text-light); line-height:1.7">
+    <div data-page-node-id="yAXYkoEKBsB39xM0XZiqH8" id="todayAnalysisBox" style="margin-top:var(--sp-10); padding:var(--sp-10); background:var(--bg); border:1px solid var(--hairline); border-radius:var(--radius); font-size:var(--fs-title); color:var(--text-light); line-height:1.7">
       <b data-page-node-id="bYeDRQRTltrJ6IneAK420x" data-act="toggleTodayAnalysis" style="color:var(--text); font-size:var(--fs-title); cursor:pointer; display:block; padding:var(--sp-2) 0"><!--pnid:IBFnkFNMTkUIqvnY56gbty-->📊 今日分析 <span data-page-node-id="SiFf3fQv5bKBE75tczppes" id="todayAnalysisArrow"><!--pnid:kpkw2zKBODvx7oYAJoY8iv-->▸</span></b>
       <div data-page-node-id="qPvNmTQMVDem8OhlPJPhxL" id="todayAnalysisBody" style="display:none; margin-top:var(--sp-6)"></div>
     </div>
@@ -965,7 +965,7 @@
         <div data-page-node-id="mXo3uvCgahEIZllFLuj7O7" class="species-album-title" data-act="toggleSpeciesAlbum" style="cursor:pointer; user-select:none"><!--pnid:0ONKSIafO6md59bwCaPOaj-->🌳 树种图鉴<span data-page-node-id="r7pn7A5Rbl50p9RWJA0wXa" style="font-size:var(--fs-body); color:var(--text-light); font-weight:400"><!--pnid:3WZTSRElqEZupWi3yz8gAQ-->（点击展开/收起）</span><span data-page-node-id="azPKGQ1uovzLcL1SfUdlIe" style="margin-left:auto; display:flex; align-items:center; gap:var(--sp-6)"><span data-page-node-id="bcavzlODhbkpUHWjmQZ9ax" class="sa-progress" id="speciesAlbumProgress"><!--pnid:XgZLwR0fta7ECdtWE7ZBX5-->0/5 树</span><span data-page-node-id="5C5qTbAlwjin48ve81UcDx" id="speciesAlbumArrow"><!--pnid:QSFu83AdeBA8CPqp3djr47-->▸</span></span></div>
         <div data-page-node-id="FWoAMGwZ93Hvo8AaesUQ7F" id="speciesAlbumList" style="display:none"></div>
       </div>
-      <div data-page-node-id="M1AxeFoNOIjXB4Ei4JWNSF" style="margin-top:var(--sp-10); padding:var(--sp-10); background:var(--bg); border:1px dashed var(--border); border-radius:var(--radius); font-size:var(--fs-title); color:var(--text-light); line-height:1.7">
+      <div data-page-node-id="M1AxeFoNOIjXB4Ei4JWNSF" style="margin-top:var(--sp-10); padding:var(--sp-10); background:var(--bg); border:1px solid var(--hairline); border-radius:var(--radius); font-size:var(--fs-title); color:var(--text-light); line-height:1.7">
         <b data-page-node-id="0zu2gxslPxJld102ghhjY5" data-act="toggleTreeDescBlock" style="color:var(--text); font-size:var(--fs-title); cursor:pointer; display:block; padding:var(--sp-4) 0"><!--pnid:d51zGzN3qmhl0COQees8Zv-->📖 进化说明 <span data-page-node-id="OjbXR1gxNZ5pChWjT1vFG6" id="treeDescArrow"><!--pnid:Z5aEJegdo4CUCPxfNZbndM-->▸</span></b>
         <div data-page-node-id="Lk60QVuoyihD5RlQeUipJa" id="treeDescBody" style="display:none; margin-top:var(--sp-6)"><!--pnid:EojNqyuCy7SKBnonPhW78v-->
           🌱 连续种番茄促进进化，闲置2天以上开始退化，越久退化越狠（3、5、7、9…逐日递增）；退化到种子(0🍅)即枯死，可免费重种或花500🪙复活<br data-page-node-id="Fh0H9zZeN6kwgL2SiuGUYP"><!--pnid:lN7OXIMXUQE18C5DxRWuLC-->
@@ -1034,7 +1034,8 @@
         <div data-page-node-id="3Qm3Mw36cCerh1kUU0gm8d" class="rank-task-row reroll-row" id="rerollBox"></div>
         <div data-page-node-id="5Ml2IPhtJW10FHScod6vc5" class="star-path" id="starPathBox"></div>
       </div>
-      <div data-page-node-id="YC20wSHu0dhM4xSS75PifR" id="rankDescBox" style="margin-top:var(--sp-10); padding:var(--sp-10); background:var(--bg); border:1px dashed var(--border); border-radius:var(--radius); font-size:var(--fs-title); color:var(--text-light); line-height:1.7">
+      <!-- 折叠说明区：与父级同层，用下沉底色 + hairline 顶线分组，不画虚线框 -->
+      <div data-page-node-id="YC20wSHu0dhM4xSS75PifR" id="rankDescBox" style="margin-top:var(--sp-12); padding:var(--sp-10) 0 0; background:transparent; border:0; border-top:1px solid var(--hairline); border-radius:0; font-size:var(--fs-title); color:var(--text-light); line-height:1.7">
         <b data-page-node-id="fD4lLSL7rlyWbhSWUAaheV" data-act="toggleFold" data-act-args='["rankDescBody","rankDescArrow"]' style="color:var(--text); font-size:var(--fs-title); cursor:pointer; display:block; padding:var(--sp-4) 0"><!--pnid:6yKQksz2704Ixbs7qeHdHM-->📌 段位说明 <span data-page-node-id="8QBylMQKKR1qvZvEFwc1r2" id="rankDescArrow"><!--pnid:HMPsf1pasowwvLwUFBr2To-->▸</span></b>
         <div data-page-node-id="IVUeSnJZGgkS1NoXOcpfDw" id="rankDescBody" style="display:none; margin-top:var(--sp-6); font-size:var(--fs-title); line-height:1.7">
           <b data-page-node-id="IZCMe1SB4aEAfF4KNrlH6A" style="color:var(--text)"><!--pnid:5CfedcpjY5ehJvauFiXuLn-->🏅 段位区间</b>
@@ -1155,7 +1156,11 @@
   <section data-page-node-id="wlfYLX8RugyeBDQvSwWauV" class="view" id="view-settings">
     <!-- 设置页导航栏 + 文档按钮 -->
     <div style="display:flex; gap:var(--sp-8); align-items:center; margin-bottom:var(--sp-12); flex-wrap:wrap;">
-      <div style="flex:1; display:flex; gap:var(--sp-6); overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch;">
+      <!-- 导航 chip 行：横向滑动是刻意设计（不占额外高度）。
+         ★ 不要改成 flex-wrap 换行 —— 那样会多占一行高度，破坏了这里的设计。 -->
+      <!-- 右侧渐隐：可滑动区被裁断处如果直接切一刀，看起来像和右边按钮叠在一起；
+           加一层渐隐，缺口感就变成"还能往右滑"而不是"控件坏了"。 -->
+      <div style="flex:1; display:flex; gap:var(--sp-6); overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; margin-right:var(--sp-6); -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%); mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%);">
         <button class="btn-small" data-act="scrollToSettingGroup" data-act-args='["theme"]' style="font-size:var(--fs-note); flex-shrink:0;">🎨 主题</button>
         <button class="btn-small" data-act="scrollToSettingGroup" data-act-args='["immersive"]' style="font-size:var(--fs-note); flex-shrink:0;">🎮 沉浸</button>
         <button class="btn-small" data-act="scrollToSettingGroup" data-act-args='["ghost"]' style="font-size:var(--fs-note); flex-shrink:0;">👻 幽灵</button>
@@ -1177,7 +1182,7 @@
         </div>
         <!-- 【5.4.6 抽卡偏好】固定副本 vs 随机剧本的比例，用户自行决定（0=全随机，100=全固定） -->
         <!-- 【5.4.6 抽卡偏好】默认折叠成一行标题（点开才显示滑杆），与下方剧情副本同款，保持沉浸组清爽 -->
-        <div data-page-node-id="imFixedRow" class="setting-row" style="flex-direction:column;align-items:stretch;gap:0;padding-top:var(--sp-10);border-top:1px dashed var(--border);margin-top:var(--sp-6);">
+        <div data-page-node-id="imFixedRow" class="setting-row" style="flex-direction:column;align-items:stretch;gap:0;padding-top:var(--sp-10);border-top:1px solid var(--border);margin-top:var(--sp-6);">
           <div id="imFixedHead" data-act="toggleImFixedPanel" style="display:flex;align-items:center;justify-content:space-between;gap:var(--sp-8);cursor:pointer;user-select:none;padding:var(--sp-2) var(--sp-2);">
             <span style="font-size:var(--fs-body);font-weight:800;color:var(--text);">🎴 剧本抽取<span id="imFixedChanceVal" style="display:inline-block;margin-left:var(--sp-6);font-size:var(--fs-caption);color:var(--text-light);font-weight:800;"></span></span>
             <span id="imFixedHeadArrow" style="font-size:var(--fs-caption);color:var(--text-light);transition:transform .18s;flex-shrink:0;">▶</span>
@@ -1189,7 +1194,7 @@
           </div>
         </div>
         <!-- 【5.4.6 沉浸式剧情副本 · 导入】默认折叠成一行标题（点开才显示按钮/列表），保证沉浸式组除「开启」开关外保持清爽 -->
-        <div data-page-node-id="ImScRoot" class="setting-row" style="flex-direction:column;align-items:stretch;gap:0;padding-top:var(--sp-10);border-top:1px dashed var(--border);margin-top:var(--sp-6);">
+        <div data-page-node-id="ImScRoot" class="setting-row" style="flex-direction:column;align-items:stretch;gap:0;padding-top:var(--sp-10);border-top:1px solid var(--border);margin-top:var(--sp-6);">
           <div id="imScriptHead" data-act="toggleImportedScriptPanel" style="display:flex;align-items:center;justify-content:space-between;gap:var(--sp-8);cursor:pointer;user-select:none;padding:var(--sp-2) var(--sp-2);">
             <span style="font-size:var(--fs-body);font-weight:800;color:var(--text);">🎬 剧情副本<span id="imScriptCountNote" style="display:inline-block;margin-left:var(--sp-6);font-size:var(--fs-caption);color:var(--primary);font-weight:700;"></span></span>
             <span id="imScriptHeadArrow" style="font-size:var(--fs-caption);color:var(--text-light);transition:transform .18s;flex-shrink:0;">▶</span>
@@ -1321,7 +1326,7 @@
         <div style="font-size:var(--fs-note); color:var(--text-light); line-height:1.5; margin:-2px 0 var(--sp-8); opacity:.85">导出的文件名若显示为一串乱码，是浏览器的下载方式所致，改名为 tomato_backup_当天日期.json 即可，内容不受影响。</div>
         <button data-page-node-id="szNa9JKPGJl1l89Dy2pmNV" class="save-btn" data-act="__clickId" data-act-args='["importFile"]' style="margin-bottom:var(--sp-8); background:var(--blue)"><!--pnid:FV3FpRUUXIN6TA9O5hmFAR-->导入数据（JSON）</button>
         <input data-page-node-id="3uHPA1pvfoX9Mx82wgKhmi" accept=".json" id="importFile" data-change="importData" data-change-args='["@event"]' type="file" style="display:none">
-        <div data-page-node-id="fhJKhrzwtlEfl70CFW6SpZ" style="margin-top:var(--sp-12); padding:var(--sp-10); background:var(--bg); border:1px dashed var(--border); border-radius:var(--radius)">
+        <div data-page-node-id="fhJKhrzwtlEfl70CFW6SpZ" style="margin-top:var(--sp-12); padding:var(--sp-10); background:var(--bg); border:1px solid var(--hairline); border-radius:var(--radius)">
           <div data-page-node-id="dXFCbPDZMPNcX0bkRTVH84" style="font-size:var(--fs-title); font-weight:700; color:var(--text); margin-bottom:var(--sp-4)"><!--pnid:Lusd0QQSstoZVJBs1gDaPN-->🛟 自动备份与恢复</div>
           <div data-page-node-id="ZGCcfkHpcVEKXwyLfyJ1wd" id="autoBackupInfo" style="font-size:var(--fs-title); color:var(--text-light); line-height:1.5; margin-bottom:var(--sp-8)"><!--pnid:YMBjBcNT3JwCRwbnrPOSfL-->暂无自动备份</div>
           <button data-page-node-id="RNhZgCnqnKKJXDG2X2TS6i" class="save-btn" data-act="restoreAutoBackup" style="margin-top:0; padding:var(--sp-8); font-size:var(--fs-title); background:var(--purple)"><!--pnid:hCdefQPMazUWL5mCFzGQq7-->恢复自动备份</button>
@@ -1377,7 +1382,39 @@
             </div>
           </div>
         </div>
-        
+
+        <div class="setting-row">
+          <div class="setting-label">隐私政策
+            <div class="setting-desc">数据全部存在你这台设备上：没有账号、没有服务器、没有埋点</div>
+            <span class="setting-note-toggle" data-act="toggleNote" data-act-args='["@this"]'>展开说明</span>
+            <div class="setting-note-content setting-note-content--sub">
+              <div class="about-ref-title">不收集任何东西</div>
+              <ul class="about-ref-list">
+                <li><b>没有账号</b><span class="about-ref-desc">不用登录，没有手机号邮箱可泄露</span></li>
+                <li><b>没有服务器</b><span class="about-ref-desc">番茄、任务、日记、段位全在本机浏览器里，不上传</span></li>
+                <li><b>没有埋点</b><span class="about-ref-desc">不接统计 SDK、不接广告，你的点击不会被记录</span></li>
+              </ul>
+              <div class="about-ref-title">用到的浏览器权限</div>
+              <ul class="about-ref-list">
+                <li><b>通知</b><span class="about-ref-desc">番茄结束提醒，可随时在浏览器设置关掉</span></li>
+                <li><b>剪贴板</b><span class="about-ref-desc">只在你点「复制」时写入</span></li>
+                <li><b>屏幕常亮</b><span class="about-ref-desc">专注中防止息屏，退出即释放</span></li>
+              </ul>
+              <div class="about-ref-title">什么时候会联网</div>
+              <ul class="about-ref-list">
+                <li><b>打开页面</b><span class="about-ref-desc">托管在 GitHub Pages（平台侧有常规访问日志）</span></li>
+                <li><b>点「查看文档」</b><span class="about-ref-desc">跳转腾讯文档，由你自己决定要不要点</span></li>
+              </ul>
+              <div class="about-ref-title">怎么删数据</div>
+              <ul class="about-ref-list">
+                <li><b>只删数据</b><span class="about-ref-desc">设置 → 数据备份与重置 → 清空全部数据</span></li>
+                <li><b>彻底清除</b><span class="about-ref-desc">浏览器清除本站点数据即可，没有云端副本</span></li>
+              </ul>
+              <div class="setting-desc" style="margin-top:var(--sp-8)">有疑问：B 站「瓶子满天星」私信。</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1491,7 +1528,7 @@
       <span data-page-node-id="N6cpuFeJfWdKWEWShKWdwL"><!--pnid:qW3xR7yZ4vC8bN2mF6jH9g-->👇 内嵌图床（上传后复制直链）</span>
       <button data-page-node-id="lIkwaZEbcRqyaVDzoWiwup" class="btn-small" data-act="__openUrl" data-act-args='["https://imgloc.com/","_blank"]' style="padding:var(--sp-4) var(--sp-10); font-size:var(--fs-note); white-space:nowrap; flex-shrink:0"><!--pnid:jK8pL2dN5xV9mQ3rT7yU1w-->🖥️ 新窗口打开</button>
     </div>
-    <input data-page-node-id="lefCSjHG3J9PkOOmcA2sxb" autocomplete="off" id="skinUrlInput" placeholder="https://.../photo.jpg" type="url" style="width:100%; margin-top:var(--sp-8); padding:var(--sp-8) var(--sp-10); font-size:var(--fs-body); border:2px solid var(--border); border-radius:var(--radius); background:var(--bg); color:var(--text); box-sizing:border-box">
+    <input data-page-node-id="lefCSjHG3J9PkOOmcA2sxb" autocomplete="off" id="skinUrlInput" placeholder="https://.../photo.jpg" type="url" style="width:100%; margin-top:var(--sp-8); padding:var(--sp-8) var(--sp-10); font-size:var(--fs-body); border:1px solid var(--border-strong); border-radius:var(--radius); background:var(--bg); color:var(--text); box-sizing:border-box">
     <div data-page-node-id="7sEIRmYpvYRewMdjqd9E8Z" id="skinUrlTip" style="font-size:var(--fs-caption); margin-top:var(--sp-6); min-height:18px; line-height:1.5"></div>
     <div data-page-node-id="PmhJcdqjqTArJy0aeAF6LS" class="modal-buttons">
       <button data-page-node-id="XOVPDprgkfbqYYopIllUHo" class="modal-btn secondary" data-act="closeModal" data-act-args='["skinUrlModal"]'><!--pnid:kcSpWqfHguBmb8jTt1ZvlZ-->取消</button>
@@ -1624,7 +1661,7 @@
 <div data-page-node-id="V1PXtXIZtSKrxiXon96QMx" class="modal-overlay" id="bioEditModal">
   <div data-page-node-id="kQLHccihgc5meYiUddADqe" class="modal">
     <h3 data-page-node-id="l9XWMD705ygHMFIjaeB42h" id="bioEditTitle"><!--pnid:ALOVqrNDxzGLcz1PArQalh-->✏️ 编辑传记</h3>
-    <textarea data-page-node-id="i1isLUK87ibBJUyIJRpLGn" id="bioEditText" placeholder="写下你想留在这个时刻的话…" style="width:100%; min-height:160px; padding:var(--sp-10); border:2px solid var(--border); border-radius:var(--radius); font-size:var(--fs-body); line-height:1.7"></textarea>
+    <textarea data-page-node-id="i1isLUK87ibBJUyIJRpLGn" id="bioEditText" placeholder="写下你想留在这个时刻的话…" style="width:100%; min-height:160px; padding:var(--sp-10); border:1px solid var(--border-strong); border-radius:var(--radius); font-size:var(--fs-body); line-height:1.7"></textarea>
     <div data-page-node-id="9cXM0W2KBuGriw3uqCvUHD" class="modal-buttons" style="justify-content:flex-end; margin-top:var(--sp-12)">
       <button data-page-node-id="0ba09lEQ26bWjLsgZKQldQ" class="modal-btn secondary" data-act="closeModal" data-act-args='["bioEditModal"]' style="flex:0 0 auto"><!--pnid:5Qo2I4Z2UjV9j1jVoZRmAP-->取消</button>
       <button data-page-node-id="4OL0Q7nQfYUYg6Sm07Lxz6" class="modal-btn primary" data-act="saveBioEdit" style="flex:0 0 auto"><!--pnid:E9H6possp9pwv53qNx8m2K-->💾 保存</button>
@@ -1662,22 +1699,22 @@
     <div data-page-node-id="YSKze2ywuXsVflRxDG1ZBG" class="modal-form-group">
       <label data-page-node-id="wqxCGIG4sBDXOOeUpuJ3eb"><!--pnid:g0RZIBDXOdl9cGo2H7ONPx-->第 1 件事</label>
       <div data-page-node-id="NgaXBHSdFdwOdMmXo3kh6j" style="display:flex; gap:var(--sp-8); align-items:center">
-        <input data-page-node-id="WD029cprQRipwr6Ylumk5c" id="mustDoInput0" placeholder="明天非完成不可的事…" type="text" style="flex:1; min-width:0; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm)">
-        <select data-page-node-id="ldaB1EZN0bCVSaujXvzVNf" id="mustDoEst0" title="预计需要几个番茄" style="width:74px; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm); font-size:var(--fs-body)"></select>
+        <input data-page-node-id="WD029cprQRipwr6Ylumk5c" id="mustDoInput0" placeholder="明天非完成不可的事…" type="text" style="flex:1; min-width:0; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
+        <select data-page-node-id="ldaB1EZN0bCVSaujXvzVNf" id="mustDoEst0" title="预计需要几个番茄" style="width:74px; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-body)"></select>
       </div>
     </div>
     <div data-page-node-id="kblb1yzBv135MsBvkBifIw" class="modal-form-group">
       <label data-page-node-id="8gjyNzAjG4cjIiDG10yfQK"><!--pnid:heGd7Q3JZQauQ0UzUwSbPM-->第 2 件事（可留空）</label>
       <div data-page-node-id="BnvV6gWcwvN9kaKPcHfL6u" style="display:flex; gap:var(--sp-8); align-items:center">
-        <input data-page-node-id="JGcYuZjhlkPNC9iTxi2Kg1" id="mustDoInput1" placeholder="…" type="text" style="flex:1; min-width:0; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm)">
-        <select data-page-node-id="HPoKTuUq7czdvk8hxbqzka" id="mustDoEst1" title="预计需要几个番茄" style="width:74px; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm); font-size:var(--fs-body)"></select>
+        <input data-page-node-id="JGcYuZjhlkPNC9iTxi2Kg1" id="mustDoInput1" placeholder="…" type="text" style="flex:1; min-width:0; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
+        <select data-page-node-id="HPoKTuUq7czdvk8hxbqzka" id="mustDoEst1" title="预计需要几个番茄" style="width:74px; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-body)"></select>
       </div>
     </div>
     <div data-page-node-id="axNGr1VgsEEEdQyLDiVHnY" class="modal-form-group">
       <label data-page-node-id="Tqvwgy4EzW9Lgq9WjE53BC"><!--pnid:dySoAn0hAsQ5LKDbkEW4Fp-->第 3 件事（可留空）</label>
       <div data-page-node-id="WGaiSxKU9SmiqMLvNtb9zy" style="display:flex; gap:var(--sp-8); align-items:center">
-        <input data-page-node-id="rK3xpoVbAICAbQYXUxUCWd" id="mustDoInput2" placeholder="…" type="text" style="flex:1; min-width:0; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm)">
-        <select data-page-node-id="vfb6Z8kYwmg2Jc5Ir28IDL" id="mustDoEst2" title="预计需要几个番茄" style="width:74px; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm); font-size:var(--fs-body)"></select>
+        <input data-page-node-id="rK3xpoVbAICAbQYXUxUCWd" id="mustDoInput2" placeholder="…" type="text" style="flex:1; min-width:0; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
+        <select data-page-node-id="vfb6Z8kYwmg2Jc5Ir28IDL" id="mustDoEst2" title="预计需要几个番茄" style="width:74px; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-body)"></select>
       </div>
     </div>
     <div data-page-node-id="PMkh8Lc6vj2uu9N5LvvTs6" class="modal-buttons" style="justify-content:space-between; align-items:center; margin-top:var(--sp-12)">
@@ -1697,7 +1734,7 @@
     <div data-page-node-id="0DJHWi1tYJj9RRrYBWeifg" id="finishTypeWrap">
       <div data-page-node-id="Az7z0yAprRbFEXQ8hFQzKy" class="modal-form-group">
         <label data-page-node-id="7hTNOwlecTI3KwPTjf4buy" style="margin-bottom:var(--sp-4)"><!--pnid:5gNKcGFLVKy0p4dy3Ea9ia-->番茄类型</label>
-        <select data-page-node-id="JtLg78l53UbaqE0DSnGNCo" id="finishType" data-change="onFinishTypeChange" style="width:100%; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm); font-size:var(--fs-title)">
+        <select data-page-node-id="JtLg78l53UbaqE0DSnGNCo" id="finishType" data-change="onFinishTypeChange" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)">
           <option data-page-node-id="ErFkh5jG0coWpAvXgwFPOT" disabled hidden selected value><!--pnid:VlMhTtWOJ6eQQCcOF8OgzW-->— 请选择 —</option>
           <option data-page-node-id="OLFvI7KUg2ruCBv2cwvZ6y" value="full"><!--pnid:oXSA0GLbzlIRokeMipwyqb-->完整🍅</option>
           <option data-page-node-id="f94mUdE215PxCCgfNU3hE1" value="half"><!--pnid:nbM8dYfEIk3C5xQDjMqOz5-->半个🍅</option>
@@ -2010,33 +2047,33 @@
     <div data-page-node-id="SUQndTen2bLDy56nAWJnoA" style="display:flex; gap:var(--sp-8); margin-bottom:var(--sp-10)">
       <div data-page-node-id="UtowSOV6X5XhvdPpLouD3G" style="flex:1">
         <label data-page-node-id="rib7xQsEHN74oks0p1jH0n" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4); display:block"><!--pnid:6FOBvy3KcjV4BKsubtCmMq-->日期</label>
-        <input data-page-node-id="tw2ktnD0kJ0Y94D0hq4iKP" id="addRecordDate" type="date" style="width:100%; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm)">
+        <input data-page-node-id="tw2ktnD0kJ0Y94D0hq4iKP" id="addRecordDate" type="date" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
       </div>
       <div data-page-node-id="fMsB7NVMdSF9PEmP2Ih0I5" style="flex:1">
         <label data-page-node-id="7Wa938N0HxHkX85Q5fCRwm" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4); display:block"><!--pnid:bbgjUavu0ReSLE3qEUPwsh-->开始时间</label>
         <div data-page-node-id="9gv8RPlriKo1QmBBD2Ipkp" style="display:flex; gap:var(--sp-6); align-items:center">
-          <select data-page-node-id="ntXNjmPTQe6WWaPaeiajJP" id="addRecordHour" data-change="updateAddRecordEnd" style="flex:1; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm); font-size:var(--fs-title)"></select>
+          <select data-page-node-id="ntXNjmPTQe6WWaPaeiajJP" id="addRecordHour" data-change="updateAddRecordEnd" style="flex:1; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)"></select>
           <span data-page-node-id="EEKndqz5fyncTfRqZegMFY" style="font-size:var(--fs-title); color:var(--text-light)"><!--pnid:jkq1TYyJ7xFT4xP9Au8tu5-->:</span>
-          <select data-page-node-id="vilEifrUHdC2OVcX38evwf" id="addRecordMinute" data-change="updateAddRecordEnd" style="flex:1; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm); font-size:var(--fs-title)"></select>
+          <select data-page-node-id="vilEifrUHdC2OVcX38evwf" id="addRecordMinute" data-change="updateAddRecordEnd" style="flex:1; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)"></select>
         </div>
       </div>
     </div>
     <div data-page-node-id="AvkoOLgiePxDVrvmXResCx" class="modal-form-group">
       <label data-page-node-id="pqVS4WKdy5PzGfDALdkZk7" style="margin-bottom:var(--sp-4)"><!--pnid:U6ZUk2QYQIsqkwO0xN6dMG-->任务名称</label>
-      <input data-page-node-id="sS2YWMQH45Nnlj5XyEUNFC" id="addRecordTask" data-focus="__selfSelect" placeholder="未命名任务" type="text" style="width:100%; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm)">
+      <input data-page-node-id="sS2YWMQH45Nnlj5XyEUNFC" id="addRecordTask" data-focus="__selfSelect" placeholder="未命名任务" type="text" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
     </div>
     <!-- 关联计划（选填）：原来只按「任务名精确匹配」找计划，名字差一个字就静默不关联，
          记录在日志里看着像凭空冒出来的。这里给一个显式入口（见 saveAddRecord 的兼容分支）。 -->
     <div data-page-node-id="Rt6YuQwLpKcVn3bXsA9dEf" style="display:flex; gap:var(--sp-8); margin-bottom:var(--sp-10)">
       <div data-page-node-id="Hj2WqZxNvBmLpR7tYcK5Ua" style="flex:1">
         <label data-page-node-id="Mn4TbVgHsPkLqZ8wXrD2Cy" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4); display:block"><!--pnid:Qw7ZxNcVbMkLpRt5YhJ3Ad-->关联计划（选填）</label>
-        <select data-page-node-id="Bv5NcXzLpQwRtYm7KdH2Sf" id="addRecordPlan" data-change="onAddRecordPlanChange" style="width:100%; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm)">
+        <select data-page-node-id="Bv5NcXzLpQwRtYm7KdH2Sf" id="addRecordPlan" data-change="onAddRecordPlanChange" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
           <option value=""><!--pnid:Lp3QwZxVbNcRmKt8YhJ5Dg-->不关联</option>
         </select>
       </div>
       <div data-page-node-id="Ye8JhRtVbNcLmQw3ZdX5Kp" style="flex:1">
         <label data-page-node-id="Cf2GzQwLpRtVbNx7YmK4Hd" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4); display:block"><!--pnid:Rt5YhJbVnLcQwZx9KmP3Df-->子任务（选填）</label>
-        <select data-page-node-id="Nx7KmVbLpQwRtYc4ZhJ6Sd" id="addRecordSub" style="width:100%; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm)">
+        <select data-page-node-id="Nx7KmVbLpQwRtYc4ZhJ6Sd" id="addRecordSub" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
           <option value=""><!--pnid:Qw3ZxVbNcLmRtYk8JhP5Dg-->整条计划</option>
         </select>
       </div>
@@ -2044,11 +2081,11 @@
     <div data-page-node-id="W0Lm9Y1kOf7FRNn8jh16ar" style="display:flex; gap:var(--sp-8); margin-bottom:var(--sp-10)">
       <div data-page-node-id="z2d5lgOK4wuOlprxAoQfDQ" style="flex:1">
         <label data-page-node-id="Oiri6mebTfKF9IUQiduiCU" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4); display:block"><!--pnid:90Qt9iLVOBwq8YgmITwdoN-->专注分钟</label>
-        <input data-page-node-id="aencju1fe53mLl2vGMgxdR" id="addRecordDuration" min="1" data-input="updateAddRecordEnd" type="number" value="25" style="width:100%; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm); text-align:center">
+        <input data-page-node-id="aencju1fe53mLl2vGMgxdR" id="addRecordDuration" min="1" data-input="updateAddRecordEnd" type="number" value="25" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); text-align:center">
       </div>
       <div data-page-node-id="SbJAqz1rP6N6A3wmSpRzTk" style="flex:1">
         <label data-page-node-id="FhXJe4SULPv0GeCt5DmXoX" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4); display:block"><!--pnid:R67NcbQPVPB7eRdzAN4BlO-->类型</label>
-        <select data-page-node-id="xtsMYHgobPTOY56mKPyxfO" id="addRecordType" style="width:100%; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm)">
+        <select data-page-node-id="xtsMYHgobPTOY56mKPyxfO" id="addRecordType" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
           <option data-page-node-id="yeKi0e5n5frFu6peisFSCQ" value="full"><!--pnid:LYBmoMQaAMlhpxUjCteyzW-->完整🍅</option>
           <option data-page-node-id="K6BsZDJCxA462pmB9zmZXH" value="half"><!--pnid:uBou4VlyjjVhBMzz1crJlm-->半个🍅</option>
           <option data-page-node-id="BQ3Qx6hmbw6f8ZtoXFisYd" value="incomplete"><!--pnid:yz7PIbpgZuOJgG8Ca6HmUk-->未完成</option>
@@ -2161,7 +2198,7 @@
     <h3 data-page-node-id="aNVdJwZfIUFv0Z0sRO8ht3" id="countdownModalTitle"><!--pnid:0F6yKrKuqfkjDwJTKMoqHt-->➕ 新增倒数日</h3>
     <div data-page-node-id="s2LU4vtvA8WI4KIzdDmHxV" class="modal-form-group">
       <label data-page-node-id="anW7uw4HpcqZIE244hVqIE"><!--pnid:udZsHy0fFRdBuTE89QRRGV-->图标</label>
-      <select data-page-node-id="LkxPkcLKtcRPKCoRirXLVJ" id="countdownIcon" style="width:100%; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm); font-size:var(--fs-title)">
+      <select data-page-node-id="LkxPkcLKtcRPKCoRirXLVJ" id="countdownIcon" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)">
         <option data-page-node-id="lc9Lztv2Y3OKpyemfztlec" value="📌"><!--pnid:ll2gndlkjvGCDGZjSYkYTb-->📌 重要</option>
         <option data-page-node-id="9eNommfoTzv2mL2V9nyaRG" value="🎂"><!--pnid:sManNe5WceMxxFUGblBTSy-->🎂 生日</option>
         <option data-page-node-id="z5BQRT6MXsqEjXwFAZQwUZ" value="📚"><!--pnid:ijW9LXVWUBNNKMpwKA7YWk-->📚 考试</option>
@@ -2174,15 +2211,15 @@
     </div>
     <div data-page-node-id="TRVckREGJ2bHfBXQxLGOVf" class="modal-form-group">
       <label data-page-node-id="x8tk06OOWMNSseVxQ15VES"><!--pnid:svmsMEVBDTq2RUtaSWt02U-->事件名称</label>
-      <input data-page-node-id="kUIMX5IRFQ1nbE6J8SP3rk" id="countdownTitle" placeholder="例如：考研" type="text" style="width:100%; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm); font-size:var(--fs-title)">
+      <input data-page-node-id="kUIMX5IRFQ1nbE6J8SP3rk" id="countdownTitle" placeholder="例如：考研" type="text" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)">
     </div>
     <div data-page-node-id="BXJOT9qxJFpSjfL0QLemnj" class="modal-form-group">
       <label data-page-node-id="0skf77QnIr1BzQGHZInoPJ"><!--pnid:9MHnTsiYNj0MYO7zS64yEB-->目标日期</label>
-      <input data-page-node-id="RMW6nXljyB1DQ2F2zSwxzz" id="countdownDate" type="date" style="width:100%; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm); font-size:var(--fs-title)">
+      <input data-page-node-id="RMW6nXljyB1DQ2F2zSwxzz" id="countdownDate" type="date" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)">
     </div>
     <div class="modal-form-group">
       <label>备注 <span style="color:var(--text-light);font-weight:400;">（可不填）</span></label>
-      <input id="countdownNote" placeholder="例如：带身份证、提前 30 分钟到" type="text" maxlength="40" style="width:100%; padding:var(--sp-8); border:2px solid var(--border); border-radius:var(--radius-sm); font-size:var(--fs-title)">
+      <input id="countdownNote" placeholder="例如：带身份证、提前 30 分钟到" type="text" maxlength="40" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)">
     </div>
     <div class="modal-form-group">
       <label style="display:flex;align-items:center;gap:var(--sp-8);cursor:pointer;font-weight:600;">
@@ -2337,7 +2374,7 @@
           <input id="myplVol" max="100" min="0" data-input="myplSetVol" data-input-args='["@value/100"]' type="range" value="40">
           <span>🔊</span>
         </div>
-        <div style="margin-top:var(--sp-10); padding-top:var(--sp-8); border-top:1.5px dashed var(--border);">
+        <div style="margin-top:var(--sp-10); padding-top:var(--sp-8); border-top:1px solid var(--border);">
           <div style="font-size:var(--fs-note); font-weight:700; color:var(--text); margin-bottom:var(--sp-6);">➕ 添加歌曲</div>
           <div class="mypl-add-row">
             <input type="text" id="myplInput" placeholder="粘贴网易云歌曲链接或ID，如 1409940952">
@@ -2348,7 +2385,7 @@
             <button class="mypl-batch-btn" data-act="myplBatchImport">📥 批量导入</button>
           </div>
         </div>
-        <div style="margin-top:var(--sp-10); padding-top:var(--sp-8); border-top:1.5px dashed var(--border);">
+        <div style="margin-top:var(--sp-10); padding-top:var(--sp-8); border-top:1px solid var(--border);">
           <div style="font-size:var(--fs-note); font-weight:700; color:var(--text); margin-bottom:var(--sp-4);">🎵 我的歌曲列表</div>
           <div class="mypl-list" id="myplList"></div>
         </div>
