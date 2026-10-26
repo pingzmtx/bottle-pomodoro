@@ -656,10 +656,6 @@
         </div>
       </div>
       <div data-page-node-id="9UwbKf6XnQZO8ZcmSK8aOt" id="logFilterSummary" data-act="toggleLogFilters" style="display:none; font-size:var(--fs-title); color: var(--primary-ink); margin-bottom:var(--sp-6); padding:var(--sp-4) var(--sp-8); background:var(--primary-light); border-radius:var(--radius-xs); cursor:pointer"></div>
-      <!-- 复盘提醒条：该写周/月/年复盘时出现在这里，点一下直接进那一段的编辑态。
-           ★ 原来挂在目标页的提示区，但复盘起手就是「翻这周记了什么」，
-             它属于日记；目标页的提示区只该说目标的事。 -->
-      <div id="logReviewBar"></div>
       <div data-page-node-id="1z9ExvQxcN4stognaaia1y" id="logCountInfo" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4)"></div>
       <!--pnid:sVqF8I0FpXJ5QCjtLTGsE5--><!-- （worklog 聚合）：按任务汇总累计专注时长/番茄，默认收起 -->
       <div data-page-node-id="YWKQ0XqqKwt5CrdQ9wU7iA" id="taskSummaryBox" style="display:none; margin-bottom:var(--sp-10)"></div>
@@ -669,6 +665,11 @@
 
     <!--pnid:G4M1capCR662uJfNpcT5bR--><!-- 每日日记 -->
     <div data-page-node-id="krFFiHYokjsnGyXisMdCuZ" id="logDiaryView" style="display:none">
+      <!-- 复盘提醒条：该写周/月/年复盘时出现在日记页顶部，点一下直接进那一段的编辑态。
+           ★ 它属于「📔 日记」这个标签，不是「🍅 日志」那个 —— 日志页是番茄流水账，
+             日记页是坐下来写字的地方，复盘起手就是翻这里记了什么、写了什么。
+             原来挂在目标页提示区、后来又错挂到日志 tab，两次都放错了地方。 -->
+      <div id="logReviewBar"></div>
       <div data-page-node-id="kq93mXWnNj3jwIybOLmlcu" id="diarySummaryBox" style="margin-bottom:var(--sp-14)"></div>
       <div data-page-node-id="5Hoqj3ASJW0WIvOF3g1nHC" id="diarySingleView"></div>
     </div>
