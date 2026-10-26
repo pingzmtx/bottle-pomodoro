@@ -1397,9 +1397,9 @@ function lifeGridHtml(){const TF=window.TFGoal;const areas=appData.lifeAreas||[]
 +'<span class="lgrid-g">'+escapeHtml(String(g.title||''))+'</span>'
 +(p&&p.measured?'<span class="lgrid-p">'+p.pct+'%</span>':'')
 +'</span>';});h+='</span>';}else{h+='<span class="lgrid-empty" aria-hidden="true">＋</span>';}
-h+='</button>';});h+='</div>';const y=year;const monPlan=appData.lifeMonthPlan||{};h+='<div class="lgrid-mon-h">'+y+' 年的每个月</div>';h+='<div class="lgrid-mon">';for(let mi=1;mi<=12;mi+=1){const mm=(mi<10?'0':'')+mi;const key=y+'-'+mm;const mp=monPlan[key]||{};const t=String(mp.theme||'').trim();const prioN=(mp.prio||[]).filter(function(x){return String(x||'').trim();}).length;h+='<button class="lgrid-mon-c'+(t||prioN?' has':'')+'"'
+h+='</button>';});h+='</div>';const y=year;const monPlan=appData.lifeMonthPlan||{};h+='<div class="lgrid-mon-h">'+y+' 年的每个月</div>';h+='<div class="lgrid-mon">';for(let mi=1;mi<=12;mi+=1){const mm=(mi<10?'0':'')+mi;const key=y+'-'+mm;const mp=monPlan[key]||{};const t=String(mp.theme||'').trim();const prioN=(mp.prio||[]).filter(function(x){return String(x||'').trim();}).length;const isNow=(key===getTodayStr().slice(0,7));h+='<button class="lgrid-mon-c'+(t||prioN?' has':'')+(isNow?' is-now':'')+'"'
 +' data-act="lifeMonPick" data-args=\''+JSON.stringify([key])+'\'>'
-+'<span class="lgrid-mon-n">'+mi+' 月</span>'
++'<span class="lgrid-mon-n">'+mi+' 月'+(isNow?'<i class="lgrid-mon-now">本月</i>':'')+'</span>'
 +(t?'<span class="lgrid-mon-t">'+escapeHtml(t)+'</span>':(prioN?'<span class="lgrid-mon-t is-dim">'+prioN+' 件事</span>':'<span class="lgrid-mon-t is-dim">—</span>'))
 +'</button>';}
 h+='</div>';if(loose.length){h+='<button class="lgrid-c has" data-act="lifeGridPick" data-args=\'["__none"]\'>'
