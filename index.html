@@ -265,7 +265,7 @@
 <meta data-page-node-id="QvAACMTbWxzccKOtGkixTn" content="番茄专注" name="apple-mobile-web-app-title">
 <meta data-page-node-id="vUERiOdt3gUjUmdr1jlNHy" content="black-translucent" name="apple-mobile-web-app-status-bar-style">
 <title data-page-node-id="aLYARGncyQlgcELCiGxuU1" data-pnid-children="3yqjw3HhflXfpy391ah9uQ">番茄专注</title>
-<link id="jyvx-css" rel="stylesheet" href="assets/style.350e43925188.css">
+<link id="jyvx-css" rel="stylesheet" href="assets/style.16d6e6a3f254.css">
 <!-- 启动画面：静态首元素。
      必须写在这里（body 第一个节点、主样式块之后），而不是由 JS 动态创建：
      index.html 单文件里 slot1~slot9 的内联脚本全排在正文之后，等 JS 跑到
@@ -656,6 +656,10 @@
         </div>
       </div>
       <div data-page-node-id="9UwbKf6XnQZO8ZcmSK8aOt" id="logFilterSummary" data-act="toggleLogFilters" style="display:none; font-size:var(--fs-title); color: var(--primary-ink); margin-bottom:var(--sp-6); padding:var(--sp-4) var(--sp-8); background:var(--primary-light); border-radius:var(--radius-xs); cursor:pointer"></div>
+      <!-- 复盘提醒条：该写周/月/年复盘时出现在这里，点一下直接进那一段的编辑态。
+           ★ 原来挂在目标页的提示区，但复盘起手就是「翻这周记了什么」，
+             它属于日记；目标页的提示区只该说目标的事。 -->
+      <div id="logReviewBar"></div>
       <div data-page-node-id="1z9ExvQxcN4stognaaia1y" id="logCountInfo" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4)"></div>
       <!--pnid:sVqF8I0FpXJ5QCjtLTGsE5--><!-- （worklog 聚合）：按任务汇总累计专注时长/番茄，默认收起 -->
       <div data-page-node-id="YWKQ0XqqKwt5CrdQ9wU7iA" id="taskSummaryBox" style="display:none; margin-bottom:var(--sp-10)"></div>
@@ -1709,7 +1713,7 @@
        那 3 条是成就，不是 10% 的完成率。 -->
 <div class="modal-overlay" id="lifeWishModal">
   <div class="modal" id="lifeWishModalBox" style="max-width:480px; text-align:left">
-    <h3 class="lg-modal-head" id="lifeWishTitle">愿望清单</h3>
+    <h3 class="lg-modal-head" id="lifeWishTitle">人生愿望</h3>
     <div id="lifeWishBody"></div>
     <div id="lifeWishFoot"></div>
   </div>

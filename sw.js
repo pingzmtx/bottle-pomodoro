@@ -7,15 +7,15 @@
  * 这个应用改版频繁，缓存优先意味着用户永远停在旧版，还查不出原因。
  * 网络优先：在线时永远拿最新的，离线时才回落到上次的副本。
  *
- * 版本号由 tools/build_site.py 在构建时替换 4cf556a2889c（取 index.html 的 sha256 前 12 位），
+ * 版本号由 tools/build_site.py 在构建时替换 ab380a38d3dd（取 index.html 的 sha256 前 12 位），
  * 每次改动内容都会生成新缓存名，旧缓存随之清掉。不要手改这个占位符。
  */
 
-const BUILD_ID = '4cf556a2889c';
+const BUILD_ID = 'ab380a38d3dd';
 const CACHE = 'bottle-pomodoro-' + BUILD_ID;
 
 /* 预缓存：只要这几个文件齐了，断网也能完整打开 */
-const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.350e43925188.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js", "./fonts/inter-latin.woff2", "./fonts/smiley-sans.woff2", "./fonts/wenkai-regular.woff2", "./icons/icon-192.png", "./icons/icon-512.png"];
+const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.16d6e6a3f254.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js", "./fonts/inter-latin.woff2", "./fonts/smiley-sans.woff2", "./fonts/wenkai-regular.woff2", "./icons/icon-192.png", "./icons/icon-512.png"];
 
 self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
@@ -109,17 +109,26 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // 静态资源：缓存优先（图标、manifest 基本不变）
+  /* 静态资源：先给缓存，同时后台再取一份更新缓存（stale-while-revalidate）。
+     ★ 原来这里是纯缓存优先 —— 每个 BUILD_ID 一代新缓存，看着好像自动过期，
+       实际是「新一代 SW 还没接管时，页面拿到新 index.html + 上一代的 app.js」，
+       于是新功能在页面上凭空消失，用户以为没做。后台补取之后，下一次加载
+       一定读到新脚本；再配合页面里的 controllerchange 刷新，一次发版最多两跳。 */
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const hit = await cache.match(req);
-    if (hit) return hit;
-    try {
-      const fresh = await fetch(req);
+    const net = fetch(req).then((fresh) => {
       if (fresh && fresh.status === 200 && fresh.type === 'basic') {
         cache.put(req, fresh.clone());
       }
       return fresh;
+    });
+    if (hit) {
+      net.catch(() => {});
+      return hit;
+    }
+    try {
+      return await net;
     } catch (err) {
       return new Response('', { status: 504 });
     }
