@@ -265,7 +265,7 @@
 <meta data-page-node-id="QvAACMTbWxzccKOtGkixTn" content="番茄专注" name="apple-mobile-web-app-title">
 <meta data-page-node-id="vUERiOdt3gUjUmdr1jlNHy" content="black-translucent" name="apple-mobile-web-app-status-bar-style">
 <title data-page-node-id="aLYARGncyQlgcELCiGxuU1" data-pnid-children="3yqjw3HhflXfpy391ah9uQ">番茄专注</title>
-<link id="jyvx-css" rel="stylesheet" href="assets/style.7ac7713b3df4.css">
+<link id="jyvx-css" rel="stylesheet" href="assets/style.b478fd3a1868.css">
 <!-- 启动画面：静态首元素。
      必须写在这里（body 第一个节点、主样式块之后），而不是由 JS 动态创建：
      index.html 单文件里 slot1~slot9 的内联脚本全排在正文之后，等 JS 跑到
@@ -322,7 +322,7 @@
            专注页只保留大表盘，信息层级更干净。 -->
       <button data-page-node-id="OshKVyz76Tx8mXntXKk3Zf" class="free-mode-btn" id="freeModeBtn" data-act="toggleFreeMode"><!--pnid:WphRtbmKYJaoUqn1VlKIwg-->⏱ 自由专注</button>
       <div data-page-node-id="ZLZKvHyQzfbwPfnjwmgbIz" id="freeInfo" style="display:none; text-align:center; font-size:var(--fs-note); color:var(--text-light); margin:var(--sp-4) 0"><!--pnid:4vAjdIYDWj21wwQnQMXdIt-->
-        ⏱ 自由专注 · 今日 <b data-page-node-id="Ab6yoW0NSJlSeoqQDunnhg" id="freeTodayMin" style="color:var(--primary)"><!--pnid:z2hm6lph5UOO5TWmXy3I9S-->0</b><!--pnid:U0RU2lUFxNiTlQc22AiPGM--> 分钟
+        ⏱ 自由专注 · 今日 <b data-page-node-id="Ab6yoW0NSJlSeoqQDunnhg" id="freeTodayMin" style="color: var(--primary-ink)"><!--pnid:z2hm6lph5UOO5TWmXy3I9S-->0</b><!--pnid:U0RU2lUFxNiTlQc22AiPGM--> 分钟
         <!--pnid:DAwtPCuj9dJOeD0LOvy8uk--><!-- 自由模式双类型切换（正计时 / Flowtime 流式倒计时） -->
         <div data-page-node-id="O0VIbBiUWknRl7tQurz9gG" class="free-type-switch" id="freeTypeSwitch">
           <button data-page-node-id="59R4XgiKD2QNhQDIEp3SjQ" class="fts-btn active" id="ftsStopwatch" data-act="setFreeType" data-act-args='["stopwatch"]'><!--pnid:DuAOq8IcF9tl4GL6yJlsPG-->⏱ 正计时</button>
@@ -347,7 +347,10 @@
           <div data-page-node-id="tsD61mPhotXm3ONjFADkvJ" class="timer-time" id="timerTime"><!--pnid:S55dAZpTcIuOH7Gd4yz3Qn-->25:00</div>
           <div data-page-node-id="3f2nMgrCgG8n4a3kxu8kfN" class="timer-label" id="timerLabel"><!--pnid:x1BgUndu2u8eHMbtYcaw1E-->准备开始</div>
           <div data-page-node-id="2EiSoBQsN2y4CaWot68xuk" class="timer-todo" id="timerTodo"></div>
-          <div data-page-node-id="ztElBHGu3cvlHmJ6CKtPc5" id="timerPomodoroInfo" style="font-size:var(--fs-title); color:var(--primary); font-weight:700; z-index:1; margin-top:var(--sp-2)"></div>
+          <div data-page-node-id="ztElBHGu3cvlHmJ6CKtPc5" id="timerPomodoroInfo" style="font-size:var(--fs-title); color: var(--primary-ink); font-weight:700; z-index:1; margin-top:var(--sp-2)"></div>
+          <!--pnid:1ZeqrrfoRvsiDgxYLuJr2q--><!-- 模糊计时留在表盘下部：表盘里除了时间只剩「准备开始」，
+              下方本来留着一片空白；它是计时方式的一部分，放回原位正好填住这块，
+              但去掉原来的白底描边块（压着 6px 厚环，像贴歪的便签），只剩一行灰字。 -->
           <div data-page-node-id="XoPExaNfpyfcOpvMSKiytK" class="fuzzy-toggle" id="fuzzyToggle" data-act="toggleFuzzyTimer">
             <span data-page-node-id="fTYkLRZATbumP9kDgm1YHn" class="fuzzy-checkbox"></span>
             <span data-page-node-id="4NnJNabffAaL1TuG45aXNA" class="fuzzy-text"><!--pnid:KWYyCnIJ6BV9VcqTVEMPM0-->模糊计时</span>
@@ -385,9 +388,9 @@
         <button data-page-node-id="3zozeevCDZbLimNVvCUdTc" class="end-session-btn" data-act="startLongBreakFromModal" style="margin-left:var(--sp-8)"><!--pnid:IimNPtMOIMSQqirHsyc7mp-->立即长休息</button>
       </div>
       <div data-page-node-id="zmYCF5aCbpRHVBZs7SaYl8" class="timer-controls">
-        <button data-page-node-id="Vnrufc2Y4eDCSuQKi6vHOL" class="btn btn-start" id="btnStart" data-act="toggleTimer"><span data-page-node-id="32tzbe0iCOGVxx8fG0yvms"><!--pnid:kukiEPiBML8SWFbuKakaX1-->开始</span><span data-page-node-id="L4iPnvcdUNhiP7dpbXpdcG" class="btn-sub"><!--pnid:2HXrrnAHFFEk1LC1D3Kv83-->start</span></button>
-        <button data-page-node-id="rgSsisyxGQkYyvw3VliNnU" class="btn btn-finish" disabled id="btnFinish" data-act="finishPomodoro"><span data-page-node-id="H1TvJ0HxQuRv7iI5LHO8sY"><!--pnid:62tsBX0uLwyXg1QNRpZWB7-->结束番茄</span><span data-page-node-id="lAxQGSUk0cp5oeWNr9qdId" class="btn-sub"><!--pnid:lDEU4tXxQzCfPZsztLYlKw-->finish</span></button>
-        <button data-page-node-id="MjXvXmtpJBX897BystbC5x" class="btn btn-interrupt" disabled id="btnInterrupt" data-act="interruptPomodoro"><span data-page-node-id="l9XXT7tPo6LFfJaCJrzKG9"><!--pnid:Ct13hNTgmvYKxMmwL41ar8-->打断</span><span data-page-node-id="81OSgBrdR01y2nuWG2hiNu" class="btn-sub"><!--pnid:JAke9QOgy8q31EzAk2gYLJ-->break</span></button>
+        <button data-page-node-id="Vnrufc2Y4eDCSuQKi6vHOL" class="btn btn-start" id="btnStart" data-act="toggleTimer"><span data-page-node-id="32tzbe0iCOGVxx8fG0yvms"><!--pnid:kukiEPiBML8SWFbuKakaX1-->开始</span></button>
+        <button data-page-node-id="rgSsisyxGQkYyvw3VliNnU" class="btn btn-finish" disabled id="btnFinish" data-act="finishPomodoro"><span data-page-node-id="H1TvJ0HxQuRv7iI5LHO8sY"><!--pnid:62tsBX0uLwyXg1QNRpZWB7-->结束番茄</span></button>
+        <button data-page-node-id="MjXvXmtpJBX897BystbC5x" class="btn btn-interrupt" disabled id="btnInterrupt" data-act="interruptPomodoro"><span data-page-node-id="l9XXT7tPo6LFfJaCJrzKG9"><!--pnid:Ct13hNTgmvYKxMmwL41ar8-->打断</span></button>
       </div>
       <div data-page-node-id="iu7CDLRS0uyrPViadvSjD7" class="timer-rank-strip" id="timerRankStrip">
         <div data-page-node-id="AGsx9225AkSyae2BmqJgWm" class="trs-left">
@@ -432,7 +435,7 @@
     <div data-page-node-id="HZYzSt0plSZQtOvf8yxN9A" class="current-todo-section">
       <!-- 提示语是「说明」，不是「容器」：去掉整圈描边与卡片底，改成左侧 2px 强调竖线。
            卡片里再套一个带框的盒子，会让读者以为这是一块独立功能区。 -->
-      <div data-page-node-id="sNawpZwVGtgO0bY3hxfBIZ" id="encourageText" style="padding:0 0 0 var(--sp-12); border-left:2px solid var(--primary); font-size:var(--fs-title); line-height:1.6; color:var(--primary); font-weight:var(--fw-medium); margin-bottom:var(--sp-14)"></div>
+      <div data-page-node-id="sNawpZwVGtgO0bY3hxfBIZ" id="encourageText" style="padding:0 0 0 var(--sp-10); border-left:2px solid var(--hairline); font-size:var(--fs-note); line-height:1.6; color:var(--text-light); font-weight:var(--fw-regular); margin-bottom:var(--sp-12)"></div>
       <label data-page-node-id="IXzeRebvdzLh4qFIe9Gsmv" id="currentTodoSelectLabel"><!--pnid:M2kC3Yh9yiYcHcvgFFWJBT-->选择计划（可留空，也可手动输入）</label>
       <select data-page-node-id="hhPV1L7QBEZaocGoAWUWpb" class="current-todo-select" id="currentTodoSelect" data-change="onSelectTodoPlan" data-change-args='["@value"]'>
         <option data-page-node-id="TIQKpzKABRCR70qVcFOMXG" value><!--pnid:XWJ50Ec4WSrkOJKrDHAe4n-->— 手动输入任务 —</option>
@@ -498,23 +501,23 @@
           <!-- 日程网格的展开/收起：**唯一入口**，就放在加号旁边（原先分踞「网格上方」与「网格抬头」两处）。
                文案与 aria-expanded 由 01eA 的 renderTimeBlockGrid() 每次重画时同步；
                状态只有一份（appData.settings.tbGridFolded），别处不要再挂第二个开关。 -->
-          <button class="btn-small tb-paper-fold" id="tbFoldToggle" data-act="tbToggleGridFold" aria-expanded="true" title="展开 / 收起日程网格" style="white-space:nowrap; background:var(--card); color:var(--primary); border-color:var(--primary)">收起</button>
-          <button data-page-node-id="iIxymMYmHrVxa8AoDyltdE" class="btn-small" data-act="openAddTodoModal" title="新增计划" style="background:var(--primary); color:var(--white); width:34px; height:34px; padding:0; font-size:var(--fs-hero); line-height:1; border-radius:var(--radius); flex-shrink:0"><!--pnid:u146PgJc1y3cPIWqfdl3HQ-->＋</button>
+          <button class="btn-small tb-paper-fold" id="tbFoldToggle" data-act="tbToggleGridFold" aria-expanded="true" title="展开 / 收起日程网格" style="white-space:nowrap; background:transparent; color:var(--text-light); border-color:transparent; font-weight:var(--fw-medium)">收起</button>
+          <button data-page-node-id="iIxymMYmHrVxa8AoDyltdE" class="btn-small" data-act="openAddTodoModal" title="新增计划" style="background:var(--fill-primary); color:var(--on-fill); width:34px; height:34px; padding:0; font-size:var(--fs-hero); line-height:1; border-radius:var(--radius); flex-shrink:0"><!--pnid:u146PgJc1y3cPIWqfdl3HQ-->＋</button>
         </div>
       </div>
       <!-- 日程规划网格：**不做成单独一页**，就摆在计划列表上方，跟下面的计划同屏对照 -->
       <div id="tbShellHost" style="margin-bottom:var(--sp-14)"></div>
       <!-- 今日必做（由昨日「明日必做」次日自动带入；带特殊标记，位于计划列表顶部） -->
       <div id="planTodoMustRows" style="margin-bottom:var(--sp-14)"></div>
-      <div data-page-node-id="MXyyS9s2KZRoiJ7UY5zFq5" id="todoPersistHint" style="font-size:var(--fs-body); color:var(--text-light); line-height:1.5; margin:var(--sp-2) 0 var(--sp-10)"><!--pnid:SwxWirCcBS5LI5OHvRbSTT-->未完成的任务会一直保留在这里，直到你完成或手动删除；已勾选完成的会在次日零点自动清掉。</div>
+      <div data-page-node-id="MXyyS9s2KZRoiJ7UY5zFq5" id="todoPersistHint" style="display:none; font-size:var(--fs-caption); color:var(--text-light); line-height:1.6; margin:var(--sp-4) 0 var(--sp-10); padding:var(--sp-8) var(--sp-10); border-radius:var(--radius); background:var(--surface-2)"><!--pnid:SwxWirCcBS5LI5OHvRbSTT-->未完成的任务会一直保留在这里，直到你完成或手动删除；已勾选完成的会在次日零点自动清掉。</div>
       <div data-page-node-id="9b5rwDL56JAOZcUXSsROyU" id="planCountdownList" style="margin-bottom:var(--sp-12)"></div>
       <!-- 周计划日期题头：看非今天时显示「正在看哪天」；看今天时隐藏（界面与改版前一致）。
            内容由 01eC 的 renderTodos 填写（日期状态的宿主是 01eA）。 -->
       <div class="todo-date-caption" id="todoDateCaption" style="display:none"></div>
       <div data-page-node-id="DnEvBbhW6EyPDBSFEU6RkA" class="sort-bar">
-        <button data-page-node-id="XkgyVFZ9GfXcxu5FUupOcw" class="sort-manual-btn active" id="todoSortManual" data-act="setTodoSort" data-act-args='["manual"]' title="手动排序：自己决定谁在前"><!--pnid:3jnmzmsf4DuKdLIyivM61D-->✋ 手动</button>
+        <span class="sort-label">排序</span>
         <select data-page-node-id="6MH0QY2uy2HHgmiDUsVjbq" id="todoSortBy" data-change="setTodoSort" data-change-args='["@value"]'>
-          <option data-page-node-id="BDithDn1Kib0QGdlH3lZKr" value="manual"><!--pnid:6baaEVO8vLOsqmJi2YgxcW-->✋ 手动</option>
+          <option data-page-node-id="BDithDn1Kib0QGdlH3lZKr" value="manual"><!--pnid:6baaEVO8vLOsqmJi2YgxcW-->手动</option>
           <option data-page-node-id="fu2e3w3g7lRC5HICkK7wiS" value="created"><!--pnid:3H9pHwNvI3I4YOwyVlIMbf-->创建时间</option>
           <option data-page-node-id="Wf29qEybAJmp" value="planTime"><!--pnid:l8MznXxFohLk-->计划时间</option>
           <option data-page-node-id="zlYJ7SaMAOQz" value="quad"><!--pnid:kpcodehdDjdW-->四象限</option>
@@ -537,9 +540,8 @@
       </div>
       <div data-page-node-id="O1FvFxZUsd4W8UXIVaFLTL" class="sort-bar">
         <span data-page-node-id="5zl4NWP9mlhF7DDymjmDqg" class="sort-label"><!--pnid:bcQX2TAa5nkfp6doTRAfpS-->排序</span>
-        <button data-page-node-id="SpRf6I2850CTMFNfApkrHp" class="sort-manual-btn active" id="habitSortManual" data-act="setHabitSort" data-act-args='["manual"]' title="手动排序：自己决定谁在前"><!--pnid:p5kIbNKfoqHUkFbDGeWm4a-->✋ 手动</button>
         <select data-page-node-id="T150dxfjiXUF4YTxyBh6td" id="habitSortBy" data-change="setHabitSort" data-change-args='["@value"]'>
-          <option data-page-node-id="FzBEkevPk59vrdXVWPY5UO" value="manual"><!--pnid:ih6LK4exNnlo32yRQIPEOb-->✋ 手动</option>
+          <option data-page-node-id="FzBEkevPk59vrdXVWPY5UO" value="manual"><!--pnid:ih6LK4exNnlo32yRQIPEOb-->手动</option>
           <option data-page-node-id="OjCx9Nf7sPg1E6ALwfngwZ" value="created"><!--pnid:w3vFcDFpZf3MHKIyAszW8T-->创建时间</option>
           <option data-page-node-id="ba0hQdTqef0MK8OmQpp55l" value="streak"><!--pnid:HLrQq2fIRNnBoQDVBhfbIH-->连续天数</option>
           <option data-page-node-id="EDJIRJ2mFndzT8CbPeqYWn" value="points"><!--pnid:vUxTbEp9LcnwGaSUw0lyjN-->成长点数</option>
@@ -553,7 +555,20 @@
     <!-- 计划页二级导航： 目标（必做3件事在上 → 今日专注目标在下，达成领 10🪙） -->
     <div id="planGoalView" style="display:none">
       <div id="planGoalMustDo"></div>
+      <!-- 今日番茄目标 + 领奖励。★ 必须在人生目标之上：
+           每天要用的「领奖励」不能因为新功能被挤到页面最下面（用户 2026-10-26 反馈）。
+           排序原则是「每天用的在上，每周用的在下」。 -->
       <div id="planGoalMain" style="margin-top:var(--sp-14)"></div>
+      <!-- 本周重点 + 周期提示（检查点 / 收尾窗口）。★ 排在人生目标之上：
+           「这周做什么」比「今年做什么」近，打开目标页第一眼该看到的是它。
+           由 01eF_ui_lifecycle.js 渲染；为空时不占高度（innerHTML 是空串）。 -->
+      <div id="lifeWeekFocus" style="margin-top:var(--sp-18)"></div>
+      <!-- 人生目标（年 / 月 / 愿望）。★ 容器名是 lifeGoalsList，不是 planGoalList：
+           planGoal* 是既有 ID 家族（View/MustDo/Main），由 switchPlanTab 与
+           renderGoalPage 统一管理，往里插新成员会让「这 ID 归谁渲染」变含混；
+           更实际的风险是照抄旧名 → 模板写 planGoalList、JS 查 lifeGoalsList，
+           页面上就是一块空白，而且不报错。 -->
+      <div id="lifeGoalsList" style="margin-top:var(--sp-18)"></div>
     </div>
 
     <!-- 计划页二级导航：⏰ 定点休息（由设置页移入；每日最多 4 个时刻，到点提醒休息） -->
@@ -564,7 +579,7 @@
     <div id="planCountdownView" style="display:none">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--sp-14)">
         <div class="section-title" style="margin-bottom:0">📌 倒数日</div>
-        <button class="btn-small" data-act="openAddCountdownModal" style="background:var(--primary); color:var(--white); white-space:nowrap">➕ 添加</button>
+        <button class="btn-small" data-act="openAddCountdownModal" style="background:var(--fill-primary); color:var(--on-fill); white-space:nowrap">➕ 添加</button>
       </div>
       <div class="sort-bar" style="margin:0 0 var(--sp-6);">
         <span class="sort-label">排序</span>
@@ -602,10 +617,10 @@
                点开是日历，有内容的月份/日子带条数，隐藏域 logDateFilter 存
                '' / 'YYYY-MM' / 'YYYY-MM-DD'，筛选按前缀匹配。 -->
           <input data-page-node-id="AgbuNtmT4s0EbqcFQYRC8f" id="logDateFilter" type="hidden" value="">
-          <button data-page-node-id="7KtqY9Nx3WmPc2RvLbAeQ1" class="btn-small log-hd-btn" id="logRangeBtn" data-act="openLogCalendar" title="点开日历：按年 / 月 / 日查看" style="white-space:nowrap; background:var(--card); color:var(--primary); border-color:var(--primary)"><!--pnid:7KtqY9Nx3WmPc2RvLbAeQ1-->📅 全部 ▾</button>
-          <button data-page-node-id="2V3wDPW67LpEIwU1xLIuQm" class="btn-small log-hd-btn" id="logFilterToggleBtn" data-act="toggleLogFilters" style="white-space:nowrap; background:var(--card); color:var(--primary); border-color:var(--primary)"><!--pnid:hTVv0WCIMXXvAeKR2S2BSx-->🔍 筛选</button>
-          <button data-page-node-id="Nk0F1OnqBuZh8adZwS62jS" class="btn-small log-hd-btn" data-act="openAddRecordModal" style="white-space:nowrap; background:var(--primary); color:var(--on-primary); border-color:var(--primary-dark); font-weight:700"><!--pnid:zyGtZxiWU7ScMXvgGaxaHA-->+ 补记</button>
-          <button data-page-node-id="DY45TaIfGF7ELfuc8YIHRt" class="btn-small log-hd-btn" data-act="openReviewModal" style="white-space:nowrap; background:var(--card); color:var(--primary); border-color:var(--primary)"><!--pnid:ep8nB6mwOht75puHIBsYQk-->🧠 回顾</button>
+          <button data-page-node-id="7KtqY9Nx3WmPc2RvLbAeQ1" class="btn-small log-hd-btn" id="logRangeBtn" data-act="openLogCalendar" title="点开日历：按年 / 月 / 日查看" style="white-space:nowrap; background:var(--card); color: var(--primary-ink); border-color:var(--primary)"><!--pnid:7KtqY9Nx3WmPc2RvLbAeQ1-->📅 全部 ▾</button>
+          <button data-page-node-id="2V3wDPW67LpEIwU1xLIuQm" class="btn-small log-hd-btn" id="logFilterToggleBtn" data-act="toggleLogFilters" style="white-space:nowrap; background:var(--card); color: var(--primary-ink); border-color:var(--primary)"><!--pnid:hTVv0WCIMXXvAeKR2S2BSx-->🔍 筛选</button>
+          <button data-page-node-id="Nk0F1OnqBuZh8adZwS62jS" class="btn-small log-hd-btn" data-act="openAddRecordModal" style="white-space:nowrap; background:var(--fill-primary); color:var(--on-fill); border-color:var(--primary-dark); font-weight:700"><!--pnid:zyGtZxiWU7ScMXvgGaxaHA-->+ 补记</button>
+          <button data-page-node-id="DY45TaIfGF7ELfuc8YIHRt" class="btn-small log-hd-btn" data-act="openReviewModal" style="white-space:nowrap; background:var(--card); color: var(--primary-ink); border-color:var(--primary)"><!--pnid:ep8nB6mwOht75puHIBsYQk-->🧠 回顾</button>
         </div>
       </div>
       <div data-page-node-id="b4b8y9B6mUX4gi1XfnO6Yn" id="logFilterPanel" style="display:none; margin-bottom:var(--sp-10)">
@@ -633,7 +648,7 @@
           <button data-page-node-id="8qrpnqXo9XchGJNbAbmrvm" class="btn-small" data-act="clearLogFilters" style="flex:0 0 auto; white-space:nowrap; background:var(--card); color:var(--text-light); border-color:var(--border)"><!--pnid:fbqhWDZtb51K31nzK4WIxx-->清除</button>
         </div>
       </div>
-      <div data-page-node-id="9UwbKf6XnQZO8ZcmSK8aOt" id="logFilterSummary" data-act="toggleLogFilters" style="display:none; font-size:var(--fs-title); color:var(--primary); margin-bottom:var(--sp-6); padding:var(--sp-4) var(--sp-8); background:var(--primary-light); border-radius:var(--radius-xs); cursor:pointer"></div>
+      <div data-page-node-id="9UwbKf6XnQZO8ZcmSK8aOt" id="logFilterSummary" data-act="toggleLogFilters" style="display:none; font-size:var(--fs-title); color: var(--primary-ink); margin-bottom:var(--sp-6); padding:var(--sp-4) var(--sp-8); background:var(--primary-light); border-radius:var(--radius-xs); cursor:pointer"></div>
       <div data-page-node-id="1z9ExvQxcN4stognaaia1y" id="logCountInfo" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4)"></div>
       <!--pnid:sVqF8I0FpXJ5QCjtLTGsE5--><!-- （worklog 聚合）：按任务汇总累计专注时长/番茄，默认收起 -->
       <div data-page-node-id="YWKQ0XqqKwt5CrdQ9wU7iA" id="taskSummaryBox" style="display:none; margin-bottom:var(--sp-10)"></div>
@@ -652,7 +667,7 @@
       <div data-page-node-id="Bke5P5eWe5WwrTCNCXdFw2" class="rank-divider" style="margin-top:0"></div>
       <div data-page-node-id="FDR3xSu9U7pscPuFqiQgzE" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--sp-10)">
         <div data-page-node-id="xpV5haufr9vVY7b9yTjyaC" class="section-title" style="margin-bottom:0"><!--pnid:KbKXi7xEyR0P9ht2Ukqd8I-->📅 日历总览</div>
-        <button data-page-node-id="YO4ueEBSv9BOQ8BGBJNmRh" class="btn-small" data-act="switchLogTab" data-act-args='["bio"]' style="background:var(--card); color:var(--primary); border-color:var(--primary); font-weight:700"><!--pnid:z6fHwTz02yYlT3nQGEmmsY-->📖 看传记</button>
+        <button data-page-node-id="YO4ueEBSv9BOQ8BGBJNmRh" class="btn-small" data-act="switchLogTab" data-act-args='["bio"]' style="background:var(--card); color: var(--primary-ink); border-color:var(--primary); font-weight:700"><!--pnid:z6fHwTz02yYlT3nQGEmmsY-->📖 看传记</button>
       </div>
       <div data-page-node-id="BxZR06WZHP0eNGxzgfhMcb" class="week-chart" style="margin-bottom:var(--sp-14)">
         <div data-page-node-id="86U0rNJUuSD8NAeYdoZJdY" class="calendar-header">
@@ -707,10 +722,10 @@
 
 <div data-page-node-id="jaHwShC7iRDqsWlTbGXiSZ" class="stats-header" id="statsOverview" style="text-align:center; padding:var(--sp-6) 0 var(--sp-4)">
       <div data-page-node-id="NH50m5FOEege7n3DHDjX4N" id="statsDate" style="font-size:var(--fs-title); color:var(--text-light); font-weight:600"><!--pnid:qq1GL39sMU8DzRZ77zCJKn-->今日番茄🍅</div>
-      <div data-page-node-id="RYNeWpIEBgmfPm5KEpz4Oq" class="stats-total" id="statsTotal" style="font-size: calc(104px * var(--fs-boost)); font-weight:900; line-height:1; color:var(--primary); margin:var(--sp-8) 0 var(--sp-6)"><!--pnid:mti5yFf5eFcWjhKubrvKjM-->0</div>
+      <div data-page-node-id="RYNeWpIEBgmfPm5KEpz4Oq" class="stats-total" id="statsTotal" style="font-size: calc(104px * var(--fs-boost)); font-weight:900; line-height:1; color: var(--primary-ink); margin:var(--sp-8) 0 var(--sp-6)"><!--pnid:mti5yFf5eFcWjhKubrvKjM-->0</div>
       <div data-page-node-id="forVBUwkEWJai8GXxMwMeR" id="statsStreak" style="font-size:var(--fs-hero); font-weight:700"><!--pnid:hR2CLx4IvaHIejvCURbS0F-->🔥 连续 0 天</div>
       <div data-page-node-id="dq2V7Lv27VekWwXpS2XeiN" id="statsTierLabel" style="display:none; font-size:var(--fs-body); font-weight:800; margin-top:var(--sp-4)"></div>
-      <div data-page-node-id="YAlwVhwkxqEkLE467eeMPy" id="statsWeekInfo" style="font-size:var(--fs-title); color:var(--text-light); margin-top:var(--sp-10); line-height:1.6"><!--pnid:YZOHduFcoMVbD6vY28DgiU-->本周已消耗 <span data-page-node-id="FDyhOf1IlAVSpezyuRqdkZ" id="weekSpentCount" style="color:var(--text-light); font-weight:800"><!--pnid:RckHrb0BRJDPZIj3EM51TZ-->0</span><!--pnid:1xuv8ZXqq2dAbw0MiDPy6d--> 个🍅 ｜ 可消耗 <span data-page-node-id="5moflsZl1xViGnLAUeqEzc" id="weekAvailCount" style="color:var(--green); font-weight:800"><!--pnid:yyP6AKU4cdiCcyLgbTq5QV-->0</span><!--pnid:ZGm2KaHR9KyBB11xyNrNqW--> 个🍅</div>
+      <div data-page-node-id="YAlwVhwkxqEkLE467eeMPy" id="statsWeekInfo" style="font-size:var(--fs-title); color:var(--text-light); margin-top:var(--sp-10); line-height:1.6"><!--pnid:YZOHduFcoMVbD6vY28DgiU-->本周已消耗 <span data-page-node-id="FDyhOf1IlAVSpezyuRqdkZ" id="weekSpentCount" style="color:var(--text-light); font-weight:800"><!--pnid:RckHrb0BRJDPZIj3EM51TZ-->0</span><!--pnid:1xuv8ZXqq2dAbw0MiDPy6d--> 个🍅 ｜ 可消耗 <span data-page-node-id="5moflsZl1xViGnLAUeqEzc" id="weekAvailCount" style="color: var(--green-ink); font-weight:800"><!--pnid:yyP6AKU4cdiCcyLgbTq5QV-->0</span><!--pnid:ZGm2KaHR9KyBB11xyNrNqW--> 个🍅</div>
     </div>
 
     <!--pnid:Qdk3TjOWfQp9ubOCiZLkwi--><!-- 统计子板块快速跳转导航 -->
@@ -727,10 +742,10 @@
       <div data-page-node-id="zmpbq4apwX2ZgYUnpz2n9v" class="stats-card"><div data-page-node-id="T1OXjcwcE7HtexvhKgHnH3" class="card-num tomato-half" id="statHalf"><!--pnid:7eCgLYpmIjRFDiMWIEnxb4-->0</div><div data-page-node-id="iay1MlDOU8dp74ud1UEDeS" class="card-label"><!--pnid:lbkIoomC06wHa2ZdqnvLsE-->半个🍅</div></div>
       <div data-page-node-id="J0xMsC2Ufxk1ezETcDdOIs" class="stats-card"><div data-page-node-id="7qvLtQwfmvVN6rcdddu7Hx" class="card-num" id="statFocus"><!--pnid:pDVjWoGoQ7Sd9yLPcYQhsM-->0</div><div data-page-node-id="oZEIFsAFjPTIHu3QAALr1x" class="card-label"><!--pnid:oxFTwetsLwKOUFs3wEaYTq-->专注分钟</div></div>
       <div data-page-node-id="gYu7hivflomoZdaaD8J4Qd" class="stats-card"><div data-page-node-id="DDwZgVEYp4egYKpDCkVS8n" class="card-num tomato-interrupt" id="statInterrupt"><!--pnid:QnPc3nByijTW2j9DjuJWqZ-->0</div><div data-page-node-id="bE3lLGFdy8d8EGL2HVD1RV" class="card-label"><!--pnid:OFCFFegaZuMWE1CsSmW1Mw-->打断次数</div></div>
-      <div data-page-node-id="zmquR9JdrvppYAgBftf7oN" class="stats-card"><div data-page-node-id="4iOfueGny9YWqEivFgTVSI" class="card-num" id="statEfficiency" style="color:var(--green)"><!--pnid:ho3hScghT1ULNFCLDuKufv-->--</div><div data-page-node-id="zQjtLVCec64JWljT454WhD" class="card-label"><!--pnid:Y2dE87P52thMOzNLsGXFdZ-->专注效率</div></div>
+      <div data-page-node-id="zmquR9JdrvppYAgBftf7oN" class="stats-card"><div data-page-node-id="4iOfueGny9YWqEivFgTVSI" class="card-num" id="statEfficiency" style="color: var(--green-ink)"><!--pnid:ho3hScghT1ULNFCLDuKufv-->--</div><div data-page-node-id="zQjtLVCec64JWljT454WhD" class="card-label"><!--pnid:Y2dE87P52thMOzNLsGXFdZ-->专注效率</div></div>
       <div data-page-node-id="Ho7nI0c0V4ufzHZnOElHYn" class="stats-card"><div data-page-node-id="L7rkHNi3VeCTkOYT80Iq1g" class="card-num" id="statAvgDur" style="color:var(--purple)"><!--pnid:AyNaLitALROzU046zQk3uu-->--</div><div data-page-node-id="tUUK7ybAyzY2f2vQZu9Au2" class="card-label"><!--pnid:2sahXZgHafJv4GRhwSBnx1-->平均专注时长</div></div>
-      <div data-page-node-id="I8Ewu89GL3jGno13ZnUreS" class="stats-card"><div data-page-node-id="Z7vo6rAr65WkMqB6dklZy3" class="card-num" id="statEnergy" style="color:var(--blue)"><!--pnid:N4fsTUTSbY3q0YSNWBwVrQ-->--</div><div data-page-node-id="MV23hn6WedkNt2kkJ3SxZm" class="card-label"><!--pnid:VrTZ2VHFiPK8m947Usdknn-->平均身心电量</div></div>
-      <div data-page-node-id="jmmiIKim6UMIN0P9q7Ty2e" class="stats-card"><div data-page-node-id="SjDtPXCIgKHBc7AVzVT3Ch" class="card-num" id="statPleasure" style="color:var(--yellow-dark)"><!--pnid:xMkXI9hzqPL3zCxl4VCH5J-->--</div><div data-page-node-id="AgMJG2ewimYQQcvVJ4D7Ew" class="card-label"><!--pnid:TWqY4TIiRz3UtkZW8sVc8A-->平均愉悦值</div></div>
+      <div data-page-node-id="I8Ewu89GL3jGno13ZnUreS" class="stats-card"><div data-page-node-id="Z7vo6rAr65WkMqB6dklZy3" class="card-num" id="statEnergy" style="color: var(--blue-ink)"><!--pnid:N4fsTUTSbY3q0YSNWBwVrQ-->--</div><div data-page-node-id="MV23hn6WedkNt2kkJ3SxZm" class="card-label"><!--pnid:VrTZ2VHFiPK8m947Usdknn-->平均身心电量</div></div>
+      <div data-page-node-id="jmmiIKim6UMIN0P9q7Ty2e" class="stats-card"><div data-page-node-id="SjDtPXCIgKHBc7AVzVT3Ch" class="card-num" id="statPleasure" style="color: var(--yellow-ink)"><!--pnid:xMkXI9hzqPL3zCxl4VCH5J-->--</div><div data-page-node-id="AgMJG2ewimYQQcvVJ4D7Ew" class="card-label"><!--pnid:TWqY4TIiRz3UtkZW8sVc8A-->平均愉悦值</div></div>
     </div>
 
     <!--pnid:nUUhqomMShqKnfOYjVkf9w--><!-- 本周 vs 上周 对比 -->
@@ -830,7 +845,7 @@
       <h3 data-page-node-id="rgIkmTSdZuXlfFmO1MBxFA" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--sp-6)">
         <span data-page-node-id="MsT0gUhKFOLmLWkoDgdFIC"><!--pnid:VrMVqAsJ4eYnT146z1v43W-->📊 月度专注统计 <span data-page-node-id="98Qe8xiWObremhCec9ALj0" id="monStatTitle"><!--pnid:kWWR7hb0lFtE2m9wSyGHew-->2026年08月</span></span>
         <span data-page-node-id="tRPTxdzFrhVD6bIr2zaCBH" style="display:flex; gap:var(--sp-4); align-items:center">
-          <button data-page-node-id="ObR64wv0xIiIAT4hGtEM2l" class="btn-small" data-act="openMonthPicker" title="选择月份" style="background:var(--card); color:var(--primary); border-color:var(--primary); padding:var(--sp-2) var(--sp-8)"><!--pnid:VpBszPxDCCBB9LndjL0jAr-->📅</button>
+          <button data-page-node-id="ObR64wv0xIiIAT4hGtEM2l" class="btn-small" data-act="openMonthPicker" title="选择月份" style="background:var(--card); color: var(--primary-ink); border-color:var(--primary); padding:var(--sp-2) var(--sp-8)"><!--pnid:VpBszPxDCCBB9LndjL0jAr-->📅</button>
           <button data-page-node-id="MZYFqbovIaDJAtm8pOnils" class="btn-small" data-act="monStatShift" data-act-args='["-1"]' title="上一个月" style="padding:var(--sp-2) var(--sp-8)"><!--pnid:8MOBWN2MZgy9BAdrrPVcE6-->‹</button>
           <button data-page-node-id="7yAIBCySMVMMkSYJAZVYCM" class="btn-small" data-act="monStatShift" data-act-args='["1"]' title="下一个月" style="padding:var(--sp-2) var(--sp-8)"><!--pnid:TMZVOQKtVrlizIY43yGSvs-->›</button>
         </span>
@@ -879,7 +894,7 @@
       <!--pnid:lEyjpatMB8pwfQxC4QwozC--><!-- 连续专注天数断了 → 商城恢复卡指引 -->
       <div data-page-node-id="q5n1VA0meebLHLRfcuP4VW" id="streakBreakBanner" style="display:none; margin-top:var(--sp-10); padding:var(--sp-10) var(--sp-12); background:var(--bg); border:2px dashed #E53935; border-radius:var(--radius); font-size:var(--fs-body); color:var(--text); line-height:1.5; text-align:center"><!--pnid:brD8GVN0ddlDfUNPWjxhuh-->
         📉 你的连续专注天数断了！
-        <button data-page-node-id="x2XakOJGB5fU99tn5XuZd1" class="btn-small" data-act="goBuyStreakRecover" style="display:block; margin:8px auto 0; background:var(--primary); color:var(--white); border:none; border-radius:var(--radius); padding:var(--sp-6) var(--sp-14); font-size:var(--fs-body); font-weight:800"><!--pnid:4wOfSNw7xgYoOin6VJCDsI-->🛍️ 去商城买「连续天数恢复卡」</button>
+        <button data-page-node-id="x2XakOJGB5fU99tn5XuZd1" class="btn-small" data-act="goBuyStreakRecover" style="display:block; margin:8px auto 0; background:var(--fill-primary); color:var(--on-fill); border:none; border-radius:var(--radius); padding:var(--sp-6) var(--sp-14); font-size:var(--fs-body); font-weight:800"><!--pnid:4wOfSNw7xgYoOin6VJCDsI-->🛍️ 去商城买「连续天数恢复卡」</button>
         <div data-page-node-id="dyWkg0kuDUwQ3NBk3Keuwe" style="font-size:var(--fs-caption); color:var(--text-light); margin-top:var(--sp-4)"><!--pnid:7oeOcQolDpDSBR5yg1HGAj-->断掉后 3 天内使用恢复卡，可找回连续天数</div>
       </div>
       <div data-page-node-id="2vIhIB2HmHyc970QnklEeb" class="tree-lottery" id="treeLotteryBox">
@@ -973,15 +988,15 @@
           🌱 连续种番茄促进进化，闲置2天以上开始退化，越久退化越狠（3、5、7、9…逐日递增）；退化到种子(0🍅)即枯死，可免费重种或花500🪙复活<br data-page-node-id="Fh0H9zZeN6kwgL2SiuGUYP"><!--pnid:lN7OXIMXUQE18C5DxRWuLC-->
           累计种出40个番茄您的树苗可以到计时界面陪伴你哦～<br data-page-node-id="gXeWMYgkd3eYrPvwczsE6z"><!--pnid:UvmaREGNQR1yXamslMeozN-->
           种子(0)→嫩芽(10)→幼苗(25)→小树(40)→大树(60)→茂盛(80)→古树(100)→神树(150)→世界树(200)<br data-page-node-id="xX2lgTvqTh8SZMKGDheqs9"><br data-page-node-id="AO3hFAQoIZ22Rjurk87Wer">
-          <b data-page-node-id="PsvNAqVgcCm8Pj17sqGndz" style="color:var(--green-dark)"><!--pnid:bYIRP0piSKPyP8nefGuYL4-->🌿 树种系统：</b><!--pnid:w25we3hfHlqBIfGs4EynuZ-->达到指定点数解锁特殊树种，不同树种有独特外观<br data-page-node-id="RRLMW9Buw0sM9tZYDlGLgz"><!--pnid:rYCbCDojnGV2K0rinxx0jX-->
+          <b data-page-node-id="PsvNAqVgcCm8Pj17sqGndz" style="color: var(--green-ink)"><!--pnid:bYIRP0piSKPyP8nefGuYL4-->🌿 树种系统：</b><!--pnid:w25we3hfHlqBIfGs4EynuZ-->达到指定点数解锁特殊树种，不同树种有独特外观<br data-page-node-id="RRLMW9Buw0sM9tZYDlGLgz"><!--pnid:rYCbCDojnGV2K0rinxx0jX-->
           番茄树(0)→樱花树(50)→金松树(100)→星辰树(150)→生命之树(200)<br data-page-node-id="SkxZygaVgvZ4Q2nP907B8k"><br data-page-node-id="DINU8zIMwtAhEuZMjvNiGl">
           <b data-page-node-id="1OF1vQkXG9uILf42u3PRFP" style="color:var(--text)"><!--pnid:kbULokJ5cFpdYj5EiAfFth-->🍅 果实收集：</b><!--pnid:BKXPli7twC7kCeh7J318nG-->每次树进化到新阶段自动获得1个🍅果实，纯纪念品不影响积分平衡<br data-page-node-id="GgWIGRoT8Fv8ZD3Ej19bZS"><br data-page-node-id="Ifctj8nTf9XEGChNX1LrS4">
-          <b data-page-node-id="5RhtZ81zWyydHOHOFlCxQG" style="color:var(--yellow-dark)"><!--pnid:56pBUni5O2JY163sI9SSzd-->🏅 称号系统：</b><!--pnid:7RIMVXfZhuwYHc91hk0P2A-->按历史最高积分累计成长称号（退化不影响）<br data-page-node-id="JMd3RcZjodgdgtzGpUEbsZ"><!--pnid:nRMux6aAFminPj0sZvv9Et-->
+          <b data-page-node-id="5RhtZ81zWyydHOHOFlCxQG" style="color: var(--yellow-ink)"><!--pnid:56pBUni5O2JY163sI9SSzd-->🏅 称号系统：</b><!--pnid:7RIMVXfZhuwYHc91hk0P2A-->按历史最高积分累计成长称号（退化不影响）<br data-page-node-id="JMd3RcZjodgdgtzGpUEbsZ"><!--pnid:nRMux6aAFminPj0sZvv9Et-->
           🍃新芽园丁(0)→🌿青苗学徒(10)→🌾育苗师(25)→🌳护林员(40)→🌲育林师(60)→🌴园艺师(80)→🏔️古木守望者(100)→✨神树使者(150)→🌐世界树之主(200)→🌌森之贤者(300)→🌍自然之灵(400)<br data-page-node-id="sXBPorFj1WzL2u5NyodAsK"><br data-page-node-id="wpFdFo8xFI43Lt9n6ywgIU">
           <b data-page-node-id="VyqIEhEOWJGBWUvgoVKrxz" style="color:var(--blue-dark)"><!--pnid:kjRVqesV2QVkQOhTHdknvA-->✨ 无限成长：</b><!--pnid:YBhVv3ALbBGppQMjrWasdW-->世界树(200)之后每50点长一圈🪵年轮，年轮会一圈圈真实排布出来，称号随圈数进阶（初轮→成木→十载→廿载古木→永恒树心）<br data-page-node-id="KxXuOVtjdyzHyQYXpRJ3FR">
           <b data-page-node-id="0znQswGxE5pTBDlC0MbonH" style="color:var(--blue-dark)"><!--pnid:JU0nPNtsAyleqiOdx35vgx-->🏅 荣誉阶梯：</b><!--pnid:E9LBgA6gLHjHDPFpOYRmNa-->累计 5 / 10 / 20 / 50 圈年轮 → 🌿成木 → 🌳十载 → 🌲廿载古木 → ♾️永恒树心（之后每 50 圈再进一阶）。<b data-page-node-id="B3bqOvPqzDlLNaBH4Q4x8h" style="color:var(--text-light)"><!--pnid:bypojYIOFmwzmbWF8kSQqg-->纯荣誉，无任何数值加成</b><br data-page-node-id="WwrOO3pZNLzblbyckBMvEG"><br data-page-node-id="SES9oZWAbQznIG1FbCeHR9">
           <b data-page-node-id="U9sfe7EWWyiicMUCpQ6TEm" style="color:var(--purple)"><!--pnid:35qMJyOvwKObfDJ02rg7vI-->💧 每日浇水：</b><!--pnid:WMrIuASrh1Tx460O2GsvUR-->每天可浇水1次，连续7天获得一颗💧露珠徽章（纯纪念，不参与积分）<br data-page-node-id="ucn4Zg87ajVrNOsxvOBFco"><br data-page-node-id="tibzVmSxGdTbSsdwtu3zVP">
-          <b data-page-node-id="RJVrPD8BAArU8t1mKTTijr" style="color:var(--green-dark)"><!--pnid:hCEihTgT5d91WBuRh8rITW-->🎁 成长图鉴：</b><!--pnid:x8f5O5YFgHrxvb92gX5hDL-->记录树的9个成长阶段，全部点亮达成「万物园丁」成就<br data-page-node-id="65PtHC4is4Sd6Z4zWUuFTg"><br data-page-node-id="1woG4jmkoknZNkrMxlm45S">
+          <b data-page-node-id="RJVrPD8BAArU8t1mKTTijr" style="color: var(--green-ink)"><!--pnid:hCEihTgT5d91WBuRh8rITW-->🎁 成长图鉴：</b><!--pnid:x8f5O5YFgHrxvb92gX5hDL-->记录树的9个成长阶段，全部点亮达成「万物园丁」成就<br data-page-node-id="65PtHC4is4Sd6Z4zWUuFTg"><br data-page-node-id="1woG4jmkoknZNkrMxlm45S">
           <b data-page-node-id="Sg6JNAy3mEDUBoWRvXJgDK" style="color:var(--blue-dark)"><!--pnid:50r7NdCLMftOA5rmHzuzDf-->四季轮转与树种推荐：</b><br data-page-node-id="XUrIp84cH1VQGliQOUmFmo"><!--pnid:tYVmrPQafqGlH9rrYX5U1j-->
           🌸 春 → 樱花树（春樱盛开）<br data-page-node-id="tgTokgRwjGAmm7qdBWbGJx"><!--pnid:hIgYXEUPbkMdbKyyRDn3cv-->
           ☀️ 夏 → 番茄树（生机旺盛）<br data-page-node-id="a0GGCT8Kdth0ZyiLs5Qqnj"><!--pnid:2omNFZfQH4Bq3gwrtOCM7L-->
@@ -1023,12 +1038,12 @@
         <div data-page-node-id="Kv8Yx8W92S1vorQ0Fxh8ue" class="rank-extras" id="rankExtras"></div>
       </div>
       <div data-page-node-id="JzYp5z9HPEuU3KvvKtNv84" class="rank-task-card" id="rankTaskCard">
-        <div data-page-node-id="aEqTm1TLoVztaRYcZClHnf" class="rank-task-title"><!--pnid:a6MQydMdCL8DQl2VSB28f1-->📋 今日任务<span data-page-node-id="FSz7jKzwZHMk8pUZX9J4Yn" id="easyModeTag" style="display:none; margin-left:var(--sp-8); font-size:var(--fs-caption); color:var(--green-dark); background:var(--ok-bg); padding:var(--sp-2) var(--sp-8); border-radius:var(--radius); font-weight:800; vertical-align:2px"><!--pnid:Gsbe8v3xWFXnp0RplMkWY0-->🍃 轻松模式</span></div>
+        <div data-page-node-id="aEqTm1TLoVztaRYcZClHnf" class="rank-task-title"><!--pnid:a6MQydMdCL8DQl2VSB28f1-->📋 今日任务<span data-page-node-id="FSz7jKzwZHMk8pUZX9J4Yn" id="easyModeTag" style="display:none; margin-left:var(--sp-8); font-size:var(--fs-caption); color: var(--green-ink); background:var(--ok-bg); padding:var(--sp-2) var(--sp-8); border-radius:var(--radius); font-weight:800; vertical-align:2px"><!--pnid:Gsbe8v3xWFXnp0RplMkWY0-->🍃 轻松模式</span></div>
         <div data-page-node-id="hCwpXzB9ZHYvybxhTPby9S" class="rank-task-row">
           <span data-page-node-id="njLDUhz68RNrbKDoo5EMn0" class="rank-task-progress" id="rankTaskProgress"><!--pnid:N6hQumVrOZoA6SiUdC6gc6-->完成 0/3 个番茄</span>
           <span data-page-node-id="VTFL1IaBQo190YWcetgZvx" class="rank-task-status" id="rankTaskStatus"><!--pnid:JkvkOiHYim7oVYXfQGnjJN-->进行中</span>
         </div>
-        <div data-page-node-id="34oGb8rqp8kaL87jLmAI4N" class="rank-task-avail" id="rankTaskAvail" style="font-size:var(--fs-body); color:var(--green-dark); font-weight:700; margin:var(--sp-4) 0 var(--sp-2)"></div>
+        <div data-page-node-id="34oGb8rqp8kaL87jLmAI4N" class="rank-task-avail" id="rankTaskAvail" style="font-size:var(--fs-body); color: var(--green-ink); font-weight:700; margin:var(--sp-4) 0 var(--sp-2)"></div>
         <div data-page-node-id="1h9CqgSqFWJCJhdOS6Wyf7" id="ghostBar" style="margin-top:var(--sp-2)"></div>
         <div data-page-node-id="evykdQHCQfOpTKRyr5OAR5" class="rank-drop-warn" id="rankDropWarn"></div>
         <!--pnid:TRU5rpT5s7y9qKFvlfq61B--><!-- 每日签到（完成番茄后可签 +10🪙，累计 7 天解锁成就） -->
@@ -1078,7 +1093,7 @@
           <b data-page-node-id="VTPs3d0Efg7jSBbP8lh2cM" style="color:var(--text)"><!--pnid:uVoox0PFLiclgYgaM3z0BO-->📌 须知</b><br data-page-node-id="U6MPvn0RR5GI4S6MuIBjFs">
           <span data-page-node-id="JgTJrub4CAi3Shk8NqrNC3" style="display:block"><!--pnid:Oo5n0q1x059QqmSX8cBi3h-->花的🍅 从今日进度扣除（烧进度）· 每天一次 · 不可撤销 · 不能延后 · 同时扣本周战力标（其他统计不受影响）。</span>
           <b data-page-node-id="6qzOYVvRcMNn7MOFLQGS6q" style="color:var(--text)"><!--pnid:k7KZoPvMRq9IOk2SOgeHOG-->📌 当前状态</b><br data-page-node-id="gMhph3WCIBvNzf2HWcMwG3">
-          <span data-page-node-id="q2PLrgTW8qsQ6f0L99mz45" style="display:block"><!--pnid:NdjDTTZJ1nKo8Syq8VCmmt-->今日已得 <b data-page-node-id="HETvSrbc6aWixTHidqnjRf" id="rrGot" style="color:var(--green)"><!--pnid:1g2Rr5JP2eeC4oKZ20xPrn-->0 ⭐</b><!--pnid:r6q3DNYM4YftkMr0V49nJF--> · 本周可用 <b data-page-node-id="PY1GScYSrVNGUMJpi5bQBL" id="rrAvail" style="color:var(--green)"><!--pnid:i5V77UY7isJtFEBncIBlD8-->0</b><!--pnid:foMYUepRJJPaHRwRb5Zz2q--> 🍅 · 今日已下注 <b data-page-node-id="kdp454FNK8hvAOo5CblbF7" id="rrCount"><!--pnid:dBYDHhvIvp8FWMXhEpOraG-->0</b><!--pnid:YhDtBpb2ze4bFYS6DKwBfS--> 次</span>
+          <span data-page-node-id="q2PLrgTW8qsQ6f0L99mz45" style="display:block"><!--pnid:NdjDTTZJ1nKo8Syq8VCmmt-->今日已得 <b data-page-node-id="HETvSrbc6aWixTHidqnjRf" id="rrGot" style="color: var(--green-ink)"><!--pnid:1g2Rr5JP2eeC4oKZ20xPrn-->0 ⭐</b><!--pnid:r6q3DNYM4YftkMr0V49nJF--> · 本周可用 <b data-page-node-id="PY1GScYSrVNGUMJpi5bQBL" id="rrAvail" style="color: var(--green-ink)"><!--pnid:i5V77UY7isJtFEBncIBlD8-->0</b><!--pnid:foMYUepRJJPaHRwRb5Zz2q--> 🍅 · 今日已下注 <b data-page-node-id="kdp454FNK8hvAOo5CblbF7" id="rrCount"><!--pnid:dBYDHhvIvp8FWMXhEpOraG-->0</b><!--pnid:YhDtBpb2ze4bFYS6DKwBfS--> 次</span>
         </div>
       </div>
     </div>
@@ -1112,7 +1127,7 @@
 
     <!--pnid:mKxzdRlIscmoHYQC5nygHC--><!-- 每周战标 -->
     <div data-page-node-id="qBpWU9ZazC9kSvfG6CBwK7" class="week-chart" id="statsBadges" style="margin-top:0">
-      <h3 data-page-node-id="LzmeWdN9GdUiPS3VHi5MMv"><!--pnid:VlClSCN9KxhBCvBPbWwNCW-->🎖️ 每周战标 <span data-page-node-id="19xA2FXfxFV6kXqenKPTd5" style="font-size:var(--fs-title); color:var(--text-light); font-weight:400; float:right"><!--pnid:fiTNnQQL0TStfdnmASnLrS-->完成 <span data-page-node-id="842veRhKK3NlvlGBKqoUq9" id="weekTomatoCount" style="color:var(--primary); font-weight:700"><!--pnid:EifL5ahIcKr96lvbmcNs0X-->0</span><!--pnid:8LNdjU5fzLNTPyQZr9cJQC-->🍅 · 持有 <span data-page-node-id="quBNbzTJzrFUhYuQPStnD8" id="weekTomatoHeld" style="font-weight:700"><!--pnid:Jk25wOIMdMI2LovfdDISlX-->0</span></span></h3>
+      <h3 data-page-node-id="LzmeWdN9GdUiPS3VHi5MMv"><!--pnid:VlClSCN9KxhBCvBPbWwNCW-->🎖️ 每周战标 <span data-page-node-id="19xA2FXfxFV6kXqenKPTd5" style="font-size:var(--fs-title); color:var(--text-light); font-weight:400; float:right"><!--pnid:fiTNnQQL0TStfdnmASnLrS-->完成 <span data-page-node-id="842veRhKK3NlvlGBKqoUq9" id="weekTomatoCount" style="color: var(--primary-ink); font-weight:700"><!--pnid:EifL5ahIcKr96lvbmcNs0X-->0</span><!--pnid:8LNdjU5fzLNTPyQZr9cJQC-->🍅 · 持有 <span data-page-node-id="quBNbzTJzrFUhYuQPStnD8" id="weekTomatoHeld" style="font-weight:700"><!--pnid:Jk25wOIMdMI2LovfdDISlX-->0</span></span></h3>
       <div data-page-node-id="t9BCvctDNyt59t88xLmkXA" id="weeklyBadgeList" style="display:flex; flex-wrap:wrap; gap:var(--sp-8); justify-content:center"></div>
       <div data-page-node-id="5RsuMNG0mJLuRDCWSsPqRS" style="text-align:center; font-size:var(--fs-title); color:var(--text-light); margin-top:var(--sp-10); line-height:1.6">
         <b data-page-node-id="KV2X4cfTKfyl7GdZkZfzvF" data-act="toggleFold" data-act-args='["badgeDescBody","badgeDescArrow"]' style="cursor:pointer; color:var(--text); font-size:var(--fs-title)"><!--pnid:9wegjE39kGyH5UoLMUBsPQ-->📌 战力标说明 <span data-page-node-id="xZzLc5ld2LJ2uDL6ZoZ6Ck" id="badgeDescArrow"><!--pnid:WYMflZ7SbgklZgWVOupokT-->▸</span></b>
@@ -1121,8 +1136,8 @@
           延续周内若<b data-page-node-id="T8EnRXnvTOhNI2bOSW7mDg" style="color:var(--text)"><!--pnid:L0UbFHpI73nfMxsToJL9wM-->再次</b><!--pnid:p9heDZK1aiAgwU9b8WNJNW-->达成 → 继续顺延一周；<br data-page-node-id="U0h90hzbQmJGtRPxZgOIyV"><!--pnid:NOtfX9xvAxHa7HsL9patYU-->
           延续周内<b data-page-node-id="mMVpfh2aH9YqOsVMR639Or" style="color:var(--text)"><!--pnid:meqTs9rEESc0KUzkqwGENT-->未</b><!--pnid:uDuU77amLkQor3enlx7b28-->达成 → 再下一周自动熄灭。<br data-page-node-id="gYFwmpWZpXleFWX4EbyMw5">
           <span data-page-node-id="Zgdhgk5NkmPtchz4MksJOq" style="color:var(--text-light)"><!--pnid:uw2DxqqCd69kkPh5Xoa7Tz-->例：本周点亮「登峰造极」→ 下周仍点亮；下周未达标 → 下下周熄灭。<br data-page-node-id="11aNTF5hxAF3WknTQB9L1F"><!--pnid:HQ5nzODDsI67MW8PwA7uXW-->累计达成次数永久保留。</span><br data-page-node-id="rwQLCFmhY5X24UFXg4D25d">
-          <b data-page-node-id="OGDBSwyzNC6X3hPzGkafOD" style="color:var(--primary)"><!--pnid:b11SDn9UOhab2UvAuLk1OZ-->🍅 消耗规则：</b><!--pnid:XYNPKkEiHZATz9z9bWruGl-->按<b data-page-node-id="FNOzFVHHANPWEXoDomUHEL" style="color:var(--text)"><!--pnid:HbMS8TkoIJDXz3tWvxyhfN-->当前持有</b><!--pnid:XJGIH5fvuVkO1I2MZjA6oE-->判定（完成 − 下注 − 兑换）。本周刚点亮的标，若把番茄兑换掉导致跌破目标 → <b data-page-node-id="hNuNq52uIcWygqDEbegpJC" style="color:var(--text)"><!--pnid:QrcAKYoADBQeMI3ekCYTls-->立即熄灭</b><!--pnid:aH461thRQYNdM4jxf1b3fW-->；上周延续中的标是既成荣誉，<b data-page-node-id="DSffSNDANQjKBwcBVjbORS" style="color:var(--green)"><!--pnid:CVp1iWQwhZValkrH3EqfBK-->不因消耗而熄灭</b><!--pnid:fvHfGBusLTgqC6Vbw1ieK1-->。再完成几个🍅 即可重新点亮。<br data-page-node-id="HPyHXsd18VDdWfHTgaTXZR">
-          <b data-page-node-id="NHUHMQnZt9i1LjFFceUByL" style="color:var(--text)"><!--pnid:YWnLhTinzlHqgvGlG90Llw-->🎨 装饰效果：</b><!--pnid:cr3t7aQipfE68pDpxnDOFj-->点亮「登峰造极」→ 计时页数字变<b data-page-node-id="6jmGsaw4M6LAAHbNBJV9SS" style="color:var(--gold)"><!--pnid:s5EFVxOaTeXv1yD2UkgYCo-->金色</b><!--pnid:lNFMP5U3VEthtH5xoQ7zer-->；「独孤求败」→ <b data-page-node-id="kE1vW7AOVl5JgDg6FzPKQ6" style="color:#D4AF37"><!--pnid:KF2eFHqMHVjdBdXQfMuAWa-->黑金渐变</b><!--pnid:MUwebKNvbThUXnqlXVTicH-->；其他标 → 对应主题色。效果跟随点亮状态：<b data-page-node-id="4Ow2m85Bekict5HODIIEEp" style="color:var(--green)"><!--pnid:iGmT91U5bYf5Ya73zdxmN5-->本周点亮 → 下周仍有效 → 下下周清零</b><!--pnid:65NkJ9WmlyY8lbKdDEWZIv-->。<br data-page-node-id="gdoLyY0wpDJbr8cMQkijAH">
+          <b data-page-node-id="OGDBSwyzNC6X3hPzGkafOD" style="color: var(--primary-ink)"><!--pnid:b11SDn9UOhab2UvAuLk1OZ-->🍅 消耗规则：</b><!--pnid:XYNPKkEiHZATz9z9bWruGl-->按<b data-page-node-id="FNOzFVHHANPWEXoDomUHEL" style="color:var(--text)"><!--pnid:HbMS8TkoIJDXz3tWvxyhfN-->当前持有</b><!--pnid:XJGIH5fvuVkO1I2MZjA6oE-->判定（完成 − 下注 − 兑换）。本周刚点亮的标，若把番茄兑换掉导致跌破目标 → <b data-page-node-id="hNuNq52uIcWygqDEbegpJC" style="color:var(--text)"><!--pnid:QrcAKYoADBQeMI3ekCYTls-->立即熄灭</b><!--pnid:aH461thRQYNdM4jxf1b3fW-->；上周延续中的标是既成荣誉，<b data-page-node-id="DSffSNDANQjKBwcBVjbORS" style="color: var(--green-ink)"><!--pnid:CVp1iWQwhZValkrH3EqfBK-->不因消耗而熄灭</b><!--pnid:fvHfGBusLTgqC6Vbw1ieK1-->。再完成几个🍅 即可重新点亮。<br data-page-node-id="HPyHXsd18VDdWfHTgaTXZR">
+          <b data-page-node-id="NHUHMQnZt9i1LjFFceUByL" style="color:var(--text)"><!--pnid:YWnLhTinzlHqgvGlG90Llw-->🎨 装饰效果：</b><!--pnid:cr3t7aQipfE68pDpxnDOFj-->点亮「登峰造极」→ 计时页数字变<b data-page-node-id="6jmGsaw4M6LAAHbNBJV9SS" style="color:var(--gold)"><!--pnid:s5EFVxOaTeXv1yD2UkgYCo-->金色</b><!--pnid:lNFMP5U3VEthtH5xoQ7zer-->；「独孤求败」→ <b data-page-node-id="kE1vW7AOVl5JgDg6FzPKQ6" style="color:#D4AF37"><!--pnid:KF2eFHqMHVjdBdXQfMuAWa-->黑金渐变</b><!--pnid:MUwebKNvbThUXnqlXVTicH-->；其他标 → 对应主题色。效果跟随点亮状态：<b data-page-node-id="4Ow2m85Bekict5HODIIEEp" style="color: var(--green-ink)"><!--pnid:iGmT91U5bYf5Ya73zdxmN5-->本周点亮 → 下周仍有效 → 下下周清零</b><!--pnid:65NkJ9WmlyY8lbKdDEWZIv-->。<br data-page-node-id="gdoLyY0wpDJbr8cMQkijAH">
           <b data-page-node-id="o4TIN6EQJtOc1BSfhzZMfX" style="color:var(--text)"><!--pnid:Lslekt31KrWE3SHnGkQ4Xt-->🎯 进度怎么看：</b><!--pnid:DlLoc4VI8rUu91pdTW2xzJ-->计时页左上角只保留当前战标徽章；<b data-page-node-id="iGdVebV32uSLg5aRIaTxAd" style="color:var(--text)"><!--pnid:sK6MxkbBaXSZNjKDCwPM2p-->距离下一个战标还差几个番茄</b><!--pnid:G20Le6xbK4zjM7g8tLSv5h-->，请看本页上方各战标卡片下方的提示。
         </div>
       </div>
@@ -1172,7 +1187,7 @@
         <button class="btn-small" data-act="scrollToSettingGroup" data-act-args='["backup"]' style="font-size:var(--fs-note); flex-shrink:0;">💾 备份</button>
         <button class="btn-small" data-act="scrollToSettingGroup" data-act-args='["share"]' style="font-size:var(--fs-note); flex-shrink:0;">🔗 分享</button>
       </div>
-      <a class="btn-small" href="https://docs.qq.com/doc/DR2haQ1FHZG1BRWJk?dver=" target="_blank" rel="noopener noreferrer" style="background:var(--primary); color:var(--white); border-color:var(--primary); font-size:var(--fs-note); flex-shrink:0; display:inline-flex; align-items:center; text-decoration:none; line-height:1;">📄 查看文档</a>
+      <a class="btn-small" href="https://docs.qq.com/doc/DR2haQ1FHZG1BRWJk?dver=" target="_blank" rel="noopener noreferrer" style="background:var(--fill-primary); color:var(--on-fill); border-color:var(--primary); font-size:var(--fs-note); flex-shrink:0; display:inline-flex; align-items:center; text-decoration:none; line-height:1;">📄 查看文档</a>
     </div>
     <!--pnid:qvnb02ZwxyHcJrviJgLtT8--><!-- 沉浸式专注（置顶：新功能入口优先） -->
     <div data-page-node-id="Fg4Y3TSAe164lr4XJwxmcS" class="settings-group foldable" data-group="immersive">
@@ -1198,7 +1213,7 @@
         <!-- 【5.4.6 沉浸式剧情副本 · 导入】默认折叠成一行标题（点开才显示按钮/列表），保证沉浸式组除「开启」开关外保持清爽 -->
         <div data-page-node-id="ImScRoot" class="setting-row" style="flex-direction:column;align-items:stretch;gap:0;padding-top:var(--sp-10);border-top:1px solid var(--border);margin-top:var(--sp-6);">
           <div id="imScriptHead" data-act="toggleImportedScriptPanel" style="display:flex;align-items:center;justify-content:space-between;gap:var(--sp-8);cursor:pointer;user-select:none;padding:var(--sp-2) var(--sp-2);">
-            <span style="font-size:var(--fs-body);font-weight:800;color:var(--text);">🎬 剧情副本<span id="imScriptCountNote" style="display:inline-block;margin-left:var(--sp-6);font-size:var(--fs-caption);color:var(--primary);font-weight:700;"></span></span>
+            <span style="font-size:var(--fs-body);font-weight:800;color:var(--text);">🎬 剧情副本<span id="imScriptCountNote" style="display:inline-block;margin-left:var(--sp-6);font-size:var(--fs-caption);color: var(--primary-ink);font-weight:700;"></span></span>
             <span id="imScriptHeadArrow" style="font-size:var(--fs-caption);color:var(--text-light);transition:transform .18s;flex-shrink:0;">▶</span>
           </div>
           <div class="setting-desc" style="padding:0 var(--sp-2) var(--sp-2);">导入你自己的剧本，会进入「固定副本」抽卡池（固定/随机比例可在上方滑块自己调）。副本只存在本机，不随备份导出，不影响个人数据。</div>
@@ -1234,7 +1249,7 @@
       </div>
         <div data-page-node-id="bJLpWQK68rX2bQFa1loBXy" class="setting-row"><div data-page-node-id="DUJc8c8Ubibr5BA8nQmDoU" style="display:flex; gap:var(--sp-6); flex-wrap:wrap; align-items:center">
           <button data-page-node-id="hMQobklAHoIgdYFPVjTuBq" class="btn-small" data-act="setWorkPreset" data-act-args='["10"]' style="background:var(--card); color:var(--text); border-color:var(--border)"><!--pnid:42fL19sLZkZUenf9Nv2f4z-->🌱 10</button>
-          <button data-page-node-id="twviGyyLhuxs2SWWRu6C3E" class="btn-small" data-act="setWorkPreset" data-act-args='["25"]' style="background:var(--primary); color:var(--white)"><!--pnid:oRUb4OV4apDh0DU97UuO3d-->🌿 25</button>
+          <button data-page-node-id="twviGyyLhuxs2SWWRu6C3E" class="btn-small" data-act="setWorkPreset" data-act-args='["25"]' style="background:var(--fill-primary); color:var(--on-fill)"><!--pnid:oRUb4OV4apDh0DU97UuO3d-->🌿 25</button>
           <button data-page-node-id="EbYcw2pW8d2t3cAnNkOAEC" class="btn-small" data-act="setWorkPreset" data-act-args='["50"]' style="background:var(--card); color:var(--text); border-color:var(--border)"><!--pnid:Pi9m5uZUindRVficDfVSBU-->🔥 50</button>
           <button data-page-node-id="UO2esihVo0w5qZR8eSqirO" class="btn-small" data-act="setWorkPreset" data-act-args='["90"]' style="background:var(--card); color:var(--text); border-color:var(--border)"><!--pnid:pt6K3iPZr4B65nbRm0Psad-->💎 90</button>
           <span data-page-node-id="7BLx3nhwgF6zi2nKToqVhb" style="font-size:var(--fs-body); color:var(--text-light); align-self:center"><!--pnid:xAjjsQrpAUNrydcf9SCJ0h-->🌱10=简单 · 🌿25=中等 · 🔥50=沉浸式 · 💎90=大师；🪙 专注 ≥24 分钟 +2 · ≥48 +5 · ≥86 +10</span>
@@ -1334,7 +1349,7 @@
           <button data-page-node-id="RNhZgCnqnKKJXDG2X2TS6i" class="save-btn" data-act="restoreAutoBackup" style="margin-top:0; padding:var(--sp-8); font-size:var(--fs-title); background:var(--purple)"><!--pnid:hCdefQPMazUWL5mCFzGQq7-->恢复自动备份</button>
           <div data-page-node-id="HJG4K1zKveE7wbXe6Hr8QU" style="font-size:var(--fs-body); color:var(--text-light); line-height:1.5; margin-top:var(--sp-6)"><!--pnid:n7VZ7sesqx3wzdeDgfDCwF-->导入/清除数据前，当前数据会自动备份一份到这里，误操作可一键找回。</div>
         </div>
-        <div data-page-node-id="ri8BXhWSaNSOvsM8EgHAPL" class="setting-row" style="margin-top:var(--sp-10)"><div data-page-node-id="kZ8twZW8GkUMiXOJTtRJQD" class="setting-label" data-act="runDataHealthCheck" style="color:var(--blue); cursor:pointer"><!--pnid:qyYctTLKVLp8A5geTOr2YR-->🔧 数据体检修复（成长值异常自动清理）</div></div>
+        <div data-page-node-id="ri8BXhWSaNSOvsM8EgHAPL" class="setting-row" style="margin-top:var(--sp-10)"><div data-page-node-id="kZ8twZW8GkUMiXOJTtRJQD" class="setting-label" data-act="runDataHealthCheck" style="color: var(--blue-ink); cursor:pointer"><!--pnid:qyYctTLKVLp8A5geTOr2YR-->🔧 数据体检修复（成长值异常自动清理）</div></div>
         <div data-page-node-id="iX90IeW0LPa9zFO7lRpJvo" class="setting-row" style="margin-top:var(--sp-10)"><div data-page-node-id="URVdtfV8HjRr77ZfF75eE6" class="setting-label" data-act="clearAllData" style="color:var(--danger); cursor:pointer"><!--pnid:esbTvGjbhR9hGwMntMtRam-->清除所有数据</div></div>
       </div>
     </div>
@@ -1483,8 +1498,8 @@
 <div data-page-node-id="nNlUJI21QzjLQiMQYHpgzT" class="modal-overlay" id="treeShopModal">
   <div data-page-node-id="IyKj5MIZAjGayuxEZzH8Bq" class="modal" style="max-height:82vh; overflow-y:auto">
     <h3 data-page-node-id="WwIrSKTOV7jjmVvv8qzssd" style="text-align:center; margin-bottom:var(--sp-6)"><!--pnid:KlBy45ISeSVEIVzb1TppXX-->🛍️ 树商店</h3>
-    <div data-page-node-id="D2dFVK12QjaNzL3I6MVR5O" id="shopBalance" style="text-align:center; font-size:var(--fs-title); font-weight:800; color:var(--primary); margin-bottom:var(--sp-4)"><!--pnid:WjjgTowDjHirMgLwIT2W9v-->🪙 0</div>
-    <div data-page-node-id="Ve1IKAE8aChzTIYFa2QGl0" id="shopWeekBalance" style="text-align:center; font-size:var(--fs-body); font-weight:700; color:var(--green); margin-bottom:var(--sp-6)"><!--pnid:oOFG5INF0u4a6ZX2RL0ATU-->🍅 本周 0（可用 0）</div>
+    <div data-page-node-id="D2dFVK12QjaNzL3I6MVR5O" id="shopBalance" style="text-align:center; font-size:var(--fs-title); font-weight:800; color: var(--primary-ink); margin-bottom:var(--sp-4)"><!--pnid:WjjgTowDjHirMgLwIT2W9v-->🪙 0</div>
+    <div data-page-node-id="Ve1IKAE8aChzTIYFa2QGl0" id="shopWeekBalance" style="text-align:center; font-size:var(--fs-body); font-weight:700; color: var(--green-ink); margin-bottom:var(--sp-6)"><!--pnid:oOFG5INF0u4a6ZX2RL0ATU-->🍅 本周 0（可用 0）</div>
     <button data-page-node-id="iVrECNwWaU4YrKJIMplVRf" class="shop-btn small" id="shopCoinExBtn" data-act="openCoinExchange" style="display:block; margin:0 auto 8px; padding:var(--sp-6) var(--sp-16); font-size:var(--fs-note); background:var(--ok-bg); color:var(--ok)"><!--pnid:BbNvfZKvYrLacdyV9SD8fa-->🔄 周番茄兑金币（1🍅=6🪙）</button>
     <div data-page-node-id="6uJLYEcYogcYI6SOxYRgR3" class="shop-tabs" style="display:flex; gap:var(--sp-2); margin-bottom:var(--sp-10); flex-wrap:wrap; justify-content:center">
       <div data-page-node-id="j8xDcYtRnp8eoQAdihy8j3" class="shop-tab active" data-act="switchShopTab" data-act-args='["deco"]'><!--pnid:GdH8UxENQG0PhAfuBMgSLV-->🌺 装饰</div>
@@ -1506,7 +1521,7 @@
     <div data-page-node-id="Z7XRheCdw9AshOsH40TNmO" id="shopFunList" style="display:none"></div>
     <div data-page-node-id="V1fa7STLgEiouZpIHsTRYg" id="shopWheelBox" style="display:none; text-align:center; margin-bottom:var(--sp-14)">
       <div data-page-node-id="L4S8n96RwFRASv3ymgN6x5" style="font-size:var(--fs-title); font-weight:800; margin-bottom:var(--sp-2)"><!--pnid:JVqeUSbaFwFDDWvQ30plYh-->🎡 金币转盘</div>
-      <div data-page-node-id="ckWyMWZbsj40Hz7RKQZ19Z" id="shopWheelTip" style="font-size:var(--fs-caption); color:var(--text-light); margin-bottom:var(--sp-8)"><!--pnid:RwsGGhitIcN0dvnlkupjzp-->花 <b data-page-node-id="uYwexViJXrYrGvN1LB9WqX" style="color:var(--yellow-dark)"><!--pnid:BmsDr5WcEdzerZiEzV7KVy-->50🪙</b><!--pnid:H5j6v5w7eUawRja1RS9Mao--> 转一次 · 最低也有 +20，大奖随缘</div>
+      <div data-page-node-id="ckWyMWZbsj40Hz7RKQZ19Z" id="shopWheelTip" style="font-size:var(--fs-caption); color:var(--text-light); margin-bottom:var(--sp-8)"><!--pnid:RwsGGhitIcN0dvnlkupjzp-->花 <b data-page-node-id="uYwexViJXrYrGvN1LB9WqX" style="color: var(--yellow-ink)"><!--pnid:BmsDr5WcEdzerZiEzV7KVy-->50🪙</b><!--pnid:H5j6v5w7eUawRja1RS9Mao--> 转一次 · 最低也有 +20，大奖随缘</div>
       <div data-page-node-id="V4d2Z9zrlNbExSiatJFKhj" class="wheel-wrap">
         <div data-page-node-id="6qjFgk43Q7N2rFm2QM5aba" class="wheel-pointer"><!--pnid:2FzVF7iEgz33s42EjSYEm8-->▼</div>
         <div data-page-node-id="6mQLhg2ACXkwhTvUMOn9r2" class="wheel" id="shopWheel"></div>
@@ -1606,9 +1621,9 @@
   <div data-page-node-id="p4RW7PNUVYFzLrb4TLkMej" class="modal">
     <h3 data-page-node-id="jXdLSsleMcOTCPLuWECbbP" style="text-align:center; margin-bottom:var(--sp-8)"><!--pnid:wN0R77AZdEh5QjG18pr7Hz-->🔄 周番茄兑金币</h3>
     <div data-page-node-id="CPXsaR1uioDxmZMkeJroVv" style="text-align:center; font-size:var(--fs-note); color:var(--text-light); line-height:1.8; margin-bottom:var(--sp-4)"><!--pnid:MmrGDpYbVk5jQZBnBMHl0C-->
-      汇率：<b data-page-node-id="4QMvTCSTdDHc6jiWSBj3r5" style="color:var(--yellow-dark); font-size:var(--fs-body)" id="exRate"><!--pnid:iJHJOSX2ibBwEZlhSy1J22-->1 🍅 = 6 🪙</b><!--pnid:gEnpqKWhT1Gra6TpEIEfHz-->（每周最多兑 <span id="exMax">120</span> 🪙）<br data-page-node-id="VYiLfABrcdApF1aKlp2tnX"><!--pnid:FA0Q4TppN9bYqgaKjf94QY-->
-      本周可兑：<b data-page-node-id="GbvwXhOXf2PdXw12ek9HKA" id="exAvail" style="color:var(--green); font-size:var(--fs-title)"><!--pnid:K8sm3qMhXcjM1jgvahzPDD-->0</b><!--pnid:BUL3ZQLYskQGuATWdYLp7v--> 个 🍅<br data-page-node-id="Ho5EP5o40uZTPm0JbTXPx3">
-      <span data-page-node-id="Bxru8P6KLrbLghkiqir4lw" style="font-size:var(--fs-caption)"><!--pnid:jSZjbOigfEirXWNmC4Ne8u-->统计数据与海报照常生成，但<b data-page-node-id="liCcwu4g07XiYxa4S5RS9s" style="color:var(--primary)"><!--pnid:7NhUxqENNWZGQlfDByykbd-->本周战标按剩余持有判定</b><!--pnid:4WiGJyf4hBWx3rpagNdKcV-->，消耗过多会熄灭</span>
+      汇率：<b data-page-node-id="4QMvTCSTdDHc6jiWSBj3r5" style="color: var(--yellow-ink); font-size:var(--fs-body)" id="exRate"><!--pnid:iJHJOSX2ibBwEZlhSy1J22-->1 🍅 = 6 🪙</b><!--pnid:gEnpqKWhT1Gra6TpEIEfHz-->（每周最多兑 <span id="exMax">120</span> 🪙）<br data-page-node-id="VYiLfABrcdApF1aKlp2tnX"><!--pnid:FA0Q4TppN9bYqgaKjf94QY-->
+      本周可兑：<b data-page-node-id="GbvwXhOXf2PdXw12ek9HKA" id="exAvail" style="color: var(--green-ink); font-size:var(--fs-title)"><!--pnid:K8sm3qMhXcjM1jgvahzPDD-->0</b><!--pnid:BUL3ZQLYskQGuATWdYLp7v--> 个 🍅<br data-page-node-id="Ho5EP5o40uZTPm0JbTXPx3">
+      <span data-page-node-id="Bxru8P6KLrbLghkiqir4lw" style="font-size:var(--fs-caption)"><!--pnid:jSZjbOigfEirXWNmC4Ne8u-->统计数据与海报照常生成，但<b data-page-node-id="liCcwu4g07XiYxa4S5RS9s" style="color: var(--primary-ink)"><!--pnid:7NhUxqENNWZGQlfDByykbd-->本周战标按剩余持有判定</b><!--pnid:4WiGJyf4hBWx3rpagNdKcV-->，消耗过多会熄灭</span>
     </div>
     <div data-page-node-id="yrApCA8DiowZk2W8dor56H" id="exBadgeWarn" style="display:none; margin:var(--sp-8) var(--sp-4) 0; padding:var(--sp-8) var(--sp-10); border-radius:var(--radius); background:rgba(192,57,43,.10); border:1px solid rgba(192,57,43,.32); font-size:var(--fs-note); color:var(--text); line-height:1.6; text-align:center"></div>
     <div data-page-node-id="JxTXbKgjlG0OrFxu1l44sE" style="display:flex; gap:var(--sp-8); justify-content:center; margin:var(--sp-12) 0">
@@ -1635,6 +1650,82 @@
   </div>
 </div>
 
+<!-- ===== 人生目标：编辑弹窗 + 分类管理（2026-10 新增）=====
+     ★ 必须放在这里（body 级 overlay 层），不能塞进 #view-plan：
+       view 有 opacity 动画，弹窗在里面会以 view 为定位基准，铺不满屏幕。 -->
+<div class="modal-overlay" id="lifeAreaModal">
+  <div class="modal" id="lifeAreaModalBox" style="max-width:420px; text-align:left">
+    <h3 class="lg-modal-head" id="lgAreaTitle">管理分类</h3>
+    <div id="lgAreaBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="lifeGoalModal">
+  <div class="modal" id="lifeGoalModalBox" style="max-width:480px; text-align:left">
+    <h3 class="lg-modal-head" id="lgModalTitle">目标</h3>
+    <div id="lgModalBody"></div>
+    <div id="lgModalFoot"></div>
+  </div>
+</div>
+
+<!-- 月末 / 年末收尾：和编辑弹窗同一套 sheet 骨架（样式选择器合并写），
+     内容由 01eF_ui_lifecycle.js 的 openLifeEval() 渲染。 -->
+<div class="modal-overlay" id="lifeEvalModal">
+  <div class="modal" id="lifeEvalModalBox" style="max-width:480px; text-align:left">
+    <h3 class="lg-modal-head" id="lifeEvalTitle">收尾</h3>
+    <div id="lifeEvalBody"></div>
+    <div id="lifeEvalFoot"></div>
+  </div>
+</div>
+
+<!-- 目标页「⋯」菜单：进度 / 排序 / 管理分类 -->
+<div class="modal-overlay" id="lifeMoreModal">
+  <div class="modal" id="lifeMoreModalBox" style="max-width:480px; text-align:left">
+    <h3 class="lg-modal-head" id="lifeMoreTitle">目标</h3>
+    <div id="lifeMoreBody"></div>
+    <div id="lifeMoreFoot"></div>
+  </div>
+</div>
+
+<!-- 今年九个方向：一页九个方向，只读展示 + 点行跳转。
+     不在这里编辑目标 —— 一格能改就成了第二个编辑面。 -->
+<div class="modal-overlay" id="lifeGridModal">
+  <div class="modal" id="lifeGridModalBox" style="max-width:480px; text-align:left">
+    <h3 class="lg-modal-head" id="lifeGridTitle">今年九个方向</h3>
+    <div id="lifeGridBody"></div>
+    <div id="lifeGridFoot"></div>
+  </div>
+</div>
+
+<!-- 人生愿望清单：一份纯粹的打勾清单。
+     ★ 刻意不接任何进度计算 —— 愿望不是 KPI。写 30 条实现 3 条，
+       那 3 条是成就，不是 10% 的完成率。 -->
+<div class="modal-overlay" id="lifeWishModal">
+  <div class="modal" id="lifeWishModalBox" style="max-width:480px; text-align:left">
+    <h3 class="lg-modal-head" id="lifeWishTitle">愿望清单</h3>
+    <div id="lifeWishBody"></div>
+    <div id="lifeWishFoot"></div>
+  </div>
+</div>
+
+<!-- 目标进度一览（只读榜单）。和复盘共用一套 sheet 骨架。 -->
+<div class="modal-overlay" id="lifeBoardModal">
+  <div class="modal" id="lifeBoardModalBox" style="max-width:480px; text-align:left">
+    <h3 class="lg-modal-head" id="lifeBoardTitle">目标进度</h3>
+    <div id="lifeBoardBody"></div>
+    <div id="lifeBoardFoot"></div>
+  </div>
+</div>
+
+<!-- 复盘：列表 / 分步编辑 / 只读查看三种状态共用一个 sheet，
+     由 01eG_ui_lifereview.js 的 renderLifeReview() 切换内容。 -->
+<div class="modal-overlay" id="lifeReviewModal">
+  <div class="modal" id="lifeReviewModalBox" style="max-width:480px; text-align:left">
+    <h3 class="lg-modal-head" id="lifeReviewTitle">复盘</h3>
+    <div id="lifeReviewBody"></div>
+    <div id="lifeReviewFoot"></div>
+  </div>
+</div>
 <!--pnid:1Y80u7c9A4R4TRUVNLs4DT--><!-- ========== 模态框集合 ========== -->
 
 <!--pnid:DgHavwSsgVt9vG5nmzpRbE--><!-- 月份选择（月度统计卡片 入口） -->
@@ -1643,7 +1734,7 @@
     <h3 data-page-node-id="C6FJp3fyTBs5E0G9Q0thfU" style="text-align:center; margin-bottom:var(--sp-10)"><!--pnid:se9MgdhB4HBtBo6bP6IAjH-->📅 选择月份</h3>
     <div data-page-node-id="UZEVpZBo17JQ5ccuVDiReC" style="display:flex; justify-content:center; align-items:center; gap:var(--sp-12); margin-bottom:var(--sp-10)">
       <button data-page-node-id="mOrIQlOYJod21zKjKiDFD4" class="btn-small" data-act="monthPickYearShift" data-act-args='["-1"]' title="上一年"><!--pnid:Gz5dp61kEanf7hxk4futGB-->‹</button>
-      <span data-page-node-id="7isJx2EFSF5plIabrUYsW2" id="monthPickYearLabel" style="font-size:var(--fs-title); font-weight:800; color:var(--primary)"><!--pnid:KpzhULpH7Ba1YErjDHBAji-->2026年</span>
+      <span data-page-node-id="7isJx2EFSF5plIabrUYsW2" id="monthPickYearLabel" style="font-size:var(--fs-title); font-weight:800; color: var(--primary-ink)"><!--pnid:KpzhULpH7Ba1YErjDHBAji-->2026年</span>
       <button data-page-node-id="FpxOn9EZbEfpBMse2T4kZf" class="btn-small" data-act="monthPickYearShift" data-act-args='["1"]' title="下一年"><!--pnid:XaWO7tq1oaxJZQdZzFsW63-->›</button>
     </div>
     <div data-page-node-id="lO7ts2pXIYZyVMplzKNwa4" id="monthPickGrid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:var(--sp-6)"></div>
@@ -1657,7 +1748,7 @@
   <div data-page-node-id="cYvP1dZipxA2tLdyTztr2v" class="modal" style="text-align:center; max-width:420px">
     <div data-page-node-id="flLNnKlXkejCHIZrOKm9Cl" style="font-size: calc(52px * var(--fs-boost)); margin:var(--sp-6) 0 var(--sp-2)"><!--pnid:SGtwS9WCuC5bKIH3CMI1zP-->🧡</div>
     <h3 data-page-node-id="UxiyL5ZgvtUMfAWa6P1DQz" style="margin:var(--sp-4) 0 var(--sp-8)"><!--pnid:sS6obiUuRTPZSFsiWpiSwu-->最近看起来有点疲惫</h3>
-    <p data-page-node-id="V3GFGbcScXhV9Ijm6est2n" style="font-size:var(--fs-body); color:var(--text-light); line-height:1.8; margin-bottom:var(--sp-14)"><!--pnid:uPIzIL0CnmelsSNNoxCThD-->要不要开启「轻松模式」？<br data-page-node-id="ydS0mlXF4jFNz6BaXBLN5s"><!--pnid:j1L5zYzyTwQALJ4cHXqyO4-->番茄时长自动<b data-page-node-id="YZng3tOzoJAsO0SP2RDRau" style="color:var(--primary)"><!--pnid:yH0ECDcWEli6DG9PpxhnNv-->减半</b><!--pnid:47I565DmWariWcvoDmLX4W-->；开启后<b data-page-node-id="7PvT9157fICgZdoAiX0IZM" style="color:var(--primary)"><!--pnid:Kw5INgBwUaEdJYiSo04o1e-->第一次</b><!--pnid:O1ed6qIA26wtnVww0Tfd5i-->满 <b data-page-node-id="au7ygRPW52m598yjn3TYBi" style="color:var(--primary)"><!--pnid:2dE8ZKCGQ8H4yAVwpbvGC9-->10 分钟</b><!--pnid:tzAWmmhbv2Qk40sHeIS4yw-->的番茄，直接按 <b data-page-node-id="kPiM39KPC2hqg43AfX5lxO" style="color:var(--primary)"><!--pnid:PMlU0zn1jzATzuOZ4VMIHR-->1 个完整🍅</b><!--pnid:NTmqTdEgZUDHogMbhf1LJC--> 计入今日进度（仅此一次）——今日任务的星星⭐奖励照常拿。开启前完成的番茄不占这次机会。</p>
+    <p data-page-node-id="V3GFGbcScXhV9Ijm6est2n" style="font-size:var(--fs-body); color:var(--text-light); line-height:1.8; margin-bottom:var(--sp-14)"><!--pnid:uPIzIL0CnmelsSNNoxCThD-->要不要开启「轻松模式」？<br data-page-node-id="ydS0mlXF4jFNz6BaXBLN5s"><!--pnid:j1L5zYzyTwQALJ4cHXqyO4-->番茄时长自动<b data-page-node-id="YZng3tOzoJAsO0SP2RDRau" style="color: var(--primary-ink)"><!--pnid:yH0ECDcWEli6DG9PpxhnNv-->减半</b><!--pnid:47I565DmWariWcvoDmLX4W-->；开启后<b data-page-node-id="7PvT9157fICgZdoAiX0IZM" style="color: var(--primary-ink)"><!--pnid:Kw5INgBwUaEdJYiSo04o1e-->第一次</b><!--pnid:O1ed6qIA26wtnVww0Tfd5i-->满 <b data-page-node-id="au7ygRPW52m598yjn3TYBi" style="color: var(--primary-ink)"><!--pnid:2dE8ZKCGQ8H4yAVwpbvGC9-->10 分钟</b><!--pnid:tzAWmmhbv2Qk40sHeIS4yw-->的番茄，直接按 <b data-page-node-id="kPiM39KPC2hqg43AfX5lxO" style="color: var(--primary-ink)"><!--pnid:PMlU0zn1jzATzuOZ4VMIHR-->1 个完整🍅</b><!--pnid:NTmqTdEgZUDHogMbhf1LJC--> 计入今日进度（仅此一次）——今日任务的星星⭐奖励照常拿。开启前完成的番茄不占这次机会。</p>
     <div data-page-node-id="AKYng2i4dYStsVvZqtV51K" class="modal-buttons" style="justify-content:center">
       <button data-page-node-id="2A0ZvLenUSxlZYNbgtcddY" class="modal-btn secondary" data-act="dismissCareModal"><!--pnid:x0dalse5U3FyBhCgLNXMgQ-->今天不需要</button>
       <button data-page-node-id="QK86EOxuw9E8qYOSXFXF48" class="modal-btn solid-green" data-act="enableEasyMode"><!--pnid:hsGqhs3uvDBPaVo5KstFhv-->🍃 开启轻松模式</button>
@@ -1698,7 +1789,7 @@
 <div data-page-node-id="ZAHGF79FXQkpXstkoKX716" class="modal-overlay" id="mustDoModal">
   <div data-page-node-id="knr0U9INZrIt90iIzZW5zv" class="modal">
     <h3 data-page-node-id="okSyE3I0v8SaWpXHCpRgdp" id="mustDoModalTitle"><!--pnid:fzY1OQFy1DE6aM9XRWsCfz-->🎯 必做 3 件事</h3>
-    <p data-page-node-id="xV92MTXA1PffNWr43ZDCuC" id="mustDoModalTip" style="font-size:var(--fs-body); color:var(--text-light); margin-bottom:var(--sp-10)"><!--pnid:c8TGE9Z6n6jFo3GrRQlcZ7-->为明天立下「非完成不可」的 1~3 件事，明天全部打勾完成 → <b data-page-node-id="bqnYcf3xq8MPFk5BNY5Spm" style="color:var(--primary)"><!--pnid:OCfVzfFycX4YYaMjlIWrqE-->+25🪙</b><!--pnid:wqzDmh6SguqzGBxAo7fZ0O-->（奖励只在当天有效，过后作废）</p>
+    <p data-page-node-id="xV92MTXA1PffNWr43ZDCuC" id="mustDoModalTip" style="font-size:var(--fs-body); color:var(--text-light); margin-bottom:var(--sp-10)"><!--pnid:c8TGE9Z6n6jFo3GrRQlcZ7-->为明天立下「非完成不可」的 1~3 件事，明天全部打勾完成 → <b data-page-node-id="bqnYcf3xq8MPFk5BNY5Spm" style="color: var(--primary-ink)"><!--pnid:OCfVzfFycX4YYaMjlIWrqE-->+25🪙</b><!--pnid:wqzDmh6SguqzGBxAo7fZ0O-->（奖励只在当天有效，过后作废）</p>
     <div data-page-node-id="kAeSyHgBtyc5LPVs5nl9Fj" class="modal-form-group">
       <label data-page-node-id="K5WB8OcOwdx9MNN4NfdUjz" id="mustDoDateLabel"><!--pnid:ESF5BleKpTHMYlgceJE4xo-->明天的事（今晚提前立）</label>
       <div data-page-node-id="kdqMciI85oOZqhehG1J5CT" style="font-size:var(--fs-note); color:var(--text-light)"><!--pnid:5zFtm4a1ik7jBNO4E3XjM7-->随时可以回来重新填写，以最后一次保存为准</div>
@@ -1829,9 +1920,9 @@
 <!--pnid:hLPiH4wXstyNrDFSMbOQNm--><!-- 微休息 -->
 <div data-page-node-id="E06KUvMuSdD96C19ai1ko4" class="modal-overlay micro-break-modal" id="microBreakModal">
   <div data-page-node-id="pok9BiuAiTaZqjgtDHtw7q" class="modal" style="text-align:center">
-    <h3 data-page-node-id="RdK3HrNaRUXUfle7GWJFGL" style="color:var(--yellow-dark)"><!--pnid:q6PhphsmgwiREI2kbcDCDr-->🧘 微休息</h3>
+    <h3 data-page-node-id="RdK3HrNaRUXUfle7GWJFGL" style="color: var(--yellow-ink)"><!--pnid:q6PhphsmgwiREI2kbcDCDr-->🧘 微休息</h3>
     <p data-page-node-id="Pfy1rcj2S7h4QXr9pykCLH" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-6)"><!--pnid:scxwsHLkLcI1KZkGJk3rZB-->闭上眼睛，把注意力放在呼吸上</p>
-    <div data-page-node-id="gpZhisO7qLP9KdpYD34tMq" id="microBreakTimer" style="font-size: calc(48px * var(--fs-boost)); font-weight:800; color:var(--yellow-dark); margin:var(--sp-12) 0"><!--pnid:iNDxrHGkCN3EKbSB0bd3nz-->10</div>
+    <div data-page-node-id="gpZhisO7qLP9KdpYD34tMq" id="microBreakTimer" style="font-size: calc(48px * var(--fs-boost)); font-weight:800; color: var(--yellow-ink); margin:var(--sp-12) 0"><!--pnid:iNDxrHGkCN3EKbSB0bd3nz-->10</div>
     <div data-page-node-id="gFdRk7bNkdiJP391LzS1Jm" class="modal-buttons" style="justify-content:center">
       <button data-page-node-id="hY4Km2ifbguE6OHdXMltE6" class="modal-btn secondary" data-act="skipMicroBreak"><!--pnid:rRFt2hlTvMmuju8PmKSO9x-->跳过</button>
     </div>
