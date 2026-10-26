@@ -265,7 +265,7 @@
 <meta data-page-node-id="QvAACMTbWxzccKOtGkixTn" content="番茄专注" name="apple-mobile-web-app-title">
 <meta data-page-node-id="vUERiOdt3gUjUmdr1jlNHy" content="black-translucent" name="apple-mobile-web-app-status-bar-style">
 <title data-page-node-id="aLYARGncyQlgcELCiGxuU1" data-pnid-children="3yqjw3HhflXfpy391ah9uQ">番茄专注</title>
-<link id="jyvx-css" rel="stylesheet" href="assets/style.16d6e6a3f254.css">
+<link id="jyvx-css" rel="stylesheet" href="assets/style.fa9f5bcff5eb.css">
 <!-- 启动画面：静态首元素。
      必须写在这里（body 第一个节点、主样式块之后），而不是由 JS 动态创建：
      index.html 单文件里 slot1~slot9 的内联脚本全排在正文之后，等 JS 跑到
@@ -1701,9 +1701,21 @@
 
 <!-- 今年九个方向：一页九个方向，只读展示 + 点行跳转。
      不在这里编辑目标 —— 一格能改就成了第二个编辑面。 -->
+<!-- 月计划：月初坐下来定方向的地方。
+     ★ 从月复盘里剥出来的 —— 原来「这个月的主题」「最想完成的几件事」长在
+       月复盘第一屏，用户当场问：「这个月最想干什么？我这个月都结束了」。
+       计划往前看，复盘往后看，不该长在一个弹层里。 -->
+<div class="modal-overlay" id="lifeMonthModal">
+  <div class="modal" id="lifeMonthModalBox" style="max-width:480px; text-align:left">
+    <h3 class="lg-modal-head" id="lifeMonthTitle">月计划</h3>
+    <div id="lifeMonthBody"></div>
+    <div id="lifeMonthFoot"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="lifeGridModal">
   <div class="modal" id="lifeGridModalBox" style="max-width:480px; text-align:left">
-    <h3 class="lg-modal-head" id="lifeGridTitle">今年九个方向</h3>
+    <h3 class="lg-modal-head" id="lifeGridTitle">年计划</h3>
     <div id="lifeGridBody"></div>
     <div id="lifeGridFoot"></div>
   </div>
