@@ -7,15 +7,15 @@
  * 这个应用改版频繁，缓存优先意味着用户永远停在旧版，还查不出原因。
  * 网络优先：在线时永远拿最新的，离线时才回落到上次的副本。
  *
- * 版本号由 tools/build_site.py 在构建时替换 04f8379ebc89（取 index.html 的 sha256 前 12 位），
+ * 版本号由 tools/build_site.py 在构建时替换 9e30d7cb37b9（取 index.html 的 sha256 前 12 位），
  * 每次改动内容都会生成新缓存名，旧缓存随之清掉。不要手改这个占位符。
  */
 
-const BUILD_ID = '04f8379ebc89';
+const BUILD_ID = '9e30d7cb37b9';
 const CACHE = 'bottle-pomodoro-' + BUILD_ID;
 
 /* 预缓存：只要这几个文件齐了，断网也能完整打开 */
-const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.4f0da8482873.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js", "./fonts/inter-latin.woff2", "./fonts/smiley-sans.woff2", "./fonts/wenkai-regular.woff2", "./icons/icon-192.png", "./icons/icon-512.png"];
+const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.28470b4caa76.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js", "./fonts/inter-latin.woff2", "./fonts/smiley-sans.woff2", "./fonts/wenkai-regular.woff2", "./icons/icon-192.png", "./icons/icon-512.png"];
 
 self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
