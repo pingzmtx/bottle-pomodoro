@@ -14,8 +14,16 @@
 const BUILD_ID = '364e88edf588';
 const CACHE = 'bottle-pomodoro-' + BUILD_ID;
 
-/* 预缓存：只要这几个文件齐了，断网也能完整打开 */
-const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.8f335c7df260.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js", "./fonts/inter-latin.woff2", "./fonts/smiley-sans.woff2", "./fonts/wenkai-regular.woff2", "./icons/icon-192.png", "./icons/icon-512.png"];
+/* 预缓存：只要这几个文件齐了，断网也能完整打开。
+   ★ 这里只放「跟着版本变」的东西（页面、脚本、样式）。字体和图标移到 STATIC_ASSETS，
+     否则每次发版换代都要把它们重下一遍 —— 光是文楷就有 1.5 MB。 */
+const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.8f335c7df260.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js"];
+
+/* 字体 / 图标：体积大、内容几乎永不变化，放在一个**不随版本换代**的缓存里。
+   首代 SW 预热一次，之后任何版本都直接命中，不再走网络。
+   ★ 真换了字体文件，要把版本号 +1（v1 → v2），否则老用户永远读到旧字形。 */
+const STATIC_CACHE = 'bottle-static-v1';
+const STATIC_ASSETS = ["./icons/icon-192.png", "./icons/icon-512.png", "./fonts/inter-latin.woff2", "./fonts/smiley-sans.woff2", "./fonts/wenkai-regular.woff2"];
 
 self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
@@ -26,6 +34,12 @@ self.addEventListener('install', (e) => {
     ));
     // 给这一代缓存盖时间戳：activate 要靠它决定「保留哪一代」，否则只能瞎删或全留
     await cache.put('__meta__', new Response(String(Date.now())));
+    // 字体 / 图标：只补缺，已有的直接跳过。它们跨版本共用，重下一次就是 1.9 MB
+    const stat = await caches.open(STATIC_CACHE);
+    await Promise.all(STATIC_ASSETS.map(async (u) => {
+      if (await stat.match(u)) return;
+      await stat.add(new Request(u, { cache: 'reload' })).catch(() => {});
+    }));
     await self.skipWaiting();
   })());
 });
@@ -33,7 +47,8 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil((async () => {
     const names = await caches.keys();
-    const others = names.filter((n) => n !== CACHE);
+    // ★ STATIC_CACHE 不在换代之列：字体图标跨版本复用，删了就等于让用户重下 1.9 MB
+    const others = names.filter((n) => n !== CACHE && n !== STATIC_CACHE);
     // 只删「≥2 代之前」的：旧页面可能还活着、还在引用上一代的 assets，
     // 立刻删掉会让它离线重载失败。留最近一代做宽限，等下次发版再清。
     const stamped = [];
@@ -104,6 +119,28 @@ self.addEventListener('fetch', (e) => {
         const cache = await caches.open(CACHE);
         return (await cache.match(req)) || new Response('window.TF_CONFIG=window.TF_CONFIG||{};',
           { headers: { 'Content-Type': 'application/javascript' } });
+      }
+    })());
+    return;
+  }
+
+  /* 字体 / 图标：纯缓存优先，命中就直接给，连后台补取都不做。
+     理由：文楷 1.5 MB，SWR 的后台补取会让它每次加载都悄悄重下一遍（Pages 只给
+     max-age=600，十分钟后就真的重新下载）。这类文件内容是「换版本也不变」的，
+     唯一的更新途径是 STATIC_CACHE 版本号 +1，那是有意为之的动作，不需要自动检查。 */
+  if (/\/(fonts|icons)\//.test(url.pathname)) {
+    e.respondWith((async () => {
+      const cache = await caches.open(STATIC_CACHE);
+      const hit = await cache.match(req);
+      if (hit) return hit;
+      try {
+        const fresh = await fetch(req);
+        if (fresh && fresh.status === 200 && fresh.type === 'basic') {
+          cache.put(req, fresh.clone());
+        }
+        return fresh;
+      } catch (err) {
+        return new Response('', { status: 504 });
       }
     })());
     return;
