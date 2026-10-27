@@ -261,11 +261,22 @@
      注册代码会按协议判断跳过。 -->
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<!-- 字体预加载：让三个首屏字体在 HTML 解析阶段就开始下载，而不是等 CSS 下载完
+     再解析出 @font-face 才发请求。省掉的是「CSS 往返 + 解析」这一段 —— 本地是
+     几十毫秒看不出来，但在手机弱网下那一段本身就是一两秒，用户看到的就是
+     「先黑体、过一会儿才变楷体」。
+     · 必须带 crossorigin：字体请求是 CORS 模式，不写会二次下载（缓存键不同）。
+     · 只预加载首屏真的要用的三个；WenKaiExtra（1.15 MB）绝不预加载 ——
+       那是备用块，预加载它等于把拆块白做。
+     · 用 as="font" type="font/woff2"，浏览器不支持 woff2 时会直接跳过。 -->
+<link rel="preload" as="font" type="font/woff2" href="fonts/wenkai-regular.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="fonts/smiley-title.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="fonts/inter-latin.woff2" crossorigin>
 <meta data-page-node-id="V0uQ9H7WmRan42cFEzelp7" content="yes" name="mobile-web-app-capable">
 <meta data-page-node-id="QvAACMTbWxzccKOtGkixTn" content="番茄专注" name="apple-mobile-web-app-title">
 <meta data-page-node-id="vUERiOdt3gUjUmdr1jlNHy" content="black-translucent" name="apple-mobile-web-app-status-bar-style">
 <title data-page-node-id="aLYARGncyQlgcELCiGxuU1" data-pnid-children="3yqjw3HhflXfpy391ah9uQ">番茄专注</title>
-<link id="jyvx-css" rel="stylesheet" href="assets/style.fe4b67555daa.css">
+<link id="jyvx-css" rel="stylesheet" href="assets/style.73812ff1885e.css">
 <!-- 启动画面：静态首元素。
      必须写在这里（body 第一个节点、主样式块之后），而不是由 JS 动态创建：
      index.html 单文件里 slot1~slot9 的内联脚本全排在正文之后，等 JS 跑到
