@@ -7,22 +7,22 @@
  * 这个应用改版频繁，缓存优先意味着用户永远停在旧版，还查不出原因。
  * 网络优先：在线时永远拿最新的，离线时才回落到上次的副本。
  *
- * 版本号由 tools/build_site.py 在构建时替换 364e88edf588（取 index.html 的 sha256 前 12 位），
+ * 版本号由 tools/build_site.py 在构建时替换 19b2e3d1b2e1（取 index.html 的 sha256 前 12 位），
  * 每次改动内容都会生成新缓存名，旧缓存随之清掉。不要手改这个占位符。
  */
 
-const BUILD_ID = '364e88edf588';
+const BUILD_ID = '19b2e3d1b2e1';
 const CACHE = 'bottle-pomodoro-' + BUILD_ID;
 
 /* 预缓存：只要这几个文件齐了，断网也能完整打开。
    ★ 这里只放「跟着版本变」的东西（页面、脚本、样式）。字体和图标移到 STATIC_ASSETS，
      否则每次发版换代都要把它们重下一遍 —— 光是文楷就有 1.5 MB。 */
-const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.8f335c7df260.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js"];
+const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.fe4b67555daa.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js"];
 
 /* 字体 / 图标：体积大、内容几乎永不变化，放在一个**不随版本换代**的缓存里。
    首代 SW 预热一次，之后任何版本都直接命中，不再走网络。
    ★ 真换了字体文件，要把版本号 +1（v1 → v2），否则老用户永远读到旧字形。 */
-const STATIC_CACHE = 'bottle-static-v1';
+const STATIC_CACHE = 'bottle-static-v2';
 const STATIC_ASSETS = ["./icons/icon-192.png", "./icons/icon-512.png", "./fonts/inter-latin.woff2", "./fonts/smiley-sans.woff2", "./fonts/wenkai-regular.woff2"];
 
 self.addEventListener('install', (e) => {
@@ -125,9 +125,12 @@ self.addEventListener('fetch', (e) => {
   }
 
   /* 字体 / 图标：纯缓存优先，命中就直接给，连后台补取都不做。
-     理由：文楷 1.5 MB，SWR 的后台补取会让它每次加载都悄悄重下一遍（Pages 只给
-     max-age=600，十分钟后就真的重新下载）。这类文件内容是「换版本也不变」的，
-     唯一的更新途径是 STATIC_CACHE 版本号 +1，那是有意为之的动作，不需要自动检查。 */
+     理由：文楷单块就几百 KB 到 1 MB，SWR 的后台补取会让它每次加载都悄悄重下一遍
+     （Pages 只给 max-age=600，十分钟后就真的重新下载）。这类文件内容是
+     「换版本也不变」的，唯一的更新途径是 STATIC_CACHE 版本号 +1，那是有意
+     为之的动作，不需要自动检查。
+     ★ 未命中时才落盘：文楷备用块（GB2312 里站点没用到的字）不在 STATIC_ASSETS，
+       只有页面上真出现那个字、浏览器来要这个文件时才会经过这里，下完就长期留着。 */
   if (/\/(fonts|icons)\//.test(url.pathname)) {
     e.respondWith((async () => {
       const cache = await caches.open(STATIC_CACHE);
@@ -136,7 +139,9 @@ self.addEventListener('fetch', (e) => {
       try {
         const fresh = await fetch(req);
         if (fresh && fresh.status === 200 && fresh.type === 'basic') {
-          cache.put(req, fresh.clone());
+          // await：put 不 await 的话，响应交回页面后 worker 可能被回收，写入悄悄丢掉，
+          // 表现是「每次都重新下载字体」—— 正是这条分支要根治的病。
+          await cache.put(req, fresh.clone());
         }
         return fresh;
       } catch (err) {
