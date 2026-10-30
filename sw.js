@@ -7,17 +7,17 @@
  * 这个应用改版频繁，缓存优先意味着用户永远停在旧版，还查不出原因。
  * 网络优先：在线时永远拿最新的，离线时才回落到上次的副本。
  *
- * 版本号由 tools/build_site.py 在构建时替换 1c889ef0b7cb（取 index.html 的 sha256 前 12 位），
+ * 版本号由 tools/build_site.py 在构建时替换 2fecd27214e3（取 index.html 的 sha256 前 12 位），
  * 每次改动内容都会生成新缓存名，旧缓存随之清掉。不要手改这个占位符。
  */
 
-const BUILD_ID = '1c889ef0b7cb';
+const BUILD_ID = '2fecd27214e3';
 const CACHE = 'bottle-pomodoro-' + BUILD_ID;
 
 /* 预缓存：只要这几个文件齐了，断网也能完整打开。
    ★ 这里只放「跟着版本变」的东西（页面、脚本、样式）。字体和图标移到 STATIC_ASSETS，
      否则每次发版换代都要把它们重下一遍 —— 光是文楷就有 1.5 MB。 */
-const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.3fcde029199a.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js"];
+const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.3a3287d9a52a.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js"];
 
 /* 字体 / 图标：体积大、内容几乎永不变化，放在一个**不随版本换代**的缓存里。
    首代 SW 预热一次，之后任何版本都直接命中，不再走网络。
