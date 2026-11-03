@@ -276,7 +276,7 @@
 <meta data-page-node-id="QvAACMTbWxzccKOtGkixTn" content="番茄专注" name="apple-mobile-web-app-title">
 <meta data-page-node-id="vUERiOdt3gUjUmdr1jlNHy" content="black-translucent" name="apple-mobile-web-app-status-bar-style">
 <title data-page-node-id="aLYARGncyQlgcELCiGxuU1" data-pnid-children="3yqjw3HhflXfpy391ah9uQ">番茄专注</title>
-<link id="jyvx-css" rel="stylesheet" href="assets/style.652a89250982.css">
+<link id="jyvx-css" rel="stylesheet" href="assets/style.2315a0162c8f.css">
 <!-- 启动画面：静态首元素。
      必须写在这里（body 第一个节点、主样式块之后），而不是由 JS 动态创建：
      index.html 单文件里 slot1~slot9 的内联脚本全排在正文之后，等 JS 跑到
@@ -539,6 +539,12 @@
         <button class="sort-dir-btn sort-eye-btn" id="todoDoneToggle" data-act="toggleTodoDoneHidden" title="隐藏今天已完成的任务" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
       <div data-page-node-id="t8CcLLyR2K4SEMoEmLfs7G" class="todo-list" id="todoList"></div>
+      <!-- 今日习惯 dock（2026-11-04）：习惯不再只能切到「🌱 习惯」页看 ——
+           计划页底部挂一条，**默认折叠成一行**（今天该做几个 / 打了几个），
+           点开就是可勾选的习惯行。一屏里「今天排的计划」和「今天该做的习惯」同框，
+           不用来回切标签。内容由 01eB 的 renderPlanHabitDock() 填，
+           折叠状态落在 settings.planHabitDockOpen（默认 false = 折叠）。 -->
+      <div id="planHabitDock"></div>
     </div>
 
         
@@ -552,7 +558,7 @@
       <div style="display:flex; justify-content:space-between; align-items:center">
         <div class="section-title" style="margin:0">🌱 习惯</div>
         <div style="display:flex; gap:var(--sp-6); align-items:center; flex-shrink:0">
-          <button class="btn-small" data-act="addHabitCat" style="white-space:nowrap; background:var(--card); color:var(--text); border-color:var(--border)" title="新建习惯分类（展开的文件夹）">📁 分类</button>
+          <button class="btn-small" data-act="openHabitCatModal" style="white-space:nowrap; background:var(--card); color:var(--text); border-color:var(--border)" title="分类管理：新建 / 排序 / 删除">📁 分类</button>
           <button class="btn-small" data-act="addHabit" title="新建习惯" aria-label="新建习惯" style="background:var(--fill-primary); color:var(--on-fill); width:34px; height:34px; padding:0; font-size:var(--fs-hero); line-height:1; border-radius:var(--radius); flex-shrink:0">＋</button>
         </div>
       </div>
@@ -2161,6 +2167,10 @@
       <div id="habitEditLegacyHint" style="display:none;font-size:var(--fs-caption);color:var(--text-light);margin-top:var(--sp-6);line-height:1.6;"></div>
     </div>
     <div style="margin-top:var(--sp-12)">
+      <div class="setting-label" style="margin-bottom:var(--sp-6)">子计划（可选 · 每步可排期）</div>
+      <div id="habitSubBox"></div>
+    </div>
+    <div style="margin-top:var(--sp-12)">
       <div class="setting-label" style="margin-bottom:var(--sp-6)">说明（可选）</div>
       <textarea id="habitEditNote" placeholder="为什么做这件事 / 做到什么算数" style="width:100%;padding:var(--sp-8);border:1px solid var(--border-strong);border-radius:var(--radius-sm);min-height:64px;font-family:inherit;"></textarea>
     </div>
@@ -2170,6 +2180,19 @@
     </div>
     <div class="modal-buttons" id="habitEditDel" style="display:none">
       <button class="modal-btn danger" data-act="deleteHabitFromEdit">删除这个习惯</button>
+    </div>
+  </div>
+</div>
+
+<!-- 分类管理（2026-11-04）：新建 / 排序 / 删除收在一处。
+     原来「📁 分类」只能新建，分类多了以后顺序全凭建立顺序，改不了。 -->
+<div class="modal-overlay" id="habitCatModal">
+  <div class="modal" style="max-height:80vh; overflow-y:auto">
+    <h3>📁 分类管理</h3>
+    <div id="habitCatBody"></div>
+    <div class="modal-buttons">
+      <button class="modal-btn secondary" data-act="addHabitCat">＋ 新建分类</button>
+      <button class="modal-btn primary" data-act="closeModal" data-act-args='["habitCatModal"]'>关闭</button>
     </div>
   </div>
 </div>
