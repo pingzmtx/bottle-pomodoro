@@ -103,7 +103,7 @@ return weeks;}
 function habitCurrentStreak(logDates,today,h,skipDates){const set={};(logDates||[]).forEach(function(d){set[String(d).slice(0,10)]=true;});const skips=habitSkipSet(h,skipDates);if(habitIsQuota(h))return habitQuotaWeekStreak(set,today,h);const created=_habitCreatedOf(h);const rr=habitRepeatOf(h);let cursor=today;let n=0;for(let i=0;i<3660;i++){if(!cursor)break;if(created&&cursor<created)break;if(skips[cursor]){cursor=addDaysStr(cursor,-1);continue;}
 if(!_habitDueFast(cursor,rr,skips,'')){cursor=addDaysStr(cursor,-1);continue;}
 if(set[cursor]){n++;cursor=addDaysStr(cursor,-1);continue;}
-if(cursor===today){if(habitHiddenOn(h,cursor))break;cursor=addDaysStr(cursor,-1);continue;}
+if(cursor===today){cursor=addDaysStr(cursor,-1);continue;}
 break;}
 return n;}
 function habitQuotaBestWeeks(set,arr,h){const n=habitFreqPerWeek(h);if(!arr.length)return 0;let ws=weekStartStr(arr[0]);const lastWeek=weekStartStr(arr[arr.length-1]);let best=0,cur=0;for(let i=0;i<600&&ws&&ws<=lastWeek;i++){let c=0;for(let j=0;j<7;j++)if(set[addDaysStr(ws,j)])c++;cur=c>=n?cur+1:0;if(cur>best)best=cur;ws=addDaysStr(ws,7);}
