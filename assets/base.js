@@ -28,7 +28,9 @@ var toks=splitTop(m[2]);var vals=[],ok=true;for(var k=0;k<toks.length;k++){var v
 vals.push(v);}
 if(!ok){if(warned<20){console.warn('[act] 实参含表达式，暂不接管：'+attr+'="'+raw.slice(0,80)+'"');warned++;}
 continue;}
-var name=m[1];el.setAttribute('data-'+suffix,name);if(vals.length)el.setAttribute('data-'+suffix+'-args',JSON.stringify(vals));el.removeAttribute(attr);}}
+var name=m[1];var root=name.split('.')[0];if(root==='this'||root==='event'){if(warned<20){console.warn('[act] 不接管宿主对象方法：'+attr+'="'+raw.slice(0,80)+'"');warned++;}
+continue;}
+el.setAttribute('data-'+suffix,name);if(vals.length)el.setAttribute('data-'+suffix+'-args',JSON.stringify(vals));el.removeAttribute(attr);}}
 function scan(node){if(!node||node.nodeType!==1)return;takeOver(node);var list=node.querySelectorAll('[onclick],[onchange],[oninput],[onkeydown],[onfocus],[onblur]');for(var i=0;i<list.length;i++)takeOver(list[i]);}
 try{var mo=new MutationObserver(function(records){for(var i=0;i<records.length;i++){var added=records[i].addedNodes;for(var j=0;j<added.length;j++)scan(added[j]);}});mo.observe(document.documentElement,{childList:true,subtree:true});scan(document.documentElement);}catch(e){if(window.__errRep&&window.__errRep.push)window.__errRep.push(e);}
 for(var i=0;i<EVENTS.length;i++){var cap=EVENTS[i]==='focus'||EVENTS[i]==='blur';document.addEventListener(EVENTS[i],delegate,cap);}})();(function(){if(typeof Document==='undefined')return;var orig=Document.prototype.addEventListener;Document.prototype.addEventListener=function(type,fn,opt){if(type==='DOMContentLoaded'&&document.readyState!=='loading'&&typeof fn==='function'){setTimeout(function(){try{fn.call(document,new Event('DOMContentLoaded'));}catch(e){if(window.__errRep&&window.__errRep.push)window.__errRep.push(e);else console.error(e);}},0);return;}
