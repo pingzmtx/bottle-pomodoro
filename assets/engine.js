@@ -1186,7 +1186,7 @@ s+='<br>· 活跃 '+st.active+' 天，一半以上日子有产出；再补一补
 (delta>=0?'多':'少')+'了 '+
 Math.abs(delta)+'%</b>'+
 (delta>=0?'，势头不错，趁热打铁。':'，别灰心，对比不是目的，方向才是。');}else if(st.min>0){s+='<br>· 上月没有记录，本月是重新起跑——开头最难，已经走起来了。';}
-return s;},yearly:function(SC){const y=_yrY||new Date().getFullYear();const ms=yearStats(y);const total=ms.reduce(function(s,m){return s+m.min;},0);const totalP=ms.reduce(function(s,m){return s+m.pomos;},0);if(!total&&!totalP)return'<b>'+y+'年还没有专注记录</b>——一年很长，从今天第一个番茄开始。';let best=-1;ms.forEach(function(m,i){if(m.min>0&&(best<0||m.min>ms[best].min))best=i;});let worst=-1,zeroM=0;ms.forEach(function(m,i){if(m.min>0&&(worst<0||m.min<ms[worst].min))worst=i;if(m.min===0)zeroM++;});const activeM=12-zeroM;let s='<b>'+
+return s;},yearly:function(SC){const y=(function(){const n=parseInt(_yrY,10);return n>0&&n<10000?n:new Date().getFullYear();})();const ms=yearStats(y);const total=ms.reduce(function(s,m){return s+m.min;},0);const totalP=ms.reduce(function(s,m){return s+m.pomos;},0);if(!total&&!totalP)return'<b>'+y+'年还没有专注记录</b>——一年很长，从今天第一个番茄开始。';let best=-1;ms.forEach(function(m,i){if(m.min>0&&(best<0||m.min>ms[best].min))best=i;});let worst=-1,zeroM=0;ms.forEach(function(m,i){if(m.min>0&&(worst<0||m.min<ms[worst].min))worst=i;if(m.min===0)zeroM++;});const activeM=12-zeroM;let s='<b>'+
 y+'年共 '+
 totalP.toFixed(1).replace(/\.0$/,'')+' 个🍅、专注 '+
 fmtDurMin(total)+'</b>（'+
