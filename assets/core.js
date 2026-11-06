@@ -134,7 +134,7 @@ function normHabitBlocks(list){const out=[],seen={};(Array.isArray(list)?list:[]
 function habitBlocksOf(h){return h?normHabitBlocks(h.timeBlocks):[];}
 function habitBlocksOn(h,ds,skips,logDates){if(!habitDueOn(h,ds,skips,logDates))return[];return habitBlocksOf(h);}
 function normHabitSubs(list){const out=[];(Array.isArray(list)?list:[]).forEach(function(s){if(!s||typeof s!=='object')return;const text=normHabitSubText(s.text);if(!text)return;out.push({id:s.id==null?'hs'+out.length:s.id,text:text,date:normHabitSubDate(s.date),time:normHabitSubTime(s.time),doneOn:normHabitSubDate(s.doneOn)});});return out;}
-function habitSubsOn(h,ds){const d=normHabitSubDate(ds);return habitSubsSort(habitSubsOf(h).filter(function(s){const sd=normHabitSubDate(s.date);return!sd||sd===d;}));}
+function habitSubsOn(h,ds){return habitSubsSort(habitSubsOf(h));}
 function habitSubsSort(list){return(Array.isArray(list)?list.slice():[]).sort(function(a,b){const ta=normHabitSubTime(a.time),tb=normHabitSubTime(b.time);if(ta&&tb)return ta<tb?-1:ta>tb?1:0;if(ta)return-1;if(tb)return 1;return 0;});}
 function habitSubsDoneOn(h,ds,list){const d=normHabitSubDate(ds);return(list||habitSubsOn(h,ds)).filter(function(s){return normHabitSubDate(s.doneOn)===d;}).length;}
 const PLAN_SUB_SNAPSHOT_MAX=12;const LOG_PLAN_SUB_SHOW_MAX=6;function snapshotPlanSubs(todo,cutoffMs){if(!todo||!Array.isArray(todo.subs)||!todo.subs.length)return null;const hasCut=typeof cutoffMs==='number'&&isFinite(cutoffMs)&&cutoffMs>0;return todo.subs.slice(0,PLAN_SUB_SNAPSHOT_MAX).map(function(s){let d=!!(s&&s.done);if(hasCut&&d){const at=s&&Number(s.doneAt);if(at>0&&at>cutoffMs)d=false;}
