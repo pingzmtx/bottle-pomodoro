@@ -723,7 +723,8 @@ function planPomoCell(val){const s=fmtPomoGrouped(val);return'<span class="ppc-n
 function renderPlanPomoTotal(){const host=document.getElementById('planPomoTotal');if(!host)return;const t=planPomoTotals();if(!t.total){host.innerHTML='';return;}
 host.innerHTML='<div class="ppc">'+'<div class="ppc-scope">📅 本自然年</div>'+'<div class="ppc-eq">'+
 planPomoCell(t.before)+'<span class="ppc-op">+</span>'+'<span class="ppc-today">'+planPomoCell(t.today)+'</span>'+'<span class="ppc-op">=</span>'+
-planPomoCell(t.year)+'</div>'+'<div class="ppc-labels"><span>之前</span><span>今天</span><span>本年</span></div>'+'<div class="ppc-total">'+planPomoCell(t.total)+'</div>'+'<div class="ppc-sub">🍅 累计番茄（全部）</div>'+'</div>';}
+planPomoCell(t.year)+'</div>'+'<div class="ppc-labels"><span>之前</span><span>今天</span><span>本年</span></div>'+'<div class="ppc-total"><span class="ppc-total-label">🍅 累计番茄（全部）</span>'+
+planPomoCell(t.total)+'</div>'+'</div>';}
 function renderTodos(){try{renderPlanMustRows();}catch(e){if(window.__silent)window.__silent(e,'01e-renderTodos');}
 try{renderMustDoSection();}catch(e){if(window.__silent)window.__silent(e,'01e:renderTodos');}
 try{renderPlanPomoTotal();}catch(e){if(window.__silent)window.__silent(e,'01eC:renderPlanPomoTotal');}
