@@ -717,13 +717,13 @@ function addTodoSub(id){const t=appData.todos.find(function(x){return idEq(x.id,
 if(!t.subs)t.subs=[];t.subs.push({id:Date.now()+Math.floor(Math.random()*999),uid:newUid('sub'),updatedAt:Date.now(),title:v,done:false,pomodoros:null});saveData();renderTodos();if(timerState.linkedTodoId===id)renderTimerSubs();showToast('✅ 已添加子任务');}
 function deleteTodoSub(id,si){const t=appData.todos.find(function(x){return idEq(x.id,id);});if(!t||!(t.subs||[])[si])return;t.subs.splice(si,1);saveData();renderTodos();if(timerState.linkedTodoId===id)renderTimerSubs();}
 function toggleAllTodoSubs(id,on){const t=appData.todos.find(function(x){return idEq(x.id,id);});if(!t)return;if(t.done)return;const subs=todoValidSubs(t);if(!subs.length)return;const want=!!on;const now=Date.now();let changed=0;subs.forEach(function(s){if(!!s.done!==want)changed++;s.done=want;if(want)s.doneAt=now;else delete s.doneAt;});if(window.__todoAutoSubs)delete window.__todoAutoSubs[String(t.id)];if(!changed)return;_syncTodoPartialLog(t);saveData();renderTodos();if(timerState.linkedTodoId===id)renderTimerSubs();showToast(want?'已勾选全部 '+subs.length+' 个子任务':'已取消全部子任务');}
-function planPomoTotals(){let total=0,today=0;const todayStr=getTodayStr();(appData.records||[]).forEach(function(r){const p=getPomos(r);if(!p)return;total+=p;if(r&&r.startTime&&getDateStr(r.startTime)===todayStr)today+=p;});return{total:total,today:today,before:Math.max(0,total-today)};}
+function planPomoTotals(){let total=0,today=0,year=0;const todayStr=getTodayStr();const yearStart=todayStr.slice(0,4)+'-01-01';(appData.records||[]).forEach(function(r){const p=getPomos(r);if(!p)return;total+=p;const ds=r&&r.startTime?getDateStr(r.startTime):'';if(!ds)return;if(ds===todayStr)today+=p;if(ds>=yearStart)year+=p;});return{total:total,today:today,year:year,before:Math.max(0,year-today)};}
 function ppcCellClass(text){const len=text.length;if(len<=3)return'fs-xl';if(len===4)return'fs-l';if(len===5)return'fs-m';if(len===6)return'fs-s';return'fs-xs';}
 function planPomoCell(val){const s=fmtPomoGrouped(val);return'<span class="ppc-num '+ppcCellClass(s)+'">'+escapeHtml(s)+'</span>';}
 function renderPlanPomoTotal(){const host=document.getElementById('planPomoTotal');if(!host)return;const t=planPomoTotals();if(!t.total){host.innerHTML='';return;}
-host.innerHTML='<div class="ppc">'+'<div class="ppc-eq">'+
+host.innerHTML='<div class="ppc">'+'<div class="ppc-scope">📅 本自然年</div>'+'<div class="ppc-eq">'+
 planPomoCell(t.before)+'<span class="ppc-op">+</span>'+'<span class="ppc-today">'+planPomoCell(t.today)+'</span>'+'<span class="ppc-op">=</span>'+
-planPomoCell(t.total)+'</div>'+'<div class="ppc-labels"><span>之前</span><span>今天</span><span>累计</span></div>'+'<div class="ppc-sub">🍅 累计番茄</div>'+'</div>';}
+planPomoCell(t.year)+'</div>'+'<div class="ppc-labels"><span>之前</span><span>今天</span><span>本年</span></div>'+'<div class="ppc-total">'+planPomoCell(t.total)+'</div>'+'<div class="ppc-sub">🍅 累计番茄（全部）</div>'+'</div>';}
 function renderTodos(){try{renderPlanMustRows();}catch(e){if(window.__silent)window.__silent(e,'01e-renderTodos');}
 try{renderMustDoSection();}catch(e){if(window.__silent)window.__silent(e,'01e:renderTodos');}
 try{renderPlanPomoTotal();}catch(e){if(window.__silent)window.__silent(e,'01eC:renderPlanPomoTotal');}

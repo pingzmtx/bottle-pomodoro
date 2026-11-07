@@ -276,7 +276,7 @@
 <meta data-page-node-id="QvAACMTbWxzccKOtGkixTn" content="番茄专注" name="apple-mobile-web-app-title">
 <meta data-page-node-id="vUERiOdt3gUjUmdr1jlNHy" content="black-translucent" name="apple-mobile-web-app-status-bar-style">
 <title data-page-node-id="aLYARGncyQlgcELCiGxuU1" data-pnid-children="3yqjw3HhflXfpy391ah9uQ">番茄专注</title>
-<link id="jyvx-css" rel="stylesheet" href="assets/style.d7e776f95d74.css">
+<link id="jyvx-css" rel="stylesheet" href="assets/style.64db47a25fa3.css">
 <!-- 启动画面：静态首元素。
      必须写在这里（body 第一个节点、主样式块之后），而不是由 JS 动态创建：
      index.html 单文件里 slot1~slot9 的内联脚本全排在正文之后，等 JS 跑到
@@ -545,11 +545,14 @@
            不用来回切标签。内容由 01eB 的 renderPlanHabitDock() 填，
            折叠状态落在 settings.planHabitDockOpen（默认 false = 折叠）。 -->
       <div id="planHabitDock"></div>
-      <!-- 累计番茄（2026-11-07）：计划页最下方一行账 —— 之前累计 + 今天 = 总共。
-           为什么要拆成三段而不是只给一个总数：只给总数的话，今天新做的 8 个
-           会被埋在 182 里，看不出"今天有没有在涨"。数字由 01eC 的
-           renderPlanPomoTotal() 填，数字一律千分位精确显示（fmtPomoGrouped，
-           不换「万」——换万会让 `1.23万 + 8 = 1.23万` 两边相等），
+      <!-- 累计番茄（2026-11-07）：计划页最下方一张卡 —— 上面是本自然年的账
+           （今年 1/1 至今：之前 + 今天 = 本年），下面是全历史总番茄数。
+           为什么上段要拆成三段而不是只给一个总数：只给总数的话，今天新做的 8 个
+           会被埋在 182 里，看不出"今天有没有在涨"。
+           ★ 口径是「本自然年」，不是滚动 365 天：滚动窗口每少一天补进一天，
+             数字天天在原地，看不出又涨了（用户明确否掉了）。
+           数字由 01eC 的 renderPlanPomoTotal() 填，一律千分位精确显示
+           （fmtPomoGrouped，不换「万」——换万会让 `1.23万 + 8 = 1.23万` 两边相等），
            字号再按显示位数自动降档，保证不撑破卡片。 -->
       <div id="planPomoTotal"></div>
     </div>
