@@ -276,7 +276,7 @@
 <meta data-page-node-id="QvAACMTbWxzccKOtGkixTn" content="番茄专注" name="apple-mobile-web-app-title">
 <meta data-page-node-id="vUERiOdt3gUjUmdr1jlNHy" content="black-translucent" name="apple-mobile-web-app-status-bar-style">
 <title data-page-node-id="aLYARGncyQlgcELCiGxuU1" data-pnid-children="3yqjw3HhflXfpy391ah9uQ">番茄专注</title>
-<link id="jyvx-css" rel="stylesheet" href="assets/style.de37c5bea260.css">
+<link id="jyvx-css" rel="stylesheet" href="assets/style.ced3d496f443.css">
 <!-- 启动画面：静态首元素。
      必须写在这里（body 第一个节点、主样式块之后），而不是由 JS 动态创建：
      index.html 单文件里 slot1~slot9 的内联脚本全排在正文之后，等 JS 跑到
@@ -545,6 +545,12 @@
            不用来回切标签。内容由 01eB 的 renderPlanHabitDock() 填，
            折叠状态落在 settings.planHabitDockOpen（默认 false = 折叠）。 -->
       <div id="planHabitDock"></div>
+      <!-- 累计番茄（2026-11-07）：计划页最下方一行账 —— 之前累计 + 今天 = 总共。
+           为什么要拆成三段而不是只给一个总数：只给总数的话，今天新做的 8 个
+           会被埋在 182 里，看不出"今天有没有在涨"。数字由 01eC 的
+           renderPlanPomoTotal() 填，长数字走 fmtPomoCompact（≥1 万换万单位），
+           字号再按最长位数自动降档，保证不撑破卡片。 -->
+      <div id="planPomoTotal"></div>
     </div>
 
         
@@ -798,7 +804,14 @@
     </div>
 
 <div data-page-node-id="HQumcdSkNcnLgPwlQ0k7tC" class="week-chart" id="yearHeatmapBox">
-      <h3 data-page-node-id="gYoWI7Bbb1gB58yv6Mibcz" style="margin-bottom:var(--sp-4)"><!--pnid:8C1g9sdZGaVKxHR42Qvuiv-->🗺️ 年度专注地图（全年 1-12 月 · 左右滑动查看）</h3>
+      <h3 data-page-node-id="gYoWI7Bbb1gB58yv6Mibcz" style="margin-bottom:var(--sp-4); display:flex; justify-content:space-between; align-items:center; gap:var(--sp-6)"><span><!--pnid:8C1g9sdZGaVKxHR42Qvuiv-->🗺️ 年度专注地图</span>
+        <!-- 年份控件（2026-11-07）：‹ 年 › 翻年，中间那个年份按钮点开快跳弹窗（记录多了以后翻十年太痛） -->
+        <span style="display:flex; gap:var(--sp-4); align-items:center; flex:none">
+          <button class="btn-small" data-act="yrMapShift" data-act-args='[-1]' title="上一年" style="padding:var(--sp-2) var(--sp-8)">‹</button>
+          <button class="btn-small yr-nav-year" id="yrMapYear" data-act="openYearPicker" data-act-args='["map"]' title="年度专注地图 · 点这里跳到某一年">2026</button>
+          <button class="btn-small" data-act="yrMapShift" data-act-args='[1]' title="下一年" style="padding:var(--sp-2) var(--sp-8)">›</button>
+        </span>
+      </h3>
       <!--pnid:IHUBdElPTwrvMzSeHjikN6--><!-- 固定区：统计内容不随格子滚动（之前整块塞进滚动容器导致"滑格子上面也跑"） -->
       <div data-page-node-id="BVDsAWXBZVKBoXzzlGW5MY" id="yearHeatmapMeta"></div>
       <!--pnid:Ku3ymCG8uTNhnEIWwPsTF4--><!-- 滚动区：只有 年份行+月份行+格子 在这里面横滚 -->
@@ -851,12 +864,10 @@
       </div>
     </div>
 
-    <!--pnid:MNFgfB8DuWT58MlfgXRBfQ--><!-- 任务完成度：预计 vs 实际 -->
-    <div data-page-node-id="L1eRaKyzWJdQeXuXYDobBt" class="week-chart" id="taskBox">
-      <h3 data-page-node-id="eZS1hHJepp3DuFAHG6c2vT"><!--pnid:kDzEzWJLKmFqJfK7gtS6Cq-->📋 任务完成度（计划 vs 实际）</h3>
-      <div data-page-node-id="aTmjluGaSfiPNrCmADC4gp" id="taskChart" style="width:100%; height:auto"></div>
-      <div data-page-node-id="2DGVUpxgitJDlkdySbLjAc" id="taskSummary" style="font-size:var(--fs-body); color:var(--text-light); text-align:center; margin-top:var(--sp-6)"></div>
-    </div>
+    <!-- 任务完成度（计划 vs 实际）板块已按用户要求移除（2026-11-07）：
+         用户认为"预计 vs 实际"这条对照在日常使用里读不出行动价值，连它上面的
+         📋 任务快速跳转一起卸掉。渲染端 renderTaskCompareChart 仍保留，
+         拿不到 #taskChart 就整块跳过（空值保护已在），不动它就是最安全的回退方式。 -->
 
     <!--pnid:6E7dHKSBs1OvhlqnIA2KHf--><!-- 每周节奏 -->
     <div data-page-node-id="ioHuLbA4OLyIwLLfSaRAPh" class="week-chart" id="week8Box">
@@ -896,7 +907,8 @@
         <span data-page-node-id="QW51hhkAPWIMkjarNk8VpH"><!--pnid:y3EU59bxOWS3ri5ioqumv4-->📈 年度专注统计 <span data-page-node-id="uZGlux57wZYEeHunpuPyuO" id="yrStatTitle"><!--pnid:4QWppPFU06e056ISLaVYve-->2026年</span></span>
         <span data-page-node-id="0Ooxdl9bS4WbHNuI3VoCTD" style="display:flex; gap:var(--sp-4); align-items:center">
           <button data-page-node-id="sjoCGuldiOFgBEqsI9zfCx" class="btn-small" data-act="yrStatShift" data-act-args='[-1]' title="上一年" style="padding:var(--sp-2) var(--sp-8)"><!--pnid:wPuIgGxJaGdfDEbVPuruEP-->‹</button>
-          <button data-page-node-id="yIjyujs61IexxFlqHtpblC" class="btn-small" data-act="yrStatShift" data-act-args='[1]' title="下一年" style="padding:var(--sp-2) var(--sp-8)"><!--pnid:Podbi6v6RUEeyyv9k7PPJf-->›</button>
+          <button class="btn-small yr-nav-year" data-act="openYearPicker" data-act-args='["stat"]' title="年度专注统计 · 点这里跳到某一年">跳转</button>
+          <button data-page-node-id="yIjyujs61IexxflHtpblC" class="btn-small" data-act="yrStatShift" data-act-args='[1]' title="下一年" style="padding:var(--sp-2) var(--sp-8)"><!--pnid:Podbi6v6RUEeyyv9k7PPJf-->›</button>
         </span>
       </h3>
       <div data-page-node-id="wQzRcdOcTu0h5XuPtgjaVI" id="yrStatBox"></div>
@@ -1780,6 +1792,18 @@
   </div>
 </div>
 <!--pnid:EIOroKbsznHcN2TrMfx75G--><!-- 番茄结束 -->
+<!-- 年份快跳（2026-11-07）：年度地图 / 年度统计共用。
+     只在「有记录的年份 + 今年」里列，倒序；每个按钮下面带该年番茄数，
+     一眼看出哪年练得多、哪年是空的。 -->
+<div class="modal-overlay" id="yearPickModal">
+  <div class="modal">
+    <h3 style="text-align:center; margin-bottom:var(--sp-10)">📆 跳到哪一年</h3>
+    <div id="yearPickGrid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:var(--sp-6); max-height:52vh; overflow-y:auto"></div>
+    <div class="modal-buttons">
+      <button class="modal-btn secondary" data-act="closeModal" data-act-args='["yearPickModal"]'>取消</button>
+    </div>
+  </div>
+</div>
 <div data-page-node-id="E1XRTe8FzHWGOY03qHoIFm" class="modal-overlay" id="careModal">
   <div data-page-node-id="cYvP1dZipxA2tLdyTztr2v" class="modal" style="text-align:center; max-width:420px">
     <div data-page-node-id="flLNnKlXkejCHIZrOKm9Cl" style="font-size: calc(52px * var(--fs-boost)); margin:var(--sp-6) 0 var(--sp-2)"><!--pnid:SGtwS9WCuC5bKIH3CMI1zP-->🧡</div>
