@@ -582,3 +582,36 @@ body.kb-open .bottom-nav { display: none; }
 .add-pomo-quick .tf-chip { flex: 0 0 auto; cursor: pointer; }
 .add-pomo-quick-clear { color: var(--text-light); }
 .add-pomo-quick-clear.on { color: var(--on-primary); }
+
+/* ===== 新增计划弹窗改版（2026-11-14）=====
+   只作用于 #addTodoModal，不碰其它弹窗。
+   做法：加 5 个分组标题（做什么 / 怎么归类 / 什么时候 / 做多少 / 拆开做）
+   + 收紧行高与字号，让 20+ 个控件在一屏内可扫。
+   ★ 不折叠任何一组：详情备注、子任务、排期都是高频，一折就要多点一次。 */
+#addTodoModal .modal { max-height: 88vh; overflow-y: auto; padding: var(--sp-16); }
+#addTodoModal h3 { font-size: var(--fs-h1); margin: 0 0 var(--sp-10); }
+#addTodoModal .add-card-head {
+  display: flex; align-items: center; gap: var(--sp-6);
+  margin: var(--sp-14) 0 var(--sp-8);
+  font-size: var(--fs-caption); font-weight: 800; letter-spacing: 0.04em;
+  color: var(--primary-ink);
+}
+#addTodoModal .add-card-head::before {
+  content: ''; width: var(--sp-2); height: var(--sp-12); border-radius: var(--radius-xs); background: var(--primary);
+}
+#addTodoModal .modal-form-group { margin-bottom: var(--sp-8); }
+#addTodoModal .modal-form-group label {
+  font-size: var(--fs-caption); font-weight: 700; color: var(--text-light); margin-bottom: var(--sp-2);
+}
+#addTodoModal .modal-form-group input,
+#addTodoModal .modal-form-group select,
+#addTodoModal .modal-form-group textarea {
+  padding: var(--sp-8) var(--sp-10); font-size: var(--fs-body); border-radius: var(--radius-sm); min-height: 2.25em;
+}
+#addTodoModal #addTodoDetail { min-height: 3.4em; }
+#addTodoModal .add-pomo-row { max-width: 6.5em; }
+#addTodoModal .tf-chips { gap: var(--sp-4); }
+#addTodoModal .add-block-row { gap: var(--sp-6); }
+/* 原生 datetime-local 自带「年/月/日 时:分」占位，再叠一层 ghost 就是两行字糊在一起。
+   这里统一交给原生控件，ghost 只留给不支持原生控件的浏览器（display:none 即可）。 */
+#addTodoModal .add-block-ghost { display: none; }

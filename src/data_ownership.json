@@ -534,6 +534,20 @@
         "01eO_ui_lifewish.js"
       ],
       "note": "人生愿望清单（Bucket List）。★ 刻意不参与任何进度计算：不进九宫格、不进进度一览、没有完成率。写 30 条实现 3 条，那 3 条是成就，不是 10%。也没有截止日期/分类/优先级 —— 一加就变成第四个待办列表。"
+    },
+    "achDaily": {
+      "owner": "01b_engine_data.js",
+      "writers": [
+        "01d_engine_features.js"
+      ],
+      "note": "成就「每日最多点亮 3 个」的配额 {date,count}。超出上限的成就**不入库**，下次结算重新算出，自然排队到次日。"
+    },
+    "achMigrated64": {
+      "owner": "01b_engine_data.js",
+      "writers": [
+        "01d_engine_features.js"
+      ],
+      "note": "成就表 88→64 重排的一次性迁移标记。首次运行清孤儿 id，并在有历史记录时静默补记已达成项（不推送、不写传记）。"
     }
   }
 }

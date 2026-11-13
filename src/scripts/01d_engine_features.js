@@ -28,7 +28,7 @@
  *   - 白帽游戏化：心流时长推荐（10/25/50，与难度档位同口径；手动选档后以用户为准、推荐仅提示）/ 疲劳检测 / 难度档位结算（档位=时长，奖励按 25 分钟=1 个🍅折算）/ 人机排行榜 v2（目标追随模型：BOT 目标=玩家星数×性格系数，单日涨幅跟随玩家产能）
  *   -  上瘾机制：必做3件事（提前一天立目标、当天全完成 +25🪙）/ 计划子任务（可折叠、计时界面同步勾选）/ 断签保护强化（连续7天免费送卡、断签自动消耗）/ 番茄完成中央大字庆祝（打破昨日/连续/效率亮点，2秒消失，toast 去堆叠）/ 年度专注地图（365 天热力图）/ 周报月报简报（总时长/最专注时段/任务TOP/较上期进退步）/ 每日专注总结（日记页，含明日建议）/ 每日惊喜扭蛋（第3/6/9个番茄触发：金币55%>周番茄30%>段位星15%）/ 赌注赢返还部分🍅
  *   -  情感化：段位晋升专属全屏光效弹窗（每升一段触发）/ 过去的自己·幽灵对比（三档基准：去年今日→昨天→随机历史日；中性化反馈：50%里程碑鼓励/超越大字庆祝/未达到静默；设置可开关，默认开启）/ 智能疲劳关怀（连续2个被打断或近3天低产或连续未达标≥2天 → 非强迫性关怀弹窗，开启轻松模式：时长减半、首个满10分钟按完整🍅计入进度、星星奖励照拿）/ 专注传记（50/100/500…记录、首次王者/荣耀/传奇、连续7/30天、单日10/20、成就数里程碑自动生成可编辑成长日记）
- * 函数索引（TOC）：getAchievements/checkNewAchievements/flushSettleSummary/settleTouch/tbTodoOf/liveSessionOf/liveSessionEnsure/liveSessionSegs/closeStaleLiveSessions/dropLiveSession/migrateSegLedger/migrateSegClampV1（+130 更多）
+ * 函数索引（TOC）：getAchievements/migrateAchievements/checkNewAchievements/flushSettleSummary/settleTouch/tbTodoOf/liveSessionOf/liveSessionEnsure/liveSessionSegs/closeStaleLiveSessions/dropLiveSession/migrateSegLedger（+131 更多）
  * ============================================================ */
 
 function getAchievements() {
@@ -119,12 +119,44 @@ function getAchievements() {
     return _o;
   });
 }
+/* 成就表 2026-11-14 重排（88 → 64）后的一次性迁移。
+   ① 清孤儿：旧 id 在新表里不存在 → 从 unlockedAchievements 移除，否则成就页会显示 71/64；
+   ② 首次静默：有历史记录却一条都没记（重装 / 恢复备份 / 老版本升级）→ 直接把已达成的标记为已解锁，
+      **不推送、不写传记**。这是「一打开 App 亮一片」的主要来源。 */
+function migrateAchievements() {
+  const ids = ACHIEVEMENT_DEFS.map(function (a) { return a.id; });
+  const before = Array.isArray(appData.unlockedAchievements) ? appData.unlockedAchievements : [];
+  const kept = before.filter(function (id) { return ids.indexOf(id) >= 0; });
+  let changed = kept.length !== before.length;
+  appData.unlockedAchievements = kept;
+  if (!appData.achMigrated64) {
+    appData.achMigrated64 = true;
+    changed = true;
+    const hasHistory = (appData.records || []).length > 0 ||
+      ((appData.stats && appData.stats.totalFull) || 0) > 0;
+    if (!kept.length && hasHistory) {
+      getAchievements().forEach(function (a) { if (a.unlocked) kept.push(a.id); });
+      appData.unlockedAchievements = kept;
+    }
+  }
+  if (changed) saveData();
+}
+/* 每日最多点亮 3 个：超出的不丢弃、也不写库，下次结算会重新算到（自然排队到次日）。
+   门槛后移后一天通常只亮 1~2 个，这个上限是兜底，防止「一次导入/一次批量买树」连跳多档。 */
+const ACH_DAILY_CAP = 3;
 function checkNewAchievements() {
   if (!appData.unlockedAchievements) appData.unlockedAchievements = [];
   if (!Array.isArray(appData.pendingAchRewards)) appData.pendingAchRewards = [];
+  migrateAchievements();
+  const today = getTodayStr();
+  const doneToday = (appData.achDaily && appData.achDaily.date === today) ? (appData.achDaily.count || 0) : 0;
+  if (doneToday >= ACH_DAILY_CAP) return;
   const achievements = getAchievements();
-  const newlyUnlocked = achievements.filter(a => a.unlocked && !appData.unlockedAchievements.includes(a.id));
+  const newlyUnlocked = achievements
+    .filter(a => a.unlocked && !appData.unlockedAchievements.includes(a.id))
+    .slice(0, ACH_DAILY_CAP - doneToday);
   if (newlyUnlocked.length > 0) {
+    appData.achDaily = { date: today, count: doneToday + newlyUnlocked.length };
     newlyUnlocked.forEach(a => {
       appData.unlockedAchievements.push(a.id);
       appData.pendingAchRewards.push(a.id);

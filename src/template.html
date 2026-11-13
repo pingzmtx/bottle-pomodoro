@@ -2392,6 +2392,39 @@ body.kb-open .bottom-nav { display: none; }
 .add-pomo-quick-clear { color: var(--text-light); }
 .add-pomo-quick-clear.on { color: var(--on-primary); }
 
+/* ===== 新增计划弹窗改版（2026-11-14）=====
+   只作用于 #addTodoModal，不碰其它弹窗。
+   做法：加 5 个分组标题（做什么 / 怎么归类 / 什么时候 / 做多少 / 拆开做）
+   + 收紧行高与字号，让 20+ 个控件在一屏内可扫。
+   ★ 不折叠任何一组：详情备注、子任务、排期都是高频，一折就要多点一次。 */
+#addTodoModal .modal { max-height: 88vh; overflow-y: auto; padding: var(--sp-16); }
+#addTodoModal h3 { font-size: var(--fs-h1); margin: 0 0 var(--sp-10); }
+#addTodoModal .add-card-head {
+  display: flex; align-items: center; gap: var(--sp-6);
+  margin: var(--sp-14) 0 var(--sp-8);
+  font-size: var(--fs-caption); font-weight: 800; letter-spacing: 0.04em;
+  color: var(--primary-ink);
+}
+#addTodoModal .add-card-head::before {
+  content: ''; width: var(--sp-2); height: var(--sp-12); border-radius: var(--radius-xs); background: var(--primary);
+}
+#addTodoModal .modal-form-group { margin-bottom: var(--sp-8); }
+#addTodoModal .modal-form-group label {
+  font-size: var(--fs-caption); font-weight: 700; color: var(--text-light); margin-bottom: var(--sp-2);
+}
+#addTodoModal .modal-form-group input,
+#addTodoModal .modal-form-group select,
+#addTodoModal .modal-form-group textarea {
+  padding: var(--sp-8) var(--sp-10); font-size: var(--fs-body); border-radius: var(--radius-sm); min-height: 2.25em;
+}
+#addTodoModal #addTodoDetail { min-height: 3.4em; }
+#addTodoModal .add-pomo-row { max-width: 6.5em; }
+#addTodoModal .tf-chips { gap: var(--sp-4); }
+#addTodoModal .add-block-row { gap: var(--sp-6); }
+/* 原生 datetime-local 自带「年/月/日 时:分」占位，再叠一层 ghost 就是两行字糊在一起。
+   这里统一交给原生控件，ghost 只留给不支持原生控件的浏览器（display:none 即可）。 */
+#addTodoModal .add-block-ghost { display: none; }
+
 
 .plan-tab.active { background: var(--yellow); }
 
@@ -9801,13 +9834,13 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
           <span data-page-node-id="X7OWL6S9VF2G3aUnAR2yma" id="bioHelpArrow" style="font-size:var(--fs-body); color:var(--text-light)"><!--pnid:KQwWxlcXmZFrG2NqOWmPS1-->▸</span>
         </div>
         <div data-page-node-id="rmlU3WuxmhB1wC9xszCg2X" id="bioHelpBody" style="display:none; padding:var(--sp-10) var(--sp-14); font-size:var(--fs-note); line-height:1.75; color:var(--text-light); border-top:1px solid var(--border)">
-          <b data-page-node-id="9TimvS2k4qRkc0Lww0CGHT" style="color:var(--text)"><!--pnid:TSIHxce8k7WLofLmjbhbz1-->只在重要时刻记录</b><!--pnid:IwlT2DlLhRNOMBBoPUWl8p-->（不天天记，保留含金量）：<br data-page-node-id="Q3cq5cJvi2Chy8vDqcv3XU"><!--pnid:g1r5BeUS4Zrgda02EEUXXj-->
-          · 里程碑：10/50/100/500/1000 个🍅、首次王者/荣耀/传奇<br data-page-node-id="79m7jQAoLx6tGQhxBKGBsh"><!--pnid:g6bvxyafzlSHn3dRzAfuFu-->
-          · 纪录刷新：最长连续天数、单日番茄数破纪录<br data-page-node-id="q0dyeGdHjcmn8sdbsXTtnr"><!--pnid:nQsPXXuXSRVWL7EaBaD1in-->
-          · 状态爆表日（电量/愉悦 ≥8）、效率满分日、完美一周<br data-page-node-id="RpvZRUUjnljYFia0UmWTO2"><!--pnid:j8dmy1qc4KoJBM28283rt7-->
-          · 活跃 50/100/200/365 天、上星 100/300/600 颗、连续 7/30/100 天<br data-page-node-id="8mkFZphbWUx9W9tIpTjMc8"><br data-page-node-id="WUJLor5L9bvnrruEopIHz9">
-          <b data-page-node-id="6g2xz8RAskoocEVZfDFuBt" style="color:var(--text)"><!--pnid:1N1nxFDw5PDu3rTuHZyo4R-->手动编辑</b><!--pnid:oGTbQX3GTHHPQnrJPabrFC-->：每条传记点「✏️ 编辑」可以修改文字，把它变成你专属的回忆录。<br data-page-node-id="GtfrUd6jOmei7mpU0Pa2Ei"><br data-page-node-id="Q4mV6y6ADc8CLpszcrqltE">
-          <b data-page-node-id="K4M9ZhZFeX1m3anwCXZcCl" style="color:var(--text)"><!--pnid:Ov8SemB5f5MB7xQByYo3KP-->顺序</b><!--pnid:SYt47J9sItZZkDGtfqJ0Sc-->：最新的在上面；一页 10 条，可翻页，顶部支持搜索。
+          <b style="color:var(--text)">这里显示你每天写的日记</b>（自动生成的「每日/每周传记」已停用）<br>
+          · <b style="color:var(--text)">按天翻</b>：一天一张卡，进步 / 不足 / 改进 / 该停止 / 其他 / 感恩 / 睡眠全在同一张里<br>
+          · <b style="color:var(--text)">按条看</b>：「全部」把进步与感恩打散成单条，按时间倒序<br>
+          · <b style="color:var(--text)">找旧账</b>：可搜标题、正文或年份（多个词用空格隔开），也可用日历跳到某年某月某天<br>
+          · <b style="color:var(--text)">想改内容</b>：点「📔 去日记」回到当天日记页写——这里只读，避免两处写入打架<br>
+          · 过去自动生成的条目仍存在你的设备里，不再展示，也不会被删除
+        
         </div>
       </div>
     </div>
@@ -11414,6 +11447,7 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
 <div data-page-node-id="0YRB0oJelm2f6wAhiOG8Nd" class="modal-overlay" id="addTodoModal">
   <div data-page-node-id="6aRvzK75YZ44l0AnUQipq0" class="modal">
     <h3 data-page-node-id="4cPFPnVDMyEGrON7C0kjH7"><!--pnid:PPoUqNMKIR9ADHCLZq2SjP-->➕ 新增计划</h3>
+    <div class="add-card-head">做什么</div>
     <div data-page-node-id="N4JnNHtPhrR9nQTfBg5K2Y" class="modal-form-group">
       <label data-page-node-id="oDdWxZ7BZjndPQtlcla1JS"><!--pnid:zviGiddhIGrvI0CmXyurah-->任务标题</label>
       <input data-page-node-id="fUba8KUkbi9A1tPzmtRQRI" id="addTodoTitle" placeholder="输入任务名称" type="text">
@@ -11422,6 +11456,7 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
       <label data-page-node-id="XWGOTRZr6wnd5drPF9zztQ"><!--pnid:KSV8RH1Mky2xqQfmqE15Jm-->详情备注</label>
       <textarea data-page-node-id="OwJYnN6h6mGX1FmCcbNSWa" id="addTodoDetail" placeholder="具体要做什么…" style="min-height:60px"></textarea>
     </div>
+    <div class="add-card-head">怎么归类</div>
     <div data-page-node-id="RVckOS0jvNl55lIPyMJKtE" class="modal-form-group">
       <label data-page-node-id="HbqbykAzQxCW7O03YgOzb4" style="display:flex; align-items:center; justify-content:space-between; width:100%"><!--pnid:PejotTXuwOC0sRIE8La8we-->标签<span data-page-node-id="GAl5lrFd7ZaxGegBpQam7R" data-act="openTagManagerModal" style="cursor:pointer; font-size:var(--fs-caption); font-weight:700; color:var(--blue-dark); background:rgba(var(--blue-rgb),0.12); border:1px solid rgba(var(--blue-rgb),0.35); padding:var(--sp-2) var(--sp-10); border-radius:var(--radius-full)"><!--pnid:AwHy0OxKf5a0AhjwTUGnT9-->⚙ 管理标签</span></label>
       <input data-page-node-id="iCg4Z3JQUcCPBIaQe6ERMB" id="addTodoTag" maxlength="8" placeholder="如：学习" type="text">
@@ -11431,6 +11466,7 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
       <label>四象限</label>
       <div id="addTodoQuadBox"></div>
     </div>
+    <div class="add-card-head">什么时候</div>
     <div data-page-node-id="ewijSCxsVAK2Kl84GOOEOE" class="modal-form-group">
       <label data-page-node-id="36Zyf3vifXKZTgTCTOPv77"><!--pnid:ShOIdI9oH0gd92DJqrPQ83-->最晚完成日</label>
       <input data-page-node-id="GiIgqI4zLIumLOXUCVZaKv" id="addTodoDeadline" type="date">
@@ -11457,6 +11493,7 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
       <label data-page-node-id="4PWQZJnGXCZcJEtSZBiqir"><!--pnid:vP3RnIx9olgNIHrtQJXNPu-->提醒</label>
       <input data-page-node-id="kUixEAHgpIwyyhshvjB0bE" id="addTodoRemind" type="datetime-local" title="到点响一声；和排期没有关系，不填就不响">
     </div>
+    <div class="add-card-head">做多少</div>
     <div data-page-node-id="RMzKxSCUjhutlJQa67OQKU" class="modal-form-group">
       <label data-page-node-id="fLzc7rCXmWCq3m027XZtPP"><!--pnid:FQ8FAKFoWpXUhJn9nPVNVF-->预计🍅</label>
       <div class="add-pomo-row">
@@ -11468,6 +11505,7 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
       <label>重复周期</label>
       <div id="addTodoRepeatBox"></div>
     </div>
+    <div class="add-card-head">拆开做</div>
     <div data-page-node-id="SZD3Tn6jUlcCzs2X1hudoB" class="modal-form-group">
       <label data-page-node-id="Ao5GCbt9PbkO4pUWBJ1u0r" style="display:flex; align-items:center; justify-content:space-between; width:100%"><!--pnid:DHJMkSLTnEX5GdWf1i8qSs-->子任务<span data-page-node-id="cEQLX9ltWqEQgOJh2InliT" data-act="addNewTodoSubRow" style="cursor:pointer; font-size:var(--fs-caption); font-weight:700; color:var(--blue-dark); background:rgba(var(--blue-rgb),0.12); border:1px solid rgba(var(--blue-rgb),0.35); padding:var(--sp-2) var(--sp-10); border-radius:var(--radius-full)"><!--pnid:155NsABZr18vTuWYkeDdcW-->＋ 添加子任务</span></label>
       <div data-page-node-id="Tg0rBTcCptiGgvu69Tnmhi" id="addTodoSubsBox" style="display:flex; flex-direction:column; gap:var(--sp-6)"></div>

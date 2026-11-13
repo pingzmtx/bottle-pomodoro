@@ -54,7 +54,7 @@ function renderAchListOnly() {
     if (!list.length) return;
     const lit = list.filter(function (a) { return a.unlocked; }).length;
     achHtml +=
-      '<div style="flex:1 1 68px;min-width:68px;padding:var(--sp-6) var(--sp-4);border-radius:var(--radius-xs);' +
+      '<div style="flex:1 1 62px;min-width:62px;box-sizing:border-box;padding:var(--sp-6) var(--sp-4);border-radius:var(--radius-xs);' +
       'background:var(--bg);border:1.5px solid ' + T.color + ';text-align:center;">' +
       '<div style="font-size:var(--fs-caption);color:var(--text-light);">' + T.label + '</div>' +
       '<div style="font-size:var(--fs-title);font-weight:800;color:' + (lit ? T.color : 'var(--text-light)') + ';line-height:1.25;">' +

@@ -1051,6 +1051,10 @@ function bioInitFlags() {
   return;
 }
 
+/* 2026-11-14：停用「每天/每周自动新增」的传记（用户明确要求）。
+   函数体完整保留（含里程碑规则），改这一行即可恢复；历史数据一条不删，
+   只是不再进列表（见 renderBioSection 里 bioItems 的过滤）。 */
+const BIO_AUTO_OFF = true;
 function checkBiographyEvents() {
 /* —— 传记补记：把当前已达到、但传记列表里还没有对应条目的里程碑一次性补进去。
    只在第一次结算补，bioBackfillDone 落盘防重复补；
@@ -1125,6 +1129,19 @@ function checkBiographyEvents() {
     appData.bioTriggered['ach_5'] = true;
     const b = bioText('ach_5', {});
     if (b) events.push(b);
+  }
+  /* ★ 2026-11-14：从这里往下全是「会天天/每周触发」的条目
+     （连续纪录刷新、单日纪录刷新、一周足迹、状态爆表、效率满分日）。
+     用户明确要求「不要每天自动新增」，故整段停用；上面 rec_ 与 rank_ 里程碑是低频事件，保留。 */
+  if (BIO_AUTO_OFF) {
+    if (events.length) {
+      events.forEach(function (b) {
+        appData.biographies.unshift({ date: today, key: b.key, title: b.title, text: b.text, edited: false });
+      });
+      saveData();
+      renderBioSection();
+    }
+    return;
   }
   /* 不天天记，只记「重要时刻」——
      连续纪录刷新（≥3 天破个人纪录）/ 单日纪录刷新（≥5 个破个人纪录）*/
@@ -1353,6 +1370,8 @@ function renderBioSection() {
   /* 传记条目的另一个来源：日记「每日进步」(diary.review.progress)。
      它不是独立的 biographies 记录，而是从日记派生 —— 所以统一成同一种「条目」形状，
      只靠 source 区分，筛选/搜索/排序/分页全部共用一套逻辑，不各写一份。 */
+  /* 历史条目全部保留展示 —— 用户要求的是「别再自动新增」，不是「把过去删掉」。
+     checkBiographyEvents 已停用（BIO_AUTO_OFF），所以这里只会看到旧数据和成就解锁事件。 */
   const bioItems = list.map(function (b, i) {
     return { source: 'bio', date: b.date || '', title: b.title || '', text: b.text || '', bioIndex: i };
   });
@@ -1371,8 +1390,31 @@ function renderBioSection() {
       : [];
     if (arr.length) gratItems.push({ source: 'gratitude', date: date, title: '感恩日记', text: arr.join(' · '), bioIndex: -1 });
   });
+  /* 日记整卡：一天一条，把当天写过的字段全并进一张卡。
+     与「进步」「感恩」的关系是「按天 / 按条」两种切法，内容不重不漏。 */
+  const diaryItems = [];
+  Object.keys(appData.diaries || {}).forEach(function (date) {
+    const d = appData.diaries[date] || {};
+    const r = d.review || {};
+    const segs = [];
+    const put = function (ic, label, v) { if (v && String(v).trim()) segs.push(ic + ' ' + label + '：' + String(v).trim()); };
+    put('🌱', '进步', r.progress);
+    put('🪨', '不足', r.shortcomings);
+    put('🔧', '改进', r.improvements);
+    put('✋', '该停止', r.stop);
+    put('📝', '其他', r.other);
+    const gi = (d.gratitude && Array.isArray(d.gratitude.items) ? d.gratitude.items : [])
+      .map(function (x) { return String(x || '').trim(); }).filter(Boolean);
+    if (gi.length) segs.push('🙏 感恩：' + gi.join(' · '));
+    const fb = d.feedback || {};
+    if (fb.sleepTime || fb.wakeTime) {
+      segs.push('😴 睡眠：' + (fb.sleepTime || '—') + ' 睡 / ' + (fb.wakeTime || '—') + ' 起');
+    }
+    if (segs.length) diaryItems.push({ source: 'diary', date: date, title: '日记', text: segs.join('\n'), bioIndex: -1 });
+  });
   let pool = bioItems.concat(progItems).concat(gratItems);
-  if (_bioSourceFilter === 'bio') pool = bioItems;
+  if (_bioSourceFilter === 'diary') pool = diaryItems;
+  else if (_bioSourceFilter === 'bio') pool = bioItems;
   else if (_bioSourceFilter === 'progress') pool = progItems;
   else if (_bioSourceFilter === 'gratitude') pool = gratItems;
   /* 关键词：空格分隔 = 每个词都要出现；除了标题/正文，也认日期（打「2025」= 那年全部，
@@ -1420,12 +1462,15 @@ function renderBioSection() {
        改为给一个「去日记」入口，编辑权留在日记页，避免两处写入打架。 */
     const isProgress = b.source === 'progress';
     const isGratitude = b.source === 'gratitude';
-    const isDiaryDerived = isProgress || isGratitude;
+    const isDiaryCard = b.source === 'diary';
+    const isDiaryDerived = isProgress || isGratitude || isDiaryCard;
     const headBadge = isProgress
       ? '<span style="font-size:var(--fs-caption);font-weight:700;color: var(--primary-ink);background:var(--surface-2);border-radius:var(--radius-full);padding:1px var(--sp-8);">🌱 每日进步</span>'
       : isGratitude
         ? '<span style="font-size:var(--fs-caption);font-weight:700;color: var(--primary-ink);background:var(--surface-2);border-radius:var(--radius-full);padding:1px var(--sp-8);">🙏 感恩日记</span>'
-        : '';
+        : isDiaryCard
+          ? '<span style="font-size:var(--fs-caption);font-weight:700;color: var(--primary-ink);background:var(--surface-2);border-radius:var(--radius-full);padding:1px var(--sp-8);">📔 当天全部</span>'
+          : '';
     const actBtn = isDiaryDerived
       ? '<button class="btn-small" style="padding:var(--sp-2) var(--sp-10);font-size:var(--fs-caption);" onclick="selectDiaryDate(\'' +
         b.date +
@@ -1558,7 +1603,7 @@ function renderBioSection() {
     const sourceSeg =
       '<div class="seg-group" style="margin-bottom:var(--sp-8);">' +
       _srcBtn('all', '全部', '全部来源', pool.length) +
-      _srcBtn('bio', '📖 传记', '只看传记', bioItems.length) +
+      _srcBtn('diary', '📔 日记', '按天看当天写的全部内容', diaryItems.length) +
       _srcBtn('progress', '🌱 进步', '日记里的「每日进步」', progItems.length) +
       _srcBtn('gratitude', '🙏 感恩', '日记里的「感恩日记」', gratItems.length) +
       '</div>';
@@ -1615,7 +1660,7 @@ function renderBioSection() {
   }
 }
 function setBioSourceFilter(key) {
-  _bioSourceFilter = key === 'bio' || key === 'progress' || key === 'gratitude' ? key : 'all';
+  _bioSourceFilter = key === 'diary' || key === 'bio' || key === 'progress' || key === 'gratitude' ? key : 'all';
   _bioPage = 1;
   renderBioSection();
 }
