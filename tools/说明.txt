@@ -1,0 +1,55 @@
+tools 文件夹 · 说明（人和 AI 都看这份）
+
+这是"后台工具箱"，分两类：
+
+【🤖 给 AI 用的命令行工具】—— 人类不用碰，AI 读 AGENTS.md 就会用
+  build.py          合并器：把 上一级 src/ 源码 合成出 index.html 成品
+                    用法：python3 tools/build.py --lint（自检）
+                          python3 tools/build.py （合并）
+                          python3 tools/build.py --check（核对一致）
+  run_smoke.py      体检员：改完代码跑一遍，99 项自动检查 + 0 JS 异常，全绿才叫完成
+                    用法：python3 tools/run_smoke.py
+  tests/unit_pure.js 纯函数小测试（21 项），build 的 --lint 与它配套
+                    用法：node tools/tests/unit_pure.js
+  bench.py          性能测试脚本（基本闲置，保留备用）
+
+  rs_viewport.py    多设备视口走查：320/360/375/414/768 五档 × 五视图，自动查
+                    「横向溢出 / 元素越界 / 被底栏遮挡 / 点击目标过小 / 文本截断」。
+                    用法（★本机可用）：
+                      python3 -u tools/rs_viewport.py --via browser --port 8793 --widths 320 --views timer
+                      然后把浏览器打开 http://127.0.0.1:8793/ （页面自动接入，跑完即出结果）
+                    说明：本沙箱起不了无头 chromium，`--via browser` 改用真机浏览器当
+                      执行器（就是 run_smoke 那条桥）。唯一差别：桥不能截屏 → 不产出 PNG，
+                      断言不受影响。要图请在有 Chrome 的机器上跑去掉 --via browser 的版本。
+
+  ── 依赖分析三件套（改结构/拆模块前后必看）──
+  callgraph_ast.js  ★主工具：AST 调用图（acorn 解析真语法树，三类边）
+                    A call 函数调用 / B state appData 全局状态读写 / C dom id 契约
+                    用法：node tools/callgraph_ast.js            生成 callgraph.json + 报告
+                          node tools/callgraph_ast.js --selfcheck 自检（pre-commit 已挂）
+                          node tools/callgraph_ast.js --impact <函数名>  反查影响面
+                          node tools/callgraph_ast.js --module <文件名>  单模块出入度
+  w6_layer.py       层方向门禁（正则快检）：下层不许反向依赖上层，硬违例=退出码1
+                    口径与 callgraph_ast 的 layerFrom/layerTo 对齐（后者的 LAYER 表
+                    直接从本文件读，单一事实源）
+  dep_report.py     ⚠️ 已被 callgraph_ast.js 取代（保留供对照，别再当准绳）
+  vendor/acorn.js   acorn 8.11.3 单文件 CJS 构建（本项目不引 npm），见 vendor/README.md
+
+  install_hooks.py  门禁上膛：把 tools/githooks/ 里的「提交前自动检查」装到 git 上
+                    用法：python3 tools/install_hooks.py         （装，可反复跑）
+                          python3 tools/install_hooks.py --check （只查装没装）
+                    ⚠️ 本机 Documents 目录不支持"可执行文件"，所以钩子不能放在
+                       默认的 .git/hooks/（放那儿 git 会**静默忽略**，等于没装）。
+                       本工具改走 core.hooksPath，装到 /var/minis/shared/pomo-hooks。
+                       换设备 / 新解压的包 → 先跑一次这个，否则门禁是空的。
+                    它拦什么：改了 src 却没重建/没提交 index.html（成品是旧的）、
+                      lint / unit / 调用图自检挂了。全绿链的 gate 段会检查它有没有上膛。
+
+【🙋 给人类在浏览器里用的】—— 双击打开即可
+  合成器/
+    番茄钟合成器v5.2-含剧本功能.html    ← 原版：做剧情副本（AI文本→JSON、ZIP合并）用这个
+    番茄钟合成器v6-主程序合成.html       ← 新版：把 src.zip 打包成一个 index.html 成品；
+                                       ②「救命还原」：本地只剩 index.html 时还原出完整 src.zip（源码）；
+                                       ③「验货台」：AI 还回来的包拖进去自动做六项体检（结构/语法/纯净度/成品同版/恢复标记/真机冒烟），全绿收货、见红打回
+
+给 AI 的提示：改动前先读 项目根/AGENTS.md；工具细节看本说明与各文件头注释。

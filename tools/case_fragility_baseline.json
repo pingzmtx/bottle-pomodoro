@@ -1,0 +1,21 @@
+{
+  "by_rule": {
+    "R1": 1,
+    "R2": 7,
+    "R4": 11
+  },
+  "files": {
+    "c41_task_compare.js": 2,
+    "c51_font_scale.js": 1,
+    "c52_tb_fold_color.js": 6,
+    "c56_tb_create.js": 1,
+    "c57_forest_panel.js": 1,
+    "c58_seg_control.js": 3,
+    "c66_readability.js": 1,
+    "c67_readability_and_memo.js": 1,
+    "c69_diary_overview_bio_filter.js": 1,
+    "c72_log_range_query.js": 1,
+    "c77_multi_block.js": 1
+  },
+  "total": 19
+}

@@ -1,0 +1,329 @@
+/* ---------- 9. 段位系统 ---------- */
+.rank-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-14);
+  margin-top: var(--sp-14);
+  box-shadow: none;
+}
+/* 页头三件（标题/赛季/历史）在 360px 宽下会各自折成两行，
+   「段位系统」变「段位系/统」、按钮变竖排。允许换行并给标题不折行。 */
+.rank-header { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); flex-wrap: wrap; margin-bottom: var(--sp-10); }
+.rank-header h3 { white-space: nowrap; }
+.rank-header .season-tag { white-space: nowrap; flex: 1 1 auto; text-align: center; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.rank-header .history-btn { white-space: nowrap; flex: 0 0 auto; }
+.rank-header h3 { font-size:var(--fs-title); font-weight: 700; }
+.rank-header .season-tag { font-size:var(--fs-title); color: var(--text-light); background: var(--bg); padding: var(--sp-2) var(--sp-8); border-radius: var(--radius-xs); border: 0; }
+.rank-header .history-btn {
+  font-size:var(--fs-title);
+  font-weight: 700;
+  color: var(--primary-ink);
+  background: rgba(var(--primary-rgb),0.1);
+  border: 1px solid var(--primary);
+  padding: var(--sp-2) var(--sp-8);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+}
+/* rank-main 是卡片内的分组，与 .rank-section 同底色。
+   两个同色白框相套只能靠两边描边区分 → 让它退回 flat 层，
+   分组关系交给间距与下方 hairline 表达。 */
+.rank-main {
+  display: flex;
+  gap: var(--sp-12);
+  align-items: center;
+  flex-wrap: wrap;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: var(--sp-4) 0;
+  box-shadow: none;
+}
+.rank-main .rank-info { flex: 1; min-width: 0; }
+.rank-main .rank-badge-box { flex-shrink: 0; }
+.rank-main .rank-extras { margin-top: var(--sp-6); flex-basis: 100%; }
+.rank-badge-box {
+  width: 64px; height: 64px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(37px * var(--fs-boost));
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  position: relative;
+}
+.rank-badge-box.rank-glow { animation: gloryGlow 1.5s ease-in-out infinite alternate; }
+.rank-info { flex: 1; min-width: 0; }
+.rank-name-row { display: flex; align-items: baseline; gap: var(--sp-6); margin-bottom: var(--sp-2); }
+.rank-name { font-size:var(--fs-hero); font-weight: 800; }
+.rank-sub { font-size:var(--fs-title); font-weight: 700; color: var(--text-light); }
+.rank-stars { font-size:var(--fs-title); font-weight: 700; margin-bottom: var(--sp-4); }
+.rank-progress-bar { height: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-xs); overflow: hidden; }
+.rank-progress-fill { height: 100%; border-radius: var(--radius-xs); transition: width 0.5s ease; }
+.rank-progress-text { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-2); }
+/* 卡内分组：与父级同层，用 hairline 顶线 + 间距表达，不再画虚线框。
+   （虚线语义是「空状态/待投放」，装既有任务时会读成「这还没做好」） */
+.rank-task-card { margin-top: var(--sp-10); padding: var(--sp-12) 0 0; border: 0; border-top: 1px solid var(--hairline); border-radius: 0; background: transparent; }
+.rank-task-title { font-size:var(--fs-title); font-weight: 700; margin-bottom: var(--sp-4); }
+.rank-task-row { display: flex; align-items: center; justify-content: space-between; font-size:var(--fs-title); }
+/* reroll 行放的是「延后一天 + 三档赌注」四组按钮：实测总宽 352px，
+   而可用宽度 351px —— 差 1px 就放不下，右侧「大赌」被裁到卡片外，
+   且按钮带 nowrap 不会收缩。改为两行：延后独占一行，三档赌注均分一行。 */
+.rank-task-row.reroll-row { margin-top: var(--sp-8); padding-top: var(--sp-10); border-top: 1px solid var(--hairline); display: block; }
+/* 三档赌注：均分一行，允许收缩（当年 106+76+76+76 溢出 1px 被裁到卡片外） */
+.rank-task-row.reroll-row .reroll-bets { display: flex; gap: var(--sp-6); align-items: center; flex-wrap: wrap; justify-content: space-between; }
+.rank-task-row.reroll-row .bet-tier-btn { flex: 1 1 0; min-width: 0; }
+/* 「延后一天」：逃生口，不是主操作 → 右对齐的灰字，不占整行、不描边 */
+.rank-task-row.reroll-row .reroll-postpone { display: flex; justify-content: flex-end; margin-top: var(--sp-4); }
+.reroll-postpone-btn {
+  border: 0;
+  background: transparent;
+  color: var(--text-light);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  padding: var(--sp-2) 0 var(--sp-2) var(--sp-10);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.reroll-postpone-btn:active { opacity: .6; }
+/* 三档赌注做成贴片：靠底色差表达可点，不再叠一层黄色描边 + 硬编码 #FFF8E1
+   （那两个颜色在深色模式下不会跟着换）。 */
+.bet-tier-btn { flex: 1; min-width: 56px; padding: var(--sp-6) var(--sp-6) !important; font-size:var(--fs-body) !important; background: var(--surface-3); color: var(--text); border: 0 !important; font-weight: var(--fw-semibold); white-space: nowrap; }
+.bet-tier-btn:active { background: rgba(var(--primary-rgb),.16); }
+.rank-task-progress { font-weight: 700; }
+.rank-task-status { font-size:var(--fs-title); padding: var(--sp-2) var(--sp-6); border-radius: var(--radius-xs); }
+.rank-drop-warn { margin-top: var(--sp-6); font-size:var(--fs-body); line-height: 1.6; }
+.rank-drop-warn .rdw-warn { color: var(--danger); background: #FDECEA; border: 1px solid #F5B7B1; border-radius: var(--radius); padding: var(--sp-4) var(--sp-10); display: block; font-weight: 600; }
+.rank-drop-warn .rdw-ok { color: var(--green-ink); background: var(--ok-bg); border: 1px solid var(--ok-line); border-radius: var(--radius); padding: var(--sp-4) var(--sp-10); display: block; font-weight: 600; }
+.rank-drop-warn .rdw-idle { color: #8D6E63; background: #F5EFE6; border: 1px solid #D7CCC8; border-radius: var(--radius); padding: var(--sp-4) var(--sp-10); display: block; font-weight: 600; margin-top: var(--sp-4); }
+.rank-drop-warn .rdw-season { color: var(--info-ink); background: var(--info-bg); border: 1px solid var(--info-line); border-radius: var(--radius); padding: var(--sp-4) var(--sp-10); display: block; font-weight: 600; margin-top: var(--sp-4); }
+.rank-extras { display: flex; gap: var(--sp-8); margin-top: var(--sp-8); flex-wrap: wrap; }
+/* 这三条是「标签/芯片」，不是卡片：用 surface-2 底色表达可读区域，
+   零描边（父级已经是白卡，再描白框就是圈套圈）。 */
+.rank-extra-item { font-size:var(--fs-title); padding: var(--sp-2) var(--sp-8); border-radius: var(--radius-xs); border: 0; background: var(--surface-2); }
+/* 折叠说明卡：父级 .rank-section 已经是白卡，这里再画一个同色白框就是圈套圈。
+   退回 flat 层，用 hairline 顶线把它和上文分开即可。 */
+.rank-desc-card {
+  margin-top: var(--sp-10);
+  padding: var(--sp-10) 0 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  border-radius: 0;
+  font-size:var(--fs-title);
+  color: var(--text-light);
+  line-height: 1.7;
+}
+.rank-desc-card .rdc-title { color: var(--text); font-size:var(--fs-title); cursor: pointer; display: block; padding: var(--sp-4) 0; font-weight: 700; }
+.rank-tier-chips { display: flex; flex-wrap: wrap; gap: var(--sp-4); margin: var(--sp-6) 0 var(--sp-10); }
+.rank-tier-chips span { font-size:var(--fs-note); padding: var(--sp-2) var(--sp-8); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); white-space: nowrap; }
+
+/* 赌注三档按钮 */
+/* 字色 #8D6E63 在 #FFF8E1 上只有 4.35:1（擦边），压到 #6D4C41 → 6.7:1 */
+.bet-table { width: 100%; border-collapse: collapse; margin: var(--sp-6) 0 var(--sp-10); font-size:var(--fs-body); }
+.bet-table th, .bet-table td { border: 1px solid var(--border); padding: var(--sp-4) var(--sp-6); text-align: center; }
+.bet-table th { background: var(--bg); color: var(--text); font-weight: 700; }
+.bet-table td:first-child { font-weight: 700; color: var(--text); }
+
+
+
+/* 今日星途 */
+.star-path {
+  /* 下沉一档的说明块：靠底色而非虚线表达「这是补充信息」 */
+  background: var(--surface-2);
+  border: 0;
+  border-radius: var(--radius);
+  padding: var(--sp-10) var(--sp-12);
+  margin-top: var(--sp-8);
+  font-size:var(--fs-body);
+  color: var(--text-light);
+  line-height: 1.7;
+}
+.star-path .sp-title { font-size:var(--fs-title); font-weight: 800; color: var(--text); margin-bottom: var(--sp-2); }
+.star-path .sp-got { font-size:var(--fs-body); }
+.star-path .sp-got b { color: var(--green-ink); font-size:var(--fs-title); }
+.star-path .sp-more { font-size:var(--fs-body); color: var(--text-light); margin: var(--sp-2) 0 var(--sp-6); }
+/* 强调色靠文字色与浅底表达，不描边（描边色的黄太亮，会跳出来自成一层） */
+.star-path .sp-streak { font-size:var(--fs-body); color: var(--yellow-ink); background: #FFF8E1; border: 0; border-radius: var(--radius); padding: var(--sp-4) var(--sp-8); margin-bottom: var(--sp-6); }
+.sp-wc { margin-top: var(--sp-4); }
+/* 这些是「进度条目」，不是卡片：零描边，靠行间距与下方 hairline 分条。
+   父级 .star-path 已经是 surface-2 底，条目再描一道边就是圈套圈。 */
+.sp-wc-item { display: flex; align-items: center; gap: var(--sp-8); padding: var(--sp-6) var(--sp-2); background: transparent; border: 0; border-bottom: 1px solid var(--hairline); border-radius: 0; margin-bottom: 0; }
+.sp-wc-item:last-child { border-bottom: 0; }
+.sp-wc-item .wc-icon { font-size:var(--fs-title); width: 22px; text-align: center; }
+.sp-wc-item .wc-info { flex: 1; min-width: 0; }
+.sp-wc-item .wc-name { font-size:var(--fs-body); font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sp-wc-item .wc-bar { height: 5px; background: #E5E5E5; border-radius: var(--radius-xs); overflow: hidden; margin-top: var(--sp-2); }
+.sp-wc-item .wc-fill { height: 100%; background: linear-gradient(90deg, #5B9BD5, #E91E63); border-radius: var(--radius-xs); transition: width .3s; }
+.sp-wc-item .wc-reward { font-size:var(--fs-note); font-weight: 600; color: var(--primary-ink); white-space: nowrap; }
+.sp-wc-item.done { background: transparent; }
+.sp-wc-item.done .wc-name { color: var(--green-ink); }
+.sp-wc-item.done .wc-reward { color: var(--green-ink); }
+
+.rank-divider { height: 2px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: var(--sp-16) 0; }
+.rank-feedback-toast {
+  position: fixed;
+  top: calc(60px + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  padding: var(--sp-12) var(--sp-20);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  max-width: 90%;
+  text-align: center;
+  font-size:var(--fs-title);
+  font-weight: 700;
+}
+.rank-feedback-toast.show { opacity: 1; animation: badgePop 0.4s ease; }
+
+/* 历史弹窗 */
+.history-modal .modal { max-height: 80vh; overflow-y: auto; }
+.history-section { margin-bottom: var(--sp-14); }
+.history-section h4 { font-size:var(--fs-title); font-weight: 700; margin-bottom: var(--sp-6); padding-bottom: var(--sp-4); border-bottom: 1px solid var(--border); }
+.history-stat-row { display: flex; justify-content: space-between; padding: var(--sp-4) 0; font-size:var(--fs-title); }
+.history-season-card { padding: var(--sp-10); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: var(--sp-8); background: var(--bg); }
+.history-season-title { font-size:var(--fs-title); font-weight: 700; margin-bottom: var(--sp-4); }
+
+/* ---------- 10. 伙伴组队任务 ---------- */
+.team-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-14);
+  margin-top: var(--sp-14);
+  box-shadow: none;
+}
+.team-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-12); }
+.team-header h3 { font-size:var(--fs-sub); font-weight: 800; }
+.team-star-badge {
+  font-size:var(--fs-title);
+  font-weight: 700;
+  color: var(--primary-ink);
+  background: rgba(var(--primary-rgb),0.1);
+  padding: var(--sp-2) var(--sp-10);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--primary);
+}
+.team-countdown {
+  text-align: center;
+  background: linear-gradient(135deg, var(--accent-bg), #FFE0B2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-8);
+  margin-bottom: var(--sp-12);
+  font-size:var(--fs-title);
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.team-countdown .cd-time { font-size:var(--fs-h1); font-weight: 800; color: var(--primary-ink); font-variant-numeric: tabular-nums; }
+.team-countdown.expired { background: #FFEBEE; color: var(--danger); }
+.team-countdown.expired .cd-time { color: var(--danger); }
+/* 组队各模块：父级 .rank-section 已是白卡，这里再画白框就是圈套圈。
+   退回 flat 层，用 hairline 顶线分节；padding 只留纵向。 */
+.team-module { background: transparent; border: 0; border-top: 1px solid var(--hairline); border-radius: 0; padding: var(--sp-10) 0; margin-bottom: var(--sp-10); }
+.team-module:first-child { border-top: 0; padding-top: 0; }
+.team-module-title { font-size:var(--fs-title); font-weight: 700; margin-bottom: var(--sp-8); display: flex; align-items: center; gap: var(--sp-4); }
+.team-module-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  background: var(--fill-primary);
+  color: var(--on-fill);
+  border-radius: 50%;
+  font-size:var(--fs-title);
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.team-code-box { display: flex; gap: var(--sp-6); align-items: center; }
+.team-code-input {
+  flex: 1;
+  padding: var(--sp-8) var(--sp-10);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size:var(--fs-title);
+  font-family: monospace;
+  background: var(--card);
+  color: var(--text);
+  word-break: break-all;
+}
+.team-code-output {
+  padding: var(--sp-10);
+  /* 这是可点复制的值，不是待投放区：用下沉底表达「可交互」，不描边 */
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size:var(--fs-title);
+  font-family: monospace;
+  word-break: break-all;
+  line-height: 1.5;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+.team-code-output.empty { color: var(--text-light); font-style: italic; font-family: inherit; }
+.team-btn {
+  padding: var(--sp-8) var(--sp-14);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size:var(--fs-title);
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--fill-primary);
+  color: var(--on-fill);
+  white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  transition: background .12s, transform .1s, box-shadow .12s;
+}
+.team-btn:active { transform: scale(.985); box-shadow: var(--shadow-sm); }
+.team-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.team-btn.green { background: var(--green); color: var(--white); }
+.team-btn.blue { background: var(--blue); color: var(--white); }
+.team-btn.secondary { background: var(--card); color: var(--text); }
+.team-status-row { display: flex; justify-content: space-between; align-items: center; padding: var(--sp-6) 0; font-size:var(--fs-title); border-bottom: 1px solid rgba(0,0,0,0.05); }
+.team-status-row:last-child { border-bottom: none; }
+.team-status-label { color: var(--text-light); font-weight: 600; }
+.team-status-val { font-weight: 700; }
+.team-status-val.success { color: var(--green-ink); }
+.team-status-val.fail { color: var(--danger); }
+.team-status-val.pending { color: var(--yellow-ink); }
+.team-settlement {
+  background: linear-gradient(135deg, var(--ok-bg), #C8E6C9);
+  border: 1px solid var(--green);
+  border-radius: var(--radius);
+  padding: var(--sp-10);
+  margin-top: var(--sp-8);
+  text-align: center;
+}
+.team-settlement.lose { background: linear-gradient(135deg, #FFEBEE, #FFCDD2); border-color: var(--danger); }
+.team-settlement.neutral { background: linear-gradient(135deg, var(--card), var(--warn-bg));   /* 两端都走变量：渐变在深色下自动变暗 */ border-color: var(--yellow); }
+.team-settlement-title { font-size:var(--fs-title); font-weight: 800; margin-bottom: var(--sp-4); }
+.team-settlement-detail { font-size:var(--fs-title); color: var(--text-light); }
+.team-settlement .star-change { font-size: calc(26px * var(--fs-boost)); font-weight: 800; margin: var(--sp-4) 0; }
+.team-settlement .star-change.gain { color: var(--green-ink); }
+.team-settlement .star-change.lose { color: var(--danger); }
+.team-history-toggle {
+  font-size:var(--fs-title);
+  color: var(--text-light);
+  cursor: pointer;
+  text-align: center;
+  padding: var(--sp-8);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  margin-top: var(--sp-8);
+  font-weight: 600;
+}
+.team-history-list { margin-top: var(--sp-8); max-height: 200px; overflow-y: auto; }
+.team-history-item { display: flex; justify-content: space-between; align-items: center; padding: var(--sp-6) var(--sp-8); border-bottom: 1px solid rgba(0,0,0,0.05); font-size:var(--fs-title); }
+.team-history-item:last-child { border-bottom: none; }
+.team-history-date { color: var(--text-light); font-weight: 600; }
+.team-history-result { font-weight: 700; }
+

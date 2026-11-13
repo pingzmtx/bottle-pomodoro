@@ -1,0 +1,125 @@
+/* ============================================================================
+   字体：自托管 woff2（源文件在 web/fonts/，构建时拷到 public/fonts/）
+   —— 为什么自托管而不是 <link> Google Fonts：
+      国内访问 fonts.googleapis.com 大概率超时，页面会先卡在无字可渲染的白屏，
+      这不是"慢一点"，是"打不开"。字体必须跟站点一起发。
+   —— 为什么只有三个文件、而且都裁过：
+      中文字体一个字形就是一条轮廓，全字库 10 MB 起，不能原样发，必须裁剪。
+      但**裁剪的口径不能是「网站上有什么字」**：第一版就是按站点静态文案裁的
+      （2049 个汉字），结果用户往日记、计划、备忘里打一个文案里没出现过的字，
+      浏览器立刻掉回系统黑体 —— 一行楷体里夹几个黑体字，比全用黑体还难看。
+      这是设计漏洞，不是显示 bug：日记应用的内容是用户写的，字库边界必须按
+      「用户可能打出什么字」算，而不是「我们自己写了什么字」。
+      现在的口径：
+        · WenKai      = GB2312 全集（6763 汉字）+ 站点符号，**拆成两个家族**
+                       ① WenKai      站点用到的 2221 字符 → 488 KB，首屏必下
+                       ② WenKaiExtra GB2312 其余 4715 字符 → 1.15 MB，主字体缺字时才取
+                       前者在字体栈里排前面，后者紧跟其后，见 01b_font_wenkai.css（生成物）
+        · SmileySans = 只给标题用，标题全是我们自己写的 → 站点字符即可，269 KB
+        · Inter      = 纯拉丁数字 → 48 KB
+      GB2312 之外的字掉回系统字体是**预期行为**，不是 bug。
+      增删文案不需要重跑裁剪（汉字已全包含）；加 GB2312 之外的新字才需要。
+      重建见 tools/fonts/build_fonts.py。
+   —— 为什么 WenKai 要拆（2026-10-27）：
+      合成一块 1.55 MB 之后，首屏要背一整块。实测线上这条链路字体要
+      35–56 秒（同期 app.js 走 gzip 才 1.6 秒 —— woff2 本身已压缩，没法再压），
+      用户看到的就是「刷新变慢」，以及「字体一直没生效」。拆开后首屏只下 488 KB，
+      生僻字那一块等到真用上再拉，拉一次就长期留在 STATIC_CACHE 里。
+   —— 为什么是两个家族、而不是同一家族的 unicode-range 分块：
+      拆块的正统写法是同一个 family 挂两段不重叠的 unicode-range。实测这个内核
+      （本机 WebView + 桌面 Chromium 都试过）**第二块在页面真的出现对应汉字时
+      不会自动去取**：document.fonts 里它一直是 unloaded，字直接掉回系统黑体。
+      改成后备家族后走的是标准 fallback 匹配 —— 主字体缺字才轮到它，才下载。
+   —— font-display: swap：字体没到之前先用系统字体把字画出来，到了再换。
+      不用 block 是因为中文包体大，block 会让整页空白两三秒，比字体不一致更难忍。
+   ============================================================================ */
+/* —— WenKai 的 @font-face 在 01b_font_wenkai.css（生成物）——
+   因为要按 unicode-range 拆两块，那段 range 列表有几万字符，不能手写。
+   两块都带下面这条 size-adjust，所以解释留在这里：
+
+   ★ size-adjust：楷体的「字面率」天生比黑体小，同样 16px 看着小一圈。
+     实测（canvas measureText，100px 基准）：
+       汉字字面高 楷体 93 vs 系统黑体 95 → 0.98
+       拉丁字母   楷体 89 vs 系统黑体 100 → 0.89
+       墨水覆盖率 楷体 1.1‰ vs 系统黑体 1.4‰ → 笔画细 21%
+     所以「看着小」不是字号不够，是字形本身占得少 + 笔画细。
+     这里放大 4%【只缩放字形渲染，不改 font-size】，于是：
+       · 排版用的 font-size 仍是 16px，行高、间距、卡片宽度全都不动
+       · 用户看到、量到的是「楷体和黑体一样大」的效果
+     为什么不直接把 --fs-body 从 16 调到 17：那会连带撑大所有按字号算的盒子，
+     实测过会字撑破卡片（见 11_layout_timer.css 的 --fs-boost 注释）。
+     只给 WenKai 加、不给 SmileySans：标题是展示体，本来就该和正文有大小反差。 */
+/* 得意黑是**倾斜的展示体**，只有一个字重。它的作用是让标题和正文一眼分开，
+   所以只给标题用 —— 放到按钮、表单、说明文字上会因为倾斜而显得不稳。
+   —— 为什么这里没有它的 @font-face（2026-10-27）：
+      它只渲染 `.empty-title`（空状态标题），文案全是站点写死的固定句子，
+      于是可以裁到只剩那些字：275 KB → 6.6 KB。生成器在
+      tools/fonts/make_title_font.py，产物是 01b_font_title.css。
+      正文字体不能这么裁 —— 用户会在任务名、笔记、日记里输入任意汉字。 */
+/* Inter 只出了 latin 子集（48 KB）。中文部分交给 WenKai，两者在同一行里衔接。
+   倒计时、统计数字用它：数字是等宽的，秒数跳动时不会左右抖。 */
+@font-face {
+  font-family: 'InterNums';
+  src: url('../fonts/inter-latin.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+2000-206F, U+2190-2193, U+2212;
+}
+
+/* —— 字体令牌 ——
+   四个角色分开命名，是为了让"哪个还该用系统字体"变成可读的一行：
+   正文读起来要有人味 → WenKai；标题要立住 → SmileySans；数字要对齐 → InterNums；
+   而**极小的字（≤11px 的角标、说明、徽标）继续用系统黑体** ——
+   楷体在 10px 上下笔画会糊成一团，这是可读性问题，不是审美问题。
+   用户提过「好看但别牺牲可读性」，这条就是那句话的落点。 */
+:root {
+  --font-body: 'WenKai', 'WenKaiExtra', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-display: 'SmileySans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-num: 'InterNums', 'WenKai', 'WenKaiExtra', -apple-system, 'PingFang SC', sans-serif;
+  --font-ui: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* 标题用展示体：只给**结构标题**，不给按钮/标签/表单。
+   h1~h4 走元素选择器就够，其余靠 .tf-* 这类"标题语义"的类名显式点名。 */
+h1, h2, h3, h4,
+.tree-forest-title,
+.section-title,
+.card-title,
+.modal-title,
+.empty-title { font-family: var(--font-display); }
+
+/* 数字：等宽 + 用 Inter。tabular-nums 是关键 —— 不加的话 1 比 0 窄，
+   倒计时每秒都会整体左右抖一下，盯着看非常难受。 */
+.timer-time, .timer-digits, .tf-acc, .stat-value, .big-num, .coin-num {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* 极小字回到系统黑体（可读性优先，见上面的令牌注释）。
+   --fs-micro 是 10px 那一档，正是楷体最容易糊的地方。 */
+.tf-sp, .fs-more, .badge, .tag-mini, .setting-note-hint { font-family: var(--font-ui); }
+
+/* —— 小字守卫：≤12px 的辅助字改用系统黑体 ——
+   为什么要单独一层：楷体的笔画细、收放柔和，在 18px 以上是「有人味」，
+   压到 12px 就变成「糊」—— 手机屏上 12px 楷体的横画只有 1 个像素宽，
+   抗锯齿一糊，字就散了。用户自己就提过「好看是好看，但不想牺牲可读性」，
+   所以这里不是审美取舍，是可读性下限：
+     · ≥13px（正文、标题、按钮）：文楷
+     · ≤12px（角标、日期、计数、图例、脚注）：系统黑体
+   新增 12px 文本时**不需要**改这里 —— 下面这组选择器覆盖了现有的全部 12px 规则；
+   如果新写了 .xxx{font-size:var(--fs-micro)} 又希望它是楷体，给它单独加 font-family。
+   反过来说：任何 12px 的楷体文字都算回归。 */
+.tf-species-line, .memo-foot, .fs-win, .fs-more, .fs-date,
+.tb-day-w, .tb-paper-keys, .tb-paper-hour,
+.habit-stage-badge, .quad-badge,
+.shop-item .rarity-tag, .shop-item .item-type-tag,
+.habit-stat-grid span,
+.logcal-day .logcal-n, .logcal-legend,
+.fs-legend, .fs-more-btn, .tf-acc, .tf-wk,
+.settings-chip, .log-tab, .stats-nav-item,
+.setting-desc, .hint-text, .empty-hint, .muted-note,
+.app-foot {
+  font-family: var(--font-ui);
+}

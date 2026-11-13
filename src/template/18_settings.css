@@ -1,0 +1,287 @@
+/* ---------- 11. 设置页 ---------- */
+.settings-group {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-14);
+  margin-bottom: var(--sp-14);
+  box-shadow: none;
+}
+.settings-group h3 { font-size:var(--fs-title); font-weight: var(--fw-semibold); margin-bottom: var(--sp-12); color: var(--text); }
+.settings-group.foldable .group-header { cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+.settings-group.foldable .group-arrow { font-size:var(--fs-title); transition: transform 0.2s; }
+.settings-group.foldable.collapsed .group-arrow { transform: rotate(-90deg); }
+.settings-group.foldable.collapsed .group-body { display: none; }
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-10) 0;
+  border-bottom: 1px solid #eee;
+  gap: var(--sp-10);
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-label { font-size:var(--fs-title); flex: 1 1 0; min-width: 0; }
+.setting-label .setting-desc { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-2); line-height: 1.4; }
+/* 设置页里的外链：说明下方单独一行，点击区域独立，别和旁边输入框挤在一起 */
+.setting-row--link { align-items: flex-start; }
+.setting-label .setting-link { display: inline-flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-3);
+  font-size: var(--fs-note); color: var(--accent); text-decoration: none;
+  border-bottom: 1px solid currentColor; padding-bottom: var(--sp-1); opacity: .9; }
+.setting-label .setting-link:active { opacity: .5; }
+.setting-input { width: 60px; padding: var(--sp-6) var(--sp-8); border: 1px solid var(--border-strong); border-radius: var(--radius-xs); font-size:var(--fs-title); text-align: center; flex-shrink: 0; }
+.setting-select { padding: var(--sp-6) var(--sp-8); border: 1px solid var(--border-strong); border-radius: var(--radius-xs); font-size:var(--fs-title); background: var(--white); flex-shrink: 0; max-width: 62%; min-width: 0; }
+
+/* ============================================================
+    主题选择器（第 3 批 · 整段可回退）
+   ------------------------------------------------------------
+   关键取舍：
+     1. 色卡用的是「主题自己的颜色」（内联 style 写死），不是当前主题的令牌
+        —— 否则所有色卡会跟着当前主题变色，失去预览意义。
+     2. 选中态用 outline + ✓ 角标，不用 box-shadow（遵守 视觉重量纪律：
+        全站真·偏移硬影只留给主操作按钮）。
+     3. 点击通过 onclick="themeEngine.pick(id)"，不引入新的事件委托层。
+   ============================================================ */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-8);
+  padding: var(--sp-10) 0 var(--sp-2);
+}
+.theme-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  padding: var(--sp-8);
+  /* 父级 .settings-group 已是白卡。这里再用白底+描边 = 白框套白框，
+     只能靠两条线区分。改用下沉一档的底色，选中态仍走主色，边界不靠描边。 */
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .12s ease, border-color .12s ease;
+  text-align: left;
+  min-width: 0;
+}
+.theme-card:active { transform: translateY(1px) scale(.985); }
+/* 选中态：加粗描边 + 角标勾（无硬影，符合权重纪律） */
+.theme-card.on {
+  background: var(--surface-2);
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+.theme-card.on::after {
+  content: '✓';
+  position: absolute;
+  top: -6px; right: -6px;
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size:var(--fs-caption); font-weight: 500; line-height: 1;
+  color: var(--on-fill);
+  background: var(--fill-primary);
+  border-radius: 50%;
+}
+/* 色卡缩略：底色铺满 + 主色/强调色两个点，比三色横条更像「主题缩略图」 */
+.theme-swatch {
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  border-radius: var(--radius-xs);
+  border: 1px solid rgba(0,0,0,.20);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  overflow: hidden;
+}
+.theme-swatch i {
+  display: block;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.55);
+}
+.theme-meta { min-width: 0; flex: 1; overflow: hidden; }
+.theme-name {
+  display: block;
+  font-size:var(--fs-title); font-weight: var(--fw-semibold); color: var(--ink-strong);
+  line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.theme-tag {
+  display: block;
+  font-size:var(--fs-caption); color: var(--text-light);
+  margin-top: var(--sp-2); line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* 深色模式卡面自适应（卡片本体跟当前模式走，不做主题覆盖） */
+body.dark-mode .theme-card { background: var(--surface-1); }
+
+
+.setting-note-toggle { font-size:var(--fs-title); color: var(--text-light); cursor: pointer; text-decoration: underline; margin-top: var(--sp-4); }
+.setting-note-content {
+  font-size:var(--fs-title);
+  color: var(--text);   /* 黄底上的正文：不用最弱的 text-light，深色 warn-bg 上对比度才够 AA */
+  margin-top: var(--sp-4);
+  padding: var(--sp-6) var(--sp-8);
+  background: var(--warn-bg);   /* 不写死浅黄：跟着主题与蓝调模式走（14_log 同款教训） */
+  border-radius: var(--radius-xs);
+  line-height: 1.5;
+  display: none;
+}
+.setting-note-content.show { display: block; }
+/* 二级说明（说明里再展开一层：设置 → 关于 → 关于借鉴）：
+   底色换成卡片色 + 细边，否则两层都是 warn-bg、嵌进去完全看不出层级 */
+.setting-note-content--sub {
+  background: var(--card);
+  border: 1px solid var(--hairline);
+}
+/* 组内子块：「微休息」这类和分组同主题、但要自成一块的设置。
+   做法是**做成一整张卡片**（浅底 + 细边 + 圆角 + 内边距），而不是只加一条分隔线 ——
+   只画分隔线的话，视觉上还是「接着往下排的一串行」，看不出这是一个独立的部分。
+   不折叠（已经点开分组了，再点一次纯属多一步）。 */
+.setting-subblock {
+  margin-top: var(--sp-12);
+  padding: var(--sp-12) var(--sp-14) var(--sp-4);
+  background: var(--bg);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+}
+.setting-subblock-title {
+  font-size: var(--fs-title);
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: var(--sp-4);
+  padding-bottom: var(--sp-8);
+  border-bottom: 1px solid var(--hairline);
+  letter-spacing: .02em;
+}
+/* 卡片里的行去掉最外层下边框，别在圆角卡片里再贴一条横线 */
+.setting-subblock > .setting-row:last-child { border-bottom: none; }
+.about-ref-title { font-size:var(--fs-title); font-weight:800; color:var(--text); margin: var(--sp-10) 0 var(--sp-4); }
+.about-ref-title:first-child { margin-top: 0; }
+.about-ref-list { list-style: none; margin: 0; padding: 0; }
+.about-ref-list li {
+  font-size: var(--fs-note); line-height: 1.55; color: var(--text);
+  padding: var(--sp-6) 0; border-bottom: 1px solid var(--hairline);
+}
+.about-ref-list li:last-child { border-bottom: none; }
+.about-ref-desc { display:block; font-size:var(--fs-caption); color: var(--text-light); margin-top: var(--sp-2); line-height: 1.5; }
+
+/* 开关 */
+.switch { position: relative; width: 50px; height: 28px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #ccc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: 0.3s;
+}
+.switch-slider:before {
+  content: "";
+  position: absolute;
+  height: 18px; width: 18px;
+  left: 3px; bottom: 3px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  transition: 0.3s;
+}
+.switch input:checked + .switch-slider { background: var(--green); }
+.switch input:checked + .switch-slider:before { transform: translateX(22px); }
+
+
+
+
+.noise-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: var(--sp-10); }
+.noise-tab {
+  flex: 1;
+  padding: var(--sp-10) var(--sp-4);
+  text-align: center;
+  font-size:var(--fs-title);
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--text-light);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  margin-bottom: -2px;
+  -webkit-tap-highlight-color: transparent;
+}
+.noise-tab.active { color: var(--primary-ink); border-bottom-color: var(--primary); background: rgba(var(--primary-rgb),0.06); }
+.noise-builtin { background: #FAFAFA; border: 1px solid var(--border); border-radius: var(--radius); padding: var(--sp-12) var(--sp-10); }
+.noise-now { font-size:var(--fs-title); font-weight: 700; text-align: center; margin: var(--sp-4) 0 var(--sp-10); color: var(--text); }
+.noise-now .now-icon { font-size: calc(26px * var(--fs-boost)); margin-right: var(--sp-6); }
+.noise-controls { display: flex; align-items: center; gap: var(--sp-8); justify-content: center; flex-wrap: wrap; }
+.noise-controls .btn-circle {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--white);
+  font-size:var(--fs-title);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 0 var(--border);
+}
+.noise-controls .btn-circle:active { transform: translate(1px,1px); box-shadow: 0 1px 0 var(--border-strong); }
+.noise-controls .btn-circle.primary { background: var(--fill-primary); color: var(--on-fill); border-color: var(--border-strong); }
+.noise-vol { display: flex; align-items: center; gap: var(--sp-6); margin-top: var(--sp-10); font-size:var(--fs-body); color: var(--text-light); }
+.noise-vol input[type="range"] { flex: 1; accent-color: var(--primary); }
+.noise-hint { font-size:var(--fs-body); color: var(--text-light); text-align: center; margin-top: var(--sp-8); line-height: 1.5; }
+/* ===== 我的歌单（手动添加/批量导入） ===== */
+.mypl-wrap { background:#FAFAFA; border:1px solid var(--border-strong); border-radius:var(--radius); padding:var(--sp-10); }
+.mypl-add-row { display:flex; gap:var(--sp-6); margin-bottom:var(--sp-8); flex-wrap:wrap; }
+.mypl-add-row input[type="text"] { flex:1; min-width:120px; padding:var(--sp-8) var(--sp-10); font-size:var(--fs-body); border:1px solid var(--border-strong); border-radius:var(--radius); background:var(--white); color:var(--text); box-sizing:border-box; }
+.mypl-add-row input[type="text"]::placeholder { color:#aaa; }
+.mypl-add-btn { padding:var(--sp-8) var(--sp-14); font-size:var(--fs-body); font-weight: 600; border:1px solid var(--primary); border-radius:var(--radius); background:var(--fill-primary); color: var(--on-fill); cursor:pointer; white-space:nowrap; -webkit-tap-highlight-color:transparent; }
+.mypl-add-btn:active { transform:translate(1px,1px); }
+.mypl-list { max-height:260px; overflow-y:auto; }
+.mypl-item { display:flex; align-items:center; gap:var(--sp-8); padding:var(--sp-6) var(--sp-8); border-bottom:1px solid var(--border); font-size:var(--fs-body); }
+.mypl-item:last-child { border-bottom:none; }
+.mypl-item .mypl-icon { font-size:var(--fs-title); flex-shrink:0; }
+.mypl-item .mypl-name { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text); }
+.mypl-item .mypl-del { flex-shrink:0; width:26px; height:26px; border:1px solid var(--border); border-radius:50%; background:var(--white); font-size:var(--fs-note); cursor:pointer; color:#999; line-height:1; -webkit-tap-highlight-color:transparent; }
+.mypl-item .mypl-del:active { background:#fee; color:#c33; }
+.mypl-item.playing { background:rgba(var(--primary-rgb),0.06); }
+.mypl-item.playing .mypl-name { color: var(--primary-ink); font-weight:700; }
+.mypl-empty { text-align:center; color:var(--text-light); font-size:var(--fs-note); padding:var(--sp-16) var(--sp-8); }
+.mypl-batch-area { margin-top:var(--sp-8); }
+.mypl-batch-area textarea { width:100%; height:80px; padding:var(--sp-8) var(--sp-10); font-size:var(--fs-note); border:1px solid var(--border-strong); border-radius:var(--radius); background:var(--white); color:var(--text); box-sizing:border-box; resize:vertical; }
+.mypl-batch-area textarea::placeholder { color:#aaa; }
+.mypl-batch-btn { margin-top:var(--sp-6); padding:var(--sp-6) var(--sp-14); font-size:var(--fs-note); font-weight: 600; border:1px solid var(--blue); border-radius:var(--radius); background:var(--card); color: var(--blue-ink); cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.mypl-batch-btn:active { transform:translate(1px,1px); }
+
+
+
+/* ===== 通知权限状态行（运行时由 injectNotifyPermRow 生成） =====
+   为什么不是普通 setting-row：它是「系统通知」那一行的解释，不是并列项。
+   做成贴着一整块会跟别的开关混淆；做成纯 setting-desc 又会被当成上一行描述的续行。
+   折中：左侧一道细竖线 + 缩进，视觉上明确是"上面那行的附属说明"。 */
+#notifyPermRow {
+  border-left: 1px solid var(--hairline);
+  margin: 0 0 var(--sp-8) var(--sp-2);
+  padding: 0 0 0 var(--sp-10);
+  background: transparent;
+  /* 下面几条原先写在 JS 里（box.style.xxx = ...），搬到 CSS 才能统一改、
+     也才符合 AGENTS.md §143「设计尺度只走变量」—— 行高 1.6 这种没有令牌的值
+     写进 JS 会绕过 lint。JS 只负责建结构，样式一律在这里。 */
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--sp-6);
+}
+#notifyPermRow #notifyPermText {
+  color: var(--text-light);
+  line-height: 1.6;   /* 唯一无从令牌化的值：正文可读行高，全站正文同此 */
+}
+#notifyPermRow .btn-small { margin-top: var(--sp-4); align-self: flex-start; }
+#notifyPermRow .notify-perm-btns {
+  display: flex;
+  gap: var(--sp-8);
+  flex-wrap: wrap;
+}

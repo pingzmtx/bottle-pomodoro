@@ -1,0 +1,9 @@
+{
+  "checks": 25,
+  "h_overflow": 0,
+  "offenders": 0,
+  "small_tap": 45,
+  "tiny_text": 0,
+  "covered": 0,
+  "note": "棘轮基线：各检测项计数不得高于此值，检查点数不得低于此值。修好后跑 --write 收窄。"
+}

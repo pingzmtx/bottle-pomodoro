@@ -1,0 +1,35 @@
+{
+ "_note": "W3-6 innerHTML 注入基线 v2：签名级（file+表达式集合）。勿手改，用 --write-baseline 重建。",
+ "files": [
+  "01e_engine_ui.js",
+  "05_journey_渐进解锁.js"
+ ],
+ "signatures": [
+  [
+   "01e_engine_ui.js",
+   "bestBadge.icon",
+   "bestBadge.name"
+  ],
+  [
+   "05_journey_渐进解锁.js",
+   "nxt.name"
+  ]
+ ],
+ "detail": [
+  {
+   "file": "01e_engine_ui.js",
+   "line": 4155,
+   "exprs": [
+    "bestBadge.icon",
+    "bestBadge.name"
+   ]
+  },
+  {
+   "file": "05_journey_渐进解锁.js",
+   "line": 697,
+   "exprs": [
+    "nxt.name"
+   ]
+  }
+ ]
+}

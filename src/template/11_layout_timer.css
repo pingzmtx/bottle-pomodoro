@@ -1,0 +1,695 @@
+/* ---------- 2. 布局：头部 / 主区域 / 底部导航 ---------- */
+.header {
+  /* 顶部 10px 是 #1A2440 沉浸色条（Via 状态栏/地址栏会取这里），下方是品牌红；原 22px 过宽，E0 收细为 10px */
+  background: linear-gradient(180deg, #1A2440 0, #1A2440 10px, var(--primary) 10px, var(--primary) 100%);
+  color: var(--white);
+  padding: var(--sp-10) var(--sp-16);
+  /* 顶部安全区只在**独立窗口**（加到主屏幕的 PWA）里让位刘海/状态栏。
+     浏览器内不加：安卓浏览器（Chrome / Via 一类）的 env(safe-area-inset-top)
+     会随工具栏显隐、软键盘收放而时有时无 —— 一有值就多吃掉十几到几十像素，
+     头部凭空变高、字却没变，刷新一次又复原。浏览器视口本来就不覆盖状态栏，
+     不需要这段留白。 */
+  /* 上内边距 = 上面那条 #1A2440 色条的高度（10px）。再大就是白白多一条空白，
+     品牌行正好贴着色条下沿起步。 */
+  padding-top: 10px;
+  /* 整条高度 = 10 + 34 + 10 = 54px（原先 66）。撑高它的其实是 .header-btn 的
+     17px 字号 + 8px 上下内边距，不是标题 —— 所以改按钮比改标题收益大。 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 不描下边线：头部已有渐变 + inset 高光，足够和下方面板区分；
+     再压一条深色粗线会在色块下沿多出一道"框"，和全站的 1px 细线体系冲突。 */
+  border-bottom: none;
+  position: relative;
+  flex-shrink: 0;
+}
+.header h1 { font-size:var(--fs-hero); font-weight: 700; letter-spacing: 2px; white-space: nowrap; }
+/* 独立窗口（PWA）会把页面画到状态栏下面，这里才需要让位。见 .header 里的说明。 */
+@media (display-mode: standalone) {
+  .header { padding-top: calc(10px + env(safe-area-inset-top)); }
+}
+/* 品牌行必须能「优雅收缩」：不设 min-width:0 时 flex 子项不肯小于内容宽度，
+   一旦可用宽度变窄（真实窄屏，或「字号大小」把整页 zoom 放大后布局宽度变小），
+   内容就顶开容器、和右侧绝对定位的 #quickBtn 撞在一起（标题还折行成两行）。
+   下面这条常驻，不再只在 @media (max-width:400px) 里生效 —— zoom 不改 innerWidth，
+   媒体查询不会跟着档位触发。 */
+.header .header-brand { min-width: 0; max-width: 100%; }
+.header .header-brand-row { min-width: 0; max-width: 100%; }
+.header .header-brand-sub { min-width: 0; flex-shrink: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* 右侧 #quickBtn 是绝对定位（54px 宽 + 右边距 10px）。头部用 justify-content:center，
+   若只留一侧占位，内容会被推偏、反而撞上按钮。做法：**左右各一个等宽占位**
+   （.header-spacer），可居中内容被两个占位夹在中间 —— 任何宽度下都真正居中且互不重叠。
+   不用 padding 预留：曾经用 58px padding，实测在缩放档下内容会溢出内容框仍撞按钮。 */
+.header .header-spacer { width: 46px; height: 34px; margin-left: 10px; flex-shrink: 0; }
+.header .header-spacer.right { margin-left: 0; margin-right: 10px; }
+
+.header .tomato-icon { width: 24px; height: 24px; margin-right: var(--sp-6); }
+.header .header-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.28);
+  border: 1px solid var(--white);
+  color: var(--white);
+  padding: var(--sp-4) var(--sp-10);
+  border-radius: var(--radius);
+  font-size:var(--fs-note);
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 11;
+  min-height: 30px;
+  min-width: 46px;
+  /* 硬偏移投影（0 Npx 0）是贴纸风语汇，全站已收口成柔影 */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+  transition: transform .1s, background .1s;
+}
+.header .header-btn::after { content: ''; position: absolute; top:-10px;right:-8px;bottom:-10px;left:-8px }
+.header .header-btn:active {
+  transform: translateY(-50%) scale(0.93);
+  background: rgba(255,255,255,0.45);
+}
+/* 快捷功能面板：白噪音 / 沉浸 / 极简 三合一入口 */
+.header .quick-panel {
+  display: none;
+  position: absolute;
+  right: 8px;
+  top: calc(100% - 4px);
+  z-index: 999;
+  min-width: 208px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  padding: var(--sp-6);
+  text-align: left;
+  color: var(--text);
+}
+.header .quick-panel.open { display: block; animation: qpIn .15s ease; }
+@keyframes qpIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+.quick-panel .qp-title { font-size:var(--fs-tiny); color: var(--text-light); font-weight: 500; padding: var(--sp-4) var(--sp-8) var(--sp-6); letter-spacing: 1px; opacity: .9; }
+.quick-panel .qp-item {
+  display: flex; align-items: center; gap: var(--sp-8);
+  padding: var(--sp-8) var(--sp-8); border-radius: var(--radius); cursor: pointer; user-select: none;
+  color: var(--text); font-size:var(--fs-body); font-weight: 600;
+  border: 1px solid transparent;
+}
+.quick-panel .qp-item:active { background: rgba(0,0,0,.06); }
+.quick-panel .qp-item .qp-ico { font-size:var(--fs-title); width: 26px; text-align: center; flex-shrink: 0; }
+.quick-panel .qp-item .qp-name { flex: 1; }
+.quick-panel .qp-item .qp-go { color: var(--text-light); font-size:var(--fs-sub); line-height: 1; }
+.quick-panel .qp-item .qp-state { font-size:var(--fs-caption); font-weight: 500; color: var(--text-light); padding: var(--sp-2) var(--sp-8); border-radius: var(--radius-full); background: var(--bg); border: 1px solid var(--border); flex-shrink: 0; }
+.quick-panel .qp-item.on { background: rgba(var(--primary-rgb),.08); border-color: rgba(var(--primary-rgb),.35); }
+.quick-panel .qp-item.on .qp-state { background: var(--fill-primary); border-color: var(--fill-primary); color: var(--on-fill); }
+body.dark-mode .quick-panel { background: #232640; border-color: #33355e; box-shadow: 0 6px 24px rgba(0,0,0,.45); }
+body.dark-mode .quick-panel .qp-item:active { background: rgba(255,255,255,.08); }
+.header .header-touch {
+  position: absolute;
+  right: 0; top: 0;
+  width: 90px; height: 100%;
+  z-index: 10;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+}
+
+.view { display: none; padding: var(--sp-16); }
+/* 页面切换动效：只动 opacity（不用 transform，避免残留 creating block 破坏子元素 fixed 定位） */
+.view.active { display: block; animation: viewIn .26s cubic-bezier(.25,.8,.25,1) both; }
+@keyframes viewIn { from { opacity: 0; } to { opacity: 1; } }
+
+.bottom-nav .nav-item { transition: transform .18s cubic-bezier(.34,1.56,.64,1); }
+.bottom-nav .nav-item:active { transform: scale(.9); }
+
+/* 尊重系统「减弱动态效果」设置 */
+@media (prefers-reduced-motion: reduce) {
+  .view.active { animation: none; }
+  * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+/* ---------- 3. 计时模块（完全保留未改动） ---------- */
+.timer-section { text-align: center; padding: var(--sp-10) 0 var(--sp-20); }
+/* 自由专注入口：明显的按钮质感（淡主色底+主色描边），但保持低调不抢主计时 */
+.free-mode-btn { display: inline-block; margin: 4px auto 6px; padding: var(--sp-6) var(--sp-16); border-radius: var(--radius-lg); border: 1px solid rgba(var(--primary-rgb),.35); background: transparent; color: var(--primary-ink); font-size:var(--fs-note); font-weight: 600; cursor: pointer; user-select: none; box-shadow: 0 1px 4px rgba(var(--primary-rgb),.12); transition: all .18s; }
+.free-mode-btn:active { transform: scale(.95); }
+.free-mode-btn.on { border-color: var(--primary); background: rgba(var(--primary-rgb),.10); box-shadow: none; }
+/* ===== 深色模式补充：自由专注控件适配（正文在下方 body.dark-mode 说明） ===== */
+body.dark-mode .free-mode-btn { border-color: rgba(var(--primary-rgb),.38); background: transparent; box-shadow: none; color: var(--primary-ink); }
+body.dark-mode .free-mode-btn:active { transform: scale(.95); }
+body.dark-mode .free-mode-btn.on { border-color: var(--primary); background: rgba(var(--primary-rgb),.12); box-shadow: none; }
+body.dark-mode .free-type-switch { background: var(--surface-2, var(--bg)); border-color: #2e2e52; }
+body.dark-mode .free-type-switch .fts-btn { color: #9aa5c0; }
+body.dark-mode .free-type-switch .fts-btn.active,
+body.dark-mode .flow-dur-switch .fds-btn.active { color: #0a1622; }
+body.dark-mode .flow-dur-switch .fds-btn { background: var(--surface-2, var(--bg)); border-color: #2e2e52; color: #9aa5c0; }
+body.dark-mode .flow-dur-switch .fds-hint { color: #9aa5c0; }
+
+.timer-circle-wrap {
+  /* 高度不能写死 240：圆盘占满后，「今日 N · 目标 N」这行没地方放，
+     会溢出到盒子外、直接压在「本轮：完整…」上面（截图可见两行重叠）。
+     ★ --dial-d 是「圆盘直径」的唯一真源：圆盘的宽和高、外缘辉光、公转轨道半径
+       全部从它算出来，项目里不再有第二个「240」。换尺寸只改变量
+       （沉浸模式就是这一条：19_immersive.css 里只改 --dial-d:280px）。
+     ★ 为什么是「直径」而不是只写高度：圆盘宽度从 wrap 继承过（width:100%），
+       沉浸模式把 wrap 撑到 280 时，高度仍是 240 → 圆盘自己是横椭圆。
+       宽高同源之后，280 档自然也是正圆。 */
+  --dial-d: 240px;
+  position: relative; width: var(--dial-d); height: auto; margin: 0 auto var(--sp-10);
+}
+.timer-tree-companion { position: absolute; bottom: -6px; right: -6px; z-index: 5; cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; }
+.timer-tree-companion:active { cursor: grabbing; }
+.timer-tree-companion .timer-tree-inner { display: inline-block; cursor: pointer; padding: var(--sp-2) var(--sp-4); background: transparent; border: none; border-radius: 0; position: relative; text-align: center; line-height: 1.15; box-shadow: none; }
+.timer-tree-companion .timer-tree-close { position: absolute; top: -7px; right: -9px; width: 18px; height: 18px; line-height: 16px; text-align: center; font-size:var(--fs-caption); font-weight: 500; color: var(--white); background: rgba(0,0,0,0.45); border-radius: 50%; cursor: pointer; z-index: 12; user-select: none; opacity: 0; transition: opacity .2s; }
+.timer-tree-companion:hover .timer-tree-close, .timer-tree-companion.show-close .timer-tree-close { opacity: 1; }
+.timer-tree-companion.dragging { opacity: 0.85; }
+.timer-circle {
+  /* 宽高都读 --dial-d（wrap 上定义）：只写 height 会让 280 档变成扁椭圆，
+     只写 width:100% 则依赖 wrap 宽度 —— 两个方向都不许各算一套。 */
+  width: var(--dial-d, 240px); height: var(--dial-d, 240px); margin: 0 auto;
+  border-radius: 50%;
+  /* 圆盘外圈是 6px 的"厚边"，不是 1px 分隔线：跟着全局 .10 的淡线走会几乎看不见，
+     圆盘像丢了轮廓。这里单独给一档更实的线（.26，接近原来的 .28）。 */
+  border: 6px solid rgba(var(--line-rgb, 31, 42, 55), .26);
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.timer-progress {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 100%;
+  background: var(--work);
+  opacity: 0.15;
+  /* 性能：height 动画每秒触发 reflow，改 transform: scaleY（走合成层，不回流），视觉一致 */
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.3s linear;
+  z-index: 0;
+}
+.timer-time {
+  font-size: calc(52px * var(--fs-boost) * var(--fs-user));
+  font-weight: 800;
+  letter-spacing: 2px;
+  z-index: 1;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.timer-label { font-size:var(--fs-title); font-weight: 600; margin-top: var(--sp-4); z-index: 1; color: var(--text-light); }
+.timer-todo {
+  font-size:var(--fs-body);
+  margin-top: var(--sp-8);
+  z-index: 1;
+  color: var(--text);
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.dot {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: #ddd;
+  transition: background .3s, border-color .3s, transform .3s;
+}
+.dot.filled { background: var(--primary); }
+.dot.current { background: var(--yellow); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+
+.session-info {
+  font-size:var(--fs-title);
+  color: var(--text-light);
+  margin-bottom: var(--sp-12);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--sp-8);
+}
+.session-info .end-session-btn {
+  font-size:var(--fs-title);
+  padding: var(--sp-6) var(--sp-14);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.timer-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--sp-10); margin-bottom: var(--sp-10); }
+
+/* 计时页三个按钮沿用 10-25「三档按钮」的语汇：实心 / 有面 / 无底，无硬影。
+   高度靠「主标题 + 副标题两行」撑出来（约 70px），不要写死 height —— 站里有字号档，
+   写死会把字挤出去。主次靠填充色分，不靠谁更小。 */
+
+/* 计时页段位条：紧跟在开始/结束/打断按钮下方 */
+.timer-rank-strip {
+  margin: 0 0 var(--sp-14);
+  padding: var(--sp-8) var(--sp-12);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-10);
+  box-shadow: var(--shadow-sm);
+}
+.timer-rank-strip .trs-left { display: flex; align-items: center; gap: var(--sp-8); min-width: 0; }
+.timer-rank-strip .trs-icon { font-size: calc(31px * var(--fs-boost) * var(--fs-user)); line-height: 1; flex-shrink: 0; }
+.timer-rank-strip .trs-name { font-size:var(--fs-title); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.timer-rank-strip .trs-stars { font-size:var(--fs-hero); font-weight: 800; letter-spacing: .5px; line-height: 1.2; }
+.timer-rank-strip .trs-right { flex: 1; min-width: 0; text-align: right; }
+.timer-rank-strip .trs-task { font-size:var(--fs-title); color: var(--text-light); margin-bottom: var(--sp-4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.timer-rank-strip .trs-bar { height: 6px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-xs); overflow: hidden; }
+.timer-rank-strip .trs-fill { height: 100%; width: 0; border-radius: var(--radius-xs); transition: width .4s ease; }
+
+/* 本轮读数：一句概述，不是一块统计面板。
+   原来 16px 粗体 + 三个不同色 + 全角竖线分隔，横贯整屏，
+   比下面的「开始」按钮还抢眼；而页面底部已经有今日统计。
+   现在 14px、单色、中点分隔，只在真的发生过事情时才出现。 */
+.round-stats-line {
+  text-align: center;
+  font-size: var(--fs-caption);
+  color: var(--text-light);
+  margin: var(--sp-8) 0;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.round-stats-line > span { display: inline; }
+.round-stats-line .rs-dot { margin: 0 var(--sp-6); opacity: .5; }
+.round-stats-line .full { color: var(--primary-ink); font-weight: 600; }
+.round-stats-line .half { color: var(--yellow-ink); font-weight: 600; }
+.round-stats-line .incomplete { color: var(--text-light); }
+
+/* 圆盘下方「今日 N · 🎯 N/8」：居中成一行。
+   原来两段各自靠边漂、基线不齐（JS 给胶囊塞了 margin-left:8px、font-weight:700 的内联样式）。 */
+.today-progress {
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  text-align: center; font-size: var(--fs-body); color: var(--text-light);
+  margin: 0 0 var(--sp-4); line-height: 1.4; font-variant-numeric: tabular-nums;
+}
+/* 两个 0 挤在一起：正文是「今日 0 🍅」，胶囊接着写「🎯 0/8」，中间只有 2px，
+   番茄和靶心两个 emoji 贴着，读起来像一个六字符的表情串。
+   给胶囊一段左间距（不是加点），让「今天几个」和「目标达成」成为两组。 */
+#enhGoalChip {
+  display: inline-flex; align-items: center;
+  margin-left: var(--sp-10) !important;
+  padding: 0; border: 0; background: transparent;
+  color: var(--text-light); font-size: var(--fs-body); font-weight: 700 !important;
+  line-height: 1.4; letter-spacing: .01em; font-variant-numeric: tabular-nums;
+}
+/* 不用::before 加分隔点：前面本来就有 🍅，再加点会变成「今日 0 🍅 · 0/8」三重符号 */
+#enhGoalChip:empty { display: none; }
+
+/* 模糊计时开关
+   它一直在这里：表盘内的下半部分，时间与「准备开始」的下方。
+   上一版把它的白色半透明底 + 描边去掉了（那个块压在 6px 厚环上，像贴歪的便签），
+   结果只剩 13px 浅灰字浮在奶油底上 —— 干净是干净了，但「找不到功能」比
+   「不够精致」严重得多。折中：给一块极淡的 surface-2 底（不描边、不投影），
+   让它在圆盘里有一个明确的边界，同时不再比「准备开始」更响。 */
+.fuzzy-toggle {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-6);
+  width: fit-content;
+  padding: var(--sp-4) var(--sp-10);
+  border-radius: var(--radius-pill, 999px);
+  background: var(--surface-2);
+  cursor: pointer;
+  z-index: 1;
+  user-select: none;
+  -webkit-user-select: none;
+  border: 0;
+  font-size: var(--fs-micro);
+}
+.fuzzy-toggle:active { background: var(--surface-3); }
+.fuzzy-checkbox {
+  width: 15px; height: 15px;
+  /* 描边用 --border-strong：在白胶囊 + 奶油表盘上，--border 的 1px 淡线
+     在 2 倍屏实测几乎看不见，方框像一个没定义的白色圆角块。 */
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-xs);
+  background: var(--white);
+  flex-shrink: 0;
+  position: relative;
+}
+.fuzzy-toggle.active .fuzzy-checkbox { background: var(--primary); border-color: var(--primary); }
+/* 勾：原先选中只是变成一个实心橙方块，看不出「勾上了」，和未选中只差颜色 */
+.fuzzy-toggle.active .fuzzy-checkbox::after {
+  content: ''; position: absolute; left: 4px; top: 1px;
+  width: 5px; height: 9px;
+  border: solid var(--white); border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+/* 字号保持 13px，但字色抬到正文级：这一行是唯一能改计时方式的地方，
+   用浅灰写等于把它当成说明文字。 */
+.fuzzy-text { font-size: var(--fs-micro); color: var(--text); font-weight: 500; white-space: nowrap; }
+.fuzzy-toggle.active .fuzzy-text { color: var(--primary-ink); font-weight: 600; }
+
+/* ========== v5.7.6 设计收口：语义变量 / 深色补丁 / 动效 / 滚动提示 / 热区 ========== */
+:root{
+  --danger:#C0392B; --danger-bg:#FFD5D5; --danger-soft:rgba(192,57,43,.12); /* E0：soft 由实色修正为浅红底（原值系笔误，此前无引用，零观感影响） */
+  --ok:#2E7D32; --ok-soft:rgba(76,175,80,.14);
+  --warn:#B8860B; --warn-soft:rgba(255,193,7,.18);
+  --accent:#FF8A50; /* E0：主强调橙（品牌浅橙），供 JS 内联引用收编 */
+  --ok-bg:#E8F5E9; --ok-line:#A5D6A7; /* 语义浅底组：成功/绿 */
+  --warn-bg:#FFF3CD; /* 语义浅底组：警告/黄 */
+  --info-bg:#E3F2FD; --info-ink:#1565C0; --info-line:#90CAF9; /* 语义浅底组：信息/蓝 */
+  --accent-bg:#FFF3E0; --accent-ink:#E65100; /* 语义浅底组：强调/暖橙 */
+  /* 字号梯度：全项目只许用这 9 档，禁止再写 font-size:Npx。
+     ★ 设置页「字号大小」不再改这些令牌，而是给 html 打整站 zoom（applyFontScale()）：
+       只放大字号、不放大盒子，正是「像浏览器双指强行放大」——字撑破卡片。
+       zoom 让整页等比放大（文字/间距/圆角一起），布局关系不变，才是真正的界面放大。
+     ★ --fs-boost 是**另一件事**：手机（Android Chrome/WebView）的「系统字体大小」档位会把
+       页面上**每一个 font-size 的 px 值**再乘一个系数（本机实测 1.45×，别人的机器可能是
+       1 / 1.3 / 2），但 width/height/padding 一分不改 —— 同样会字撑破卡片、横向溢出。
+       text-size-adjust 拦不住它（实测 100% / none 都是 1.45×），只能**量出来再除回去**：
+       applyFontScale() 用探针量出实际系数 k，把 --fs-boost 写成 1/k，于是令牌正好落在
+       设计值上，与系统字号档位无关。桌面/未缩放环境量到 1 → boost=1，等于没这回事。 */
+  --fs-boost:1;
+  /* 用户档位（设置页「字号大小」）：**只乘字号，不碰 width/height/padding** ——
+     放大只影响可读性，布局关系不变（不用整页 zoom，也就不会"一屏看到的少了一截"）。
+     两个系数各管一段：--fs-boost 抵系统缩放，--fs-user 是用户选的档位。 */
+  --fs-user:1;
+  /* 2026-10-13 整体上调 1px：11/12/13 三档在手机上确实偏小（"日记的字体好小啊 /
+     整站某些字体大小就很小"）。--fs-micro 11px 已低于移动端可读下限，
+     --fs-note 13px 又是全站用得最多的小字（32 处可见），所以一起上移一档。
+     大字档（title/sub/hero/h1）不动 —— 它们本来就够，动了只会挤掉布局。
+
+     ★ 第二轮：按 Apple HIG 的 Dynamic Type 逐档校准（"整站的标准字体
+       一点也不符合设计范式"）。HIG 默认档位：body 17 / headline 17 / callout 16 /
+       subheadline 15 / footnote 13 / caption1 12 / caption2 11（iOS，单位 pt）。
+       对照后发现两处偏低：
+         · --fs-note 14 → 15：它承载的正是 HIG 的「subheadline(15)」这类支撑文本；
+         · --fs-body 15 → 16：正文档。HIG 正文是 17，而 **Web 正文的可读下限是 16px**，
+           故取 16（对应 HIG 的 callout），既达标又不与 --fs-title(17) 撞档、保住层级。
+       改后阶梯：12 / 13 / 13 / 15 / 16 / 17 / 20 / 22 / 24 —— 每档都能对上 HIG 的一个具名档，
+       同时消除了原先 13-14-15 三档挤在一起的「层级糊掉」。
+       （--fs-tiny 与 --fs-caption 同为 13 是历史冗余，动用点 114 处，另案处理。）
+
+     ★ 第三轮：换楷体后整体上移一档（2026-10-25）。用户原话「改了字体之后感觉
+       有点看不清、有点小」。实测原因是楷体的**笔画覆盖率只有系统黑体的 79%**
+       （canvas 墨水密度 1.1‰ vs 1.4‰），字面高度只差 2~3% —— 所以不是「字号不够」，
+       而是「同样的字号看着更虚」。两手一起补：
+         · 字形层面：@font-face 加 size-adjust:104%（见 01_fonts.css）
+         · 颜色层面：--text 由 #2C3E50 加深到 #1E2A38（见 10_tokens.css）
+       而这里做的是第三件事：把**整个阶梯往前挪一档**，让层级与新的视觉重量对齐。
+       用户明确要求「整站上已经有标准/大号/中号的，整个的也相应的往前调」，
+       即基准和档位一起上移，而不是只动正文。
+       改后阶梯：13 / 14 / 14 / 16 / 17 / 18 / 21 / 23 / 25
+       ★ 注意：≤12px 的「小字守卫」（01_fonts.css 里那组选择器）是按**类名**列的，
+         不按字号算，所以这里上移不会让守卫失效。但 --fs-micro 12→13 之后，
+         那批文字虽然被守卫强制用黑体，尺寸也跟着大了 1px，属预期。 */
+  --fs-micro:calc(13px * var(--fs-boost) * var(--fs-user));
+  --fs-tiny:calc(14px * var(--fs-boost) * var(--fs-user));
+  --fs-caption:calc(14px * var(--fs-boost) * var(--fs-user));
+  --fs-note:calc(16px * var(--fs-boost) * var(--fs-user));
+  --fs-body:calc(17px * var(--fs-boost) * var(--fs-user));
+  --fs-title:calc(18px * var(--fs-boost) * var(--fs-user));
+  --fs-sub:calc(21px * var(--fs-boost) * var(--fs-user));
+  --fs-hero:calc(23px * var(--fs-boost) * var(--fs-user));
+  --fs-h1:calc(25px * var(--fs-boost) * var(--fs-user));
+  --tap-min:34px;
+}
+/* 深色模式补丁：每周战标/成就等浅色品牌底统一压成深蓝卡，不再"亮成灯笼" */
+body.dark-mode .badge-card,
+body.dark-mode .ach-card { background:#1b2038 !important; box-shadow:none; }
+body.dark-mode .badge-card[style*="#FDF2E9"], body.dark-mode .badge-card[style*="#F5F5F5"],
+body.dark-mode .badge-card[style*="#FFFDE7"], body.dark-mode .badge-card[style*="#FFF8E1"],
+body.dark-mode .badge-card[style*="#E3F2FD"], body.dark-mode .badge-card[style*="#E0F7FA"],
+body.dark-mode .badge-card[style*="#FCE4EC"], body.dark-mode .badge-card[style*="#F5EEF8"],
+body.dark-mode .badge-card[style*="#FFF3E0"], body.dark-mode .badge-card[style*="#FDF0EF"],
+body.dark-mode .badge-card[style*="#E8F5E9"], body.dark-mode .badge-card[style*="#FFF3CD"],
+body.dark-mode .badge-card[style*="#FFD5D5"], body.dark-mode .badge-card[style*="#F9F9F9"] { background:#1b2038 !important; }
+/* 深色：浅粉"危险确认按钮"与浅黄/浅绿提示底 → 换成深色低饱和 */
+/* 深色：浅粉"危险确认按钮"与浅黄/浅绿提示底 → 换成深色低饱和
+   （弹窗收编后危险按钮改用 .modal-btn.danger 类，这里同步补类选择器） */
+body.dark-mode [style*="background:#FFD5D5"],
+body.dark-mode .modal-btn.danger,
+body.dark-mode .btn-danger { background:#6b1f1f !important; color:#ffc9bd !important; border-color:#a24a40 !important; }
+body.dark-mode [style*="background:#FFF3CD"] { background:#4a3c16 !important; }
+body.dark-mode [style*="background:var(--ok-bg)"] { background:#17331c !important; }
+body.dark-mode [style*="background:#FDF0EF"] { background:#351b19 !important; }
+/* 完成打勾微动效：轻 pop，完成瞬间有反馈感 */
+.todo-checkbox.checked svg,
+.habit-checkbox.checked svg,
+.md-box.on { animation: cbPop .26s cubic-bezier(.34,1.56,.64,1); }
+@keyframes cbPop { 0% { transform: scale(.55); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+/* 横向页签可滑动提示：两端淡出 */
+.log-tabs, .stats-nav { -webkit-mask-image: linear-gradient(90deg, transparent 0, var(--black) 10px, var(--black) calc(100% - 10px), transparent); mask-image: linear-gradient(90deg, transparent 0, var(--black) 10px, var(--black) calc(100% - 10px), transparent); }
+/* 触控热区：常用按钮与图标按钮不小于 34px */
+.btn-small, .md-btn, .md-tool { min-height: 32px; }
+.sdb-btns button, .modal-buttons button { min-height: 36px; }
+
+/* 计时页战标徽章（竖向徽章形态：图标/名称/进度三行竖排，字号保持可读） */
+.timer-badge {
+  position: absolute;
+  top: 8px; left: 8px;
+  z-index: 10;
+  display: none;
+  cursor: pointer;
+  max-width: 100px;
+}
+.timer-badge.show {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-8);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: none;
+  animation: badgePop 0.4s ease;
+  width: auto;
+  opacity: 0.95;
+}
+.timer-badge .tb-icon { font-size:var(--fs-h1); line-height: 1; }
+.timer-badge .tb-name { font-size:var(--fs-note); font-weight: 600; line-height: 1.2; text-align: center; }
+.timer-badge .tb-state { font-size:var(--fs-tiny); font-weight: 500; border-radius: var(--radius-full); padding: var(--sp-2) var(--sp-8); background: var(--bg); border: 1px solid var(--border); white-space: nowrap; }
+/* 深色模式：徽章底压暗 + 柔和投影，浅色战标底不再刺眼 */
+body.dark-mode .timer-badge.show { background: rgba(24,28,50,.92) !important; box-shadow: 0 2px 12px rgba(0,0,0,.35); }
+body.dark-mode .timer-badge .tb-icon { filter: drop-shadow(0 0 5px rgba(255,255,255,.22)); }
+@keyframes badgePop { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+
+/* 独孤求败（原荣耀标）流光动画 */
+.badge-glory { position: relative; overflow: hidden; }
+.badge-glory::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  animation: gloryFlow 2.5s ease-in-out 3;
+  animation-fill-mode: forwards;
+}
+@keyframes gloryFlow { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
+/* 荣耀辉光：原为 infinite 无限循环 → 老平板（旧 WebView）上持续重绘 box-shadow 会导致
+   周标卡不停闪烁 + 掉帧。改为「播放 3 轮后停在终态」，既有仪式感又不长期占用合成层。
+   无限呼吸仍由计时圆环 .timer-circle.rank-glory 承担（单元素，开销小得多）。 */
+.badge-glory { animation: gloryGlow 1.5s ease-in-out 6 alternate; }
+@keyframes gloryGlow {
+  0% { box-shadow: 0 0 8px #FF6B4A, 0 0 4px var(--gold); }
+  100% { box-shadow: 0 0 16px #FF6B4A, 0 0 8px var(--gold), 0 0 4px var(--white); }
+}
+
+/* 荣誉特效：段位光环 */
+.timer-circle.rank-static-diamond { box-shadow: var(--shadow), 0 0 14px rgba(79,195,247,0.28); border-color: rgba(79,195,247,0.5); }
+.timer-circle.rank-static-star { box-shadow: var(--shadow), 0 0 14px rgba(233,30,99,0.28); border-color: rgba(233,30,99,0.5); }
+.timer-circle.rank-glow { animation: rankBreath 3s ease-in-out infinite; }
+.timer-circle.rank-glory { animation: gloryBreath 4s ease-in-out infinite; }
+@keyframes rankBreath {
+  0%,100% { box-shadow: var(--shadow), 0 0 14px rgba(255,77,77,0.30), 0 0 26px rgba(255,77,77,0.12); border-color: rgba(255,90,90,0.55); }
+  50% { box-shadow: var(--shadow), 0 0 26px rgba(255,77,77,0.60), 0 0 54px rgba(255,77,77,0.32); border-color: rgba(255,120,120,0.85); }
+}
+@keyframes gloryBreath {
+  0%,100% { box-shadow: var(--shadow), 0 0 16px rgba(212,175,55,0.36), 0 0 34px rgba(120,81,9,0.28), inset 0 0 16px rgba(212,175,55,0.08); border-color: rgba(212,175,55,0.75); }
+  50% { box-shadow: var(--shadow), 0 0 30px rgba(255,215,0,0.60), 0 0 62px rgba(120,81,9,0.42), inset 0 0 26px rgba(212,175,55,0.16); border-color: rgba(255,215,0,0.95); }
+}
+
+/* 荣誉特效：战力标点亮 → 计时文本变色 */
+.timer-time.badge-gold { color: var(--gold) !important; text-shadow: 0 0 14px rgba(255,215,0,0.45); }
+.timer-time.badge-glory-gold {
+  background: linear-gradient(180deg, #FFF3C4 0%, var(--gold) 45%, #A8781A 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  text-shadow: none;
+  filter: drop-shadow(0 0 8px rgba(255,215,0,0.35));
+}
+
+/* 休息活动骰子（仅休息时显示，参考番茄休息站设计：眼睛离开屏幕的科学原理） */
+.break-dice-section {
+  display: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-16) var(--sp-16);
+  margin-bottom: var(--sp-12);
+}
+.break-dice-section.show { display: block; }
+.bd-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-12); }
+.bd-title { font-size:var(--fs-title); font-weight: 800; color: var(--text); }
+.bd-hint-btn { background: transparent; border: 1px solid var(--border-strong); color: var(--text-light); padding: var(--sp-2) var(--sp-10); border-radius: var(--radius-lg); font-size:var(--fs-caption); cursor: pointer; transition: all 0.2s; }
+.bd-hint-btn:hover { color: var(--primary-ink); border-color: var(--primary); }
+.bd-science {
+  display: none;
+  background: rgba(255, 200, 80, 0.12);
+  border-left: 1px solid var(--yellow-dark);
+  padding: var(--sp-8) var(--sp-10);
+  border-radius: var(--radius-sm);
+  font-size:var(--fs-note);
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: var(--sp-10);
+}
+.bd-science.show { display: block; }
+.bd-science b { color: var(--yellow-ink); }
+.bd-tabs { display: inline-flex; background: var(--bg); border-radius: var(--radius-full); padding: var(--sp-2); margin-bottom: var(--sp-12); }
+.bd-tab-btn { font-size:var(--fs-body); font-weight: 600; padding: var(--sp-6) var(--sp-14); border-radius: var(--radius-full); border: none; background: transparent; color: var(--text-light); cursor: pointer; transition: all 0.25s; }
+.bd-tab-btn.active { background: var(--card); color: var(--primary-ink); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+.bd-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-20) var(--sp-16);
+  text-align: center;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--sp-12);
+}
+.bd-emoji { font-size: calc(56px * var(--fs-boost)); line-height: 1; margin-bottom: var(--sp-10); display: block; }
+.bd-emoji.rolling { animation: bdRoll 0.1s linear infinite; display: inline-block; }
+@keyframes bdRoll {
+  0% { transform: translateY(-20%); opacity: 0.4; }
+  50% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(20%); opacity: 0.4; }
+}
+.bd-name { font-size:var(--fs-sub); font-weight: 800; color: var(--text); margin-bottom: var(--sp-6); }
+.bd-desc { font-size:var(--fs-body); color: var(--text-light); line-height: 1.6; max-width: 320px; }
+.bd-reps { display: none; margin-top: var(--sp-10); font-size:var(--fs-body); font-weight: 600; color: var(--primary-ink); background: rgba(255, 200, 80, 0.15); padding: var(--sp-4) var(--sp-14); border-radius: var(--radius-full); }
+.bd-reps.show { display: inline-block; }
+.bd-roll-btn {
+  display: block;
+  width: 100%;
+  font-size:var(--fs-title);
+  font-weight: 800;
+  color: white;
+  background: var(--primary);
+  border: none;
+  padding: var(--sp-12);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 12px rgba(232, 69, 60, 0.25);
+  transition: all 0.25s;
+}
+.bd-roll-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(232, 69, 60, 0.35); }
+.bd-roll-btn:active { transform: translateY(0); }
+.bd-roll-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.bd-history { display: flex; gap: var(--sp-6); justify-content: center; flex-wrap: wrap; margin-top: var(--sp-10); min-height: 30px; }
+.bd-history-dot {
+  width: 30px; height: 30px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  font-size:var(--fs-title);
+  animation: bdDotPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes bdDotPop {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+.bd-history-empty { font-size:var(--fs-caption); color: var(--text-light); align-self: center; }
+
+/* 分享打卡海报 */
+.sp-tabs { display: flex; gap: var(--sp-6); flex-wrap: wrap; margin-bottom: var(--sp-12); }
+.sp-tab { font-size:var(--fs-body); font-weight: 600; padding: var(--sp-6) var(--sp-12); border-radius: var(--radius-full); border: 1px solid var(--border); background: var(--card); color: var(--text-light); cursor: pointer; transition: all 0.2s; }
+.sp-tab.active { background: var(--fill-primary); color: var(--on-fill); border-color: var(--fill-primary); }
+
+/* 计时页当前任务区 */
+.current-todo-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-12);
+  margin-bottom: var(--sp-14);
+  box-shadow: none;
+}
+.current-todo-section label { font-size:var(--fs-title); color: var(--text-light); display: block; margin-bottom: var(--sp-6); }
+.current-todo-select {
+  width: 100%;
+  padding: var(--sp-10);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size:var(--fs-title);
+  /* 输入框用凹陷的 surface-2 而非纯白：纯白输入框放在纯白卡片上，
+     边界只能靠描边存在，视觉上就是「白框套白框」。 */
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+/* ============================================================
+   计时页：整页只允许一层卡片（current-todo-section）
+
+   病因：这块里曾经有 7 个 d=1 的子级各自带边框 + 纯白底，
+   而父级也是纯白 —— 白卡套白卡套白卡，三者底色完全相同，
+   所以每一层只能靠再画一条边来区分，越套越密。
+
+   改法按「表面阶梯」：父级负责唯一的卡片外观（底色 + 1px hairline
+   + 柔影），子级全部退回 flat —— 去掉底色/描边/圆角/影子，
+   改用 hairline 分隔线与间距表达分组。层级由「间距 + 分隔线」建立，
+   而不是由「再来一个盒子」建立。
+   ============================================================ */
+.current-todo-section .state-section {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  border-radius: 0;
+  box-shadow: none;
+  padding: var(--sp-14) 0 0;
+  margin: 0 0 var(--sp-14);
+}
+.current-todo-section .state-section:last-child { margin-bottom: 0; }
+/* 这两行的样式统一在 1A_dark_misc.css 里定义（去描边、走底色），
+   此处不再重复声明，避免特异性更高地把基线盖回虚线。 */
+
+/* 今日统计 */
+.today-stats {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-14);
+  box-shadow: none;
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+.stat-item .stat-num { font-size: calc(31px * var(--fs-boost)); font-weight: 800; }
+.stat-item .stat-label { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-2); }
+.tomato-full { color: var(--primary-ink); }
+.tomato-half { color: var(--yellow-ink); }
+.tomato-interrupt { color: var(--text-light); }
+

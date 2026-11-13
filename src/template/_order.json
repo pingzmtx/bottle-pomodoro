@@ -1,0 +1,31 @@
+{
+  "note": "模板真源清单。src/template/ 下的片段按 order 顺序拼接 = src/template.html（产物），再由 build.py 合并脚本得 index.html。★ 改样式/界面请只动这里的片段，不要再手改 src/template.html —— 拆分前它是 7843 行巨型文件（63% 是 CSS），任何改动都命中全局名单、逼出全量回归，这就是「每次都要跑全量」的根因。",
+  "order": [
+    "00_head.html",
+    "10_tokens.css",
+    "01_fonts.css",
+    "01b_font_title.css",
+    "01b_font_wenkai.css",
+    "11_layout_timer.css",
+    "12_components.css",
+    "13_plan.css",
+    "14_log_stats.css",
+    "15_tree.css",
+    "16_timeblock.css",
+    "17_rank_team.css",
+    "18_settings.css",
+    "19_immersive.css",
+    "1A_dark_misc.css",
+    "20_shell.html",
+    "21_view_timer.html",
+    "22_view_plan.html",
+    "23_view_log.html",
+    "24_view_stats.html",
+    "25_view_settings.html",
+    "30_overlays.html",
+    "31_modals.html",
+    "40_slots_a.html",
+    "50_journey.css",
+    "41_slots_b.html"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "_note": "性能基线。阈值 = max(基线 × 1.5, 基线 + 绝对下限)。--write 校准。",
+  "throttle": 6,
+  "cold_ms": 201,
+  "stats8000_ms": 593,
+  "switch.plan": 12,
+  "switch.log": 2,
+  "switch.stats": 31,
+  "switch.settings": 4,
+  "switch.timer": 6
+}

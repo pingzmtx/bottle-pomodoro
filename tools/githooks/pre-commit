@@ -1,0 +1,79 @@
+#!/bin/sh
+# pre-commit 门禁：提交前机械验证，**不依赖任何人（人或 AI）记得跑工具**。
+# 安装：python3 tools/install_hooks.py   （见该文件说明：本挂载点无执行位，需走 core.hooksPath）
+#
+# 为什么要有这条：本项目的铁律是"只改 src，public/ 是产物"。
+# 但「记得重建产物」这件事，只要靠人/靠 AI 记性，迟早漏一次 ——
+# 漏了的后果是：仓库存着旧成品，线上跑的是旧的，而测试全绿（测的是新 src）。
+# 所以把它做成机器门禁：漏了就直接提交不上去。
+#
+# 2026-10-22 变更：发布物从单文件 index.html 改为多产物 public/。
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+# --diff-filter=ACMR：只看新增/修改/重命名，**排除删除(D)**。
+# 为什么：闸门 0 要拦的是"把单文件又加回仓库"，不是"把单文件删掉"。
+# 不带过滤器时，一次 git rm index.html 会被误判成违规入库，反而删不掉。
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+
+# 闸门 0：单文件产物不许入库（已停用；本地预览用 build.py --single 生成，别提交）。
+if echo "$staged" | grep -q '^index\.html$'; then
+  echo "[pre-commit] ❌ index.html 是单文件预览产物，已停用、不再入库。"
+  echo "             发布物是 public/。撤出暂存：git restore --staged index.html"
+  exit 1
+fi
+
+# 闸门 1：产物必须与 src 一致（改法见闸门 2）。
+# 曾经这里判的是「staged 里有 src/ 就必须有 public/」，但那只在"每次改 src 都会改变产物"
+# 时成立：注释、格式化、文档化改动会被构建剥掉，产物逐字节不变，此时并没有 public/ 可提交，
+# 闸门就会拦下一次完全正确的提交。真正的约束是"产物不过期"，由闸门 2 的逐字节比对覆盖，
+# 所以本闸门只在产物确实过期时才拦（= 重建了但忘了 git add public）。
+if ! python3 tools/build.py --check >/dev/null 2>&1; then
+  if ! echo "$staged" | grep -q '^public/'; then
+    echo "[pre-commit] ❌ 产物过期，且没提交 public/。"
+    echo "             修复：python3 tools/build.py && git add public"
+    exit 1
+  fi
+fi
+
+# 闸门 2：产物新鲜度 —— 按 src 重新渲染到临时目录，与盘上 public/ 逐文件逐字节比对。
+# 这条连"public/ 已 add 但内容是旧的"也拦得住；文件名带内容哈希，名字不对也算不一致。
+if ! python3 tools/build.py --check >/dev/null 2>&1; then
+  echo "[pre-commit] ❌ 产物陈旧：src 与 public/ 不一致（改了源码没重建）。"
+  echo "             修复：python3 tools/build.py && git add public"
+  echo "             自查：python3 tools/build.py --check"
+  exit 1
+fi
+
+echo "[pre-commit] 跑快档全绿链（lint + check + unit + callgraph）..."
+if ! python3 tools/build.py --lint >/dev/null 2>&1; then
+  echo "[pre-commit] ❌ lint 失败，提交被拦。"
+  exit 1
+fi
+if ! node tools/tests/unit_pure.js >/dev/null 2>&1; then
+  echo "[pre-commit] ❌ unit 失败，提交被拦。"
+  exit 1
+fi
+# 用例元数据门禁：@case 的 tier/owner 漏写或写错 → 这条用例永远选不中（假绿）。
+if ! python3 tools/check_case_meta.py >/dev/null 2>&1; then
+  echo "[pre-commit] ❌ 冒烟用例元数据不全（tier/owner）：新用例漏写 owner = 以后永远选不中。"
+  echo "             排查：python3 tools/check_case_meta.py"
+  exit 1
+fi
+# AST 调用图自检：解析必须全过 + 所有模块都要登记层级。
+# 注意：这里**不校验**硬违例数量（架构债是既成事实，不该拦提交），
+# 只保证工具本身没被改坏、新模块忘登记层级。
+if ! node tools/callgraph_ast.js --selfcheck >/dev/null 2>&1; then
+  echo "[pre-commit] ❌ callgraph 自检失败（解析错误 / 有模块未登记层级），提交被拦。"
+  echo "             排查：node tools/callgraph_ast.js --selfcheck"
+  exit 1
+fi
+# 弹窗结构收编：应用内弹窗必须同构（h3 标题 + .modal-buttons 容器 + .modal-btn 变体）。
+# 37 个弹窗各写各的样式时，暗色模式补丁只能一处一处数着打 —— 靠记性必然漏。
+if ! python3 tools/check_modal_unify.py >/dev/null 2>&1; then
+  echo "[pre-commit] ❌ 有弹窗偏离统一结构（标题/按钮容器/按钮类）。"
+  echo "             排查：python3 tools/check_modal_unify.py"
+  echo "             确实该例外（视觉类弹窗）→ 写进 tools/modal_unify_allow.json 并注明理由。"
+  exit 1
+fi
+echo "[pre-commit] ✅ 快档通过，允许提交。"
+exit 0

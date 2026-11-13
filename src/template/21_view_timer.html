@@ -1,0 +1,172 @@
+  <!--pnid:5HbRQZF9edT0PJW3JWspbQ--><!-- ========== 计时页（完全保留未改动） ========== -->
+  <section data-page-node-id="pgwzWCOAP3t7HBRhbDYJwy" class="view active" id="view-timer">
+    <div data-page-node-id="VjRao84n2h3IGL4frMEyzl" class="timer-section">
+      <div data-page-node-id="uYMYK4L6ZR75bMDd6UXdYd" class="timer-badge" id="timerBadge" data-act="switchView" data-act-args='["stats"]'></div>
+      <!-- 原「专注模式数据条（剩余 / 今日 / 未休息）」整排已移除。
+           理由：①「未休息」口径不可靠（关页面/锁屏全算作未休息），且不产生任何行动；
+                 ②「剩余」在大表盘上已经显示，重复；
+                 ③「今日」在段位条与统计页都有，此处冗余。
+           专注页只保留大表盘，信息层级更干净。 -->
+      <button data-page-node-id="OshKVyz76Tx8mXntXKk3Zf" class="free-mode-btn" id="freeModeBtn" data-act="toggleFreeMode"><!--pnid:WphRtbmKYJaoUqn1VlKIwg-->⏱ 自由专注</button>
+      <div data-page-node-id="ZLZKvHyQzfbwPfnjwmgbIz" id="freeInfo" style="display:none; text-align:center; font-size:var(--fs-note); color:var(--text-light); margin:var(--sp-4) 0"><!--pnid:4vAjdIYDWj21wwQnQMXdIt-->
+        ⏱ 自由专注 · 今日 <b data-page-node-id="Ab6yoW0NSJlSeoqQDunnhg" id="freeTodayMin" style="color: var(--primary-ink)"><!--pnid:z2hm6lph5UOO5TWmXy3I9S-->0</b><!--pnid:U0RU2lUFxNiTlQc22AiPGM--> 分钟
+        <!--pnid:DAwtPCuj9dJOeD0LOvy8uk--><!-- 自由模式双类型切换（正计时 / Flowtime 流式倒计时） -->
+        <div data-page-node-id="O0VIbBiUWknRl7tQurz9gG" class="free-type-switch" id="freeTypeSwitch">
+          <button data-page-node-id="59R4XgiKD2QNhQDIEp3SjQ" class="fts-btn active" id="ftsStopwatch" data-act="setFreeType" data-act-args='["stopwatch"]'><!--pnid:DuAOq8IcF9tl4GL6yJlsPG-->⏱ 正计时</button>
+          <button data-page-node-id="h4PfNHqAkX8o1wYRY2hQhZ" class="fts-btn" id="ftsFlowtime" data-act="setFreeType" data-act-args='["flowtime"]'><!--pnid:74D2Ri5ak4kPkFjlpugA11-->🌊 流式倒计时</button>
+        </div>
+        <div data-page-node-id="GNLT1arUw2IF4QXyHitM5v" class="flow-dur-switch" id="flowDurSwitch">
+          <span data-page-node-id="C7UFibkzCtYGmRORLYNLbY" class="fds-hint" title="流式倒计时长由你自选，档位与任务难度一致，选过会记住"><!--pnid:nGXkXPjIvFJV5MbaCKN4rb-->本轮时长</span>
+          <button data-page-node-id="euVJZPimgsEhVyVSl9YlBs" class="fds-btn" data-min="10" data-act="setFlowDuration" data-act-args='["10"]'><!--pnid:eSwKr3E8jXt92FhxCqwEij-->🌱 10分</button>
+          <button data-page-node-id="vaNUPBNpT3rH6ZSuRaH23X" class="fds-btn" data-min="25" data-act="setFlowDuration" data-act-args='["25"]'><!--pnid:FUzeil5ZFZQ3wneGHUcms1-->🌿 25分</button>
+          <button data-page-node-id="weCUIwMTku958DxBlfBuBm" class="fds-btn" data-min="50" data-act="setFlowDuration" data-act-args='["50"]'><!--pnid:S2XOGrm0VZ7ZpUeZj1UM0H-->🔥 50分</button>
+          <button data-page-node-id="6nIGOwVvYQeHaiEJPTRFKa" class="fds-btn" data-min="90" data-act="setFlowDuration" data-act-args='["90"]'><!--pnid:epIHUK9lCFVX3k53XsP92B-->💎 90分</button>
+        </div>
+      </div>
+      <div data-page-node-id="GI7ZJNG0IvbEDMXt0YCxrL" class="timer-circle-wrap">
+        <div data-page-node-id="20m4P99TGtYMUedFvUI6Jb" class="timer-circle" id="timerCircle">
+          <div data-page-node-id="C0YPDb5UcA5FahDA74dYpw" class="timer-progress" id="timerProgress"></div>
+          <!--pnid:nAY3Iy0vg8kVDz0ppE1l7k--><!-- SVG 圆形进度环（原 scaleY 进度保留在底层兼容旧逻辑，视觉以环为主） -->
+          <svg data-page-node-id="8aisbnifmyAo9mLuH7N7lo" aria-hidden="true" class="timer-ring" id="timerRing" viewBox="0 0 240 240">
+            <circle data-page-node-id="kniPwE23H2b82aNQFbwfFy" class="timer-ring-bg" cx="120" cy="120" r="105"></circle>
+            <circle data-page-node-id="uKM7lEI5KITznpJQ4k2b1I" class="timer-ring-fill" cx="120" cy="120" id="timerRingFill" r="105"></circle>
+          </svg>
+          <div data-page-node-id="tsD61mPhotXm3ONjFADkvJ" class="timer-time" id="timerTime"><!--pnid:S55dAZpTcIuOH7Gd4yz3Qn-->25:00</div>
+          <div data-page-node-id="3f2nMgrCgG8n4a3kxu8kfN" class="timer-label" id="timerLabel"><!--pnid:x1BgUndu2u8eHMbtYcaw1E-->准备开始</div>
+          <div data-page-node-id="2EiSoBQsN2y4CaWot68xuk" class="timer-todo" id="timerTodo"></div>
+          <div data-page-node-id="ztElBHGu3cvlHmJ6CKtPc5" id="timerPomodoroInfo" style="font-size:var(--fs-title); color: var(--primary-ink); font-weight:700; z-index:1; margin-top:var(--sp-2)"></div>
+          <!--pnid:1ZeqrrfoRvsiDgxYLuJr2q--><!-- 模糊计时留在表盘下部：表盘里除了时间只剩「准备开始」，
+              下方本来留着一片空白；它是计时方式的一部分，放回原位正好填住这块，
+              但去掉原来的白底描边块（压着 6px 厚环，像贴歪的便签），只剩一行灰字。 -->
+          <div data-page-node-id="XoPExaNfpyfcOpvMSKiytK" class="fuzzy-toggle" id="fuzzyToggle" data-act="toggleFuzzyTimer">
+            <span data-page-node-id="fTYkLRZATbumP9kDgm1YHn" class="fuzzy-checkbox"></span>
+            <span data-page-node-id="4NnJNabffAaL1TuG45aXNA" class="fuzzy-text"><!--pnid:KWYyCnIJ6BV9VcqTVEMPM0-->模糊计时</span>
+          </div>
+          <!--pnid:1ZeqrrfoRvsiDgxYLuJr2r--><!-- 自由模式 ±5 分钟调节（仅自由模式显示） -->
+        </div>
+        <div data-page-node-id="Ei0TH00mkJXw9pSlIjufuy" class="today-progress" id="todayProgress" style="text-align:center; font-size:var(--fs-body); color:var(--text-light); margin:0 0 var(--sp-4); line-height:1.3"><!--pnid:ZJX1Mqikjf0Bm5zeQsXXVY-->今日 0 🍅</div>
+        <button data-page-node-id="E6p4kxeq3zV806YNZXHJYy" class="free-adjust minus" id="freeAdjustMinus" data-act="adjustFreeTime" data-act-args='["-5"]' title="减少5分钟"><!--pnid:MrPAXiVBqI86uJlViQ9o0a-->−</button>
+        <button data-page-node-id="B0P71eit1nU7MkDMKEmJlA" class="free-adjust plus" id="freeAdjustPlus" data-act="adjustFreeTime" data-act-args='["5"]' title="增加5分钟"><!--pnid:rHSf25UgZIc5G3Y573KG7Q-->+</button>
+        <!--pnid:ebA9HdtVWzO38AyuwE5GrI--><!-- 计时页陪伴树（默认右下角，可拖动，点击互动） --><div data-page-node-id="BpjNnErpVRKkh3M" class="timer-tree-companion" id="timerTreeCompanion" style="display:none">
+          <div data-page-node-id="J1Kq8pdeChwqEN46Nox2SI" class="timer-tree-inner" id="timerTreeInner">
+            <span data-page-node-id="Bh1fkcUZQRHLFi3NziNQwG" class="timer-tree-close" id="timerTreeClose" data-stop="1" data-act="toggleTreeCompanion" data-act-args='["false"]' title="取消陪伴"><!--pnid:lA9VAFMfgRAI1k5znDQ74Q-->✕</span>
+            <span data-page-node-id="lpXhWEbNIAKu8dKbhphGZq" id="timerTreeEmoji" style="font-size: calc(26px * var(--fs-boost)); line-height:1"><!--pnid:hGYOzykHHESEDEG3td0NpA-->🌱</span>
+            <span data-page-node-id="qAZtO3XbFMdvwIdLrirgbw" id="timerTreeName" style="display:block; font-size:var(--fs-tiny); color:var(--text-light); font-weight:700; margin-top:var(--sp-2)"><!--pnid:7hxxi62pUEiTePAVpnizQA-->番茄树</span>
+            <div data-page-node-id="Vm3FOa4x1FF8989CiADAVo" id="timerTreeBubble" style="position:absolute; bottom:110%; left:50%; transform:translateX(-50%); background:#333; color:var(--white); font-size:var(--fs-note); padding:var(--sp-4) var(--sp-8); border-radius:var(--radius-sm); white-space:nowrap; opacity:0; transition:opacity .25s; pointer-events:none; z-index:10"></div>
+          </div>
+        </div>
+      </div>
+      <!--pnid:JGSnGcBmukq6Zc00JJLVJO--><!-- 沉浸式专注：章节进度锚点（第一章 → 终章 + 当前事件摘要 + 实时场景，仅冒险中显示） -->
+      <div data-page-node-id="yvPMPe234A3FhM1wrkPSdV" class="immersive-progress" id="immersiveProgress" style="display:none">
+        <div data-page-node-id="c7GkpykTadY7CMcCuxA4hc" class="im-progress-line">
+          <span data-page-node-id="SMfdcaj9TdvKwoeP7y1Uer" class="im-progress-kicker"><!--pnid:wUVmwDgaKUc2SK5Zf2l1IZ-->🎮 冒险进行中</span>
+          <span data-page-node-id="HmCU3YQ9hcJ2uQZ2bVl6of" class="im-progress-chapter" id="immersiveChapterLine"></span>
+        </div>
+        <div data-page-node-id="1OmsG4JSB3PGqiONO2CGRL" class="im-progress-dots" id="immersiveChapterDots"></div>
+        <div data-page-node-id="aPCpcnjGIxMwnoIdUFrGk4" class="im-progress-summary" id="immersiveChapterSummary"></div>
+        <div data-page-node-id="AU9myWuu024Ru8pWdUXEGu" class="im-scene-bar" id="imSceneBar" style="display:none">
+          <div data-page-node-id="E7s4PKEl2MqZH9bfGWEBVJ" class="im-scene-name" id="imSceneName"></div>
+          <div data-page-node-id="OjiRw4du1HgeeBXYNCouCz" class="im-scene-stage" id="imSceneStage"></div>
+        </div>
+      </div>
+      <div data-page-node-id="yJlYOpv3WD1BnQIxP6mvTJ" class="round-stats-line" id="roundStatsLine"><!--pnid:EagHuGo6D5A4Uae3uQiWAl-->本轮：完整🍅 0｜半个🍅 0｜未完成 0</div>
+      <div data-page-node-id="41sGA1hFBUp3xuu0ffxrr2" class="session-info" id="sessionInfo">
+        <button data-page-node-id="0JyJcWzG0pxASDLbBPU5qu" class="end-session-btn" data-act="endSession"><!--pnid:YaJlqqCpcqxMh39oEAk8Lu-->结束本轮</button>
+        <button data-page-node-id="3zozeevCDZbLimNVvCUdTc" class="end-session-btn" data-act="startLongBreakFromModal" style="margin-left:var(--sp-8)"><!--pnid:IimNPtMOIMSQqirHsyc7mp-->立即长休息</button>
+      </div>
+      <div data-page-node-id="zmYCF5aCbpRHVBZs7SaYl8" class="timer-controls">
+        <button data-page-node-id="Vnrufc2Y4eDCSuQKi6vHOL" class="btn btn-start" id="btnStart" data-act="toggleTimer"><span data-page-node-id="32tzbe0iCOGVxx8fG0yvms"><!--pnid:kukiEPiBML8SWFbuKakaX1-->开始</span><span class="btn-sub">start</span></button>
+        <button data-page-node-id="rgSsisyxGQkYyvw3VliNnU" class="btn btn-finish" disabled id="btnFinish" data-act="finishPomodoro"><span data-page-node-id="H1TvJ0HxQuRv7iI5LHO8sY"><!--pnid:62tsBX0uLwyXg1QNRpZWB7-->结束番茄</span><span class="btn-sub">finish</span></button>
+        <button data-page-node-id="MjXvXmtpJBX897BystbC5x" class="btn btn-interrupt" disabled id="btnInterrupt" data-act="interruptPomodoro"><span data-page-node-id="l9XXT7tPo6LFfJaCJrzKG9"><!--pnid:Ct13hNTgmvYKxMmwL41ar8-->打断</span><span class="btn-sub">break</span></button>
+      </div>
+      <div data-page-node-id="iu7CDLRS0uyrPViadvSjD7" class="timer-rank-strip" id="timerRankStrip">
+        <div data-page-node-id="AGsx9225AkSyae2BmqJgWm" class="trs-left">
+          <span data-page-node-id="UJ3JSYulPLmr8HoAW2y32d" class="trs-icon" id="trsIcon"><!--pnid:pIgKA6aGDUw1lCkUQ8GGmG-->🥉</span>
+          <div data-page-node-id="K7VoZSiIyN9Wo3hp1v9KAB" style="min-width:0">
+            <div data-page-node-id="hS5Vxds2qppvvrtPJaE4lV" class="trs-name" id="trsName"><!--pnid:QkSqjYYB7Lkz2vUya2cpJx-->青铜 Ⅲ</div>
+            <div data-page-node-id="bZn9ryhxLs8YTc4UxOaFvZ" class="trs-stars" id="trsStars"><!--pnid:aEglPZeLScRnV97kZEHDQb-->0 ⭐</div>
+          </div>
+        </div>
+        <div data-page-node-id="5FysnyxWL5emCwKgPDpvCn" class="trs-right">
+          <div data-page-node-id="orREOlLJdCY1nq1I6wBLL4" class="trs-task" id="trsTask"><!--pnid:AEjbXqOU7P0FMIhoNWXuOe-->今日任务 0/3 🍅</div>
+          <div data-page-node-id="V4d9cxgT2pngGZRpBSZDrj" class="trs-avail" id="trsAvail" style="font-size:var(--fs-note); color:var(--text-light); margin-top:var(--sp-2)"></div>
+          <div data-page-node-id="bu6UYCGl6T89gPh7RqP4Rj" class="trs-bar"><div data-page-node-id="c9wDjs3ujVbmx6xNaYcxKy" class="trs-fill" id="trsFill"></div></div>
+        </div>
+      </div>
+      <div data-page-node-id="XVmJoE5gE4nY3iDNS0WBn8" class="ghost-bar-box" id="timerGhostBox" style="margin:var(--sp-6) 0 var(--sp-2)"></div>
+    </div>
+
+    <!--pnid:7msD2oZO2jvJ2ZFpfhu15z--><!-- 休息活动骰子（仅休息时显示，参考番茄休息站 + 眼睛离开屏幕的科学原理） -->
+    <div data-page-node-id="M5hbl1DEc5GMmSip05Qhzt" class="break-dice-section" id="breakDiceSection">
+      <div data-page-node-id="Bs2s3DYejm2B1E9QyxFSzG" class="bd-header">
+        <div data-page-node-id="G5CGtJPb9o08xNSD5NosSU" class="bd-title"><!--pnid:49hHbGmv7ombq7sAZrEOP0-->🎲 休息活动</div>
+        <button data-page-node-id="aLuVesCDLT5aUrK1w13pLp" class="bd-hint-btn" id="bdHintBtn" data-act="toggleBdScience"><!--pnid:pPLHXv95qWwg7VGufg9Xen-->收起 ▴</button>
+      </div>
+      <div data-page-node-id="5KuXcq3FHedSAepRtluSjK" class="bd-science show" id="bdScience">
+        <b data-page-node-id="gndKLDE0ChnT2S8o1ugFtx"><!--pnid:w6DTlk2chUX3g4QEKyDG0V-->③ 休息 5 分钟真的休息</b><!--pnid:TFoEnSTq8Gyx8ChdvXSc8n-->，不要刷手机！站起来走走、喝水、看窗外。<b data-page-node-id="v4R3R6iBsvFexuVekzbqYr"><!--pnid:3nMBe7c2Fy0XOAD4BE4Ix6-->眼睛离开屏幕</b><!--pnid:FEQyY0UKEsCMFc5wWiL0ya-->，大脑才能真正切换。
+      </div>
+      <div data-page-node-id="xlVpNweeM88p0PWIb11rlQ" class="bd-tabs">
+        <button data-page-node-id="Ti80FngTUzAgU09ZK9vZGp" class="bd-tab-btn active" id="bdTabRest" data-act="setBdCategory" data-act-args='["rest"]'><!--pnid:T7pcTGWiDtGkeCslOjMSr8-->☕ 休息</button>
+        <button data-page-node-id="Hhk7oxbGVVl6DC59ovsRVm" class="bd-tab-btn" id="bdTabExercise" data-act="setBdCategory" data-act-args='["exercise"]'><!--pnid:kx4boaPOybwQu5YOv6wt7Y-->💪 运动零食</button>
+      </div>
+      <div data-page-node-id="jXCglV7PcacoMLGYDp0bvU" class="bd-card">
+        <span data-page-node-id="sNixItOqPyb8bG5Rg7SvnL" class="bd-emoji" id="bdEmoji"><!--pnid:w3ZsPYvtpbsQ9gc55R3aBy-->🎲</span>
+        <div data-page-node-id="EzlRDQwB51vyER3B4vIhQB" class="bd-name" id="bdName"><!--pnid:JDxWz5YSoayc6DwCdy7Vpk-->准备好了吗？</div>
+        <div data-page-node-id="CkX3xZEOctl348KrUMtbQX" class="bd-desc" id="bdDesc"><!--pnid:AYBr1AfWRTZ6MHDxBDCwW1-->点击下方按钮，随机抽一个活动</div>
+        <div data-page-node-id="4Ybogk5GPjAGpTO2GEpoCA" class="bd-reps" id="bdReps"></div>
+      </div>
+      <button data-page-node-id="3WbHgWAtvZ7oVjZo9zMRDb" class="bd-roll-btn" id="bdRollBtn" data-act="bdRoll"><!--pnid:IyjnWyKQZdXkC1gH2xA7QY-->🎲 随机抽取</button>
+      <div data-page-node-id="7o7GZesBP2Yla0EZDnIv9d" class="bd-history" id="bdHistory"></div>
+    </div>
+
+    <div data-page-node-id="HZYzSt0plSZQtOvf8yxN9A" class="current-todo-section">
+      <!-- 提示语是「说明」，不是「容器」：去掉整圈描边与卡片底，改成左侧 2px 强调竖线。
+           卡片里再套一个带框的盒子，会让读者以为这是一块独立功能区。 -->
+      <div data-page-node-id="sNawpZwVGtgO0bY3hxfBIZ" id="encourageText" style="padding:0 0 0 var(--sp-10); border-left:2px solid var(--hairline); font-size:var(--fs-note); line-height:1.6; color:var(--text-light); font-weight:var(--fw-regular); margin-bottom:var(--sp-12)"></div>
+      <label data-page-node-id="IXzeRebvdzLh4qFIe9Gsmv" id="currentTodoSelectLabel"><!--pnid:M2kC3Yh9yiYcHcvgFFWJBT-->选择计划（可留空，也可手动输入）</label>
+      <select data-page-node-id="hhPV1L7QBEZaocGoAWUWpb" class="current-todo-select" id="currentTodoSelect" data-change="onSelectTodoPlan" data-change-args='["@value"]'>
+        <option data-page-node-id="TIQKpzKABRCR70qVcFOMXG" value><!--pnid:XWJ50Ec4WSrkOJKrDHAe4n-->— 手动输入任务 —</option>
+      </select>
+      <label data-page-node-id="KOTJ2sH7BJh1dIQ3aaNISD" style="margin-top:var(--sp-8)"><!--pnid:hKZ7Eb6qSMd1kvXIOJEBwW-->任务名称</label>
+      <input data-page-node-id="PtkHyoCgbPx1uNc2aCD9n0" class="current-todo-select" id="currentTodoInput" data-focus="todoInputFocus" placeholder="我要完成什么呢？" type="text">
+      <label data-page-node-id="QRLlaJct0NKetRNydPx1Jm" style="margin-top:var(--sp-8)"><!--pnid:TlaFhAIP2awTXxBlYkZ71L-->备注（可留空）</label>
+      <textarea data-page-node-id="QuiVU0UUTitxGKoW6FU1J4" class="current-todo-select" id="currentTodoNote" placeholder="这次番茄要做什么…（只记这一次，不改计划备注）" style="min-height:50px; resize:vertical"></textarea>
+      <!-- 子任务清单是卡片内的次级分组：与父级同底色时只能靠描边区分，
+           故用 surface-2 下沉一档 + 左侧竖线，不再整圈描边。 -->
+      <div data-page-node-id="9x3DEhYq2RvnXOWrdcuayx" id="timerSubsBox" style="display:none; margin-top:var(--sp-12); padding:var(--sp-10) var(--sp-12); background:var(--surface-2); border-left:2px solid var(--hairline); border-radius:var(--radius-sm)"></div>
+      <div data-page-node-id="wgYd0XVQMClqWC8kA5dEBg" class="state-section" style="margin-top:var(--sp-10)">
+        <div data-page-node-id="VACdweBIlP2JxHx9MpBjet" class="state-section-title"><!--pnid:DvjVSGyN550AZ4XpSq5rLv-->当前状态（选填，开始前打分）</div>
+        <div data-page-node-id="D9LnuYs0eYvGRZ6iEbuXNF" class="state-row">
+          <span data-page-node-id="gIPLJq91ecvgGw0ahZP2Vf" class="state-icon"><!--pnid:l5mqyCYHwz5FTN3MYeN7tF-->🔋</span>
+          <div data-page-node-id="8uK1VMmfwoyvpWJmy0gcUs" class="grid-picker" id="startEnergyPicker"></div>
+          <span data-page-node-id="3KK3NeexVrlFR7OEdzcwbP" class="state-label" id="startEnergyLabel"></span>
+        </div>
+        <div data-page-node-id="FxX6brxIDh6SyXp1jrvgke" class="state-row">
+          <span data-page-node-id="NC1iExlMsYlWatpFfk9Xpw" class="state-icon"><!--pnid:pXVkTYGLZsN6AbGRXljKw8-->😊</span>
+          <div data-page-node-id="dfAOCQFXTQ8UYBZfJdbTTO" class="grid-picker" id="startMoodPicker"></div>
+          <span data-page-node-id="KLsBzjiGEDd92BM4aMqHK9" class="state-label" id="startMoodLabel"></span>
+        </div>
+      </div>
+      <!--pnid:gqiKpLDZgl0SpGrRXjbRTP--><!-- 白帽游戏化：任务难度=时长档位（简单10分钟 / 中等25分钟 / 沉浸式50分钟 / 大师90分钟），奖励按时长折算； picker 常驻 + 说明折叠 -->
+      <div data-page-node-id="JuyhcpJeKQjF0SsUh94RpB" id="difficultySection" class="state-section" style="margin-top:var(--sp-10)">
+        <div data-page-node-id="JAi65cgk52NLKysLsxPGiY" class="state-section-title"><!--pnid:iKgA4wJV44hX6Rgc4ujduM-->🎯 任务难度（选填）</div>
+        <div data-page-node-id="x94PBoAsH3FPMZ7TsMbhX6" id="difficultyPicker"></div>
+        <div data-page-node-id="zsLrlQq66WDhtm5P5aF15G" class="diff-hint-toggle" id="diffHintToggle" data-act="toggleFold" data-act-args='["diffHintBody","diffHintArrow"]'>
+          <span data-page-node-id="bQy9Hj4lPxEnga6D0jM5Mt"><!--pnid:wkTHHWR2M0u5LWXfdns7Zs-->💡 选档位 = 定专注时长，点击展开说明</span>
+          <span data-page-node-id="Bo29ZrOuFE7RF4lVgrJqEy" id="diffHintArrow" style="font-size:var(--fs-note); color:var(--text-light)"><!--pnid:rqi4HznejiVrlE1nIy5UIM-->▸</span>
+        </div>
+        <div data-page-node-id="QPknF6DFNtWfxjyjl8v6wF" id="diffHintBody" style="display:none; margin-top:var(--sp-6)">
+          <div data-page-node-id="uNTBv5sWeKJTr8kWsKglzi" class="difficulty-hint" id="difficultyHintBody"></div>
+        </div>
+      </div>
+      <!--pnid:4dYlGzI684yHcF7JEPWPoA--><!-- 心流自适应：时长建议提示（开启「自适应建议」时显示） -->
+      <div data-page-node-id="smd32x5cTvVEVM3rc6SQYe" class="duration-suggestion" id="durationSuggestion" style="display:none"></div>
+    </div>
+
+    <div data-page-node-id="b3TsCtyurrMHvoKYW9DI4r" class="today-stats">
+      <div data-page-node-id="1oX7NFngrmdnC8kp48DRDv" class="stat-item"><div data-page-node-id="e1mtwQ2jaHcdwVbXPyB2v7" class="stat-num tomato-full" id="todayFull"><!--pnid:x8UaTkRk7S6mVkp7kEbt4t-->0</div><div data-page-node-id="N9geCMo3TKDNWG5gtmczKW" class="stat-label"><!--pnid:LbfA5oKkICenmyvJAUe9fe-->完整🍅</div></div>
+      <div data-page-node-id="XHuugB3H1sbWniNw1ayFvT" class="stat-item"><div data-page-node-id="lbGLYQUuJKrEtoSR8HD6Td" class="stat-num tomato-half" id="todayHalf"><!--pnid:x8cSjgnzNyJqNmuljFW31P-->0</div><div data-page-node-id="rKz6nBcjrYWCTKvfOaKnL9" class="stat-label"><!--pnid:o8aYWMonqWnno5FspqcgVG-->半个🍅</div></div>
+      <div data-page-node-id="LMXqUXYMGUnyceLNe0pCEy" class="stat-item"><div data-page-node-id="UgNFAOmHHndDfIC4zzgmNu" class="stat-num tomato-interrupt" id="todayInterrupt"><!--pnid:F1tShyV2Sex9sihNwz6uyo-->0</div><div data-page-node-id="BoM0M5KLfAtSzt8wnZZD9W" class="stat-label"><!--pnid:cMZL775hsoaXjZpD5X5EM5-->打断次数</div></div>
+    </div>
+  </section>
+

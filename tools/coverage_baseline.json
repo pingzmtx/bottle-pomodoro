@@ -1,0 +1,28 @@
+{
+  "covered": 183,
+  "total": 202,
+  "pct": 90.6,
+  "zero_branch_blocks": 116,
+  "uncovered": [
+    "todoEyesOff",
+    "fmtStampHM",
+    "fmtPomoGrouped",
+    "fmtMinUnit",
+    "habitSubsOf",
+    "normHabitSubText",
+    "normHabitSubDate",
+    "normHabitSubTime",
+    "minToHM",
+    "normHabitSubs",
+    "habitSubsOn",
+    "habitSubsSort",
+    "habitSubsDoneOn",
+    "tbMinLabel",
+    "todoSortAnchor",
+    "todoRemindOn",
+    "todoHistSchedDate",
+    "todoRemindSlots",
+    "todoRemindSlotAcked"
+  ],
+  "note": "2026-11-09 习惯单日排期：计划/习惯共用 dayPlanNormAll（消除两套清洗口径），新增 habitDayPlanNormAll / habitDayPlanOn，并首次执行到 normHabitBlock / normHabitBlocks / habitBlocksOf 内部（这三个原先整个函数从未跑到，原来各只记 1 处未进入；现在进去了，暴露的是它们自己的入参兜底分支 → 处数 109→116）。函数覆盖 174→183，业务分支全部由 unit_pure 的「习惯单日」块覆盖。"
+}

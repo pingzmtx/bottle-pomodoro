@@ -1,0 +1,470 @@
+  <!--pnid:nBTiD6jbSq0eIerkRrkhv7--><!-- ========== 统计页 ========== -->
+  <section data-page-node-id="FgVlsDIKsciAbzzeWBLuq2" class="view" id="view-stats">
+    <!--pnid:GJB12Pzu4RlAjpSWhAKIz6--><!-- 统计页二级导航：数据分析 / 种植养成 / 段位战标组队 / 成就（加 sticky，滚动时粘在 .main 顶部不消失） -->
+    <div data-page-node-id="DtI7SXU8rW9cCrSyj57gp6" class="stats-nav" id="statsSubNav" style="position:sticky; top:0; background:var(--bg); z-index:21">
+      <div data-page-node-id="2WOyOYoPK2ijrvDwQQMEzh" class="stats-nav-item current" data-tab="data" data-act="switchStatsSubTab" data-act-args='["data"]'><!--pnid:58bHRDdEPYu5FHF97FJFBh-->📊 分析</div>
+      <div data-page-node-id="Ak4zh5jXRzia8Ma4jLFeol" class="stats-nav-item" data-tab="tree" data-act="switchStatsSubTab" data-act-args='["tree"]'><!--pnid:kZgEtOjJY2lnyynk7kDO2D-->🌳 种树</div>
+      <div data-page-node-id="pZ9ooK2KFQIm7rTqwpTF4R" class="stats-nav-item" data-tab="rank" data-act="switchStatsSubTab" data-act-args='["rank"]'><!--pnid:AHoo3hfvFetzjKvMlYq0b0-->⭐ 段位</div>
+      <div data-page-node-id="chCf8RhLABnEYH2mPPn1A2" class="stats-nav-item" data-tab="ach" data-act="switchStatsSubTab" data-act-args='["ach"]'><!--pnid:NCpqewzi68qzlxystLP0R1-->🏆 成就</div>
+      <div data-page-node-id="wNR1XQVZ2wGwWEl9Ak5Vtb" class="stats-nav-item" data-tab="lb" data-act="switchStatsSubTab" data-act-args='["lb"]'><!--pnid:TgAqkFWGB3cc32ZwKxH48x-->🥇 排行榜</div>
+    </div>
+    <div data-page-node-id="bJWWCmxuYkq63R2SsK6S8D" id="statsDataView">
+
+<div data-page-node-id="jaHwShC7iRDqsWlTbGXiSZ" class="stats-header" id="statsOverview" style="text-align:center; padding:var(--sp-6) 0 var(--sp-4)">
+      <div data-page-node-id="NH50m5FOEege7n3DHDjX4N" id="statsDate" style="font-size:var(--fs-title); color:var(--text-light); font-weight:600"><!--pnid:qq1GL39sMU8DzRZ77zCJKn-->今日番茄🍅</div>
+      <div data-page-node-id="RYNeWpIEBgmfPm5KEpz4Oq" class="stats-total" id="statsTotal" style="font-size: calc(104px * var(--fs-boost)); font-weight:900; line-height:1; color: var(--primary-ink); margin:var(--sp-8) 0 var(--sp-6)"><!--pnid:mti5yFf5eFcWjhKubrvKjM-->0</div>
+      <div data-page-node-id="forVBUwkEWJai8GXxMwMeR" id="statsStreak" style="font-size:var(--fs-hero); font-weight:700"><!--pnid:hR2CLx4IvaHIejvCURbS0F-->🔥 连续 0 天</div>
+      <div data-page-node-id="dq2V7Lv27VekWwXpS2XeiN" id="statsTierLabel" style="display:none; font-size:var(--fs-body); font-weight:800; margin-top:var(--sp-4)"></div>
+      <div data-page-node-id="YAlwVhwkxqEkLE467eeMPy" id="statsWeekInfo" style="font-size:var(--fs-title); color:var(--text-light); margin-top:var(--sp-10); line-height:1.6"><!--pnid:YZOHduFcoMVbD6vY28DgiU-->本周已消耗 <span data-page-node-id="FDyhOf1IlAVSpezyuRqdkZ" id="weekSpentCount" style="color:var(--text-light); font-weight:800"><!--pnid:RckHrb0BRJDPZIj3EM51TZ-->0</span><!--pnid:1xuv8ZXqq2dAbw0MiDPy6d--> 个🍅 ｜ 可消耗 <span data-page-node-id="5moflsZl1xViGnLAUeqEzc" id="weekAvailCount" style="color: var(--green-ink); font-weight:800"><!--pnid:yyP6AKU4cdiCcyLgbTq5QV-->0</span><!--pnid:ZGm2KaHR9KyBB11xyNrNqW--> 个🍅</div>
+    </div>
+
+    <!--pnid:Qdk3TjOWfQp9ubOCiZLkwi--><!-- 统计子板块快速跳转导航 -->
+    <div data-page-node-id="U25qfOlNotdeXqKftmEn4U" id="statsJumpNav" style="display:flex; gap:var(--sp-6); overflow-x:auto; padding:var(--sp-4) var(--sp-2) var(--sp-8); margin:var(--sp-2) 0 var(--sp-4); -webkit-overflow-scrolling:touch; scrollbar-width:none; position:sticky; top:0; background:var(--bg); z-index:20"></div>
+    <div data-page-node-id="b6oVzFRSMergRx9NxfufWn" id="statsJumpNavShadow" style="display:none; height:2px; background:linear-gradient(90deg,transparent,rgba(128,128,128,.25),transparent); margin-bottom:var(--sp-6)"></div>
+
+    <div data-page-node-id="yAXYkoEKBsB39xM0XZiqH8" id="todayAnalysisBox" style="margin-top:var(--sp-10); padding:var(--sp-10); background:var(--bg); border:1px solid var(--hairline); border-radius:var(--radius); font-size:var(--fs-title); color:var(--text-light); line-height:1.7">
+      <b data-page-node-id="bYeDRQRTltrJ6IneAK420x" data-act="toggleTodayAnalysis" style="color:var(--text); font-size:var(--fs-title); cursor:pointer; display:block; padding:var(--sp-2) 0"><!--pnid:IBFnkFNMTkUIqvnY56gbty-->📊 今日分析 <span data-page-node-id="SiFf3fQv5bKBE75tczppes" id="todayAnalysisArrow"><!--pnid:kpkw2zKBODvx7oYAJoY8iv-->▸</span></b>
+      <div data-page-node-id="qPvNmTQMVDem8OhlPJPhxL" id="todayAnalysisBody" style="display:none; margin-top:var(--sp-6)"></div>
+    </div>
+
+    <div data-page-node-id="RMfFXCOoYGfNFiyh6bnQgJ" class="stats-grid" id="todayBox">
+      <div data-page-node-id="3IIilNlyAu2KBGoiZfW1Q1" class="stats-card"><div data-page-node-id="dJ6vfUwcuRrlpUcy9DIVql" class="card-num tomato-full" id="statFull"><!--pnid:legnWkTod46WdQzWZg9cRL-->0</div><div data-page-node-id="jAyy1NmZCdBZIiHdkesUp8" class="card-label"><!--pnid:iXHkGBVxU7THW7FRd8AVzO-->完整🍅</div></div>
+      <div data-page-node-id="zmpbq4apwX2ZgYUnpz2n9v" class="stats-card"><div data-page-node-id="T1OXjcwcE7HtexvhKgHnH3" class="card-num tomato-half" id="statHalf"><!--pnid:7eCgLYpmIjRFDiMWIEnxb4-->0</div><div data-page-node-id="iay1MlDOU8dp74ud1UEDeS" class="card-label"><!--pnid:lbkIoomC06wHa2ZdqnvLsE-->半个🍅</div></div>
+      <div data-page-node-id="J0xMsC2Ufxk1ezETcDdOIs" class="stats-card"><div data-page-node-id="7qvLtQwfmvVN6rcdddu7Hx" class="card-num" id="statFocus"><!--pnid:pDVjWoGoQ7Sd9yLPcYQhsM-->0</div><div data-page-node-id="oZEIFsAFjPTIHu3QAALr1x" class="card-label"><!--pnid:oxFTwetsLwKOUFs3wEaYTq-->专注分钟</div></div>
+      <div data-page-node-id="gYu7hivflomoZdaaD8J4Qd" class="stats-card"><div data-page-node-id="DDwZgVEYp4egYKpDCkVS8n" class="card-num tomato-interrupt" id="statInterrupt"><!--pnid:QnPc3nByijTW2j9DjuJWqZ-->0</div><div data-page-node-id="bE3lLGFdy8d8EGL2HVD1RV" class="card-label"><!--pnid:OFCFFegaZuMWE1CsSmW1Mw-->打断次数</div></div>
+      <div data-page-node-id="zmquR9JdrvppYAgBftf7oN" class="stats-card"><div data-page-node-id="4iOfueGny9YWqEivFgTVSI" class="card-num" id="statEfficiency" style="color: var(--green-ink)"><!--pnid:ho3hScghT1ULNFCLDuKufv-->--</div><div data-page-node-id="zQjtLVCec64JWljT454WhD" class="card-label"><!--pnid:Y2dE87P52thMOzNLsGXFdZ-->专注效率</div></div>
+      <div data-page-node-id="Ho7nI0c0V4ufzHZnOElHYn" class="stats-card"><div data-page-node-id="L7rkHNi3VeCTkOYT80Iq1g" class="card-num" id="statAvgDur" style="color:var(--purple)"><!--pnid:AyNaLitALROzU046zQk3uu-->--</div><div data-page-node-id="tUUK7ybAyzY2f2vQZu9Au2" class="card-label"><!--pnid:2sahXZgHafJv4GRhwSBnx1-->平均专注时长</div></div>
+      <div data-page-node-id="I8Ewu89GL3jGno13ZnUreS" class="stats-card"><div data-page-node-id="Z7vo6rAr65WkMqB6dklZy3" class="card-num" id="statEnergy" style="color: var(--blue-ink)"><!--pnid:N4fsTUTSbY3q0YSNWBwVrQ-->--</div><div data-page-node-id="MV23hn6WedkNt2kkJ3SxZm" class="card-label"><!--pnid:VrTZ2VHFiPK8m947Usdknn-->平均身心电量</div></div>
+      <div data-page-node-id="jmmiIKim6UMIN0P9q7Ty2e" class="stats-card"><div data-page-node-id="SjDtPXCIgKHBc7AVzVT3Ch" class="card-num" id="statPleasure" style="color: var(--yellow-ink)"><!--pnid:xMkXI9hzqPL3zCxl4VCH5J-->--</div><div data-page-node-id="AgMJG2ewimYQQcvVJ4D7Ew" class="card-label"><!--pnid:TWqY4TIiRz3UtkZW8sVc8A-->平均愉悦值</div></div>
+    </div>
+
+    <!--pnid:nUUhqomMShqKnfOYjVkf9w--><!-- 本周 vs 上周 对比 -->
+    <div data-page-node-id="0HfWjmXXL56XLt139TT5Vf" class="week-chart" id="weekCompareBox">
+      <h3 data-page-node-id="CWvixU6Gj8AjpKZqbG6xrU"><!--pnid:JYYNKNbv37Pkfc4Lhycxq8-->⚖️ 本周 vs 上周</h3>
+      <div data-page-node-id="CMBO2Q11dpg8ZC128bORJV" id="weekCompare" style="display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-8)"></div>
+    </div>
+
+    <!--pnid:PuNLUitsgtU0fSZFwfK6uA--><!-- 趋势图表 -->
+    <div data-page-node-id="3Q8R3j2hCf44WjktcAxMQb" class="week-chart" id="statsTrend">
+      <h3 data-page-node-id="hHVIoYwv2UtQKqKuRxDa2v"><!--pnid:vrfMicM0SblzyWBvSM5WSM-->📈 近7天趋势</h3>
+      <div data-page-node-id="r7XEAvy6Bf71Vv9gQ80sW1" id="trendChart" style="width:100%; height:200px; position:relative; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch"></div>
+      <div data-page-node-id="dmSdhADPnluZPtJnG1guFo" id="trendLegend" style="display:flex; gap:var(--sp-10); justify-content:center; margin-top:var(--sp-6); font-size:var(--fs-title); flex-wrap:wrap"></div>
+    </div>
+
+<div data-page-node-id="HQumcdSkNcnLgPwlQ0k7tC" class="week-chart" id="yearHeatmapBox">
+      <h3 data-page-node-id="gYoWI7Bbb1gB58yv6Mibcz" style="margin-bottom:var(--sp-4); display:flex; justify-content:space-between; align-items:center; gap:var(--sp-6)"><span><!--pnid:8C1g9sdZGaVKxHR42Qvuiv-->🗺️ 年度专注地图</span>
+        <!-- 年份控件（2026-11-07）：‹ 年 › 翻年，中间那个年份按钮点开快跳弹窗（记录多了以后翻十年太痛） -->
+        <span style="display:flex; gap:var(--sp-4); align-items:center; flex:none">
+          <button class="btn-small" data-act="yrMapShift" data-act-args='[-1]' title="上一年" style="padding:var(--sp-2) var(--sp-8)">‹</button>
+          <button class="btn-small yr-nav-year" id="yrMapYear" data-act="openYearPicker" data-act-args='["map"]' title="年度专注地图 · 点这里跳到某一年">2026</button>
+          <button class="btn-small" data-act="yrMapShift" data-act-args='[1]' title="下一年" style="padding:var(--sp-2) var(--sp-8)">›</button>
+        </span>
+      </h3>
+      <!--pnid:IHUBdElPTwrvMzSeHjikN6--><!-- 固定区：统计内容不随格子滚动（之前整块塞进滚动容器导致"滑格子上面也跑"） -->
+      <div data-page-node-id="BVDsAWXBZVKBoXzzlGW5MY" id="yearHeatmapMeta"></div>
+      <!--pnid:Ku3ymCG8uTNhnEIWwPsTF4--><!-- 滚动区：只有 年份行+月份行+格子 在这里面横滚 -->
+      <div data-page-node-id="NKXxz53w5CRhJBYdlmW1Mr" id="yearHeatmapContainer" style="overflow-x:auto; padding:var(--sp-2) 0; overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch"></div>
+      <div data-page-node-id="oxs43MhvzIIbkZ4uyIRTAs" style="display:flex; gap:var(--sp-4); align-items:center; margin-top:var(--sp-6); font-size:var(--fs-tiny); color:var(--text-light)"><span data-page-node-id="N5EIoMl7CEP3IdZO7RFCHV"><!--pnid:VUpHUzC7VJm8tUwqNx83qG-->少</span><div data-page-node-id="rFYKls4qKPDFDdi0mb8m7S" class="hm-cell c0"></div><div data-page-node-id="vi8adywZsObom3au16eYys" class="hm-cell c1"></div><div data-page-node-id="9x8mElWYFOdwjRYQvW4Ekw" class="hm-cell c2"></div><div data-page-node-id="O8RmvLwjXi3pr2wGOFPCjI" class="hm-cell c3"></div><div data-page-node-id="sjbWffDXlrBlJzE5p6L99V" class="hm-cell c4"></div><span data-page-node-id="q2AdQeae0uvf8DdBYk8MD8"><!--pnid:k77TVF6oUi1aICkuv3OoXV-->多</span></div>
+    </div>
+
+    <div data-page-node-id="Sk1zWFx9gII3Sn0IrxmZNR" class="week-chart" id="heatmapBox">
+      <h3 data-page-node-id="ZivwTZxCs64LibriulwSnX"><!--pnid:ybDwlTbMZ1StSybMRkPgd4-->时段分布热力图</h3>
+      <div data-page-node-id="YNFyj9Uvd4bTW2FiXIegKq" id="heatmapContainer" style="display:grid; grid-template-columns:52px repeat(4,1fr); gap:var(--sp-4); font-size:var(--fs-body)"></div>
+      <div id="heatmapLegend" style="display:flex; align-items:center; gap:var(--sp-4); margin-top:var(--sp-8); font-size:var(--fs-tiny); color:var(--text-light)"></div>
+      <div id="heatmapNote" style="margin-top:var(--sp-4); font-size:var(--fs-tiny); color:var(--text-light); line-height:1.6"></div>
+    </div>
+
+    <div data-page-node-id="xiucRkY4ZR1OaCvW7KDVOS" class="week-chart" id="moodBox">
+      <h3 data-page-node-id="vvCpKAq4oSh7q1VPm9hTyH"><!--pnid:SO4HkRUOIZudnq5Vi80PLz-->🧠 身心状态趋势（近7天）</h3>
+      <div data-page-node-id="VcKD0G1thYfm1ihINPbqeJ" id="moodSummary" style="display:flex; gap:var(--sp-6); flex-wrap:wrap; margin-bottom:var(--sp-8); font-size:var(--fs-body); font-weight:700"></div>
+      <div data-page-node-id="egdgeHOaWLUvH16KBufDeE" id="moodChart" style="width:100%; height:200px"></div>
+      <div data-page-node-id="skOTNMGbKZ4KAlFebUHbAX" style="display:flex; gap:var(--sp-10); justify-content:center; margin-top:var(--sp-8); font-size:var(--fs-title); flex-wrap:wrap">
+        <span data-page-node-id="o3EaAl8CGeXHjCnrT71Ira" style="display:inline-flex; align-items:center; gap:var(--sp-4); color:var(--text); font-weight:600">
+          <svg data-page-node-id="9ddDrTwoQwOl7QeZx1qkKb" height="8" width="26" style="overflow:visible"><line data-page-node-id="anpvzNtwlDksTcUvwFULkJ" class="dash-long" stroke="var(--c-sleep)" stroke-width="2.6" x1="0" x2="26" y1="4" y2="4"/></svg><!--pnid:FicOBylrab39FPcK2M0iMy-->睡眠
+        </span>
+        <span data-page-node-id="BBLo1uElmbnZhwMlfi099m" style="display:inline-flex; align-items:center; gap:var(--sp-4); color:var(--text); font-weight:600">
+          <svg data-page-node-id="UCH5B6cVldsPMk4MfHdQw9" height="8" width="26" style="overflow:visible"><line data-page-node-id="R59xhCn3YnumTTKantU7sP" class="dash-dot" stroke="var(--c-mental)" stroke-width="2.6" x1="0" x2="26" y1="4" y2="4"/></svg><!--pnid:2C41GxxeDXcvEVGu3GWH1D-->精神
+        </span>
+        <span data-page-node-id="I4TmseHwJt4oGZhLa7lXCH" style="display:inline-flex; align-items:center; gap:var(--sp-4); color:var(--text); font-weight:600">
+          <svg data-page-node-id="kbouo0ki37NjTPaKoiRJj5" height="8" width="26" style="overflow:visible"><line data-page-node-id="t0b5wpsh0Lmxrd3KLhkOHi" class="dash-dashdot" stroke="var(--c-energy)" stroke-width="2.6" x1="0" x2="26" y1="4" y2="4"/></svg><!--pnid:x5jum3JPfgUxAXyIhz6eS0-->电量
+        </span>
+        <span data-page-node-id="DigQcqGcCgTV38Zy8zQ0PI" style="display:inline-flex; align-items:center; gap:var(--sp-4); color:var(--text); font-weight:600">
+          <svg data-page-node-id="qZHim1GF5qPWl24cR7GhWu" height="8" width="26" style="overflow:visible"><line data-page-node-id="5udzEdK8ELGLNUNMPH9cKc" stroke="var(--c-pleasure)" stroke-width="2.6" x1="0" x2="26" y1="4" y2="4"/></svg><!--pnid:Wn2bIAPaoJlwfRlLXQTANC-->愉悦
+        </span>
+      </div>
+    <!--pnid:w8IRQqJYRLTlSt53BuC2NP--><!-- 完成质量堆叠图 -->
+    <div data-page-node-id="n85m4hTJSYVaSzbOv8FQmh" class="week-chart" id="qualityBox">
+      <h3 data-page-node-id="biWUQfllLuBGKP4YVEThBb"><!--pnid:BIQFNi58NgBHtbIx9IyQax-->🍅 完成质量（近7天）</h3>
+      <div data-page-node-id="B2pYXyhh3YlT0RfOHeLaqx" id="qualityChart" style="width:100%; height:170px"></div>
+      <div data-page-node-id="Hq07ZdjcalMEdBji2a5NdB" style="display:flex; gap:var(--sp-10); justify-content:center; margin-top:var(--sp-6); font-size:var(--fs-title); flex-wrap:wrap">
+        <span data-page-node-id="fFAk1FPIVqwXGWpirOnuYi" style="display:inline-flex; align-items:center; gap:var(--sp-4); color:var(--text); font-weight:600"><span data-page-node-id="nO4lcFJbnRvzhr5zL08Lfz" style="width:12px; height:12px; border-radius:var(--radius-xs); background:var(--green); display:inline-block"></span><!--pnid:iMRuhmJgReqlCqxxl9BNJc-->完整</span>
+        <span data-page-node-id="zkyyoQg2syP18fL4xE5Y8C" style="display:inline-flex; align-items:center; gap:var(--sp-4); color:var(--text); font-weight:600"><span data-page-node-id="I2OdTLkuJUsbtjn173JmDm" style="width:12px; height:12px; border-radius:var(--radius-xs); background:var(--yellow); display:inline-block"></span><!--pnid:AvwqMAlHFNlWDNa6hQQn1I-->半个</span>
+        <span data-page-node-id="3kQeKHXySYxmXAF4poU3Sx" style="display:inline-flex; align-items:center; gap:var(--sp-4); color:var(--text); font-weight:600"><span data-page-node-id="giFC40bt4h3bdJpAInJE8k" style="width:12px; height:12px; border-radius:var(--radius-xs); background:var(--red); display:inline-block"></span><!--pnid:vda8livu7Ds4zqewDNh6yX-->未完成</span>
+      </div>
+    </div>
+
+    <!--pnid:cdIBgZaxfebErX0CdYs8vS--><!-- 专注时长分布 -->
+    <div data-page-node-id="dfAcBq9onUCdHk2hb9fC8U" class="week-chart" id="durBox">
+      <h3 data-page-node-id="qPTkfpwgxEDnOzkceDv0PF"><!--pnid:DR3nf7icB849UTGRXgOD3F-->⏱ 专注时长分布 <span style="font-size:var(--fs-caption);font-weight:600;color:var(--text-light);">近30天</span></h3>
+      <div data-page-node-id="tcYbdsqsSWv0yLpubi9elc" id="durChart" style="width:100%; height:170px"></div>
+      <div data-page-node-id="r45zAIdBrSRvm4hMz7vJMj" style="display:flex; gap:var(--sp-10); justify-content:center; margin-top:var(--sp-6); font-size:var(--fs-title); flex-wrap:wrap">
+        <span data-page-node-id="hqAAYIP0FBXbMBresUNYKe" style="display:inline-flex; align-items:center; gap:var(--sp-4); color:var(--text); font-weight:600"><span data-page-node-id="lbs6dLA14PeHJbLiNiPJtg" style="width:12px; height:12px; border-radius:var(--radius-xs); background:var(--c-energy); display:inline-block"></span><!--pnid:4NKs0VdxOSUjgXP3F6zGYj-->按实际专注分钟分段</span>
+      </div>
+    </div>
+
+    <!-- 任务完成度（计划 vs 实际）板块已按用户要求移除（2026-11-07）：
+         用户认为"预计 vs 实际"这条对照在日常使用里读不出行动价值，连它上面的
+         📋 任务快速跳转一起卸掉。渲染端 renderTaskCompareChart 仍保留，
+         拿不到 #taskChart 就整块跳过（空值保护已在），不动它就是最安全的回退方式。 -->
+
+    <!--pnid:6E7dHKSBs1OvhlqnIA2KHf--><!-- 每周节奏 -->
+    <div data-page-node-id="ioHuLbA4OLyIwLLfSaRAPh" class="week-chart" id="week8Box">
+      <h3 data-page-node-id="IOZl81Pu4vlnAdzJYdkhP8"><!--pnid:WUCxN8QazfdULaUMr6ShnU-->🗓 每周节奏（近8周）</h3>
+      <div data-page-node-id="F848F3pY67QGRh4RSRM0lR" id="week8Chart" style="width:100%; height:160px"></div>
+    </div>
+
+    <!--pnid:ylaNqDb35je9oE7ONKRtOW--><!-- 打断分析 -->
+    <div data-page-node-id="I2w7smvYkm5YFH7usbspC3" class="week-chart" id="interruptWrap">
+      <h3 data-page-node-id="qFZIvbeCQWtHQ0zc53B9cz"><!--pnid:ChVOtHbJDKqyYaTaPqahvu-->🚫 打断分析</h3>
+      <div data-page-node-id="gMC2uhNsVa9l9KIf0FwIP2" id="interruptBox" style="font-size:var(--fs-body); line-height:1.9; color:var(--text-light)"></div>
+    </div>
+
+<!--pnid:6pw7kGxEoHuiecFtLZGppT--><!-- 段位·上分趋势（折线图） -->
+    <div data-page-node-id="j4uWlbmqY0YuVgpz4VKZfL" class="week-chart" id="rankTrendWrap">
+      <h3 data-page-node-id="NwRBccT4ZPSIw1nXOG27un"><!--pnid:V8ghKN5HzsAcqxnl4ZMIyG-->⭐ 上分趋势（近30天）</h3>
+      <div data-page-node-id="aZUPBMXSyagDZYAas27RuM" id="rankTrendBox"></div>
+    </div>
+
+    <!--pnid:S6Cf5Q8pZ0RIOjNYZKQTr8--><!-- 月度专注统计（每日粒度面积折线图） -->
+    <div data-page-node-id="GbwO4Hg05FR9n4CIIjwsxw" class="week-chart" id="monthlyStatWrap">
+      <h3 data-page-node-id="rgIkmTSdZuXlfFmO1MBxFA" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--sp-6)">
+        <span data-page-node-id="MsT0gUhKFOLmLWkoDgdFIC"><!--pnid:VrMVqAsJ4eYnT146z1v43W-->📊 月度专注统计 <span data-page-node-id="98Qe8xiWObremhCec9ALj0" id="monStatTitle"><!--pnid:kWWR7hb0lFtE2m9wSyGHew-->2026年08月</span></span>
+        <span data-page-node-id="tRPTxdzFrhVD6bIr2zaCBH" style="display:flex; gap:var(--sp-4); align-items:center">
+          <button data-page-node-id="ObR64wv0xIiIAT4hGtEM2l" class="btn-small" data-act="openMonthPicker" title="选择月份" style="background:var(--card); color: var(--primary-ink); border-color:var(--primary); padding:var(--sp-2) var(--sp-8)"><!--pnid:VpBszPxDCCBB9LndjL0jAr-->📅</button>
+          <button data-page-node-id="MZYFqbovIaDJAtm8pOnils" class="btn-small" data-act="monStatShift" data-act-args='[-1]' title="上一个月" style="padding:var(--sp-2) var(--sp-8)"><!--pnid:8MOBWN2MZgy9BAdrrPVcE6-->‹</button>
+          <button data-page-node-id="7yAIBCySMVMMkSYJAZVYCM" class="btn-small" data-act="monStatShift" data-act-args='[1]' title="下一个月" style="padding:var(--sp-2) var(--sp-8)"><!--pnid:TMZVOQKtVrlizIY43yGSvs-->›</button>
+        </span>
+      </h3>
+      <div data-page-node-id="oPEIc5iTU9KA3d51L5mu0F" id="monStatBox"></div>
+      <div data-page-node-id="UTgHcaCOxvqZshsotzkw5v" id="monStatSummary" style="font-size:var(--fs-caption); color:var(--text-light); margin-top:var(--sp-8); line-height:1.6"></div>
+    </div>
+
+    <!--pnid:XHEBq0Yb5tVnc1Bng7VPkW--><!-- 年度专注统计（每月粒度面积折线图 + 月度对比表 + 年度总结） -->
+    <div data-page-node-id="8NqU5mgZJyhNn0M8kBJnfY" class="week-chart" id="yearlyStatWrap">
+      <h3 data-page-node-id="Gs9X2l0aM3DisR8sjx9MTi" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--sp-6)">
+        <span data-page-node-id="QW51hhkAPWIMkjarNk8VpH"><!--pnid:y3EU59bxOWS3ri5ioqumv4-->📈 年度专注统计</span>
+        <span data-page-node-id="0Ooxdl9bS4WbHNuI3VoCTD" style="display:flex; gap:var(--sp-4); align-items:center">
+          <button data-page-node-id="sjoCGuldiOFgBEqsI9zfCx" class="btn-small" data-act="yrStatShift" data-act-args='[-1]' title="上一年" style="padding:var(--sp-2) var(--sp-8)"><!--pnid:wPuIgGxJaGdfDEbVPuruEP-->‹</button>
+          <!-- 中间这颗就是"今年是哪年"的本体：显示当前年份、点开跳转弹窗（与年度地图的
+               `‹ 2022 ›` 同一套操作），文字由 renderYearlyStat 同步。
+               2026-11-07 前这里是静止的「跳转」二字，看不出自己在看哪一年。 -->
+          <button class="btn-small yr-nav-year" id="yrStatYearBtn" data-act="openYearPicker" data-act-args='["stat"]' title="年度专注统计 · 点这里跳到某一年"><span id="yrStatTitle">2026年</span></button>
+          <button data-page-node-id="yIjyujs61IexxflHtpblC" class="btn-small" data-act="yrStatShift" data-act-args='[1]' title="下一年" style="padding:var(--sp-2) var(--sp-8)"><!--pnid:Podbi6v6RUEeyyv9k7PPJf-->›</button>
+        </span>
+      </h3>
+      <div data-page-node-id="wQzRcdOcTu0h5XuPtgjaVI" id="yrStatBox"></div>
+      <div data-page-node-id="Rv695pSsI5twvbRsTFrwlA" id="yrStatSummary" style="font-size:var(--fs-caption); color:var(--text-light); margin-top:var(--sp-8); line-height:1.6"></div>
+      <div data-page-node-id="ir1JyhT7KnACcvFLzEyOFZ" id="yrMonthTable" style="margin-top:var(--sp-12)"></div>
+    </div>
+    <!--pnid:NbiAfcZt5CMGrO1G912oEy--><!-- 专注段数（努力积分 + 分段难度） -->
+    <div data-page-node-id="wEB9MTb4AxetBjGBNSxMKI" class="week-chart" id="focusRankWrap">
+      <h3 data-page-node-id="qyTJ9LCGGWSUBAuOqKG3zH"><!--pnid:YjMn6FEKuILBmj5kui3Tlg-->🎮 专注段数</h3>
+      <div data-page-node-id="2ono73qENp8P5tBDOEPtKs" id="focusRankBox"></div>
+    </div>
+
+
+    <!--pnid:1D9L3wusqVv1Ioz5PpSWLG--><!-- 统计页底部：分享打卡海报入口（跳转设置页） -->
+    <div data-page-node-id="A85ziuw86413wSPBxEBCas" style="margin:var(--sp-14) var(--sp-2) var(--sp-4); padding:var(--sp-14); background:var(--card); border:3px solid var(--border); border-radius:var(--radius); text-align:center">
+      <div data-page-node-id="mQvaSZSayWSbJXBHAPX6Qv" style="font-size:var(--fs-title); font-weight:800; color:var(--text); margin-bottom:var(--sp-4)"><!--pnid:TZsmpJnftp4tWwNTWQ6Cwp-->📤 把你的努力晒出去</div>
+      <div data-page-node-id="dFTr6RYvXwB4FYSsnZZr1C" style="font-size:var(--fs-note); color:var(--text-light); line-height:1.5; margin-bottom:var(--sp-10)"><!--pnid:SkXPoLi6nAt5gTABM3kSEh-->段数、段位、连续打卡、今日战报、种树…做成豪华海报分享给朋友</div>
+      <button data-page-node-id="fzKYrCNGAv9hVZykHGyKT2" class="save-btn" data-after="openSharePoster" data-after-delay="150" data-act="switchView" data-act-args='["settings"]' style="width:100%"><!--pnid:kgqhSFxOPcYcg260nBBkAh-->🎨 生成分享海报</button>
+    </div>
+
+    </div>
+        </div>
+    <div data-page-node-id="syBa1Iyg9320FSBFYkmdEu" id="statsTreeView" style="display:none">
+<div data-page-node-id="E9Hyk0MDWsyhRNdVCEnL6Z" class="tree-container" id="statsTree">
+      <h3 data-page-node-id="cL3X1D8cOtBdPWeKO4fdue" style="text-align:center; margin-bottom:var(--sp-8)"><!--pnid:ywecGv8l0wHkByxAw3tZtM-->🌳 番茄树</h3>
+      <div data-page-node-id="sVD4HwfuC83A6ezGJqVtpf" class="tree-top-row">
+        <div data-page-node-id="KIPvV8h1mtPPVxqaWDoTpS" class="tree-title-badge" id="treeTitleBadge"><!--pnid:YGMqzAHmyRnOLz3a9lpSBB-->🍃 新芽园丁</div>
+        <button data-page-node-id="phV5tjTeFCh6xJ8OU1yHBQ" class="tree-shop-btn" id="treeCoins" data-act="openTreeShop" title="打开商店：用果实币购买树装饰和场景"><!--pnid:IspgrmuWROn1lKQZPYeJeL-->🛍️ 商店 · 🪙 0</button>
+        <button class="tree-shop-btn" id="coinLedgerBtn" data-act="openCoinLedger" title="金币明细：每笔收入/支出的来源、时间与当时余额，误发可撤销">📒 明细</button>
+      </div>
+      <!--pnid:lEyjpatMB8pwfQxC4QwozC--><!-- 连续专注天数断了 → 商城恢复卡指引 -->
+      <div data-page-node-id="q5n1VA0meebLHLRfcuP4VW" id="streakBreakBanner" style="display:none; margin-top:var(--sp-10); padding:var(--sp-10) var(--sp-12); background:var(--bg); border:2px dashed #E53935; border-radius:var(--radius); font-size:var(--fs-body); color:var(--text); line-height:1.5; text-align:center"><!--pnid:brD8GVN0ddlDfUNPWjxhuh-->
+        📉 你的连续专注天数断了！
+        <button data-page-node-id="x2XakOJGB5fU99tn5XuZd1" class="btn-small" data-act="goBuyStreakRecover" style="display:block; margin:8px auto 0; background:var(--fill-primary); color:var(--on-fill); border:none; border-radius:var(--radius); padding:var(--sp-6) var(--sp-14); font-size:var(--fs-body); font-weight:800"><!--pnid:4wOfSNw7xgYoOin6VJCDsI-->🛍️ 去商城买「连续天数恢复卡」</button>
+        <div data-page-node-id="dyWkg0kuDUwQ3NBk3Keuwe" style="font-size:var(--fs-caption); color:var(--text-light); margin-top:var(--sp-4)"><!--pnid:7oeOcQolDpDSBR5yg1HGAj-->断掉后 3 天内使用恢复卡，可找回连续天数</div>
+      </div>
+      <div data-page-node-id="2vIhIB2HmHyc970QnklEeb" class="tree-lottery" id="treeLotteryBox">
+        <div data-page-node-id="c9cfXWBlm9EXyxrcV7pMtt" class="tree-lottery-head">
+          <span data-page-node-id="vPqHSlqmVjOkb5TexSU7ik" class="tree-lottery-title"><!--pnid:YFaXNBu2eUrm75iKWhSMgi-->🎰 金币抽奖</span>
+          <span data-page-node-id="iPYkfrtrayWtbATlAGzvw9" class="tree-lottery-count" id="treeLotteryCount"><!--pnid:wG3Cn5e6bQGFFfFABQTvkb-->×0</span>
+        </div>
+        <div data-page-node-id="nNTvxIhheduO262mQKRseZ" class="tree-lottery-row">
+          <span data-page-node-id="HTNgo6L2KHBGVH2nkkcyuv" class="tree-lottery-tip"><!--pnid:jAxJvMNanZzD0ddaLaKBst-->每 2 个🍅 = 1 次机会 · 抽 1~10 🪙</span>
+          <button data-page-node-id="YW9EbH58MnK9VsbuVaRlZy" class="tree-lottery-btn" id="treeLotteryBtn" data-act="doTreeLottery"><!--pnid:KRAuiaOkDRnmpeW1qwL2vr-->🎲 抽一次</button>
+        </div>
+        <div data-page-node-id="benJGWU6FPa6VNoB5Qtuxh" class="tree-lottery-result" id="treeLotteryResult"></div>
+      </div>
+      <div data-page-node-id="OcY9PJnCf8N752Ma0WaBGx" class="mystery-box" id="mysteryBox">
+        <div data-page-node-id="3oNzGH9y4pbYmE6yStfgnz" class="mystery-title" data-act="toggleMystery"><!--pnid:qBaqXXa2Xa411W62ydNc5J-->🕵️ 神秘际遇<span data-page-node-id="YO2fVUGKj1rsuvJmcdoEMZ" style="margin-left:auto; display:flex; align-items:center; gap:var(--sp-6)"><span data-page-node-id="HhOGk2aMbRAWZ33qCwqDcO" style="font-size:var(--fs-caption); color:var(--text-light); font-weight:400"><!--pnid:33EAP87Pnpi2UBEeDGdpuk-->每日 3 个 · 每个 +8🪙</span><span data-page-node-id="ru7ziBzgdzrxtaeakNEQ3U" id="mysteryArrow"><!--pnid:c0O2wGh8vz4NlFqwr6CluL-->▸</span></span></div>
+        <div data-page-node-id="lxsrgeWHBGrqZpWEUT8tou" id="mysteryTaskList" style="display:none"></div>
+        <div data-page-node-id="e3jYLWcZvH5cC9d5ZLxM8D" class="mystery-tip" id="mysteryTip" style="display:none"><!--pnid:tPspo3S9JLWuI4mdjyvdZb-->每天 3 个神秘小任务，完成领取 8🪙，第二天刷新（与每日任务不重复）</div>
+      </div>
+      <div data-page-node-id="wEQbfzGXfk3HpyYFI0EFOs" class="tree-season-badge" id="treeSeasonBadge"><!--pnid:5PTFP1KyJrfEKTCOF6VgMX-->🌸 春</div>
+      <div data-page-node-id="Rxz7XmPVgPQF5PrIOC9j6h" class="tree-season-hint" id="treeSeasonHint"></div>
+      <div data-page-node-id="CBghhyVEgIehdXuLatQV0u" class="tree-species-bar" id="treeSpeciesBar"></div>
+      <div data-page-node-id="1pRHhN3RlE6M1dIPTKfMpy" id="treePlantConfirm" style="display:none; margin-bottom:var(--sp-10); padding:var(--sp-10) var(--sp-12); background:var(--bg); border:2px dashed var(--primary); border-radius:var(--radius); font-size:var(--fs-body); color:var(--text); line-height:1.5"></div>
+      <div data-page-node-id="jazPlogfoAKh2oaFbz1Wmt" class="tree-scene" id="treeScene">
+        <div data-page-node-id="enMUZOn8DhSKi9CiC6hAkE" class="tree-prop-layer" id="treePropLayer"></div>
+        <div data-page-node-id="7wkm9t8R7AURjCIoZ3dH4p" class="tree-visual-wrap" id="treeVisualWrap" data-act="treeTalk">
+          <div data-page-node-id="OZHJFE0oAAT8XLpXti9RRd" class="tree-aura-layer" id="treeAuraLayer"></div>
+          <div class="tree-age-decor" id="treeAgeDecor"></div>
+          <div data-page-node-id="C1HlkFjcXXLunDhnenhAYl" class="tree-visual" id="treeVisual"><!--pnid:HVAuLcA3VetX9nawVZc1lk-->🌱</div>
+          <div data-page-node-id="Q15bYPGJkQCBCUxNhREtwM" class="tree-decor-layer" id="treeDecorLayer"></div>
+          <div data-page-node-id="wi0j2AthgWaaLC8FGaMylF" class="tree-mood" id="treeMood"><!--pnid:gfPnKr0PYDgfbJsTLvpAWY-->😊</div>
+          <div data-page-node-id="z10IbzQh3FPrVPP0bsfsWN" class="tree-bubble" id="treeBubble"></div>
+        </div>
+      </div>
+      <div data-page-node-id="AZtqJENlT8cXXAGPo9ViNF" class="tree-name-row" data-act="openTreeNameModal" title="点击给树起个名字">
+        <span data-page-node-id="nbVYJ0G9EMqKkCF2abNF83" class="tree-name-badge" id="treeNameBadge"><!--pnid:BcYsgTn3cH8F0gjyKsJtbX-->🌱 给树取个名字</span>
+        <span data-page-node-id="htb0mSiuAKEbbR7WSSEd4F" class="tree-name-edit"><!--pnid:LICY58tolHpoqB424dDDym-->✏️</span>
+      </div>
+      <div data-page-node-id="2QgnSh6uGZVN3xNJRkHBMI" class="tree-stage-info">
+        <label data-page-node-id="JSsNCCBxzr91pCUGJltCow" class="tree-companion-label" id="treeCompanionLabel" title="小树阶段(40🍅)后可开启陪伴">
+          <input data-page-node-id="iQkhdRDo3kzk5h1NyqF2MX" id="treeCompanionToggle" data-change="toggleTreeCompanion" data-change-args='["@checked"]' type="checkbox" style="width:17px; height:17px; accent-color:var(--primary); vertical-align:middle">
+          <span data-page-node-id="TzV1zzpcWPKXeauu07z5XP" style="font-size:var(--fs-body); color:var(--text-light); font-weight:700; margin-left:var(--sp-2)"><!--pnid:TNeW622MjgKAiwlAUrKiB8-->🤝陪伴</span>
+        </label>
+        <span data-page-node-id="XNRKK3HlJePArFH3sMy6iQ" class="tsi-name" id="treeStageName"><!--pnid:w4XRqkAI8WzavaJobADrxD-->种子</span>
+        <span data-page-node-id="ZJUcQAxA4c0x0rrZtBtrIU" class="tsi-species" id="treeSpeciesName"><!--pnid:A0ybHeI9C9D1hIqD9gQCtG-->番茄树</span>
+      </div>
+      <div class="tree-age-line" id="treeAgeLine" style="display:none"></div>
+      <div data-page-node-id="nGql4Kzy4rcGKqp4G1aaxz" class="tree-eternal-stars" id="treeEternalStars" style="display:none"></div>
+      <button class="tree-seal-btn" id="treeSealBtn" data-act="sealCurrentTree" style="display:none"><!--pnid:treeSealBtn-->🌲 封树成林</button>
+      <div class="tree-grove" id="treeGroveWrap" style="display:none">
+        <div class="tg-head" data-act="toggleTreeGrove">🌲 林地 · <span id="treeGroveCount">0</span> 棵 <span id="treeGroveArrow">▸</span></div>
+        <div id="treeGroveBody" style="display:none"><div class="tg-trees" id="treeGroveTrees"></div><div id="treeGroveBox"></div></div>
+      </div>
+      <div data-page-node-id="bPFX9sZyorf8XWUMKkhRx4" class="tree-life-log" id="treeLifeLogWrap">
+        <div data-page-node-id="1iPkrXjcCv8Y7kQfzXNr1R" class="tll-head" data-act="toggleTreeLifeLog"><!--pnid:QPngTvQehhtc5Ek3j1u4do-->📜 树的履历 <span data-page-node-id="1NxqqpstsUB70duSpuMWEv" id="treeLifeLogArrow"><!--pnid:GQFtRWYleaoTwmjwoQ5fW1-->▸</span></div>
+        <div data-page-node-id="Mpx1ZFuixNqMYdGWWkjwx3" id="treeLifeLogBody" style="display:none"><div data-page-node-id="FV2smbXkXTciirNLATjD3r" id="treeLifeLogBox"></div></div>
+      </div>
+      <div data-page-node-id="GsJFomWgtOMddDiBsP92BX" class="tree-water-row">
+        <button data-page-node-id="FmUGfccY7cLrSfWLJuZC81" class="tree-water-btn" id="treeWaterBtn" data-act="waterTree"><!--pnid:pgwLmpcvulBuKqM78nv0bp-->💧 浇水</button>
+        <span data-page-node-id="ACqVyfz0DcFjLXocWvOF7E" class="tree-dew-count" id="treeDewCount"><!--pnid:4BjBonOai3lzun9aaFubr3-->💧 x0</span>
+      </div>
+      <div data-page-node-id="YvCCajCs1NRQmGvqUwqBdT" class="tree-daily-tasks" id="treeDailyTasks"></div>
+      <div data-page-node-id="tBkNP0Z6pCXAoVVfSkv7KD" class="tree-progress" id="treeProgress"><!--pnid:rGMyJScHLUJPi72OS1rgFh-->0 / 40 🍅</div>
+      <div data-page-node-id="HkgNEz3gXs9RKuiggGQYUe" class="tree-progress-wrap">
+        <div data-page-node-id="K9huyYgQr30FVEsBn4ahfW" class="tree-progress-bar"><div data-page-node-id="RZvirEZ6XFdTwVQUQdYVaM" class="tree-progress-fill" id="treeProgressFill" style="width:0%"></div></div>
+      </div>
+      <!--pnid:3UdgF0rsSKPSgHVPBETvmL--><!-- 成长 Buff 显示：转盘今日成长 / 今日运势签 的倍率叠加 -->
+      <div data-page-node-id="YqmUb3heyNytdIdocuiAty" id="treeGrowthBuffBar" style="display:none; flex-wrap:wrap; align-items:center; gap:var(--sp-4); margin-top:var(--sp-6); justify-content:center"></div>
+      <!--pnid:MkyRdApjLdp37bISZJeouG--><!-- 枯死状态操作区：免费重种 / 花费金币复活 -->
+      <div data-page-node-id="rhHqCQfJ5WIJH3PujImf7g" id="treeDeadActions" style="display:none; margin-top:var(--sp-12); padding:var(--sp-12); background:#FDF0EF; border:2px solid #E6B8B3; border-radius:var(--radius); text-align:center">
+        <div data-page-node-id="IZeduHK0IQAQOJbUFj4R65" style="font-size:var(--fs-title); color:var(--danger); font-weight:800; margin-bottom:var(--sp-4)"><!--pnid:uRFV1BiQQOmKFd8xbQhthf-->🥀 树木已枯死</div>
+        <div data-page-node-id="z142WfyyA2subZ4MFQ6Tn3" style="font-size:var(--fs-body); color:var(--text-light); margin-bottom:var(--sp-10)"><!--pnid:fEs7LUAOXOIDN931EyCg1I-->长期闲置导致枯死，重新种一棵或用复活石复活吧</div>
+        <button data-page-node-id="l0jX2aqgNgUzJxA1hGffWL" class="save-btn" data-act="replantTree" style="background:var(--green)"><!--pnid:mDWP2euK6qKvk5oetBPbi0-->🌱 免费重新种植</button>
+        <div data-page-node-id="mbViTkI77LdJN5RgGyuxRa" style="font-size:var(--fs-note); color:var(--text-light); margin-top:var(--sp-8)"><!--pnid:ShYBHtetyIqCbVjeURpHiR-->🪄 或使用商店购买的<b data-page-node-id="RWlRHksPMKXvhwKd4GqycY"><!--pnid:wdyq31b4tkYQ9uZtwAQxwj-->复活石</b><!--pnid:tSarJw1wmD7CBYXvjs7uCq-->复活（600 金币，可在枯死前提前囤）</div>
+      </div>
+      <div data-page-node-id="BhSOJIhIu2NRoDSb2thUEX" class="tree-fruit-section" id="treeFruitSection">
+        <div data-page-node-id="tOzPhMDuGb33ZcNTAWkhms" class="tree-fruit-display" id="treeFruitDisplay"></div>
+      </div>
+      <div data-page-node-id="ZEcqTYx9OPmRsKjww7FmUD" class="tree-album">
+        <div data-page-node-id="etkKGPqMPrniwTdYVjyRcC" class="tree-album-title"><!--pnid:FWqmeojN5RHWL4EezEawIS-->🎁 成长图鉴<span data-page-node-id="G02iVFQBRiji1sRtUmI9VB" class="ta-progress" id="treeAlbumProgress"><!--pnid:Z3TDyMIHc10r2sSzTn6NFb-->0/9</span></div>
+        <div data-page-node-id="qFoG9zoU039mXFwcE4rmsw" class="tree-album-grid" id="treeAlbumGrid"></div>
+        <div data-page-node-id="xEHdCu0R6AZjW7pQWtb1tS" class="tree-album-bar"><div data-page-node-id="zDaOXNfLbhpmMHjeeJmWBr" class="tree-album-fill" id="treeAlbumFill" style="width:0%"></div></div>
+        <div data-page-node-id="S6aJk0dGgOGtQj2MUXNzw6" class="tree-album-tip" id="treeAlbumTip"></div>
+      </div>
+      <div data-page-node-id="do8i9IZWR9O3Q2aXMp4MXf" class="species-album" id="speciesAlbumBox">
+        <div data-page-node-id="mXo3uvCgahEIZllFLuj7O7" class="species-album-title" data-act="toggleSpeciesAlbum" style="cursor:pointer; user-select:none"><!--pnid:0ONKSIafO6md59bwCaPOaj-->🌳 树种图鉴<span data-page-node-id="r7pn7A5Rbl50p9RWJA0wXa" style="font-size:var(--fs-body); color:var(--text-light); font-weight:400"><!--pnid:3WZTSRElqEZupWi3yz8gAQ-->（点击展开/收起）</span><span data-page-node-id="azPKGQ1uovzLcL1SfUdlIe" style="margin-left:auto; display:flex; align-items:center; gap:var(--sp-6)"><span data-page-node-id="bcavzlODhbkpUHWjmQZ9ax" class="sa-progress" id="speciesAlbumProgress"><!--pnid:XgZLwR0fta7ECdtWE7ZBX5-->0/5 树</span><span data-page-node-id="5C5qTbAlwjin48ve81UcDx" id="speciesAlbumArrow"><!--pnid:QSFu83AdeBA8CPqp3djr47-->▸</span></span></div>
+        <div data-page-node-id="FWoAMGwZ93Hvo8AaesUQ7F" id="speciesAlbumList" style="display:none"></div>
+      </div>
+      <div data-page-node-id="M1AxeFoNOIjXB4Ei4JWNSF" style="margin-top:var(--sp-10); padding:var(--sp-10); background:var(--bg); border:1px solid var(--hairline); border-radius:var(--radius); font-size:var(--fs-title); color:var(--text-light); line-height:1.7">
+        <b data-page-node-id="0zu2gxslPxJld102ghhjY5" data-act="toggleTreeDescBlock" style="color:var(--text); font-size:var(--fs-title); cursor:pointer; display:block; padding:var(--sp-4) 0"><!--pnid:d51zGzN3qmhl0COQees8Zv-->📖 进化说明 <span data-page-node-id="OjbXR1gxNZ5pChWjT1vFG6" id="treeDescArrow"><!--pnid:Z5aEJegdo4CUCPxfNZbndM-->▸</span></b>
+        <div data-page-node-id="Lk60QVuoyihD5RlQeUipJa" id="treeDescBody" style="display:none; margin-top:var(--sp-6)"><!--pnid:EojNqyuCy7SKBnonPhW78v-->
+          🌱 连续种番茄促进进化，闲置2天以上开始退化，越久退化越狠（3、5、7、9…逐日递增）；退化到种子(0🍅)即枯死，可免费重种或花500🪙复活<br data-page-node-id="Fh0H9zZeN6kwgL2SiuGUYP"><!--pnid:lN7OXIMXUQE18C5DxRWuLC-->
+          累计种出40个番茄您的树苗可以到计时界面陪伴你哦～<br data-page-node-id="gXeWMYgkd3eYrPvwczsE6z"><!--pnid:UvmaREGNQR1yXamslMeozN-->
+          种子(0)→嫩芽(10)→幼苗(25)→小树(40)→大树(60)→茂盛(80)→古树(100)→神树(150)→世界树(200)<br data-page-node-id="xX2lgTvqTh8SZMKGDheqs9"><br data-page-node-id="AO3hFAQoIZ22Rjurk87Wer">
+          <b data-page-node-id="PsvNAqVgcCm8Pj17sqGndz" style="color: var(--green-ink)"><!--pnid:bYIRP0piSKPyP8nefGuYL4-->🌿 树种系统：</b><!--pnid:w25we3hfHlqBIfGs4EynuZ-->达到指定点数解锁特殊树种，不同树种有独特外观<br data-page-node-id="RRLMW9Buw0sM9tZYDlGLgz"><!--pnid:rYCbCDojnGV2K0rinxx0jX-->
+          番茄树(0)→樱花树(50)→金松树(100)→星辰树(150)→生命之树(200)<br data-page-node-id="SkxZygaVgvZ4Q2nP907B8k"><br data-page-node-id="DINU8zIMwtAhEuZMjvNiGl">
+          <b data-page-node-id="1OF1vQkXG9uILf42u3PRFP" style="color:var(--text)"><!--pnid:kbULokJ5cFpdYj5EiAfFth-->🍅 果实收集：</b><!--pnid:BKXPli7twC7kCeh7J318nG-->每次树进化到新阶段自动获得1个🍅果实，纯纪念品不影响积分平衡<br data-page-node-id="GgWIGRoT8Fv8ZD3Ej19bZS"><br data-page-node-id="Ifctj8nTf9XEGChNX1LrS4">
+          <b data-page-node-id="5RhtZ81zWyydHOHOFlCxQG" style="color: var(--yellow-ink)"><!--pnid:56pBUni5O2JY163sI9SSzd-->🏅 称号系统：</b><!--pnid:7RIMVXfZhuwYHc91hk0P2A-->按历史最高积分累计成长称号（退化不影响）<br data-page-node-id="JMd3RcZjodgdgtzGpUEbsZ"><!--pnid:nRMux6aAFminPj0sZvv9Et-->
+          🍃新芽园丁(0)→🌿青苗学徒(10)→🌾育苗师(25)→🌳护林员(40)→🌲育林师(60)→🌴园艺师(80)→🏔️古木守望者(100)→✨神树使者(150)→🌐世界树之主(200)→🌌森之贤者(300)→🌍自然之灵(400)<br data-page-node-id="sXBPorFj1WzL2u5NyodAsK"><br data-page-node-id="wpFdFo8xFI43Lt9n6ywgIU">
+          <b data-page-node-id="VyqIEhEOWJGBWUvgoVKrxz" style="color:var(--blue-dark)"><!--pnid:kjRVqesV2QVkQOhTHdknvA-->✨ 无限成长：</b><!--pnid:YBhVv3ALbBGppQMjrWasdW-->世界树(200)之后每50点长一圈🪵年轮，年轮会一圈圈真实排布出来，称号随圈数进阶（初轮→成木→十载→廿载古木→永恒树心）<br data-page-node-id="KxXuOVtjdyzHyQYXpRJ3FR">
+          <b data-page-node-id="0znQswGxE5pTBDlC0MbonH" style="color:var(--blue-dark)"><!--pnid:JU0nPNtsAyleqiOdx35vgx-->🏅 荣誉阶梯：</b><!--pnid:E9LBgA6gLHjHDPFpOYRmNa-->累计 5 / 10 / 20 / 50 圈年轮 → 🌿成木 → 🌳十载 → 🌲廿载古木 → ♾️永恒树心（之后每 50 圈再进一阶）。<b data-page-node-id="B3bqOvPqzDlLNaBH4Q4x8h" style="color:var(--text-light)"><!--pnid:bypojYIOFmwzmbWF8kSQqg-->纯荣誉，无任何数值加成</b><br data-page-node-id="WwrOO3pZNLzblbyckBMvEG"><br data-page-node-id="SES9oZWAbQznIG1FbCeHR9">
+          <b data-page-node-id="U9sfe7EWWyiicMUCpQ6TEm" style="color:var(--purple)"><!--pnid:35qMJyOvwKObfDJ02rg7vI-->💧 每日浇水：</b><!--pnid:WMrIuASrh1Tx460O2GsvUR-->每天可浇水1次，连续7天获得一颗💧露珠徽章（纯纪念，不参与积分）<br data-page-node-id="ucn4Zg87ajVrNOsxvOBFco"><br data-page-node-id="tibzVmSxGdTbSsdwtu3zVP">
+          <b data-page-node-id="RJVrPD8BAArU8t1mKTTijr" style="color: var(--green-ink)"><!--pnid:hCEihTgT5d91WBuRh8rITW-->🎁 成长图鉴：</b><!--pnid:x8f5O5YFgHrxvb92gX5hDL-->记录树的9个成长阶段，全部点亮达成「万物园丁」成就<br data-page-node-id="65PtHC4is4Sd6Z4zWUuFTg"><br data-page-node-id="1woG4jmkoknZNkrMxlm45S">
+          <b data-page-node-id="Sg6JNAy3mEDUBoWRvXJgDK" style="color:var(--blue-dark)"><!--pnid:50r7NdCLMftOA5rmHzuzDf-->四季轮转与树种推荐：</b><br data-page-node-id="XUrIp84cH1VQGliQOUmFmo"><!--pnid:tYVmrPQafqGlH9rrYX5U1j-->
+          🌸 春 → 樱花树（春樱盛开）<br data-page-node-id="tgTokgRwjGAmm7qdBWbGJx"><!--pnid:hIgYXEUPbkMdbKyyRDn3cv-->
+          ☀️ 夏 → 番茄树（生机旺盛）<br data-page-node-id="a0GGCT8Kdth0ZyiLs5Qqnj"><!--pnid:2omNFZfQH4Bq3gwrtOCM7L-->
+          🍂 秋 → 金松树（金黄夺目）<br data-page-node-id="63dm0zcS4UXKgPtlhvBnv6"><!--pnid:wJ0wQkzqrq3UlUFw0XAR2h-->
+          ❄️ 冬 → 星辰树（熠熠生辉）<br data-page-node-id="ww9lsDEEIfZTtpKQqVYlKS"><!--pnid:1sKT3ITqkuHqpzyfLIvdS7-->
+          🌳 生命之树 → 终极树种，四季皆宜<br data-page-node-id="F7VtNKG7OTgpdki7uwYoeE"><br data-page-node-id="CeVEbkgxXA2XB8WuNhYmeL">
+          <b data-page-node-id="G4GnPiJfPjywFJ8eDz5DLH" style="color:var(--purple)"><!--pnid:UZaX8sSYIXsESkphLRGRhw-->🎨 自定义皮肤（树商店 → 皮肤）：</b><br data-page-node-id="n2frcsiPaW6CMNoniD9A1r"><!--pnid:XIO3nP4VVpVa00ddtmLQXf-->
+          🌳 自定义树木背景：换掉小树身后的背景，场景里的小花小草仍压在图片之上<br data-page-node-id="nAcw6v1d9FVSTCP21tNbqO"><!--pnid:hpKYoOzyjWu3tS9lz6F7rY-->
+          🪟 计时器壁纸：整个计时器页面的壁纸，默认模糊 8px + 不透明度 55%，两个滑杆可随时调，保证不影响看时间<br data-page-node-id="sacw5gYOiZ3Sn9APwOE8H1"><!--pnid:WyC7f6fusiBPWkPMEIuQnV-->
+          两者都是购买后 <b data-page-node-id="NXmBTKaI55szZhPw487BKL"><!--pnid:nKKbT21cXHyvoBYaonBEWJ-->有效期内可随时更换</b><!--pnid:APm8Rbkxnn5glFsAbCQikj-->。图片走<b data-page-node-id="DTkFd967uoQwySfF1MJTFi"><!--pnid:fFLqOxIuyfe2AY3GBlTZxg-->图床链接</b><!--pnid:ntxO12Bi9IrFNnhr6IKVSO-->：传到任意图床后把图片直链填进来即可，
+          本地只保存一个网址，<b data-page-node-id="Qvv7lv46tABehszxvsQYV5"><!--pnid:4igo7ecNV8kLZuUrQZjENi-->不占存储空间</b><!--pnid:AQexeIph1hvuRswS0rwQLF-->，显示时自动按比例铺满裁切不会变形，到期后链接自动清除。<br data-page-node-id="BA6lbK9baITmHgRFtWtRQE">
+          <b data-page-node-id="mVGuViezCoh6qxwuWzUDZP" style="color:var(--text-light)"><!--pnid:feJH3ES2zBjQIwBp5r0DKV-->⚠️ 若图片没显示，多半是图床防盗链或链接失效，换一个图床即可（链接不写进导出备份，导入备份后需重新填一次）。</b>
+        </div>
+      </div>
+      <div data-page-node-id="4GprUtsI3oKB783AfqC1eX" class="tree-milestone-list" id="treeMilestoneList"></div>
+      <div data-page-node-id="tbForestSlot" class="tree-forest" id="treeForestPanel"></div>
+    </div>
+
+    <!--pnid:O6MNyMZTzzV6HqIeMdAAgE--><!-- 段位系统 -->
+        </div>
+    <div data-page-node-id="Xx63Ce8QvFceRlt5PxOKWI" id="statsRankView" style="display:none">
+<div data-page-node-id="1Kq75LDMIJmqUf8iWMOUCG" class="rank-section" id="rankSection">
+      <div data-page-node-id="DgdS95uGsfmROvQcZZVFUl" class="rank-header">
+        <h3 data-page-node-id="aHSGLbzfnyZi8PZh6Csq8k"><!--pnid:f1Rvqpbhh7wbC7yALfzEgD-->⭐ 段位系统</h3>
+        <div data-page-node-id="79VvNG45wgzNGtZGRJPtbU" style="display:flex; gap:var(--sp-6); align-items:center">
+          <span data-page-node-id="FWC3u3rljEEAhqqrL453FH" class="season-tag" id="seasonTag"><!--pnid:2MgfSMb42Fi16y1LwypHWe-->S0</span>
+          <button data-page-node-id="g62UJRWUzYx8BeuM5ICby4" class="history-btn" data-act="showHistoryPanel"><!--pnid:YGd9790EVQtmv8VkiFZRWZ-->📁 历史</button>
+        </div>
+      </div>
+      <div data-page-node-id="mZoaDDWWnprbhpRed9T6UX" class="rank-main">
+        <div data-page-node-id="p8mKq8rqMvSaAFHTnztBeE" class="rank-badge-box" id="rankBadgeBox"><!--pnid:DrVyJkrIfBEgPmnAJV6usV-->🥉</div>
+        <div data-page-node-id="ssQMn4gJ0MrKBYqB5FE353" class="rank-info">
+          <div data-page-node-id="n9JlLkzdfUXOdqVV9vArTp" class="rank-name-row"><span data-page-node-id="EuwyRlcILklwgpoTJSQtMK" class="rank-name" id="rankName"><!--pnid:8yblcLz6Ip1aNJIX04RvUR-->青铜</span><span data-page-node-id="nAmUVw2dms1dhhS3JzpS2H" class="rank-sub" id="rankSub"><!--pnid:yQmNBSWweMYHhqHgYQEK3x-->Ⅲ</span></div>
+          <div data-page-node-id="jhiPfvfk374zh6MxWbsqBN" class="rank-stars" id="rankStars"><!--pnid:wYvFPS4jrFp42eMyp3EogV-->0 ⭐</div>
+          <div data-page-node-id="zYUaIGt653D5FkXYCsY5Id" class="rank-progress-bar"><div data-page-node-id="qWQMEllekFOgqF5NkhbFoo" class="rank-progress-fill" id="rankProgressFill" style="width:0%"></div></div>
+          <div data-page-node-id="5ezIwiigKSdSU27ZCm5GzN" class="rank-progress-text" id="rankProgressText"><!--pnid:CWqwPA9MxXqBnFhtUDtRHa-->距下一级 10 星</div>
+          <div data-page-node-id="tiONHkwcAvOwxMJGXQkzIf" class="rank-star-label" id="rankStarLabel" style="display:none; font-size:var(--fs-body); font-weight:800; margin-top:var(--sp-2)"></div>
+        </div>
+        <div data-page-node-id="Kv8Yx8W92S1vorQ0Fxh8ue" class="rank-extras" id="rankExtras"></div>
+      </div>
+      <div data-page-node-id="JzYp5z9HPEuU3KvvKtNv84" class="rank-task-card" id="rankTaskCard">
+        <div data-page-node-id="aEqTm1TLoVztaRYcZClHnf" class="rank-task-title"><!--pnid:a6MQydMdCL8DQl2VSB28f1-->📋 今日任务<span data-page-node-id="FSz7jKzwZHMk8pUZX9J4Yn" id="easyModeTag" style="display:none; margin-left:var(--sp-8); font-size:var(--fs-caption); color: var(--green-ink); background:var(--ok-bg); padding:var(--sp-2) var(--sp-8); border-radius:var(--radius); font-weight:800; vertical-align:2px"><!--pnid:Gsbe8v3xWFXnp0RplMkWY0-->🍃 轻松模式</span></div>
+        <div data-page-node-id="hCwpXzB9ZHYvybxhTPby9S" class="rank-task-row">
+          <span data-page-node-id="njLDUhz68RNrbKDoo5EMn0" class="rank-task-progress" id="rankTaskProgress"><!--pnid:N6hQumVrOZoA6SiUdC6gc6-->完成 0/3 个番茄</span>
+          <span data-page-node-id="VTFL1IaBQo190YWcetgZvx" class="rank-task-status" id="rankTaskStatus"><!--pnid:JkvkOiHYim7oVYXfQGnjJN-->进行中</span>
+        </div>
+        <div data-page-node-id="34oGb8rqp8kaL87jLmAI4N" class="rank-task-avail" id="rankTaskAvail" style="font-size:var(--fs-body); color: var(--green-ink); font-weight:700; margin:var(--sp-4) 0 var(--sp-2)"></div>
+        <div data-page-node-id="1h9CqgSqFWJCJhdOS6Wyf7" id="ghostBar" style="margin-top:var(--sp-2)"></div>
+        <div data-page-node-id="evykdQHCQfOpTKRyr5OAR5" class="rank-drop-warn" id="rankDropWarn"></div>
+        <!--pnid:TRU5rpT5s7y9qKFvlfq61B--><!-- 每日签到（完成番茄后可签 +10🪙，累计 7 天解锁成就） -->
+        <div data-page-node-id="IxCgNJkyLFHdPuec5qASaf" id="signInBar" style="display:none; margin-top:var(--sp-8)"></div>
+        <div data-page-node-id="3Qm3Mw36cCerh1kUU0gm8d" class="rank-task-row reroll-row" id="rerollBox"></div>
+        <div data-page-node-id="5Ml2IPhtJW10FHScod6vc5" class="star-path" id="starPathBox"></div>
+      </div>
+      <!-- 折叠说明区：与父级同层，用下沉底色 + hairline 顶线分组，不画虚线框 -->
+      <div data-page-node-id="YC20wSHu0dhM4xSS75PifR" id="rankDescBox" style="margin-top:var(--sp-12); padding:var(--sp-10) 0 0; background:transparent; border:0; border-top:1px solid var(--hairline); border-radius:0; font-size:var(--fs-title); color:var(--text-light); line-height:1.7">
+        <b data-page-node-id="fD4lLSL7rlyWbhSWUAaheV" data-act="toggleFold" data-act-args='["rankDescBody","rankDescArrow"]' style="color:var(--text); font-size:var(--fs-title); cursor:pointer; display:block; padding:var(--sp-4) 0"><!--pnid:6yKQksz2704Ixbs7qeHdHM-->📌 段位说明 <span data-page-node-id="8QBylMQKKR1qvZvEFwc1r2" id="rankDescArrow"><!--pnid:HMPsf1pasowwvLwUFBr2To-->▸</span></b>
+        <div data-page-node-id="IVUeSnJZGgkS1NoXOcpfDw" id="rankDescBody" style="display:none; margin-top:var(--sp-6); font-size:var(--fs-title); line-height:1.7">
+          <b data-page-node-id="IZCMe1SB4aEAfF4KNrlH6A" style="color:var(--text)"><!--pnid:5CfedcpjY5ehJvauFiXuLn-->🏅 段位区间</b>
+          <div data-page-node-id="2FCzD4DTpvJvjJPyfL3pmy" class="rank-tier-chips">
+            <span data-page-node-id="XHgI0JN7l6k4K6Ze1LVcYn"><!--pnid:EQ20owaEXQsLEBu5in6oR3-->🥉 青铜 0</span><span data-page-node-id="DwJer5g7W4AY3KkSzjeZrk"><!--pnid:o1XKkGpRs8yTy3FqCdotvy-->🥈 白银 30</span><span data-page-node-id="i1JacrHZV3iVxIqO9YQl45"><!--pnid:WIeaJR1FWdLImklDwZlf3g-->🥇 黄金 80</span><span data-page-node-id="bN7SALJnxFECDPlOHI3hcz"><!--pnid:2bc6vhgLf7Zgt8fBwehtJI-->💎 铂金 160</span>
+            <span data-page-node-id="2a81mfdyiMrQZA1Mip0vC2"><!--pnid:IHgACWFbiKwVpEROCHABYC-->💠 钻石 280</span><span data-page-node-id="JciXpDFwrxKyOCA1PL1Nzw"><!--pnid:EkJ9EYhTsyg3TdlMsA38vg-->⭐ 星耀 400</span><span data-page-node-id="klVQmqx0tZxfKzwcGNbp7G"><!--pnid:8RjCDzb8VJGsHavPcrxzFr-->🔥 王者 500</span><span data-page-node-id="4KyGbrabCKmOs7XZhk1Qqm"><!--pnid:NrMcbcRa2RkUbFHvgHPnOG-->⚔️ 无双 620</span>
+            <span data-page-node-id="n7QXA6AuOKs9AmpvcagZeT"><!--pnid:FmXty3hVkkPIF0Fsq4eh0w-->🌟 荣耀王者 760</span><span data-page-node-id="RqOiz4wvz4I7txm0uR79Pb"><!--pnid:Xn2aVZ1ce3WyykquEBJ2Ru-->👑 荣耀 1000</span><span data-page-node-id="FxghqZyIef6vcWgq4AGsPo"><!--pnid:9pwUWWPqoy3lvur41KDeLq-->🏆 传奇荣耀 1200</span>
+          </div>
+          <b data-page-node-id="cWth3YUXcpCNUVNgCNQDAX" style="color:var(--text)"><!--pnid:WPbSSXv7lphs6YQXg6tKaL-->✅ 升星途径</b><br data-page-node-id="cbhRiIGp7i9FqDrJR000Sn">
+          <span data-page-node-id="GxnAv3tFp06VMpDwwQHRiG" style="display:block; font-size:var(--fs-body)"><!--pnid:V77e5NyvXL6XNiMOXEkiKW-->完成今日任务 +1~3⭐（按目标难度）· 超额星：0~6 个 1:1（每 1 个 +1⭐）、6~12 个每 2 个 +1⭐、12 个以上每 4 个 +1⭐（每天上限 10⭐） · 赌注赢 +5~18⭐（赢后返还部分🍅） · 连胜：连续 3 天以上完成任务每天额外 +1⭐ · 爆发：单日 10/14 个🍅 额外 +1/+2⭐ · 高产：单日 16+ 个🍅 额外 +1⭐ · 周挑战：每周随机 3 个任务各 +2~3⭐ · 组队：双方完成 +1~3⭐</span>
+          <b data-page-node-id="AmYjX89qiwjxwD3NjoMTEU" style="color:var(--text)"><!--pnid:UfZ9R1neNZcZHR33GgYcKv-->📉 掉星途径</b><br data-page-node-id="60z3nCOzfonSQFXUAkr4VU">
+          <span data-page-node-id="NW6Clv0nQH6eF0hGHhfbGU" style="display:block; font-size:var(--fs-body)"><!--pnid:hLLZvEZxegugKQRSh0PsoR-->没完成今日任务：差 N 扣 N⭐ · 连续 2 天未达标额外 -1⭐/天 · 赌注输了按档位扣分 · 组队日队友没完成→当天组队加成作废 · 7 天不专注怠惰 -1⭐ · 赛季结束大段位回退</span>
+          <b data-page-node-id="JP0UNpA9xDttnE23Frz1jT" style="color:var(--text)"><!--pnid:EPvwV7kWjrekrul98XCTC1-->🛡️ 保星</b><br data-page-node-id="xI0gs41L6Zi46QyxxeGZu7">
+          <span data-page-node-id="dGiWIJNOR09rU5Y7bj49K8" style="display:block; font-size:var(--fs-body)"><!--pnid:I3P9eDeAdR2vr6XJINIdvT-->当天专注 &gt;10 个🍅（含半个）→ 获得 1 次保星机会。次日结算<b data-page-node-id="Vh4yknaDKQIoN0Qjikepcl"><!--pnid:7MvtFmVGbN597Lo4aqDzbw-->未达标</b><!--pnid:ZkgslgjdLnrFWw1Qa1bdwe-->时自动生效：本会扣 N⭐ → <b data-page-node-id="VVQkxnSInO7vemLkNAAnFp"><!--pnid:FHi7VANzEnXyJAyU0Wat24-->改为不扣 N⭐</b><!--pnid:yjZuSOlCSY14qTTsVEIV6Q-->（只保星，不额外加星；用后即失）。</span>
+          <b data-page-node-id="bUiZsdf4S1dMMO4CCmNfMX" style="color:var(--text)"><!--pnid:ZhY8wAJu25H2QZ2XkBjZJG-->🔄 赛季回退</b><br data-page-node-id="zfYPKOKhiwyoBcJYCosSFF">
+          <span data-page-node-id="FzM8un6tyW6WxZvQ2Upq7W" style="display:block; font-size:var(--fs-body)"><!--pnid:ibskJChRWSlGi8nWGW5sjP-->每 3 个月一赛季；结束回退：荣耀系（含传奇荣耀）→钻石Ⅰ · 王者系（含无双/荣耀王者）→铂金Ⅰ · 星耀→黄金Ⅰ · 钻石→白银Ⅰ · 铂金及以下→青铜Ⅰ</span>
+          <b data-page-node-id="MSzvtF89XFUSNLkIG2zCJT" style="color:var(--text)"><!--pnid:olqZlVE1cmh2THA5qmS0eL-->📌 其他</b><br data-page-node-id="4TJhOdhNR6rina589h85oR">
+          <span data-page-node-id="EB2AEFxjsX5HwVLSXTCpVt" style="display:block; font-size:var(--fs-body)"><!--pnid:QQB52YFcvrFQowTHdTiiks-->⏭ 延后一天（限 1 次）· 🏆 王者/荣耀计时器光环下赛季保留一期 · 📈 每天 8~10 个🍅 坚持一赛季可到王者；12 个以上可冲荣耀；16 个以上约两个月到荣耀</span>
+        </div>
+      </div>
+      <div data-page-node-id="AveGes9RiVQuA1OpvcFxnh" class="rank-desc-card">
+        <b data-page-node-id="EXjcuvLgiLFQP0Je6K9o3H" class="rdc-title" data-act="toggleFold" data-act-args='["rerollDescBody","rerollDescArrow"]'><!--pnid:vYRRCHLDpUIZyJYzr1WO6I-->🔥 今日赌注·完整说明 <span data-page-node-id="Oj4fmUdTc4O0vjSNMWvV9n" id="rerollDescArrow"><!--pnid:zFPdsHSpXbfBEaUukMP8nT-->▸</span></b>
+        <div data-page-node-id="f5iGARjiKXeiBJ7Q5u6vyA" id="rerollDescBody" style="display:none; font-size:var(--fs-title); color:var(--text-light); line-height:1.7">
+          <div data-page-node-id="yEs8JJfVZm02M5h7vz7j6A" style="background:#FFF8E1; border:1px solid #FFE082; border-radius:var(--radius); padding:var(--sp-8) var(--sp-10); margin-bottom:var(--sp-8); font-size:var(--fs-body)"><!--pnid:5HbNSrgwPRWBRePYYSmOcF-->
+            🎯 一句话：花 🍅 赌自己完成更难的任务——目标上浮、<b data-page-node-id="tJwH1VL3BSU9KXm1c26HsI"><!--pnid:kgp3x90pthijGV96zCHovB-->花的🍅 从今日进度扣除</b><!--pnid:CNY3cqhhOTIqefv9dtcP1a-->，完成按档位 <b data-page-node-id="2PM5xdqKyuK42PEbtTOTfy"><!--pnid:fynHxeJfRE9rC0TWQvaC2m-->+5~18⭐</b><!--pnid:b1C73SG0n52GoiALN4N7IH-->，没完成按新目标降星。每天一次。
+          </div>
+          <b data-page-node-id="8drHRxssIkHfh5TGulli7u" style="color:var(--text)"><!--pnid:2lTm4N795oRO9DAspThozO-->🎲 三档任选（投入越大 → 挑战越大 → 奖励越高）</b>
+          <table data-page-node-id="9WK1z3yBbYKHncHq56dYGx" class="bet-table">
+            <tr data-page-node-id="24sp6Ez9ltrvvTmqGUF25s"><th data-page-node-id="8H0EyUV2PpYSkEU8KiTPMZ"><!--pnid:PSjeelcjcyXLEi4925lYYx-->档位</th><th data-page-node-id="fYAujbtrWzlWLedGf1kjUr"><!--pnid:lsS1SOMsp51tmM17oltfRY-->花费</th><th data-page-node-id="Xi3kQxrD9eaKWZBzXl4fdN"><!--pnid:Ah2GNIRjRzHZCuX9QNzvY5-->目标上浮（按今日目标）</th><th data-page-node-id="KBofop7Nn5rXicg37OIs28"><!--pnid:pYR640nK3ljUWRngxs7XoA-->赢的奖励</th></tr>
+            <tr data-page-node-id="ARov5FWRYTry3uLK3OiZ0v"><td data-page-node-id="MyvJZQYSpwcEqUJ2PPOnhA"><!--pnid:ry4reFLL5JCODeacckHSSO-->🥉 小赌</td><td data-page-node-id="En2PMDps4WYQGDID4wuRBr"><!--pnid:kBfcAPJ3EGJUqmY4wxB6wq-->2 🍅</td><td data-page-node-id="zDxYvbQCcN4DnCNJjzwYtw"><!--pnid:9Ou3EGFbDFcgg9eU9WNxhI-->目标的 20%（+1~3）</td><td data-page-node-id="1ZikWt85ehhMlZoxsPY1vn"><!--pnid:RWswmFembHqcfUIfH73E4M-->+5⭐</td></tr>
+            <tr data-page-node-id="IgZS4gavF3rqVgeFI4ev8H"><td data-page-node-id="HVloHNc7r5aB1WOFvhgauo"><!--pnid:ESoN6o7Vqu6H58UGpXI5HH-->🥈 中赌</td><td data-page-node-id="hNyR9ge7uY5iPNpBdHcXxv"><!--pnid:BsNRfUfefNvOweL7qC79AR-->6 🍅</td><td data-page-node-id="Se65t5lCUnO9vl4wy7LhAg"><!--pnid:9HL8IY7TDdUyJx8LhKnI28-->目标的 40%（+2~4）</td><td data-page-node-id="yrOfVHseLKBMMIlAxorCR1"><!--pnid:LOXtPC3iO6lYRdHH4ApSnS-->+11⭐</td></tr>
+            <tr data-page-node-id="23A0JUvdevUpWw1CuJz0pn"><td data-page-node-id="01KFENpy6T2F8K8doD2wnp"><!--pnid:69m8sjP1wldI8oxKLAm1im-->🥇 大赌</td><td data-page-node-id="oNkwpTKnujPQ8bjT1oNNTY"><!--pnid:0VlI19sNqxu2t0vLKl3PVg-->12 🍅</td><td data-page-node-id="tMjb2guG9708Gmzh57OUkp"><!--pnid:L0TUmSxdOXZnQU0ADwQGza-->目标的 60%（+3~5）</td><td data-page-node-id="MLS1QCF6trhjgUAhoz0DIq"><!--pnid:4P3DticKVuN9vOoK7SgEyc-->+18⭐</td></tr>
+          </table>
+          <span data-page-node-id="MzYFrcEqN2nlg7GwcC0ZDm" style="display:block; font-size:var(--fs-body); color:var(--text-light); margin-top:var(--sp-2)"><!--pnid:INWZRoHJstYJU8WTYCBWVb-->举例：今日目标 5 → 三档上浮 +1/+2/+3；今日目标 10 → +2/+4/+5；今日目标 15 → +3/+4/+5（封顶，不会出现做不到的任务）</span>
+          <b data-page-node-id="RRl4kilc7YbWt4bzfYDhf6" style="color:var(--text)"><!--pnid:xZlNtDBFHuOiUBQ2FAPQzi-->⚖️ 输赢</b><br data-page-node-id="SC4CyrFbIxN3860fE4a0p3">
+          <span data-page-node-id="HD5bYs0rMf6jaA6tQat8Bw" style="display:block"><!--pnid:BoNCPsxpx5MU4rqyk5evl9-->✅ 完成新目标 → 按档位加星，超额星照常另算。</span>
+          <span data-page-node-id="BjzAZKaTILT6saBeY40Whi" style="display:block"><!--pnid:xR4iNBXJcQ6j4QRHk5d3Lk-->❌ 没完成 → 明天按新目标降星（差 N 扣 N⭐），🍅 不退回。</span>
+          <b data-page-node-id="VTPs3d0Efg7jSBbP8lh2cM" style="color:var(--text)"><!--pnid:uVoox0PFLiclgYgaM3z0BO-->📌 须知</b><br data-page-node-id="U6MPvn0RR5GI4S6MuIBjFs">
+          <span data-page-node-id="JgTJrub4CAi3Shk8NqrNC3" style="display:block"><!--pnid:Oo5n0q1x059QqmSX8cBi3h-->花的🍅 从今日进度扣除（烧进度）· 每天一次 · 不可撤销 · 不能延后 · 同时扣本周战力标（其他统计不受影响）。</span>
+          <b data-page-node-id="6qzOYVvRcMNn7MOFLQGS6q" style="color:var(--text)"><!--pnid:k7KZoPvMRq9IOk2SOgeHOG-->📌 当前状态</b><br data-page-node-id="gMhph3WCIBvNzf2HWcMwG3">
+          <span data-page-node-id="q2PLrgTW8qsQ6f0L99mz45" style="display:block"><!--pnid:NdjDTTZJ1nKo8Syq8VCmmt-->今日已得 <b data-page-node-id="HETvSrbc6aWixTHidqnjRf" id="rrGot" style="color: var(--green-ink)"><!--pnid:1g2Rr5JP2eeC4oKZ20xPrn-->0 ⭐</b><!--pnid:r6q3DNYM4YftkMr0V49nJF--> · 本周可用 <b data-page-node-id="PY1GScYSrVNGUMJpi5bQBL" id="rrAvail" style="color: var(--green-ink)"><!--pnid:i5V77UY7isJtFEBncIBlD8-->0</b><!--pnid:foMYUepRJJPaHRwRb5Zz2q--> 🍅 · 今日已下注 <b data-page-node-id="kdp454FNK8hvAOo5CblbF7" id="rrCount"><!--pnid:dBYDHhvIvp8FWMXhEpOraG-->0</b><!--pnid:YhDtBpb2ze4bFYS6DKwBfS--> 次</span>
+        </div>
+      </div>
+    </div>
+
+    <!--pnid:FoAC83tvWuREEtdl1neQnV--><!-- 近 7 天战绩：王者荣耀式每日星变记录，可折叠 -->
+    <div data-page-node-id="dOerScFjwLsFBDA02kikyb" class="rank-section" id="starRecordSection" style="margin-top:var(--sp-12)">
+      <div data-page-node-id="r5vpt08Kk69cF8vwC2wBvC" data-act="toggleFold" data-act-args='["starRecordBody","starRecordArrow"]' style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding:var(--sp-4) 0">
+        <h3 data-page-node-id="6sJAcZ7O5hE3Wqo8cjlago" style="margin:0"><!--pnid:6Sd2SSjWPsnSqi7cD59Ivb-->📜 近 7 天战绩</h3>
+        <span data-page-node-id="xr0aQgiodAUetbbE4r8WZt" id="starRecordArrow" style="font-size:var(--fs-body); color:var(--text-light)"><!--pnid:JYqn9Nfn3PJTPZpieD0MjT-->▸</span>
+      </div>
+      <div data-page-node-id="ad5gMsmcHDkq4eqCewUSGK" id="starRecordBody" style="display:none; margin-top:var(--sp-8); font-size:var(--fs-body)"></div>
+    </div>
+
+    <!--pnid:yKav2An1lZTOfqZq5luOqZ--><!-- 伙伴组队 -->
+    <div data-page-node-id="49zE7mLWqxX5HpvtRqC66r" class="team-section" id="teamSection">
+      <div data-page-node-id="T2IGz0akQY78Z0zmdnGrZs" class="team-header" data-act="toggleTeamSection" style="cursor:pointer">
+        <h3 data-page-node-id="KnXdz1d1HJq89kWmsmkAkg"><!--pnid:x0lOsSRxSi5shr7sZuIDvU-->👥 伙伴组队任务 <span data-page-node-id="vQMBHmm8QdRwI7jSOpFPg4" id="teamSectionArrow" style="font-size:var(--fs-title)"><!--pnid:n3SZeOHXLW8zgCiRXtbKKT-->▸</span></h3>
+        <span data-page-node-id="rSlO8uq97odo1MzXOmUsli" class="team-star-badge" id="teamStarBadge"><!--pnid:k6gnY9EATTZpnNzoySdM6h-->0 ⭐</span>
+      </div>
+      <div data-page-node-id="u0phTAei7XNJiKUz3v2VKH" id="teamBody" style="display:none">
+        <div data-page-node-id="5gOcZfoAsKSVP222X1Cr07" class="team-countdown" id="teamCountdown" style="display:none"><!--pnid:qQxAtslAtcm7wifHAbY6bH-->
+          距离0点截止还有 <span data-page-node-id="Qirk2xOJdcB7jmFWhlk2a1" class="cd-time" id="teamCdTime"><!--pnid:5xrrE8ggx1Co3AhB3EUfNy-->--:--:--</span>
+        </div>
+        <div data-page-node-id="J7Pf53BXADQiAmb7Yge6cE" id="teamContent"></div>
+        <div data-page-node-id="vpPjlgSdysZR6py7uO8TcD" class="team-history-toggle" id="teamHistoryToggle" data-act="toggleTeamHistory"><!--pnid:WosLD7lfBuIpvmhlx9NUc0-->📋 查看组队历史</div>
+        <div data-page-node-id="twab9fJxMvNao2dK9YeVgy" class="team-history-list" id="teamHistoryList" style="display:none"></div>
+      </div>
+    </div>
+
+    <div data-page-node-id="IHOnYRvspHslSxTW7PH9OK" class="rank-divider"></div>
+
+    <!--pnid:mKxzdRlIscmoHYQC5nygHC--><!-- 每周战标 -->
+    <div data-page-node-id="qBpWU9ZazC9kSvfG6CBwK7" class="week-chart" id="statsBadges" style="margin-top:0">
+      <h3 data-page-node-id="LzmeWdN9GdUiPS3VHi5MMv"><!--pnid:VlClSCN9KxhBCvBPbWwNCW-->🎖️ 每周战标 <span data-page-node-id="19xA2FXfxFV6kXqenKPTd5" style="font-size:var(--fs-title); color:var(--text-light); font-weight:400; float:right"><!--pnid:fiTNnQQL0TStfdnmASnLrS-->完成 <span data-page-node-id="842veRhKK3NlvlGBKqoUq9" id="weekTomatoCount" style="color: var(--primary-ink); font-weight:700"><!--pnid:EifL5ahIcKr96lvbmcNs0X-->0</span><!--pnid:8LNdjU5fzLNTPyQZr9cJQC-->🍅 · 持有 <span data-page-node-id="quBNbzTJzrFUhYuQPStnD8" id="weekTomatoHeld" style="font-weight:700"><!--pnid:Jk25wOIMdMI2LovfdDISlX-->0</span></span></h3>
+      <div data-page-node-id="t9BCvctDNyt59t88xLmkXA" id="weeklyBadgeList" style="display:flex; flex-wrap:wrap; gap:var(--sp-8); justify-content:center"></div>
+      <div data-page-node-id="5RsuMNG0mJLuRDCWSsPqRS" style="text-align:center; font-size:var(--fs-title); color:var(--text-light); margin-top:var(--sp-10); line-height:1.6">
+        <b data-page-node-id="KV2X4cfTKfyl7GdZkZfzvF" data-act="toggleFold" data-act-args='["badgeDescBody","badgeDescArrow"]' style="cursor:pointer; color:var(--text); font-size:var(--fs-title)"><!--pnid:9wegjE39kGyH5UoLMUBsPQ-->📌 战力标说明 <span data-page-node-id="xZzLc5ld2LJ2uDL6ZoZ6Ck" id="badgeDescArrow"><!--pnid:WYMflZ7SbgklZgWVOupokT-->▸</span></b>
+        <div data-page-node-id="DgxtFxfXvpk6bJuQdzfIjb" id="badgeDescBody" style="display:none; margin-top:var(--sp-8); line-height:1.7">
+          <b data-page-node-id="gBBJ0MrpKOadSPAeM3DuAp" style="color:var(--text)"><!--pnid:XCARqlMoLXbSeT6SyXYrUH-->点亮规则：</b><!--pnid:3h9YZ3YOCI6LNKNN3aitOd-->本周达成目标即点亮，并<b data-page-node-id="73UUoL6KwaF4glJGl3euyI" style="color:var(--text)"><!--pnid:C31BDqK1ToYuimTc6UPrOd-->自动延续到下一周</b><!--pnid:F2yA23dsf1Etj9e9gXcrCN-->。<br data-page-node-id="VmCiP4mIFtGUp4DCysixXH"><!--pnid:vmuxSqh0OFJYB8HC3sSt7w-->
+          延续周内若<b data-page-node-id="T8EnRXnvTOhNI2bOSW7mDg" style="color:var(--text)"><!--pnid:L0UbFHpI73nfMxsToJL9wM-->再次</b><!--pnid:p9heDZK1aiAgwU9b8WNJNW-->达成 → 继续顺延一周；<br data-page-node-id="U0h90hzbQmJGtRPxZgOIyV"><!--pnid:NOtfX9xvAxHa7HsL9patYU-->
+          延续周内<b data-page-node-id="mMVpfh2aH9YqOsVMR639Or" style="color:var(--text)"><!--pnid:meqTs9rEESc0KUzkqwGENT-->未</b><!--pnid:uDuU77amLkQor3enlx7b28-->达成 → 再下一周自动熄灭。<br data-page-node-id="gYFwmpWZpXleFWX4EbyMw5">
+          <span data-page-node-id="Zgdhgk5NkmPtchz4MksJOq" style="color:var(--text-light)"><!--pnid:uw2DxqqCd69kkPh5Xoa7Tz-->例：本周点亮「登峰造极」→ 下周仍点亮；下周未达标 → 下下周熄灭。<br data-page-node-id="11aNTF5hxAF3WknTQB9L1F"><!--pnid:HQ5nzODDsI67MW8PwA7uXW-->累计达成次数永久保留。</span><br data-page-node-id="rwQLCFmhY5X24UFXg4D25d">
+          <b data-page-node-id="OGDBSwyzNC6X3hPzGkafOD" style="color: var(--primary-ink)"><!--pnid:b11SDn9UOhab2UvAuLk1OZ-->🍅 消耗规则：</b><!--pnid:XYNPKkEiHZATz9z9bWruGl-->按<b data-page-node-id="FNOzFVHHANPWEXoDomUHEL" style="color:var(--text)"><!--pnid:HbMS8TkoIJDXz3tWvxyhfN-->当前持有</b><!--pnid:XJGIH5fvuVkO1I2MZjA6oE-->判定（完成 − 下注 − 兑换）。本周刚点亮的标，若把番茄兑换掉导致跌破目标 → <b data-page-node-id="hNuNq52uIcWygqDEbegpJC" style="color:var(--text)"><!--pnid:QrcAKYoADBQeMI3ekCYTls-->立即熄灭</b><!--pnid:aH461thRQYNdM4jxf1b3fW-->；上周延续中的标是既成荣誉，<b data-page-node-id="DSffSNDANQjKBwcBVjbORS" style="color: var(--green-ink)"><!--pnid:CVp1iWQwhZValkrH3EqfBK-->不因消耗而熄灭</b><!--pnid:fvHfGBusLTgqC6Vbw1ieK1-->。再完成几个🍅 即可重新点亮。<br data-page-node-id="HPyHXsd18VDdWfHTgaTXZR">
+          <b data-page-node-id="NHUHMQnZt9i1LjFFceUByL" style="color:var(--text)"><!--pnid:YWnLhTinzlHqgvGlG90Llw-->🎨 装饰效果：</b><!--pnid:cr3t7aQipfE68pDpxnDOFj-->点亮「登峰造极」→ 计时页数字变<b data-page-node-id="6jmGsaw4M6LAAHbNBJV9SS" style="color:var(--gold)"><!--pnid:s5EFVxOaTeXv1yD2UkgYCo-->金色</b><!--pnid:lNFMP5U3VEthtH5xoQ7zer-->；「独孤求败」→ <b data-page-node-id="kE1vW7AOVl5JgDg6FzPKQ6" style="color:#D4AF37"><!--pnid:KF2eFHqMHVjdBdXQfMuAWa-->黑金渐变</b><!--pnid:MUwebKNvbThUXnqlXVTicH-->；其他标 → 对应主题色。效果跟随点亮状态：<b data-page-node-id="4Ow2m85Bekict5HODIIEEp" style="color: var(--green-ink)"><!--pnid:iGmT91U5bYf5Ya73zdxmN5-->本周点亮 → 下周仍有效 → 下下周清零</b><!--pnid:65NkJ9WmlyY8lbKdDEWZIv-->。<br data-page-node-id="gdoLyY0wpDJbr8cMQkijAH">
+          <b data-page-node-id="o4TIN6EQJtOc1BSfhzZMfX" style="color:var(--text)"><!--pnid:Lslekt31KrWE3SHnGkQ4Xt-->🎯 进度怎么看：</b><!--pnid:DlLoc4VI8rUu91pdTW2xzJ-->计时页左上角只保留当前战标徽章；<b data-page-node-id="iGdVebV32uSLg5aRIaTxAd" style="color:var(--text)"><!--pnid:sK6MxkbBaXSZNjKDCwPM2p-->距离下一个战标还差几个番茄</b><!--pnid:G20Le6xbK4zjM7g8tLSv5h-->，请看本页上方各战标卡片下方的提示。
+        </div>
+      </div>
+    </div>
+
+    <!--pnid:Bem12TZiBbjc4josMDX8bc--><!-- 成就徽章 -->
+        </div>
+    <div data-page-node-id="cmw3uSdUX0TBBzpag3n2tu" id="statsAchView" style="display:none">
+<div data-page-node-id="RiBgifIQM8UTYetLF2TzSS" class="week-chart" id="statsAchievements">
+      <h3 data-page-node-id="5xdJTfXlcsdTZWGCjy34Hp" style="margin-bottom:var(--sp-8)"><!--pnid:cuhSjJPhF6BnkdYwbQ2N54-->🏆 成就徽章</h3>
+      <div data-page-node-id="3wLz0Vo5Ftsrm6KttB7zws" id="achievementList" style="display:flex; flex-wrap:wrap; gap:var(--sp-8); justify-content:center"></div>
+      <div data-page-node-id="Nkqn2iYOisV5l4oToSEcz9" style="font-size:var(--fs-body); color:var(--text-light); text-align:center; margin-top:var(--sp-10)"><!--pnid:vdRZ42UrQmIsqRufObJznr-->点亮全部成就，成为真正的番茄之王！👑</div>
+    </div>
+    </div>
+
+    <!--pnid:V4sqnEIXTpa4BHV2iKD7S0--><!-- 对手排行榜（去掉"人机"字样；BOTS 名字保留各自人设） -->
+    <div data-page-node-id="pC9V15xfE4PLI6hseZYRif" id="statsLbView" style="display:none">
+      <div data-page-node-id="g3a3keVb1YnWCFDRNtFiA6" class="week-chart" id="leaderboardPanel">
+        <div data-page-node-id="SC3VheU5YltULsPqmddnNO" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--sp-10)">
+          <h3 data-page-node-id="l9ZfxeLqug15HRhAyfxsnK" style="margin:0"><!--pnid:QY1cDP32kPcloIK7bn7emY-->🥇 对手排行</h3>
+          <span data-page-node-id="w2Id8dvZLKAAdmOnhABtHg" id="lbDateLabel" style="font-size:var(--fs-note); color:var(--text-light)"></span>
+        </div>
+        <div data-page-node-id="W0HMAIyjtp8EeX2cdemocL" id="lbDesc" style="font-size:var(--fs-body); color:var(--text-light); line-height:1.6; margin-bottom:var(--sp-10); padding:var(--sp-8) var(--sp-10); background:var(--bg); border-radius:var(--radius)"><!--pnid:GrlqqkqkrpCFZfAbl7cIt3-->
+          8 位性格各异的「对手」每天都会上星或波动——摆烂的可能突然发力，努力的也可能状态低迷。<b data-page-node-id="MpT6J6Cquy43qJ5EBTgVJE"><!--pnid:NCfU5xiPzQfNhpRCjxjTYQ-->努力就能登顶，摸鱼就会被反超。</b>
+        </div>
+        <div data-page-node-id="WbyAa4fr6jOY80BTBBDSA3" id="leaderboardList"></div>
+      </div>
+    </div>
+      
+  </section>
+

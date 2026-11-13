@@ -1,0 +1,119 @@
+  <!--pnid:NTBoK0zoW9mOaDWKCiu92Q--><!-- ========== 日志页 ========== -->
+  <section data-page-node-id="vxS34VPQejVXthX3AYl5Ir" class="view" id="view-log">
+    <div data-page-node-id="s9OblouKtiI9Fj6blXGOyF" class="log-tabs">
+      <div data-page-node-id="GUV3cbt448QWuPOItDQykh" class="log-tab active" data-act="switchLogTab" data-act-args='["focus"]'><!--pnid:2Apy26gTrHhYv4eIWRWgSN-->🍅 日志</div>
+      <div data-page-node-id="UYmRCXCXqXWnYduSp5wLnM" class="log-tab" data-act="switchLogTab" data-act-args='["diary"]'><!--pnid:HHbLr4f1hRjddIc5UKbriL-->📔 日记</div>
+      <div data-page-node-id="8IqsuAYKWsspdUkNh3fpM6" class="log-tab" data-act="switchLogTab" data-act-args='["bio"]'><!--pnid:6jnjeiYpaedXFZ9HnC5v8P-->📖 传记</div>
+      <div data-page-node-id="aYZbYQLOljNDDr69R3rX8W" class="log-tab" data-act="switchLogTab" data-act-args='["overview"]'><!--pnid:d52L62JxiX9PXJgGUv2IMd-->📅 总览</div>
+    </div>
+
+    <!--pnid:c3cR5haZJNtu37uyEy9Nui--><!-- 专注记录 -->
+    <div data-page-node-id="Bz59UuyvbwroWtOlFyCGdQ" id="logFocusView">
+      <!--pnid:nzVEre4IsBpAki4ZDdaJkN--><!-- 今日习惯/计划打卡提醒（层级深易忘，放记录页顶部提醒） -->
+      <div data-page-node-id="gM6oAEA79dL5s1BJ2gkXgb" id="habitRemindCard" style="margin-bottom:var(--sp-12)"></div>
+      <div data-page-node-id="RSAP0FEtchVB1ar7CMLMw7" style="display:flex; gap:var(--sp-4); justify-content:space-between; align-items:center; margin-bottom:var(--sp-14); flex-wrap:wrap; row-gap:var(--sp-6)">
+        <div data-page-node-id="R4A8DeLjiaeVmzRl9qOU2O" class="section-title" style="margin-bottom:0; flex:0 0 auto; white-space:nowrap"><!--pnid:WjUHahDRypft970SH8SBQt-->专注记录</div>
+        <!-- 四颗按钮永远贴着标题右侧同一行（2026-10-17 需求：「应该在这个字旁边、而且靠右」）。
+             margin-left:auto 而不是外层 justify-content:space-between —— 后者在**折行后**
+             把它当单元素行处理，会退化成左对齐（这正是上一版「跑到下一行还靠左」的原因）。 -->
+        <div data-page-node-id="hEobsCdlwr645g8aYP1ye1" style="display:flex; gap:var(--sp-4); align-items:center; flex-wrap:nowrap; justify-content:flex-end; margin-left:auto; min-width:0">
+          <!-- 时间范围常驻在页头（不放筛选面板）：十年记录的主入口，藏起来等于没有。
+               点开是日历，有内容的月份/日子带条数，隐藏域 logDateFilter 存
+               '' / 'YYYY-MM' / 'YYYY-MM-DD'，筛选按前缀匹配。 -->
+          <input data-page-node-id="AgbuNtmT4s0EbqcFQYRC8f" id="logDateFilter" type="hidden" value="">
+          <button data-page-node-id="7KtqY9Nx3WmPc2RvLbAeQ1" class="btn-small log-hd-btn" id="logRangeBtn" data-act="openLogCalendar" title="点开日历：按年 / 月 / 日查看" style="white-space:nowrap; background:var(--card); color: var(--primary-ink); border-color:var(--primary)"><!--pnid:7KtqY9Nx3WmPc2RvLbAeQ1-->📅 全部 ▾</button>
+          <button data-page-node-id="2V3wDPW67LpEIwU1xLIuQm" class="btn-small log-hd-btn" id="logFilterToggleBtn" data-act="toggleLogFilters" style="white-space:nowrap; background:var(--card); color: var(--primary-ink); border-color:var(--primary)"><!--pnid:hTVv0WCIMXXvAeKR2S2BSx-->🔍 筛选</button>
+          <button data-page-node-id="Nk0F1OnqBuZh8adZwS62jS" class="btn-small log-hd-btn" data-act="openAddRecordModal" style="white-space:nowrap; background:var(--fill-primary); color:var(--on-fill); border-color:var(--primary-dark); font-weight:700"><!--pnid:zyGtZxiWU7ScMXvgGaxaHA-->+ 补记</button>
+          <button data-page-node-id="DY45TaIfGF7ELfuc8YIHRt" class="btn-small log-hd-btn" data-act="openReviewModal" style="white-space:nowrap; background:var(--card); color: var(--primary-ink); border-color:var(--primary)"><!--pnid:ep8nB6mwOht75puHIBsYQk-->🧠 回顾</button>
+        </div>
+      </div>
+      <div data-page-node-id="b4b8y9B6mUX4gi1XfnO6Yn" id="logFilterPanel" style="display:none; margin-bottom:var(--sp-10)">
+        <!-- 筛选面板**压成一行**。减重：
+             · 「📅 日历」入口放在本筛选面板（完整日历能标记哪天有记录、点击跳转，
+               与这里的日期框原生选择器互补，不是重复入口）；
+             · 去掉独立的「🍅 只看番茄」按钮 —— 它本来就是"类型收窄"，
+               并进「全部类型」下拉（新增 value="pomo"）才不跟下拉打架。 -->
+        <!-- 关键词搜索住在筛选面板里（2026-10-17 需求：搜索框挪到外面"丑得要死"）。
+             面板收起来的只是**次要条件**，搜索框跟着类型下拉一起进退才是一套东西。 -->
+        <input data-page-node-id="gkC1yj0alEs8LF1ThVdud4" id="logSearch" data-input="applyLogFilter" placeholder="🔍 搜索 / 输入年份" style="width:100%; box-sizing:border-box; margin-bottom:var(--sp-6); border:1px solid var(--border-strong); font-family:inherit; background:var(--card); color:var(--text)">
+        <div data-page-node-id="01WQFlmeTol7aWOsMi8ztc" style="display:flex; gap:var(--sp-6); align-items:center">
+          <select data-page-node-id="LU83V4nGB9Lpp3nJI60Tk1" id="logTypeFilter" data-change="applyLogFilter" style="flex:0 0 auto; padding:var(--sp-6) var(--sp-4); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title); background:var(--card); color:var(--text)">
+            <option data-page-node-id="aban7NSMTJJYmgaHe1ZpUZ" value><!--pnid:6zM2RbbOX2eQELXZOmuDL8-->全部类型</option>
+            <option data-page-node-id="A3rmTbSaAfris2FRJdDTFP" value="full"><!--pnid:4nLeFaa8GNVrFTJUTNaWdX-->完整🍅</option>
+            <option data-page-node-id="rCcpeTdmqKSNYrQ9rKrOws" value="half"><!--pnid:mekIppwC4IRc6LTuxkuuUj-->半个🍅</option>
+            <option data-page-node-id="CE3xrfw2U0CtPy4p9P87Et" value="incomplete"><!--pnid:gOwW4aaYxNsTyGpVpxRoHH-->未完成</option>
+            <option value="log">仅记录</option>
+            <option data-page-node-id="qiWt7x7fPB5FzRAaJc8qsV" value="interrupted"><!--pnid:NYOEUwYT58kUqrzRSzdQcQ-->打断</option>
+            <option data-page-node-id="logPomoOnlyOpt" value="pomo">只看🍅</option>
+          </select>
+          <!-- 时间范围：不再是一个只能选"某一天"的日期框。
+               十年记录要靠"整月/整年"浏览，点开是自己的日历（有内容的月份和日子带条数），
+               隐藏域 logDateFilter 保存 '' / 'YYYY-MM' / 'YYYY-MM-DD'，筛选按前缀匹配。 -->
+          <button data-page-node-id="8qrpnqXo9XchGJNbAbmrvm" class="btn-small" data-act="clearLogFilters" style="flex:0 0 auto; white-space:nowrap; background:var(--card); color:var(--text-light); border-color:var(--border)"><!--pnid:fbqhWDZtb51K31nzK4WIxx-->清除</button>
+        </div>
+      </div>
+      <div data-page-node-id="9UwbKf6XnQZO8ZcmSK8aOt" id="logFilterSummary" data-act="toggleLogFilters" style="display:none; font-size:var(--fs-title); color: var(--primary-ink); margin-bottom:var(--sp-6); padding:var(--sp-4) var(--sp-8); background:var(--primary-light); border-radius:var(--radius-xs); cursor:pointer"></div>
+      <div data-page-node-id="1z9ExvQxcN4stognaaia1y" id="logCountInfo" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4)"></div>
+      <!--pnid:sVqF8I0FpXJ5QCjtLTGsE5--><!-- （worklog 聚合）：按任务汇总累计专注时长/番茄，默认收起 -->
+      <div data-page-node-id="YWKQ0XqqKwt5CrdQ9wU7iA" id="taskSummaryBox" style="display:none; margin-bottom:var(--sp-10)"></div>
+      <div data-page-node-id="3HMLNBsrVTohqIJe4LPKNY" id="logList"></div>
+      <div data-page-node-id="3OK5yrGOK6K7yOfCJ0V1fX" id="logMoreWrap"></div>
+    </div>
+
+    <!--pnid:G4M1capCR662uJfNpcT5bR--><!-- 每日日记 -->
+    <div data-page-node-id="krFFiHYokjsnGyXisMdCuZ" id="logDiaryView" style="display:none">
+      <!-- 复盘提醒条：该写周/月/年复盘时出现在日记页顶部，点一下直接进那一段的编辑态。
+           ★ 它属于「📔 日记」这个标签，不是「🍅 日志」那个 —— 日志页是番茄流水账，
+             日记页是坐下来写字的地方，复盘起手就是翻这里记了什么、写了什么。
+             原来挂在目标页提示区、后来又错挂到日志 tab，两次都放错了地方。 -->
+      <div id="logReviewBar"></div>
+      <div data-page-node-id="kq93mXWnNj3jwIybOLmlcu" id="diarySummaryBox" style="margin-bottom:var(--sp-14)"></div>
+      <div data-page-node-id="5Hoqj3ASJW0WIvOF3g1nHC" id="diarySingleView"></div>
+    </div>
+
+    <!--pnid:QzcT7de6AIhPhAJqezRLSc--><!-- 日记总览 -->
+    <div data-page-node-id="9v07LI2m73lGSRK80eOT0s" id="logOverviewView" style="display:none">
+      <div data-page-node-id="Bke5P5eWe5WwrTCNCXdFw2" class="rank-divider" style="margin-top:0"></div>
+      <div data-page-node-id="FDR3xSu9U7pscPuFqiQgzE" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--sp-10)">
+        <div data-page-node-id="xpV5haufr9vVY7b9yTjyaC" class="section-title" style="margin-bottom:0"><!--pnid:KbKXi7xEyR0P9ht2Ukqd8I-->📅 日历总览</div>
+        <button data-page-node-id="YO4ueEBSv9BOQ8BGBJNmRh" class="btn-small" data-act="switchLogTab" data-act-args='["bio"]' style="background:var(--card); color: var(--primary-ink); border-color:var(--primary); font-weight:700"><!--pnid:z6fHwTz02yYlT3nQGEmmsY-->📖 看传记</button>
+      </div>
+      <div data-page-node-id="BxZR06WZHP0eNGxzgfhMcb" class="week-chart" style="margin-bottom:var(--sp-14)">
+        <div data-page-node-id="86U0rNJUuSD8NAeYdoZJdY" class="calendar-header">
+          <button data-page-node-id="1w8EQCMQ01lOeyxI7o5tcT" data-act="changeOverviewMonth" data-act-args='["-1"]' title="上一月"><!--pnid:BoQfdA2THG2rsqOWoO7L2D-->‹</button>
+          <button data-page-node-id="3DfXV1BbSTmgHUMenJlJRC" class="cal-title-btn" data-act="toggleOverviewJump" title="点这里换年 / 换月" aria-label="选择年份和月份"><span id="overviewCalTitle"><!--pnid:I8bvSnBAX1qQRw2Bxo8E3S-->2026年8月</span><span class="ct-arrow">▾</span></button>
+          <button data-page-node-id="87Vok4uzvLJkBok7JeoHU4" data-act="changeOverviewMonth" data-act-args='["1"]' title="下一月"><!--pnid:4r7mxwnRgZA6UkhicfcNHu-->›</button>
+        </div>
+        <!-- 年月快跳：原来总览只有「‹ 月 / 月 ›」，跨年要按 12 次；这里复用日记日历/专注记录日历那套 cal-jump 面板 -->
+        <div data-page-node-id="ovJumpRow1" class="cal-jump" id="overviewJump" style="display:none"></div>
+        <div data-page-node-id="ZKULF36iTawvGot9f1TbAz" class="calendar-grid" id="overviewCalendar"></div>
+      </div>
+      <div data-page-node-id="7p7V5z0dW1coJLFRxSvLlK" class="rank-divider"></div>
+      <div data-page-node-id="TuimCPd3ctVk14ZIXWNQJA" class="section-title" style="margin-bottom:var(--sp-10)"><!--pnid:L4bXHSBrcMHSXqsFVi33B1-->📚 全部日记</div>
+      <div data-page-node-id="qfOxroPpfqFDVdv6jEVDEG" id="allDiaryBrowser"></div>
+      <div data-page-node-id="5cY2VbLUNjksCaGw4nhjj0" id="allDiaryPagination" style="display:flex; justify-content:center; gap:var(--sp-8); margin-top:var(--sp-12)"></div>
+    </div>
+
+    <!--pnid:sY5SiBktgSaiWM19OXLUxs--><!-- 倒数日已移入【计划页】（与「备忘」互换） -->
+
+    <!--pnid:lJ4KoAu34eG90JbyMAt8Dg--><!-- 我的专注传记（从总览拆出独立板块） -->
+    <div data-page-node-id="ZwsNoOg4yxfBpDXk0gUnBF" id="logBioView" style="display:none">
+      <div data-page-node-id="tS1EhibFmtA3qFDsZPAE3h" id="bioSection" style="margin-bottom:var(--sp-14)"></div>
+      <div data-page-node-id="KdiMEnu1EpTa8GXIUpYEq4" style="margin-top:var(--sp-6); border:1.5px solid var(--border); border-radius:var(--radius); overflow:hidden">
+        <div data-page-node-id="1KheywhW6QcUNr1suaowMQ" data-act="toggleBioHelp" style="display:flex; justify-content:space-between; align-items:center; padding:var(--sp-10) var(--sp-14); background:var(--card); cursor:pointer; -webkit-tap-highlight-color:transparent">
+          <span data-page-node-id="dbYZFQ36tBsYVI4iqXMWPD" style="font-size:var(--fs-body); font-weight:800; color:var(--text)"><!--pnid:NRBHD2IV2VmLJoefJPtdj0-->📖 传记说明</span>
+          <span data-page-node-id="X7OWL6S9VF2G3aUnAR2yma" id="bioHelpArrow" style="font-size:var(--fs-body); color:var(--text-light)"><!--pnid:KQwWxlcXmZFrG2NqOWmPS1-->▸</span>
+        </div>
+        <div data-page-node-id="rmlU3WuxmhB1wC9xszCg2X" id="bioHelpBody" style="display:none; padding:var(--sp-10) var(--sp-14); font-size:var(--fs-note); line-height:1.75; color:var(--text-light); border-top:1px solid var(--border)">
+          <b data-page-node-id="9TimvS2k4qRkc0Lww0CGHT" style="color:var(--text)"><!--pnid:TSIHxce8k7WLofLmjbhbz1-->只在重要时刻记录</b><!--pnid:IwlT2DlLhRNOMBBoPUWl8p-->（不天天记，保留含金量）：<br data-page-node-id="Q3cq5cJvi2Chy8vDqcv3XU"><!--pnid:g1r5BeUS4Zrgda02EEUXXj-->
+          · 里程碑：10/50/100/500/1000 个🍅、首次王者/荣耀/传奇<br data-page-node-id="79m7jQAoLx6tGQhxBKGBsh"><!--pnid:g6bvxyafzlSHn3dRzAfuFu-->
+          · 纪录刷新：最长连续天数、单日番茄数破纪录<br data-page-node-id="q0dyeGdHjcmn8sdbsXTtnr"><!--pnid:nQsPXXuXSRVWL7EaBaD1in-->
+          · 状态爆表日（电量/愉悦 ≥8）、效率满分日、完美一周<br data-page-node-id="RpvZRUUjnljYFia0UmWTO2"><!--pnid:j8dmy1qc4KoJBM28283rt7-->
+          · 活跃 50/100/200/365 天、上星 100/300/600 颗、连续 7/30/100 天<br data-page-node-id="8mkFZphbWUx9W9tIpTjMc8"><br data-page-node-id="WUJLor5L9bvnrruEopIHz9">
+          <b data-page-node-id="6g2xz8RAskoocEVZfDFuBt" style="color:var(--text)"><!--pnid:1N1nxFDw5PDu3rTuHZyo4R-->手动编辑</b><!--pnid:oGTbQX3GTHHPQnrJPabrFC-->：每条传记点「✏️ 编辑」可以修改文字，把它变成你专属的回忆录。<br data-page-node-id="GtfrUd6jOmei7mpU0Pa2Ei"><br data-page-node-id="Q4mV6y6ADc8CLpszcrqltE">
+          <b data-page-node-id="K4M9ZhZFeX1m3anwCXZcCl" style="color:var(--text)"><!--pnid:Ov8SemB5f5MB7xQByYo3KP-->顺序</b><!--pnid:SYt47J9sItZZkDGtfqJ0Sc-->：最新的在上面；一页 10 条，可翻页，顶部支持搜索。
+        </div>
+      </div>
+    </div>
+  </section>
+

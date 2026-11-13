@@ -1,0 +1,815 @@
+<style id="jyvx-css">
+/* ═══════ 视觉打磨（深色一致性 / 降噪 / 动效统一）
+   原则：全部纯 CSS、渐进增强、无布局改变、动画元素小且低频，不牺牲性能 ═══════ */
+
+/* ① 段位条降噪：半透明融入背景、细边框、去硬阴影 → 视觉重心回表盘 */
+.timer-rank-strip {
+  background: rgba(255,255,255,.42);
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  padding: var(--sp-6) var(--sp-10);
+  border-radius: var(--radius-md);
+}
+body.dark-mode .timer-rank-strip {
+  background: rgba(255,255,255,.045);
+  border-color: rgba(255,255,255,.09);
+  box-shadow: none;
+}
+
+/* ② 深色模式阴影软化：硬边阴影 → 柔和纵深（只影响深色，浅色保留品牌硬边） */
+body.dark-mode { --shadow: 0 5px 16px rgba(0,0,0,.35); }
+
+/* ③ 深色弹层毛玻璃：仅支持 backdrop-filter 的环境生效；弹层低频出现，性能可忽略 */
+@supports (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px)) {
+  body.dark-mode .modal,
+  body.dark-mode .jy-card {
+    background: rgba(30,34,62,.74);
+    -webkit-backdrop-filter: blur(16px) saturate(1.1);
+    backdrop-filter: blur(16px) saturate(1.1);
+    box-shadow: 0 10px 34px rgba(0,0,0,.4);
+  }
+}
+
+/* ④ 里程碑动画统一为弹簧曲线（树升级从“弹一下”变“活一下”） */
+.tree-milestone-card .tm-new { animation: tmNewPop .55s var(--ease-spring) .6s both; }
+.tree-milestone-card .tm-old { animation: tmFadeOut .7s var(--ease-out) 1.15s forwards; }
+
+/* ⑤ 3-2-1 倒计时数字：呼吸光晕（Apple Watch 式，纯 text-shadow，零重绘开销） */
+.countdown-overlay .cd-num {
+  animation: cdPop 1s var(--ease-out) both, cdBreath 1.4s ease-in-out infinite;
+}
+@keyframes cdBreath {
+  0%,100% { text-shadow: 0 0 3px rgba(255,255,255,.10); }
+  50%     { text-shadow: 0 0 10px rgba(255,255,255,.38), 0 0 20px rgba(255,255,255,.12); }
+}
+
+/* ⑥ 深色模式：树场景/抽奖不再“亮瞎眼”——换暗色渐变，去掉浅黄补丁感 */
+body.dark-mode .tree-scene.scene-garden { background: linear-gradient(180deg,#2c5236 0%,#1e3a27 45%,#142a1b 100%); }
+body.dark-mode .tree-scene.scene-field  { background: linear-gradient(180deg,#1d3a5e 0%,#25476e 42%,transparent 50%), linear-gradient(180deg,#6b5a2c 0%,#4a3e1f 55%,#322a15 100%); }
+body.dark-mode .tree-scene.scene-sea    { background: linear-gradient(180deg,#16364c 0%,#0f2f45 30%,#0d2a3e 55%,#1a3f55 82%,#2e4a5c 100%); }
+body.dark-mode .tree-scene.scene-snow   { background: radial-gradient(ellipse at 50% 0%, rgba(120,150,200,.22), transparent 60%), linear-gradient(180deg,#26364f 0%,#31455f 40%,#283c55 100%); }
+body.dark-mode .tree-lottery { background: linear-gradient(135deg,#37301a,#43381f); border-color:#66531f; }
+body.dark-mode .tree-lottery-title { color:#e2c98f; }
+body.dark-mode .tree-lottery-count { background:#241f10; border-color:#66531f; }
+
+/* ⑦ 桌面悬停：统计页数字微放大，暗示“可读/可交互” */
+.stats-card { transition: transform .18s var(--ease-spring); }
+@media (hover:hover) and (pointer:fine) {
+  .stats-card:hover .card-num { transform: scale(1.07); }
+}
+.stats-card .card-num { transition: transform .18s var(--ease-spring); }
+
+/* ============================================================
+ * 进度条流光质感（整段可回退）
+ * ============================================================
+ * 参照 Uiverse loaders 的进度流光技法：段位/任务进度条填充上
+ * 有一道柔和高光斜带缓慢扫过（2.6s 循环），让"在增长"的进度有呼吸感。
+ * 安全：纯 white 高光（不碰任何 token 色值）；fill 宽度为 0 时
+ * :after 被 overflow 裁掉（不可见，无误导）；reduced-motion 关闭。
+ * 回退：删除本段即可。
+ * ============================================================ */
+.timer-rank-strip .trs-fill{
+  position: relative;
+  overflow: hidden;
+}
+.timer-rank-strip .trs-bar .trs-fill::after{
+  content:''; position:absolute; top:0; bottom:0; left:-45%;
+  width:34%;
+  background: linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.6) 50%, rgba(255,255,255,0) 100%);
+  animation: f6-sheen 2.6s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes f6-sheen{
+  0%   { left:-45%; }
+  60%  { left:115%; }
+  100% { left:115%; }
+}
+@media (prefers-reduced-motion: reduce){
+  .timer-rank-strip .trs-bar .trs-fill::after{ animation:none; }
+}
+
+/* ===== 无障碍：读屏专用隐藏类 =====
+   视觉上完全不可见，但**仍留在无障碍树中**（不能用 display:none / visibility:hidden，
+   那样读屏也读不到）。1px + clip 是 WAI-ARIA 官方推荐的 standard visually-hidden 模式。
+   position 上的 !important 是**故意留的**：sr-only 是工具类，契约就是「无论谁给它加了
+   position:relative 都必须是 absolute」。工具类正是 !important 的正当用例，不参与清理。 */
+.a11y-sr-only{
+  position:absolute !important; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0;
+}
+/* 键盘焦点可见：仅在**键盘导航**时显示焦点环（鼠标点击不显示，避免视觉噪音） */
+body.a11y-kbd :focus{ outline:2px solid var(--primary); outline-offset:2px; border-radius:var(--radius-xs); }
+
+/* ============================================================
+    计时页视觉权重修正 v2 · 第 1 批（整段可回退）
+
+    ★ 现行规则已更新：卡片默认**不投影**。
+      依据三份品牌规范（Apple / Notion / Linear）一致的结论 ——
+      Notion 把「默认卡片」明确定义为「无阴影 + hairline 边框」，
+      Apple 全系统只有一个投影且只给产品图，Linear 几乎完全抵制投影。
+
+      投影是一圈没有明确边界的第二道轮廓；与边框并存时，
+      同一张卡片被描了两道，这才是「大圈小圈」观感的来源。
+      层级改由「底色阶梯 + 1px hairline + 间距」表达。
+
+    历史说明（保留以便回溯）：
+     本段最初依据 UI 诊断报告 §7.13「给层次手法分权」写成，
+     当时把重量来源从 `4px 4px 0` 硬影换成柔影。后续判断：
+     真正的问题不是阴影「多重」，而是「有没有」。
+   ============================================================ */
+.current-todo-section,
+.today-stats {
+  border-width: 1px;
+  border-radius: var(--radius-card);
+  box-shadow: none;
+}
+
+/* ============================================================
+    计时页视觉权重修正 v2 · 第 2 批（整段可回退）
+   目的：让开始按钮成为计时页唯一「硬影第一档」的元素。
+
+   实测现状（Chromium 375×667）：
+     .btn-start 2px + 2px 2px 0（第二档） ← 主操作，却比信息容器轻
+     .btn-finish 2px + 无阴影
+     .btn-interrupt 2px + 无阴影
+   处置：.
+     · 开始按钮升到 4px 4px 0（= --shadow 第一档），描边 2.5px 加固主体感
+     · 结束 / 中断保持第二档不变 —— 它们多数时间处于 disabled，
+       且「开始」是三态中唯一的主动作，不该与它们等重。
+     · :active 仍保留原有的「陷进去 2px」物理手感（translate(2,2) + 阴影归零）。
+   注意：只作用于 .btn-start，不影响 .btn 基类与其他 .btn-* 变体。
+   ============================================================ */
+
+
+/* ============================================================
+    计时页视觉权重修正 v2 · 第 3 批 —— 已撤销
+
+   本段原为：.timer-circle { border-width: 1px; box-shadow: 4px 4px 0 var(--border); }
+   目的：把圆盘从柔影拉进硬影层，与开始按钮同档。
+
+   撤销理由：用户明确偏好圆盘原有的「浮起玻璃感」，这是观感取向，
+   不是缺陷 —— 保持现状即可。撤销后第 3982 行的 --shadow-soft-lg
+   与 4px 边框重新生效（= 之前的圆盘外观）。
+
+    删除本注释块不会改变任何样式；如需重新启用第 3 批，
+      把上面那两条声明取消注释即可。第 1、2 批不受影响。
+   ============================================================ */
+/* .timer-circle { border-width: 1px; box-shadow: 4px 4px 0 var(--border); } */
+
+/* ============================================================
+    主题配色系统（第 2 批 · 整段可回退）
+   ============================================================
+
+   架构：**主题(Theme) × 模式(Mode) 正交分离** ——
+     · 主题（body[data-theme=...]）= 管「性格 / 色相」
+     · 模式（body.dark-mode） = 管「明暗 / 对比」，**现有机制，一行不改**
+   两者可自由组合：Nord+浅色 / Nord+深色 / Tokyo+浅色 ……
+
+   为什么这样做：body.dark-mode 在本项目有 173 处引用，
+   正交架构让这 173 处**一处都不用改**，深浅逻辑零回归风险。
+
+   三条纪律：
+     ① 本项目有 14 个 `[style*="#色值"]` 属性选择器（约第 626-637 行），
+        它们刻意匹配**内联字面量**、不匹配变量。本主题块**不碰它们**
+        （它们匹配的是 HTML 内联样式，无论主题怎么换都照常生效），故不受影响。
+     ② 主题块**只覆盖「颜色」令牌**，不覆盖结构类令牌：
+        --shadow / --shadow-soft* / --radius-* / --fs-* / --sp-* / --fx-*
+        一律不动 —— 那些是「深度 / 版式 / 节奏」，属另一个维度。
+        深色阴影由既有的 body.dark-mode 负责，主题不越权。
+     ③ 每种主题都必须给全**统计色 10 个**（--c-*），
+        因为它们是本项目独有的十维统计资产，缺一个统计页就会断色。
+
+   回退：整段删除即可（`default` 主题本就等于现状，删掉 = 回到只有原色）。
+   ============================================================ */
+
+/* ========== 主题 1 / Nord（北欧 · 冷冽克制） ========== */
+/* 浅色版 */
+body[data-theme="nord"] {
+  --green-rgb: 122,158,106; --blue-rgb: 94,129,172; --purple-rgb: 180,142,173;
+  --primary-rgb: 94,129,172;
+  --glass-hi: #FFFFFF; --glass-mid: #F3F6FA; --glass-lo: #E4EAF2;   /* 圆盘玻璃底 */
+  --header-hi: #8CA9C6;        /* 顶栏受光高光带 */
+  --header-lo: #4A6B8A;        /* 顶栏渐深收尾 */
+  --header-dark-hi: #2B3A4D;   /* 深色模式顶栏渐变起色 */
+  --bg: #E5E9F0;             --card: #FAFBFD;
+  --surface-0: #ECEFF4;      --surface-1: #FFFFFF;
+  --surface-2: #E5E9F0;      --surface-3: #D8DEE9;
+  --surface-hover: #E5E9F0;
+  --text: #2E3440;           --text-light: #4C566A;
+  --ink-mute: #7B88A1;       --ink-strong: #2E3440;
+  --on-primary: #FFFFFF;
+  --line-rgb: 46, 52, 64;
+  --primary: #5E81AC;        --primary-dark: #4C6A92;
+  --green: #7A9E6A;          --green-dark: #6A8C5B;
+  --yellow: #D08770;         --yellow-dark: #C0765F;
+  --quad-solid-q1: #BB5761;
+  --quad-solid-q2: #5579A5;
+  --quad-solid-q3: #BA5B3D;
+  --quad-solid-q4: #607F53;
+  --red: #BF616A;            --blue: #5E81AC;
+  --blue-dark: #4C6A92;
+  --ok-bg: #EDF4EA;          --ok-line: #B8D4AC;
+  --warn-bg: #FBF0EA;        --info-bg: #EAF0F7;
+  --info-ink: #3B5A87;       --info-line: #A9C0DA;
+  --accent-bg: #FBF0EA;      --accent-ink: #A85D3C;
+  --c-full: #BF616A;         --c-half: #7A9E6A;
+  --c-min: #5E81AC;          --c-int: #B48EAD;
+  --c-sleep: #5E81AC;        --c-mental: #D08770;
+  --c-energy: #7A9E6A;       --c-pleasure: #BF616A;
+  --c-grid: #DCE2EA;         --c-axis: #B8C2D1;
+  /* 文字专用色：INK 只压明度、保色相，由 fit() 反推至对 --bg ≥4.6 */
+  --primary-ink: #4D698D;
+  --green-ink: #556E4A;
+  --yellow-ink: #8D5B4C;
+  --blue-ink: #4D698D;
+}
+/* 深色版（色相不变，只压明度） */
+body.dark-mode[data-theme="nord"] {
+  --green-rgb: 163,190,140; --blue-rgb: 129,161,193; --purple-rgb: 180,142,173;
+  --primary-rgb: 136,192,208;
+  --glass-hi: #313A47; --glass-mid: #2A323F; --glass-lo: #222932;
+  --header-hi: #7FA8C9;
+  --header-lo: #33506B;
+  --header-dark-hi: #2B3A4D;
+  --bg: #2E3440;             --card: #3B4252;
+  --surface-0: #2E3440;      --surface-1: #3B4252;
+  --surface-2: #343B4A;      --surface-3: #272C36;
+  --surface-hover: #434C5E;
+  --text: #ECEFF4;           --text-light: #D8DEE9;
+  --ink-mute: #7B88A1;       --ink-strong: #ECEFF4;
+  --on-primary: #2E3440;
+  --line-rgb: 255, 255, 255;
+  --primary: #88C0D0;        --primary-dark: #5E81AC;
+  --green: #A3BE8C;          --green-dark: #8FAF78;
+  --yellow: #EBCB8B;         --yellow-dark: #D4B276;
+  --quad-solid-q1: #CF888F;
+  --quad-solid-q2: #81A1C1;
+  --quad-solid-q3: #EBCB8B;
+  --quad-solid-q4: #A3BE8C;
+  --red: #BF616A;            --blue: #81A1C1;
+  --blue-dark: #5E81AC;
+  --ok-bg: #35402F;          --ok-line: #5A7346;
+  --warn-bg: #4A3A28;        --info-bg: #353F4E;
+  --info-ink: #88C0D0;       --info-line: #4E6280;
+  --accent-bg: #4A3328;      --accent-ink: #EBCB8B;
+  --c-full: #BF616A;         --c-half: #A3BE8C;
+  --c-min: #81A1C1;          --c-int: #B48EAD;
+  --c-sleep: #88C0D0;        --c-mental: #EBCB8B;
+  --c-energy: #A3BE8C;       --c-pleasure: #D08770;
+  --c-grid: #3B4252;         --c-axis: #4C566A;
+  /* 文字专用色：INK 只压明度、保色相，由 fit() 反推至对 --bg ≥4.6 */
+  --primary-ink: var(--primary);
+  --green-ink: var(--green);
+  --yellow-ink: var(--yellow);
+  --blue-ink: var(--blue);
+}
+
+/* ------------------------------------------------------------
+    主题配色系统（第 4 批：补齐其余 4 套主题 · 整段可回退）
+   每套都提供 light + dark 两份，令牌数与 Nord 完全一致（46 个），
+   确保任何主题 × 任何模式组合下都不会有令牌落空。
+   删除本段即回到只有 default + nord 的状态。
+   ------------------------------------------------------------ */
+/* ========== 主题：东京夜（Tokyo Night） ========== */
+body[data-theme="tokyo"] {
+  --green-rgb: 88,117,57; --blue-rgb: 46,125,233; --purple-rgb: 152,84,241;
+  --primary-rgb: 46,125,233;
+  --glass-hi: #FFFFFF; --glass-mid: #F2F5FF; --glass-lo: #DEE5F7;   /* 圆盘玻璃底 */
+  --header-hi: #A8B8E8; --header-lo: #3D59A1; --header-dark-hi: #1A1B26;
+  --bg: #D8DEEB; --card: #F7F9FF;
+  --surface-0: #E1E3EB; --surface-1: #FAFBFF;
+  --surface-2: #D8DCE7; --surface-3: #C8CDDC;
+  --surface-hover: #D8DCE7;
+  --text: #2C3E6B; --text-light: #4A5680;
+  --ink-mute: #8990B3; --ink-strong: #1A1B26;
+  --on-primary: #FFFFFF;
+  --line-rgb: 44, 62, 107;
+  --primary: #2E7DE9; --primary-dark: #1A5FC4;
+  --green: #587539; --green-dark: #45602B;
+  --yellow: #8C6C3E; --yellow-dark: #72552C;
+  --quad-solid-q1: #EA0B4C;
+  --quad-solid-q2: #1F73E7;
+  --quad-solid-q3: #8C6C3E;
+  --quad-solid-q4: #587539;
+  --red: #F52A65; --blue: #2E7DE9;
+  --blue-dark: #1A5FC4;
+  --ok-bg: #E8F0DC; --ok-line: #B5CC94;
+  --warn-bg: #FBF0DC; --info-bg: #E2EAF9;
+  --info-ink: #1A5FC4; --info-line: #A3BEE8;
+  --accent-bg: #F3E8F5; --accent-ink: #9854F1;
+  --c-full: #F52A65; --c-half: #587539;
+  --c-min: #2E7DE9; --c-int: #9854F1;
+  --c-sleep: #2E7DE9; --c-mental: #8C6C3E;
+  --c-energy: #587539; --c-pleasure: #F52A65;
+  --c-grid: #D6DAE4; --c-axis: #B4B9CB;
+  /* 文字专用色：INK 只压明度、保色相，由 fit() 反推至对 --bg ≥4.6 */
+  --primary-ink: #235FB2;
+  --green-ink: #4F6833;
+  --yellow-ink: #785C35;
+  --blue-ink: #235FB2;
+}
+/* 深色版：同一色相的深色侧，色相不变、只压明度 */
+body.dark-mode[data-theme="tokyo"] {
+  --green-rgb: 158,206,106; --blue-rgb: 122,162,247; --purple-rgb: 187,154,247;
+  --primary-rgb: 122,162,247;
+  --glass-hi: #232736; --glass-mid: #1E2230; --glass-lo: #191C28;
+  --header-hi: #3D59A1; --header-lo: #15161E; --header-dark-hi: #1A1B26;
+  --bg: #1A1B26; --card: #1F2335;
+  --surface-0: #1A1B26; --surface-1: #1F2335;
+  --surface-2: #24283B; --surface-3: #16161E;
+  --surface-hover: #292E42;
+  --text: #C0CAF5; --text-light: #A9B1D6;
+  --ink-mute: #565F89; --ink-strong: #C0CAF5;
+  --on-primary: #1A1B26;
+  --line-rgb: 255, 255, 255;
+  --primary: #7AA2F7; --primary-dark: #3D59A1;
+  --green: #9ECE6A; --green-dark: #7BA84F;
+  --yellow: #E0AF68; --yellow-dark: #C08F4C;
+  --quad-solid-q1: #F7768E;
+  --quad-solid-q2: #7AA2F7;
+  --quad-solid-q3: #E0AF68;
+  --quad-solid-q4: #9ECE6A;
+  --red: #F7768E; --blue: #7AA2F7;
+  --blue-dark: #3D59A1;
+  --ok-bg: #1E2D24; --ok-line: #3D5C42;
+  --warn-bg: #2E2618; --info-bg: #1E2438;
+  --info-ink: #7AA2F7; --info-line: #33406B;
+  --accent-bg: #2A1F38; --accent-ink: #BB9AF7;
+  --c-full: #F7768E; --c-half: #9ECE6A;
+  --c-min: #7AA2F7; --c-int: #BB9AF7;
+  --c-sleep: #7DCFFF; --c-mental: #E0AF68;
+  --c-energy: #9ECE6A; --c-pleasure: #FF9E64;
+  --c-grid: #24283B; --c-axis: #3B4261;
+  /* 文字专用色：INK 只压明度、保色相，由 fit() 反推至对 --bg ≥4.6 */
+  --primary-ink: var(--primary);
+  --green-ink: var(--green);
+  --yellow-ink: var(--yellow);
+  --blue-ink: var(--blue);
+}
+
+/* ========== 主题：复古灰（Gruvbox） ========== */
+body[data-theme="gruvbox"] {
+  --green-rgb: 121,116,14; --blue-rgb: 7,102,120; --purple-rgb: 143,63,113;
+  --primary-rgb: 214,93,14;
+  --glass-hi: #FFFDF5; --glass-mid: #FBF4DC; --glass-lo: #F1E4BE;   /* 圆盘玻璃底 */
+  --header-hi: #F0A44A; --header-lo: #AF3A03; --header-dark-hi: #282828;
+  --bg: #EBDFA9; --card: #F8F2D4;
+  --surface-0: #F2E8BE; --surface-1: #FBF7DC;
+  --surface-2: #F2E5BC; --surface-3: #EBDBB2;
+  --surface-hover: #F2E5BC;
+  --text: #3C3836; --text-light: #665C54;
+  --ink-mute: #928374; --ink-strong: #282828;
+  --on-primary: #FBF1C7;
+  --line-rgb: 60, 56, 54;
+  --primary: #D65D0E; --primary-dark: #AF3A03;
+  --green: #79740E; --green-dark: #615C0B;
+  --yellow: #B57614; --yellow-dark: #976411;
+  --quad-solid-q1: #9D0006;
+  --quad-solid-q2: #076678;
+  --quad-solid-q3: #976311;
+  --quad-solid-q4: #75700E;
+  --red: #9D0006; --blue: #076678;
+  --blue-dark: #04525F;
+  --ok-bg: #EAF0C8; --ok-line: #B5BC7D;
+  --warn-bg: #F8EBC8; --info-bg: #DFEDEF;
+  --info-ink: #076678; --info-line: #9CBFBF;
+  --accent-bg: #F6E4CE; --accent-ink: #AF3A03;
+  --c-full: #D65D0E; --c-half: #79740E;
+  --c-min: #076678; --c-int: #8F3F71;
+  --c-sleep: #076678; --c-mental: #B57614;
+  --c-energy: #79740E; --c-pleasure: #D65D0E;
+  --c-grid: #E8D9AF; --c-axis: #BDAE93;
+  /* 文字专用色：INK 只压明度、保色相，由 fit() 反推至对 --bg ≥4.6 */
+  --primary-ink: #A1460B;
+  --green-ink: #68630C;
+  --yellow-ink: #86570F;
+  --blue-ink: #076678;
+}
+/* 深色版：同一色相的深色侧，色相不变、只压明度 */
+body.dark-mode[data-theme="gruvbox"] {
+  --green-rgb: 184,187,38; --blue-rgb: 131,165,152; --purple-rgb: 211,134,155;
+  --primary-rgb: 254,128,25;
+  --glass-hi: #443E33; --glass-mid: #3A352C; --glass-lo: #2F2B24;
+  --header-hi: #D65D0E; --header-lo: #1D2021; --header-dark-hi: #282828;
+  --bg: #282828; --card: #3C3836;
+  --surface-0: #282828; --surface-1: #3C3836;
+  --surface-2: #32302F; --surface-3: #1D2021;
+  --surface-hover: #504945;
+  --text: #EBDBB2; --text-light: #D5C4A1;
+  --ink-mute: #928374; --ink-strong: #EBDBB2;
+  --on-primary: #282828;
+  --line-rgb: 255, 255, 255;
+  --primary: #FE8019; --primary-dark: #D65D0E;
+  --green: #B8BB26; --green-dark: #98971A;
+  --yellow: #FABD2F; --yellow-dark: #D79921;
+  --quad-solid-q1: #FB533F;
+  --quad-solid-q2: #83A598;
+  --quad-solid-q3: #FABD2F;
+  --quad-solid-q4: #B8BB26;
+  --red: #FB4934; --blue: #83A598;
+  --blue-dark: #458588;
+  --ok-bg: #32361C; --ok-line: #5C6130;
+  --warn-bg: #3E2E15; --info-bg: #2A3A38;
+  --info-ink: #83A598; --info-line: #46595A;
+  --accent-bg: #40291A; --accent-ink: #FE8019;
+  --c-full: #FB4934; --c-half: #B8BB26;
+  --c-min: #83A598; --c-int: #D3869B;
+  --c-sleep: #83A598; --c-mental: #FABD2F;
+  --c-energy: #B8BB26; --c-pleasure: #FE8019;
+  --c-grid: #3C3836; --c-axis: #504945;
+  /* 文字专用色：INK 只压明度、保色相，由 fit() 反推至对 --bg ≥4.6 */
+  --primary-ink: var(--primary);
+  --green-ink: var(--green);
+  --yellow-ink: var(--yellow);
+  --blue-ink: var(--blue);
+}
+
+/* ========== 主题：玫瑰松（Rosé Pine） ========== */
+body[data-theme="rosepine"] {
+  --green-rgb: 86,148,159; --blue-rgb: 40,105,131; --purple-rgb: 144,122,169;
+  --primary-rgb: 216,102,134;
+  --glass-hi: #FFFFFF; --glass-mid: #FDF4F2; --glass-lo: #F7E4E2;   /* 圆盘玻璃底 */
+  --header-hi: #F2A8BC; --header-lo: #B4446A; --header-dark-hi: #232136;
+  --bg: #F5E9E4; --card: #FDF8F4;
+  --surface-0: #FAF4ED; --surface-1: #FFFDF8;
+  --surface-2: #F4EDE4; --surface-3: #EBE2D8;
+  --surface-hover: #F4EDE4;
+  --text: #575279; --text-light: #797593;
+  --ink-mute: #9893A5; --ink-strong: #232136;
+  --on-primary: #FFFDF8;
+  --line-rgb: 87, 82, 121;
+  --primary: #D86686; --primary-dark: #B4446A;   /* 原 #EB6F92 与底色对比度仅 2.86，压暗 8% 达 AA Large */
+  --green: #56949F; --green-dark: #3F7A85;
+  --yellow: #EA9D34; --yellow-dark: #C77F1E;
+  --quad-solid-q1: #B05B73;
+  --quad-solid-q2: #286983;
+  --quad-solid-q3: #A66711;
+  --quad-solid-q4: #497D87;
+  --red: #B4637A; --blue: #286983;
+  --blue-dark: #1E4E63;
+  --ok-bg: #E6EFEE; --ok-line: #A8C8CB;
+  --warn-bg: #FBEEDA; --info-bg: #DFEAF0;
+  --info-ink: #286983; --info-line: #9CBCCB;
+  --accent-bg: #FBE4EA; --accent-ink: #B4637A;
+  --c-full: #D86686; --c-half: #56949F;
+  --c-min: #286983; --c-int: #907AA9;
+  --c-sleep: #286983; --c-mental: #EA9D34;
+  --c-energy: #56949F; --c-pleasure: #D86686;
+  --c-grid: #E8DFD6; --c-axis: #CECACD;
+  /* 文字专用色：INK 只压明度、保色相，由 fit() 反推至对 --bg ≥4.6 */
+  --primary-ink: #A44D66;
+  --green-ink: #417079;
+  --yellow-ink: #8E5F20;
+  --blue-ink: #286983;
+}
+/* 深色版：同一色相的深色侧，色相不变、只压明度 */
+body.dark-mode[data-theme="rosepine"] {
+  --green-rgb: 156,207,216; --blue-rgb: 49,116,143; --purple-rgb: 196,167,231;
+  --primary-rgb: 235,111,146;
+  --glass-hi: #251F2E; --glass-mid: #1F1A28; --glass-lo: #191521;
+  --header-hi: #EB6F92; --header-lo: #16141F; --header-dark-hi: #1F1D2E;
+  --bg: #191724; --card: #1F1D2E;
+  --surface-0: #191724; --surface-1: #1F1D2E;
+  --surface-2: #26233A; --surface-3: #14121E;
+  --surface-hover: #2A2740;
+  --text: #E0DEF4; --text-light: #C4C1DE;
+  --ink-mute: #908CAA; --ink-strong: #E0DEF4;
+  --on-primary: #191724;
+  --line-rgb: 255, 255, 255;
+  --primary: #EB6F92; --primary-dark: #B4446A;
+  --green: #9CCFD8; --green-dark: #6E9AA3;
+  --yellow: #F6C177; --yellow-dark: #C99A56;
+  --quad-solid-q1: #EB6F92;
+  --quad-solid-q2: #3A8AAA;
+  --quad-solid-q3: #F6C177;
+  --quad-solid-q4: #9CCFD8;
+  --red: #EB6F92; --blue: #31748F;
+  --blue-dark: #28617A;
+  --ok-bg: #1B2E30; --ok-line: #365C5F;
+  --warn-bg: #33261A; --info-bg: #1C2E38;
+  --info-ink: #9CCFD8; --info-line: #33566B;
+  --accent-bg: #331F2A; --accent-ink: #EB6F92;
+  --c-full: #EB6F92; --c-half: #9CCFD8;
+  --c-min: #31748F; --c-int: #C4A7E7;
+  --c-sleep: #31748F; --c-mental: #F6C177;
+  --c-energy: #9CCFD8; --c-pleasure: #EB6F92;
+  --c-grid: #26233A; --c-axis: #403D52;
+  /* 文字专用色：INK 只压明度、保色相，由 fit() 反推至对 --bg ≥4.6 */
+  --primary-ink: var(--primary);
+  --green-ink: var(--green);
+  --yellow-ink: var(--yellow);
+  --blue-ink: var(--blue);
+}
+
+/* ========== 主题：卡布奇诺（Catppuccin） ========== */
+body[data-theme="catppuccin"] {
+  --green-rgb: 64,160,43; --blue-rgb: 30,102,245; --purple-rgb: 136,57,239;
+  --primary-rgb: 136,57,239;
+  --glass-hi: #FFFFFF; --glass-mid: #F7F4FE; --glass-lo: #EBE4FB;   /* 圆盘玻璃底 */
+  --header-hi: #D3A8F0; --header-lo: #6D3BC4; --header-dark-hi: #1E1E2E;
+  --bg: #E2E6F2; --card: #FBFCFE;
+  --surface-0: #E9ECF3; --surface-1: #FDFDFF;
+  --surface-2: #E0E4EC; --surface-3: #D5DAE4;
+  --surface-hover: #E0E4EC;
+  --text: #4C4F69; --text-light: #6C6F85;
+  --ink-mute: #8C8FA1; --ink-strong: #1E1E2E;
+  --on-primary: #FFFFFF;
+  --line-rgb: 76, 79, 105;
+  --primary: #8839EF; --primary-dark: #6D3BC4;
+  --green: #40A02B; --green-dark: #2E7D1E;
+  --yellow: #DF8E1D; --yellow-dark: #B87315;
+  --quad-solid-q1: #D20F39;
+  --quad-solid-q2: #1E66F5;
+  --quad-solid-q3: #A66916;
+  --quad-solid-q4: #368724;
+  --red: #D20F39; --blue: #1E66F5;
+  --blue-dark: #1650C4;
+  --ok-bg: #E5F2E2; --ok-line: #A9D5A0;
+  --warn-bg: #FBEEDA; --info-bg: #E0E9FC;
+  --info-ink: #1E66F5; --info-line: #A5BDF5;
+  --accent-bg: #F3E6FB; --accent-ink: #8839EF;
+  --c-full: #D20F39; --c-half: #40A02B;
+  --c-min: #1E66F5; --c-int: #8839EF;
+  --c-sleep: #1E66F5; --c-mental: #DF8E1D;
+  --c-energy: #40A02B; --c-pleasure: #FE640B;
+  --c-grid: #DCE0E8; --c-axis: #BCC0CC;
+  /* 文字专用色：INK 只压明度、保色相，由 fit() 反推至对 --bg ≥4.6 */
+  --primary-ink: #8337E6;
+  --green-ink: #2F741F;
+  --yellow-ink: #8E5B13;
+  --blue-ink: #1B5CDE;
+}
+/* 深色版：同一色相的深色侧，色相不变、只压明度 */
+body.dark-mode[data-theme="catppuccin"] {
+  --green-rgb: 166,227,161; --blue-rgb: 137,180,250; --purple-rgb: 203,166,247;
+  --primary-rgb: 203,166,247;
+  --glass-hi: #3A3B52; --glass-mid: #32334A; --glass-lo: #2A2B40;
+  --header-hi: #8839EF; --header-lo: #11111B; --header-dark-hi: #1E1E2E;
+  --bg: #1E1E2E; --card: #313244;
+  --surface-0: #1E1E2E; --surface-1: #313244;
+  --surface-2: #292A3C; --surface-3: #181825;
+  --surface-hover: #45475A;
+  --text: #CDD6F4; --text-light: #BAC2DE;
+  --ink-mute: #7F849C; --ink-strong: #CDD6F4;
+  --on-primary: #1E1E2E;
+  --line-rgb: 255, 255, 255;
+  --primary: #CBA6F7; --primary-dark: #8839EF;
+  --green: #A6E3A1; --green-dark: #7DBF79;
+  --yellow: #F9E2AF; --yellow-dark: #D3BC85;
+  --quad-solid-q1: #F38BA8;
+  --quad-solid-q2: #89B4FA;
+  --quad-solid-q3: #F9E2AF;
+  --quad-solid-q4: #A6E3A1;
+  --red: #F38BA8; --blue: #89B4FA;
+  --blue-dark: #4E7BD6;
+  --ok-bg: #23301F; --ok-line: #46603E;
+  --warn-bg: #332B18; --info-bg: #1E2738;
+  --info-ink: #89B4FA; --info-line: #3B5177;
+  --accent-bg: #2E1F3F; --accent-ink: #CBA6F7;
+  --c-full: #F38BA8; --c-half: #A6E3A1;
+  --c-min: #89B4FA; --c-int: #CBA6F7;
+  --c-sleep: #89DCEB; --c-mental: #F9E2AF;
+  --c-energy: #A6E3A1; --c-pleasure: #FAB387;
+  --c-grid: #292A3C; --c-axis: #45475A;
+  /* 文字专用色：INK 只压明度、保色相，由 fit() 反推至对 --bg ≥4.6 */
+  --primary-ink: var(--primary);
+  --green-ink: var(--green);
+  --yellow-ink: var(--yellow);
+  --blue-ink: var(--blue);
+}
+
+/* ---------- 回顾（艾宾浩斯遗忘曲线） ----------
+   回顾的对象是「一天」：一天 = 一张卡，卡上给这天的样子（几条/多久/做了什么），
+   点卡进「那天的日志」整块读，读完在卡上自评。三层信息量递进，不挤在一屏。 */
+#reviewModal .modal { max-width: 460px; padding: var(--sp-16); }
+.review-hero { display: flex; align-items: center; gap: var(--sp-12); background: var(--card); border: 1px solid var(--primary); border-radius: var(--radius-md); padding: var(--sp-12); margin-bottom: var(--sp-12); }
+/* 内容自己滚，弹窗本体不再滚：标题与「关闭」始终留在屏幕上，不用翻到底 */
+.review-body { max-height: 66vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.review-hero--done { border-color: var(--border); }
+.review-hero-num { font-size: var(--fs-h1); font-weight: 800; color: var(--primary-ink); line-height: 1; }
+.review-hero--done .review-hero-num { color: var(--text-light); }
+.review-hero-text { min-width: 0; }
+.review-hero-lab { font-size: var(--fs-body); font-weight: 600; color: var(--text); }
+.review-hero-sub { font-size: var(--fs-caption); color: var(--text-light); line-height: 1.45; margin-top: var(--sp-2); }
+.review-empty { text-align: center; color: var(--text-light); font-size: var(--fs-note); padding: var(--sp-14); }
+.review-card { border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--sp-10); margin-bottom: var(--sp-10); }
+.review-card--new { border-color: var(--primary); }
+.review-card-hit { cursor: pointer; }
+.review-card-hit:active { opacity: 0.65; }
+.review-card-top { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-8); margin-bottom: var(--sp-4); }
+.review-date { font-size: var(--fs-title); font-weight: 700; color: var(--text); }
+.review-stage { flex-shrink: 0; font-size: var(--fs-caption); color: var(--primary-ink); background: var(--card); border: 1px solid var(--primary); border-radius: var(--radius-full); padding: 1px var(--sp-8); }
+.review-card-sum { font-size: var(--fs-note); color: var(--text-light); }
+.review-chips { display: flex; flex-wrap: wrap; gap: var(--sp-4); margin-top: var(--sp-6); }
+.review-chip { font-size: var(--fs-caption); color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-full); padding: 1px var(--sp-8); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.review-chip--more { color: var(--text-light); }
+.review-open { margin-top: var(--sp-8); font-size: var(--fs-note); font-weight: 600; color: var(--primary-ink); }
+.review-grades { display: flex; gap: var(--sp-6); margin-top: var(--sp-10); }
+.review-grade-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: var(--sp-4); min-height: 42px; font-size: var(--fs-note); font-weight: 600; color: var(--text); background: var(--card); border: 1px solid var(--border-strong); border-radius: var(--radius); }
+.review-grade-btn:active { transform: translate(1px, 1px); }
+.review-grade-btn .rg-icon { font-size: var(--fs-title); color: var(--primary-ink); }
+.review-back { display: inline-block; margin-bottom: var(--sp-10); font-size: var(--fs-note); font-weight: 600; color: var(--primary-ink); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--sp-6) var(--sp-12); }
+.review-back:active { transform: translate(1px, 1px); }
+.review-day-head { margin-bottom: var(--sp-10); }
+.review-day-date { font-size: var(--fs-sub); font-weight: 700; color: var(--text); }
+.review-day-sum { font-size: var(--fs-note); color: var(--text-light); margin-top: var(--sp-2); }
+.review-day-body { border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--sp-8); background: var(--bg); }
+.review-day-foot { margin-top: var(--sp-12); }
+.review-day-foot-lab { font-size: var(--fs-note); color: var(--text-light); margin-bottom: var(--sp-6); text-align: center; }
+.review-up-wrap { margin-top: var(--sp-14); }
+.review-up-wrap > summary { cursor: pointer; list-style: none; }
+.review-up-wrap > summary::-webkit-details-marker { display: none; }
+.review-h { font-size: var(--fs-title); color: var(--text); margin: var(--sp-10) 0 var(--sp-6); }
+.review-upcoming { display: flex; flex-direction: column; gap: var(--sp-4); }
+/* 可点开提前过一遍（不改排期）：给出可点的反馈，否则用户不知道这几行能点 */
+.review-up-row { display: flex; justify-content: space-between; gap: var(--sp-6); font-size: var(--fs-note); color: var(--text-light); padding: var(--sp-4) var(--sp-6); border-radius: var(--radius-xs); cursor: pointer; }
+.review-up-row:hover, .review-up-row:focus-visible { background: var(--surface-hover); }
+.review-up-stage { color: var(--primary-ink); }
+.review-up-next { flex: 1; text-align: right; }
+/* 待回顾列表「再看 N 天」：虚线框 + 次要色，一眼看出是"还有内容没铺开"而不是一张卡 */
+.review-more { display: flex; align-items: baseline; justify-content: center; gap: var(--sp-6); width: 100%; margin-bottom: var(--sp-10); padding: var(--sp-10) var(--sp-12); font-size: var(--fs-note); font-weight: 600; color: var(--primary-ink); background: transparent; border: 1px dashed var(--border-strong); border-radius: var(--radius-md); cursor: pointer; }
+.review-more:active { transform: translate(1px, 1px); }
+.review-more-sub { font-weight: 400; font-size: var(--fs-caption); color: var(--text-light); }
+/* 「今天的 N 天回顾完了」：额度用完时的收尾卡。用成就语气而不是报错语气 ——
+   他不是遇到了错误，他是完成了今天该做的。 */
+.review-quota-done { margin-bottom: var(--sp-10); padding: var(--sp-16) var(--sp-14); text-align: center; font-size: var(--fs-note); font-weight: 600; color: var(--primary-ink); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.review-quota-done em { display: block; margin-top: var(--sp-4); font-size: var(--fs-caption); font-style: normal; font-weight: 400; color: var(--text-light); }
+.review-quota-hint { margin-bottom: var(--sp-10); text-align: center; font-size: var(--fs-caption); color: var(--text-light); }
+.log-review-badge { font-size: var(--fs-caption); color: var(--text-light); margin-left: var(--sp-6); }
+.log-review-badge.due { color: var(--primary-ink); font-weight: 700; }
+
+/* ---------- 回顾设置（已斩掉的天数 / 只看番茄）---------- */
+.rs-sec { margin-bottom: var(--sp-14); }
+.rs-sec-title { font-size: var(--fs-caption); color: var(--text-light); margin-bottom: var(--sp-8); }
+.rs-check { display: flex; align-items: flex-start; gap: var(--sp-8); font-size: var(--fs-note); color: var(--text); cursor: pointer; }
+.rs-check input { flex: 0 0 auto; width: 18px; height: 18px; margin: var(--sp-2) 0 0; }
+.rs-check em { display: block; margin-top: var(--sp-2); font-size: var(--fs-caption); font-style: normal; color: var(--text-light); }
+/* 「一次最多显示 N 天」：左侧说明 + 右侧下拉，一行放得下（412 宽下说明折两行也压得住） */
+.rs-row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-10); font-size: var(--fs-note); color: var(--text); }
+.rs-row em { display: block; margin-top: var(--sp-2); font-size: var(--fs-caption); font-style: normal; color: var(--text-light); }
+.rs-select { flex: 0 0 auto; padding: var(--sp-6) var(--sp-8); font-size: var(--fs-note); color: var(--text); background: var(--card); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); }
+/* 「一次最多几天」从下拉换成自由填写的数字框（2026-11-05）：框 + 单位「天」并排，
+   数字框只留 4 个字宽，别让它把说明挤到一行两个字。原生上下箭头在手机上又丑又难点，去掉。 */
+.rs-num-wrap { display: inline-flex; align-items: center; gap: var(--sp-4); flex: 0 0 auto; }
+.rs-num { width: 4.6em; text-align: center; -moz-appearance: textfield; appearance: textfield; }
+.rs-num::-webkit-outer-spin-button, .rs-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.rs-num-unit { font-size: var(--fs-note); color: var(--text-light); font-style: normal; }
+/* 快捷芯片：常用档位一点即达，但不限制取值 —— 想填 7 天直接在框里敲 */
+.rs-quick { display: flex; flex-wrap: wrap; gap: var(--sp-6); margin-top: var(--sp-10); }
+.rs-chip { padding: var(--sp-4) var(--sp-10); font-size: var(--fs-caption); color: var(--text-light); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-full); cursor: pointer; }
+.rs-chip.on { color: var(--primary-ink); border-color: var(--primary); background: var(--card); background: color-mix(in srgb, var(--primary) 12%, transparent); font-weight: 600; }
+.rs-days { display: flex; flex-direction: column; gap: var(--sp-6); }
+.rs-day { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); padding: var(--sp-8) var(--sp-10); border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card); }
+.rs-day-main { display: flex; flex-direction: column; min-width: 0; }
+.rs-day-main b { font-size: var(--fs-note); color: var(--text); }
+.rs-day-sub { font-size: var(--fs-caption); color: var(--text-light); }
+.rs-empty { padding: var(--sp-14) 0; text-align: center; font-size: var(--fs-note); color: var(--text-light); }
+
+/* ---------- 习惯：统计 / 热力条 / 归档区 ---------- */
+.habit-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-6); text-align: center; margin-bottom: var(--sp-10); }
+.habit-stat-grid b { display: block; font-size: var(--fs-title); color: var(--text); }
+.habit-stat-grid span { font-size: var(--fs-micro); color: var(--text-light); }
+/* 未打卡格：主题化的"凹槽"底色（原来写 opacity .55 的 border 色，
+   在浅色主题下几乎看不见）。已打卡格用 success 绿，且不透明 —— 一眼能数出几天。 */
+/* ★ 列数必须是 30 的约数，否则永远凑不成完整的两排。
+   历史：repeat(15, 1fr) → 412 宽每格 15.7px、2 排整整 15+15；
+     外部交付改成 repeat(auto-fill, 6px) → 格子缩到 6px（-62%）；
+     我又改成 auto-fill + minmax(14px,1fr) → 412 宽算成 16 列，30 格变成 16+14，
+     第二排缺两格（用户：「怎么那个格子都不是完整的两排」）。
+   定死 15 列：30 天 → 永远 15 + 15 两排整整齐齐。
+   ★ max-width 限住总宽（15×16px + 14 个 2px 间隙 = 268），宽屏上格子不会再被 1fr 撑成
+     18px 的彩色积木 —— 那正是外部交付当初想解决的问题，用上限解，不用死值。 */
+.habit-heat { display: grid; grid-template-columns: repeat(15, minmax(0, 1fr)); gap: 2px; max-width: 268px; margin-top: var(--sp-6); }
+.habit-heat-cell { aspect-ratio: 1 / 1; border-radius: var(--radius-xs); background: var(--surface-2); border: 1px solid var(--border); opacity: 1; }
+/* 已打卡格子跟随主题主色。原来写死 --green，而各套皮肤里的 --green 是"功能性绿"：
+   在粉色主题（玫瑰松）下是一块青绿，和顶栏/底栏/当前 tab 的粉是两个色系。
+   换成 --primary 后，格子颜色 = 这一页的主色，浅色/深色两套都由主题自己保证与底色的对比。 */
+.habit-heat-cell.on { background: var(--primary); border-color: var(--primary-dark); opacity: 1; }
+/* 跳过日：第三种状态，不是"漏了"。格子只有 9px 上下，斜纹在这个尺寸上糊成一片，
+   所以改用「虚线边」—— 和未打卡的实线边形成对比，一眼能分辨，又不抢已打卡格子的颜色。 */
+.habit-heat-cell.skip {
+  background: var(--surface-2);
+  border: 1px dashed var(--text-light);
+}
+/* ---------- 打卡月历（习惯详情，2026-11-08）----------
+   起因：热力条只有「最近 30 天」，滑出去就没了，回看不到以前的记录。
+   月历一格一天、7 列（周一起），能翻月份。五种状态各有底色，
+   ★ 只用主题令牌，不写死颜色 —— 6 套主题 × 深浅两套都不能靠"看着还行"。
+     on    已打卡  = 主色实心（和热力条的 on 同一套）
+     miss  该做没做 = 凹槽底色 + 加粗边（比空白格"有内容"，但不刺眼）
+     skip  跳过     = 虚线边（与热力条一致）
+     off   不该做   = 极淡，几乎融进背景
+     today 今天未打卡 = 虚线主色边（提示"还来得及"） */
+.habit-gp-hint { font-size: var(--fs-micro); color: var(--text-light); line-height: 1.6; margin-top: var(--sp-6); }
+.habit-cal { margin-top: var(--sp-10); }
+.habit-cal-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); margin: var(--sp-10) 0 var(--sp-6); }
+.habit-cal-head b { font-size: var(--fs-note); color: var(--text); }
+.habit-cal-nav { width: 30px; height: 30px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: var(--fs-title); line-height: 1; padding: 0; }
+.habit-cal-nav:disabled { opacity: .32; }
+.habit-cal-week, .habit-cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--sp-2); }
+.habit-cal-week { margin-bottom: var(--sp-2); }
+.habit-cal-week span { text-align: center; font-size: var(--fs-micro); color: var(--text-light); }
+/* ★ 底色只给「本应做的日子」，其余一律透明无框 —— 一眼扫下去，
+   有底的格子就是"这天有我一份"，不必逐个去看边框样式去猜。 */
+.habit-cal-cell {
+  aspect-ratio: 1 / 1; border-radius: var(--radius-xs);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-caption); color: var(--text);
+  border: 1px solid transparent; background: none;
+}
+.habit-cal-cell.blank { border-color: transparent; background: none; }
+.habit-cal-cell.on { background: var(--primary); border-color: var(--primary-dark); color: var(--on-fill, #fff); font-weight: 600; }
+/* 该做没做：靠"有框"而不是"有底色"—— 深色下 --surface-2 与卡片底几乎同色，
+   只有 1px 边框是两种主题都看得见的信号 */
+.habit-cal-cell.miss { border-color: var(--border-strong); color: var(--text); font-weight: 600; }
+.habit-cal-cell.skip { border-style: dashed; border-color: var(--text-light); color: var(--text-light); opacity: .7; }
+/* 深色下 opacity 一降就几乎看不见（实测 9~30 号全糊成背景），
+   所以只压到 .6 / .45，靠"没有底色"表达"这天不用做"，不靠看不清 */
+.habit-cal-cell.off { color: var(--text-light); opacity: .55; }
+.habit-cal-cell.future { color: var(--text-light); opacity: .45; }
+.habit-cal-cell.today { border: 1px dashed var(--primary); color: var(--primary); font-weight: 600; }
+.habit-cal-sum { font-size: var(--fs-caption); color: var(--text-light); line-height: 1.7; margin-top: var(--sp-6); }
+.habit-cal-sum b { color: var(--text); font-weight: 600; }
+/* 配额型（每周 N 次）的说明行：比正文小一档、灰一档，不抢统计格的位置 */
+.habit-quota-hint {
+  font-size: var(--fs-caption); color: var(--text-light); line-height: 1.6;
+  margin: var(--sp-2) 0 var(--sp-10); padding-left: var(--sp-2);
+}
+.habit-archive-h { font-size: var(--fs-caption); color: var(--text-light); margin: var(--sp-14) 0 var(--sp-6); }
+/* ===== 习惯分类（展开的文件夹）=====
+   文件夹头一律走主题令牌，深浅主题自动适配；未分类那行不可折叠（它是兜底，不是文件夹）。 */
+.habit-folder-head { display: flex; align-items: center; gap: var(--sp-6); padding: var(--sp-8) var(--sp-10); margin-top: var(--sp-6); background: var(--card); border: 1px solid var(--border); border-left: 5px solid var(--cat, var(--primary)); border-radius: var(--radius-sm); box-shadow: var(--shadow); cursor: pointer; user-select: none; }
+.habit-folder-head--plain { cursor: default; border-left-width: 2px; box-shadow: none; }
+.habit-folder-head .folder-chip { width: 30px; height: 30px; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); background: var(--cat-soft, var(--surface-2)); color: var(--cat, var(--primary)); font-size: var(--fs-note); font-weight: 600; line-height: 1; }
+.habit-folder-head .folder-name { flex: 1; min-width: 0; font-size: var(--fs-note); font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.habit-folder-head .folder-today { flex: 0 0 auto; font-size: var(--fs-caption); font-weight: 500; color: var(--text-light); background: var(--surface-2); border-radius: var(--radius-full); padding: 2px var(--sp-8); }
+.habit-folder-head .folder-today.all { color: var(--green-ink); background: var(--ok-bg); }
+.habit-folder-head .folder-caret { flex: 0 0 auto; width: 16px; height: 16px; transition: transform .18s ease; }
+.habit-folder-head .folder-caret path { fill: none; stroke: var(--text-light); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.habit-folder-head.open .folder-caret { transform: rotate(90deg); }
+.habit-folder-head .folder-del { flex: 0 0 auto; font-size: var(--fs-caption); color: var(--text-light); padding: 0 var(--sp-4); opacity: 0; transition: opacity .15s ease; }
+.habit-folder-head:hover .folder-del, .habit-folder-head .folder-del:focus-visible { opacity: 1; }
+.habit-folder-head .folder-del:hover { color: var(--red); }
+.habit-folder-body { padding-left: var(--sp-6); margin-left: var(--sp-10); border-left: 1px solid var(--cat, var(--border)); }
+.habit-folder-body .habit-item { border: none; background: transparent; border-radius: 0; border-bottom: 1px solid var(--border); margin-bottom: 0; padding: var(--sp-10) var(--sp-6); }
+.habit-folder-body .habit-item:last-child { border-bottom: none; }
+/* ===== 日志里的「计划 → 子任务」快照 ===== */
+.log-row-plan { display: flex; flex-wrap: wrap; gap: var(--sp-4); align-items: center; margin-top: var(--sp-4); }
+/* 「计划归属」胶囊：日志记录卡与「今天完成」条**共用同一个构件**。
+   同一个计划在两处必须一眼看出是一家人 —— 否则两块各写各的样式，观感就是"生加进去的"：
+     完成条 = ✅ 计划名（当天已完成、没计时）｜记录卡 = 📋 计划名（这次专注挂在它下面）。
+   两处共用 .plan-chip，只有状态图标与配色档不同，结构完全一致。 */
+.plan-chip { display: inline-flex; align-items: center; font-size: var(--fs-note); font-weight: 600; color: var(--text-light); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-full); padding: var(--sp-2) var(--sp-10); }
+.plan-chip.done { color: var(--green-ink); border-color: var(--green); background: rgba(var(--green-rgb), .10); }
+/* 子任务 chip：字号与计划胶囊同档。
+   原来是 --fs-micro(12px)——比卡片正文小 4px。 */
+.log-sub-chip { display: inline-flex; align-items: center; font-size: var(--fs-note); color: var(--text-light); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-full); padding: var(--sp-2) var(--sp-10); }
+.log-sub-chip.done { color: var(--green-ink); border-color: var(--green); }
+.log-sub-chip.more { opacity: .8; }
+/* ===== 日志/回顾里的「今天完成」条 ===== */
+.done-todo-strip { margin: var(--sp-8) 0; padding: var(--sp-10) var(--sp-12); background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: var(--radius-md); }
+.done-todo-head { font-size: var(--fs-body); font-weight: 600; color: var(--text); display: flex; align-items: center; gap: var(--sp-8); cursor: pointer; user-select: none; padding: var(--sp-4) var(--sp-4); border-radius: var(--radius-sm); transition: background .15s; }
+@media (hover: hover) { .done-todo-head:hover { background: var(--surface-1); } }
+.done-todo-label { flex: 1; }
+.done-todo-toggle { display: inline-flex; align-items: center; gap: var(--sp-4); font-size: var(--fs-note); font-weight: 600; color: var(--green-ink); background: rgba(var(--green-rgb), .10); border: 1px solid var(--green); border-radius: var(--radius-full); padding: var(--sp-4) var(--sp-10); transition: background .15s; }
+@media (hover: hover) { .done-todo-head:hover .done-todo-toggle { background: rgba(var(--green-rgb), .18); } }
+.done-todo-caret { font-size: var(--fs-body); line-height: 1; }
+.done-todo-body { margin-top: var(--sp-6); }
+.done-todo-row { padding: var(--sp-6) 0; }
+.done-todo-row + .done-todo-row { border-top: 1px solid var(--hairline); }
+.done-todo-plan { display: flex; align-items: center; gap: var(--sp-6); font-weight: 700; }
+.done-todo-check { color: var(--green-ink); flex-shrink: 0; }
+.done-todo-title { flex: 1; min-width: 0; overflow-wrap: anywhere; color: var(--text); }
+.done-todo-subs { margin: var(--sp-6) 0 0 var(--sp-8); padding-left: var(--sp-10); border-left: 1px solid var(--border); display: flex; flex-direction: column; gap: var(--sp-4); }
+.done-todo-sub { display: flex; align-items: baseline; gap: var(--sp-6); font-size: var(--fs-note); color: var(--text); }
+.done-todo-sub-txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.done-todo-sub.done .done-todo-sub-txt { color: var(--text-light); text-decoration: line-through; text-decoration-color: var(--green); }
+.done-todo-sub-txt { min-width: 0; overflow-wrap: anywhere; }
+.done-todo-sub.more { color: var(--text-light); opacity: .8; padding-left: calc(1.2em + var(--sp-6)); }
+/* 「只推进了几步」的主行：勾号换成半环，标题不加粗，一眼和「整条完成」分开 */
+.done-todo-row.partial .done-todo-plan { font-weight: 600; }
+.done-todo-check.part { color: var(--blue-dark); }
+.done-todo-partn { font-size: var(--fs-caption); font-weight: 600; color: var(--blue-dark); background: rgba(var(--blue-rgb), .12); border-radius: var(--radius-full); padding: 0 var(--sp-8); flex-shrink: 0; }
+/* ===== 结算弹窗里的「这次做完的子计划」 =====
+   行高至少 40px：这是休息时间戳手指的东西，别做成小按钮。 */
+.finish-subs-head { font-size: var(--fs-note); color: var(--text-light); margin-bottom: var(--sp-6); font-weight: 600; }
+.finish-sub-row { display: flex; align-items: center; gap: var(--sp-10); padding: var(--sp-8) var(--sp-10); border: 1.5px solid var(--border); border-radius: var(--radius-md); margin-bottom: var(--sp-6); background: var(--card); cursor: pointer; transition: background .2s, border-color .2s; }
+.finish-sub-row:last-child { margin-bottom: 0; }
+.finish-sub-row.done { background: linear-gradient(135deg, rgba(var(--green-rgb), .16), rgba(var(--green-rgb), .06)); border-color: var(--green); }
+.finish-sub-txt { font-size: var(--fs-body); line-height: 1.4; flex: 1; min-width: 0; overflow-wrap: anywhere; color: var(--text); }
+.finish-sub-row.done .finish-sub-txt { color: var(--text-light); text-decoration: line-through; text-decoration-color: var(--green); }
+/* 回顾卡里的计划步骤行 */
+.review-plan-line { font-size: var(--fs-caption); color: var(--text-light); margin-top: var(--sp-4); line-height: 1.5; }
+
+/* 深色下的实心填充块 = 该主题自己的 --primary-dark 再压暗 18%（对白字仍 ≥4.9:1）。
+   ★ 原来 1A_dark_misc.css 把 --fill-primary 硬钉成 #B04A2C，于是 nord / tokyo /
+     gruvbox 在深色下的按钮、选中页签、实心小按钮全变成同一个番茄红 ——
+     用户报的就是这个（「之前深色模式不同的主题按钮颜色不一样，现在怎么都变成红色了」）。
+     --primary-dark 每个主题都有，这里只做「压暗」，色相跟着主题走。
+     写在 50_journey.css 末尾是为了让它压过 1A_dark_misc.css 里那条 #B04A2C
+     （两者特异性相同，见 _order.json 的加载顺序）；不支持 color-mix 的旧内核
+     走 @supports 外面那条 #B04A2C，不会变成透明。 */
+@supports (color: color-mix(in srgb, red 50%, #000)) {
+  body.dark-mode { --fill-primary: color-mix(in srgb, var(--primary-dark) 82%, #000 18%); }
+}
+</style>

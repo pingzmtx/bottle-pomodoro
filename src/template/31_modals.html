@@ -1,0 +1,872 @@
+<!--pnid:1Y80u7c9A4R4TRUVNLs4DT--><!-- ========== 模态框集合 ========== -->
+
+<!--pnid:DgHavwSsgVt9vG5nmzpRbE--><!-- 月份选择（月度统计卡片 入口） -->
+<div data-page-node-id="gdpcSaoB9UJZBenJ1ykzGr" class="modal-overlay" id="monthPickModal">
+  <div data-page-node-id="23n8F6zx6yc0HB3biYL1D0" class="modal">
+    <h3 data-page-node-id="C6FJp3fyTBs5E0G9Q0thfU" style="text-align:center; margin-bottom:var(--sp-10)"><!--pnid:se9MgdhB4HBtBo6bP6IAjH-->📅 选择月份</h3>
+    <div data-page-node-id="UZEVpZBo17JQ5ccuVDiReC" style="display:flex; justify-content:center; align-items:center; gap:var(--sp-12); margin-bottom:var(--sp-10)">
+      <button data-page-node-id="mOrIQlOYJod21zKjKiDFD4" class="btn-small" data-act="monthPickYearShift" data-act-args='[-1]' title="上一年"><!--pnid:Gz5dp61kEanf7hxk4futGB-->‹</button>
+      <span data-page-node-id="7isJx2EFSF5plIabrUYsW2" id="monthPickYearLabel" style="font-size:var(--fs-title); font-weight:800; color: var(--primary-ink)"><!--pnid:KpzhULpH7Ba1YErjDHBAji-->2026年</span>
+      <button data-page-node-id="FpxOn9EZbEfpBMse2T4kZf" class="btn-small" data-act="monthPickYearShift" data-act-args='[1]' title="下一年"><!--pnid:XaWO7tq1oaxJZQdZzFsW63-->›</button>
+    </div>
+    <div data-page-node-id="lO7ts2pXIYZyVMplzKNwa4" id="monthPickGrid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:var(--sp-6)"></div>
+    <div data-page-node-id="iaDsZ0domd9CA8Uk3flzq9" class="modal-buttons">
+      <button data-page-node-id="mgJ4mmMwiJnRY6jrXX4K9U" class="modal-btn secondary" data-act="closeModal" data-act-args='["monthPickModal"]'><!--pnid:17HSMVRP0cYvbaWt85lqAs-->取消</button>
+    </div>
+  </div>
+</div>
+<!--pnid:EIOroKbsznHcN2TrMfx75G--><!-- 番茄结束 -->
+<!-- 年份快跳（2026-11-07）：年度地图 / 年度统计共用。
+     只在「有记录的年份 + 今年」里列，倒序；每个按钮下面带该年番茄数，
+     一眼看出哪年练得多、哪年是空的。 -->
+<div class="modal-overlay" id="yearPickModal">
+  <div class="modal">
+    <h3 style="text-align:center; margin-bottom:var(--sp-10)">📆 跳到哪一年</h3>
+    <div id="yearPickGrid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:var(--sp-6); max-height:52vh; overflow-y:auto"></div>
+    <div class="modal-buttons">
+      <button class="modal-btn secondary" data-act="closeModal" data-act-args='["yearPickModal"]'>取消</button>
+    </div>
+  </div>
+</div>
+<div data-page-node-id="E1XRTe8FzHWGOY03qHoIFm" class="modal-overlay" id="careModal">
+  <div data-page-node-id="cYvP1dZipxA2tLdyTztr2v" class="modal" style="text-align:center; max-width:420px">
+    <div data-page-node-id="flLNnKlXkejCHIZrOKm9Cl" style="font-size: calc(52px * var(--fs-boost)); margin:var(--sp-6) 0 var(--sp-2)"><!--pnid:SGtwS9WCuC5bKIH3CMI1zP-->🧡</div>
+    <h3 data-page-node-id="UxiyL5ZgvtUMfAWa6P1DQz" style="margin:var(--sp-4) 0 var(--sp-8)"><!--pnid:sS6obiUuRTPZSFsiWpiSwu-->最近看起来有点疲惫</h3>
+    <p data-page-node-id="V3GFGbcScXhV9Ijm6est2n" style="font-size:var(--fs-body); color:var(--text-light); line-height:1.8; margin-bottom:var(--sp-14)"><!--pnid:uPIzIL0CnmelsSNNoxCThD-->要不要开启「轻松模式」？<br data-page-node-id="ydS0mlXF4jFNz6BaXBLN5s"><!--pnid:j1L5zYzyTwQALJ4cHXqyO4-->番茄时长自动<b data-page-node-id="YZng3tOzoJAsO0SP2RDRau" style="color: var(--primary-ink)"><!--pnid:yH0ECDcWEli6DG9PpxhnNv-->减半</b><!--pnid:47I565DmWariWcvoDmLX4W-->；开启后<b data-page-node-id="7PvT9157fICgZdoAiX0IZM" style="color: var(--primary-ink)"><!--pnid:Kw5INgBwUaEdJYiSo04o1e-->第一次</b><!--pnid:O1ed6qIA26wtnVww0Tfd5i-->满 <b data-page-node-id="au7ygRPW52m598yjn3TYBi" style="color: var(--primary-ink)"><!--pnid:2dE8ZKCGQ8H4yAVwpbvGC9-->10 分钟</b><!--pnid:tzAWmmhbv2Qk40sHeIS4yw-->的番茄，直接按 <b data-page-node-id="kPiM39KPC2hqg43AfX5lxO" style="color: var(--primary-ink)"><!--pnid:PMlU0zn1jzATzuOZ4VMIHR-->1 个完整🍅</b><!--pnid:NTmqTdEgZUDHogMbhf1LJC--> 计入今日进度（仅此一次）——今日任务的星星⭐奖励照常拿。开启前完成的番茄不占这次机会。</p>
+    <div data-page-node-id="AKYng2i4dYStsVvZqtV51K" class="modal-buttons" style="justify-content:center">
+      <button data-page-node-id="2A0ZvLenUSxlZYNbgtcddY" class="modal-btn secondary" data-act="dismissCareModal"><!--pnid:x0dalse5U3FyBhCgLNXMgQ-->今天不需要</button>
+      <button data-page-node-id="QK86EOxuw9E8qYOSXFXF48" class="modal-btn solid-green" data-act="enableEasyMode"><!--pnid:hsGqhs3uvDBPaVo5KstFhv-->🍃 开启轻松模式</button>
+    </div>
+    <div data-page-node-id="StlHliDQH7VUHgXJ5cS9mM" style="font-size:var(--fs-caption); color:var(--text-light); margin-top:var(--sp-10)"><!--pnid:tZdVyXYnKgADqlNzlH1B6t-->明天自动恢复常规时长，随时可关闭</div>
+  </div>
+</div>
+<div data-page-node-id="V1PXtXIZtSKrxiXon96QMx" class="modal-overlay" id="bioEditModal">
+  <div data-page-node-id="kQLHccihgc5meYiUddADqe" class="modal">
+    <h3 data-page-node-id="l9XWMD705ygHMFIjaeB42h" id="bioEditTitle"><!--pnid:ALOVqrNDxzGLcz1PArQalh-->✏️ 编辑传记</h3>
+    <textarea data-page-node-id="i1isLUK87ibBJUyIJRpLGn" id="bioEditText" placeholder="写下你想留在这个时刻的话…" style="width:100%; min-height:160px; padding:var(--sp-10); border:1px solid var(--border-strong); border-radius:var(--radius); font-size:var(--fs-body); line-height:1.7"></textarea>
+    <div data-page-node-id="9cXM0W2KBuGriw3uqCvUHD" class="modal-buttons" style="justify-content:flex-end; margin-top:var(--sp-12)">
+      <button data-page-node-id="0ba09lEQ26bWjLsgZKQldQ" class="modal-btn secondary" data-act="closeModal" data-act-args='["bioEditModal"]' style="flex:0 0 auto"><!--pnid:5Qo2I4Z2UjV9j1jVoZRmAP-->取消</button>
+      <button data-page-node-id="4OL0Q7nQfYUYg6Sm07Lxz6" class="modal-btn primary" data-act="saveBioEdit" style="flex:0 0 auto"><!--pnid:E9H6possp9pwv53qNx8m2K-->💾 保存</button>
+    </div>
+  </div>
+</div>
+<div data-page-node-id="13rXpqtJzqvfP5NwnnsjIt" class="modal-overlay rankup-overlay" id="rankUpModal" style="display:none">
+  <div data-page-node-id="GBtgyYs2FPF3MynmXB1tcZ" class="rankup-box">
+    <div data-page-node-id="keVA3uPYbdHoya2TzMIh0E" class="rankup-rays"></div>
+    <div data-page-node-id="7Sb01bOvNtrx4y0FHuRZMW" class="rankup-icon" id="rankUpIcon"><!--pnid:25Udza3nvQj72kYNTJ4WHc-->🎖️</div>
+    <h3 data-page-node-id="mQstwlTFY3AQeXPo8B6qSE" class="rankup-name" id="rankUpName"><!--pnid:Vz7HL2fkE8KPKOyAYdT1WG-->晋升 王者</h3>
+    <div data-page-node-id="SbtpoCIMVUf8G1oIlTyXm4" class="rankup-sub" id="rankUpSub"><!--pnid:023H43PRL4VNrrToNxfbMM-->🎉 第一次踏上王者！这是你一路坚持的最好证明</div>
+    <div data-page-node-id="L1WQwrdvIK1ciDEsO3wXid" class="rankup-btn" data-act="closeRankUpModal"><!--pnid:N4ajA9cPuKssccbfSb3ghP-->继续冲刺 🚀</div>
+  </div>
+</div>
+<div data-page-node-id="CegdjTJGpm0DpT49v9ubCT" class="modal-overlay" id="gachaModal">
+  <div data-page-node-id="krGPIiY8WFyBAoulPjxM9V" class="modal" style="text-align:center">
+    <h3 data-page-node-id="gCYG8PXb22fPR2kJzQcTfv"><!--pnid:OqjeKEtDlkvXlc8699u098-->🎲 每日惊喜扭蛋</h3>
+    <div data-page-node-id="oPE9nPXUCESn80hiEx2bL0" class="gacha-egg" id="gachaEgg"><!--pnid:q8mImkDcxTPEU0ja4yVYyO-->🥚</div>
+    <div data-page-node-id="3PJtmwOZ75pZUZJPNjvF3r" id="gachaResult" style="min-height:78px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--sp-6); font-size:var(--fs-title)"></div>
+    <div data-page-node-id="47EKF0Uozvs95nTvIpy2at" id="gachaLast" style="min-height:16px"></div>
+    <div class="modal-buttons" style="justify-content:center; margin-top:var(--sp-8)">
+      <button data-page-node-id="enfllqC0GRg4aFy6X1eepZ" class="modal-btn primary" id="gachaBtn" data-act="closeGachaModal" style="flex:0 1 auto; padding:var(--sp-10) var(--sp-24)"><!--pnid:PyHSViAeWfzR9VMa9kwnXW-->🔨 敲开扭蛋</button>
+    </div>
+  </div>
+</div>
+<div data-page-node-id="ZAHGF79FXQkpXstkoKX716" class="modal-overlay" id="mustDoModal">
+  <div data-page-node-id="knr0U9INZrIt90iIzZW5zv" class="modal">
+    <h3 data-page-node-id="okSyE3I0v8SaWpXHCpRgdp" id="mustDoModalTitle"><!--pnid:fzY1OQFy1DE6aM9XRWsCfz-->🎯 必做 3 件事</h3>
+    <p data-page-node-id="xV92MTXA1PffNWr43ZDCuC" id="mustDoModalTip" style="font-size:var(--fs-body); color:var(--text-light); margin-bottom:var(--sp-10)"><!--pnid:c8TGE9Z6n6jFo3GrRQlcZ7-->为明天立下「非完成不可」的 1~3 件事，明天全部打勾完成 → <b data-page-node-id="bqnYcf3xq8MPFk5BNY5Spm" style="color: var(--primary-ink)"><!--pnid:OCfVzfFycX4YYaMjlIWrqE-->+25🪙</b><!--pnid:wqzDmh6SguqzGBxAo7fZ0O-->（奖励只在当天有效，过后作废）</p>
+    <div data-page-node-id="kAeSyHgBtyc5LPVs5nl9Fj" class="modal-form-group">
+      <label data-page-node-id="K5WB8OcOwdx9MNN4NfdUjz" id="mustDoDateLabel"><!--pnid:ESF5BleKpTHMYlgceJE4xo-->明天的事（今晚提前立）</label>
+      <div data-page-node-id="kdqMciI85oOZqhehG1J5CT" style="font-size:var(--fs-note); color:var(--text-light)"><!--pnid:5zFtm4a1ik7jBNO4E3XjM7-->随时可以回来重新填写，以最后一次保存为准</div>
+    </div>
+    <div data-page-node-id="YSKze2ywuXsVflRxDG1ZBG" class="modal-form-group">
+      <label data-page-node-id="wqxCGIG4sBDXOOeUpuJ3eb"><!--pnid:g0RZIBDXOdl9cGo2H7ONPx-->第 1 件事</label>
+      <div data-page-node-id="NgaXBHSdFdwOdMmXo3kh6j" style="display:flex; gap:var(--sp-8); align-items:center">
+        <input data-page-node-id="WD029cprQRipwr6Ylumk5c" id="mustDoInput0" placeholder="明天非完成不可的事…" type="text" style="flex:1; min-width:0; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
+        <select data-page-node-id="ldaB1EZN0bCVSaujXvzVNf" id="mustDoEst0" title="预计需要几个番茄" style="width:74px; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-body)"></select>
+      </div>
+    </div>
+    <div data-page-node-id="kblb1yzBv135MsBvkBifIw" class="modal-form-group">
+      <label data-page-node-id="8gjyNzAjG4cjIiDG10yfQK"><!--pnid:heGd7Q3JZQauQ0UzUwSbPM-->第 2 件事（可留空）</label>
+      <div data-page-node-id="BnvV6gWcwvN9kaKPcHfL6u" style="display:flex; gap:var(--sp-8); align-items:center">
+        <input data-page-node-id="JGcYuZjhlkPNC9iTxi2Kg1" id="mustDoInput1" placeholder="…" type="text" style="flex:1; min-width:0; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
+        <select data-page-node-id="HPoKTuUq7czdvk8hxbqzka" id="mustDoEst1" title="预计需要几个番茄" style="width:74px; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-body)"></select>
+      </div>
+    </div>
+    <div data-page-node-id="axNGr1VgsEEEdQyLDiVHnY" class="modal-form-group">
+      <label data-page-node-id="Tqvwgy4EzW9Lgq9WjE53BC"><!--pnid:dySoAn0hAsQ5LKDbkEW4Fp-->第 3 件事（可留空）</label>
+      <div data-page-node-id="WGaiSxKU9SmiqMLvNtb9zy" style="display:flex; gap:var(--sp-8); align-items:center">
+        <input data-page-node-id="rK3xpoVbAICAbQYXUxUCWd" id="mustDoInput2" placeholder="…" type="text" style="flex:1; min-width:0; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
+        <select data-page-node-id="vfb6Z8kYwmg2Jc5Ir28IDL" id="mustDoEst2" title="预计需要几个番茄" style="width:74px; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-body)"></select>
+      </div>
+    </div>
+    <div data-page-node-id="PMkh8Lc6vj2uu9N5LvvTs6" class="modal-buttons" style="justify-content:space-between; align-items:center; margin-top:var(--sp-12)">
+      <button data-page-node-id="ukyDW9lrlYx1aWQqr9yLQr" class="modal-btn danger" id="mustDoClearBtn" data-act="clearMustDos" style="flex:0 0 auto"><!--pnid:dZSxQKq6sizx7PlYehFwIn-->🗑 清空</button>
+      <div data-page-node-id="S02kqVNFK2SpupwOGijSNF" style="display:flex; gap:var(--sp-10)">
+        <button data-page-node-id="MA94W8bts649IY7EuXbcg0" class="modal-btn secondary" data-act="closeModal" data-act-args='["mustDoModal"]' style="flex:0 0 auto"><!--pnid:OZGpo60uT0hw1O82H6ziEl-->取消</button>
+        <button data-page-node-id="zBRu6xSBL8BSCC6uyUBb5l" class="modal-btn primary" data-act="saveMustDos" style="flex:0 0 auto"><!--pnid:G5vy7EywlPsFUBiiqljiaa-->✅ 保存必做事项</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div data-page-node-id="nbBr9SBRHl1SxFATtemn2M" class="modal-overlay" id="finishModal">
+  <div data-page-node-id="s3KpOUCUlZ6VHVGdtQmhcv" class="modal">
+    <h3 data-page-node-id="4kQbiNCEh76TlDRtdjcNX4" id="finishModalTitle"><!--pnid:4BB24FMUuSdoPSkD50z9JT-->✅ 番茄结束</h3>
+    <p data-page-node-id="A8J53j289eSmM8Ryseuj2C" id="finishInfo" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-10)"></p>
+    <div data-page-node-id="SJUtsH0Ur3MmuUaekn7oE4" class="type-hint" id="finishTypeHint"><!--pnid:QUVbYKyZviIaYjXSvLbm76-->参考标准：≥15分钟可选完整🍅，≥5分钟可选半个🍅，未完成随时可自评</div>
+    <div data-page-node-id="0DJHWi1tYJj9RRrYBWeifg" id="finishTypeWrap">
+      <div data-page-node-id="Az7z0yAprRbFEXQ8hFQzKy" class="modal-form-group">
+        <label data-page-node-id="7hTNOwlecTI3KwPTjf4buy" style="margin-bottom:var(--sp-4)"><!--pnid:5gNKcGFLVKy0p4dy3Ea9ia-->番茄类型</label>
+        <select data-page-node-id="JtLg78l53UbaqE0DSnGNCo" id="finishType" data-change="onFinishTypeChange" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)">
+          <option data-page-node-id="ErFkh5jG0coWpAvXgwFPOT" disabled hidden selected value><!--pnid:VlMhTtWOJ6eQQCcOF8OgzW-->— 请选择 —</option>
+          <option data-page-node-id="OLFvI7KUg2ruCBv2cwvZ6y" value="full"><!--pnid:oXSA0GLbzlIRokeMipwyqb-->完整🍅</option>
+          <option data-page-node-id="f94mUdE215PxCCgfNU3hE1" value="half"><!--pnid:nbM8dYfEIk3C5xQDjMqOz5-->半个🍅</option>
+          <option data-page-node-id="QqaAxIyQ7JNO08N78AqajJ" value="incomplete"><!--pnid:Oe8yCRPtdv1PKHSGpzHkaL-->未完成</option>
+          <option value="log">仅记录（只记时间，不算番茄）</option>
+        </select>
+      </div>
+    </div>
+    <div data-page-node-id="AdJ9uxNdt9jzFHLdWigL1Q" class="modal-form-group">
+      <label data-page-node-id="LWk4sljzrQfIYNEXFlbj3c" style="margin-bottom:var(--sp-4)"><!--pnid:TNaoOTD4fvQUyCzOOaeepZ-->备注</label>
+      <textarea data-page-node-id="IKIOOLHhSwRo9MRaDL5mgA" id="finishNote" placeholder="这次番茄的感受…"></textarea>
+    </div>
+    <!-- 结算时补勾子计划：一个番茄结束、人已经进休息了，就不该再跑回计划页去勾。
+         边做边勾是理想，忘了勾是常态；这里补上，日志里的「这一条专注做了哪几步」才对得上。 -->
+    <div class="modal-form-group" id="finishSubsWrap" style="display:none">
+      <label style="margin-bottom:var(--sp-4)">📝 这次做完的子计划 <span style="color:var(--text-light);font-weight:400;">（可补勾）</span></label>
+      <div id="finishSubsBox" class="finish-subs"></div>
+    </div>
+    <div data-page-node-id="XxoC899p78IkC3CGmoKAnV" class="state-section" style="margin-bottom:var(--sp-10)">
+      <div data-page-node-id="Fst9egqOHgsFi7sT1gMLbb" class="state-section-title"><!--pnid:Ab3HZgKSqToflbPnfobXQz-->结束时的状态（可修改）</div>
+      <div data-page-node-id="EniqAaurF29xWjGW6XndSs" class="state-row"><span data-page-node-id="anZSG67gmMEg0JQKd3ADXs" class="state-icon"><!--pnid:Ehz8mKdHF3YzPJjzT7B5J9-->🔋</span><div data-page-node-id="GUdI7g0nAbqYodgrxO2o8R" class="grid-picker" id="finishEnergyPicker"></div><span data-page-node-id="jK9z3zZfgGMbWe3vDBMoQY" class="state-label" id="finishEnergyLabel"></span></div>
+      <div data-page-node-id="XoEHnufUmbBKaBI7hErNRx" class="state-row"><span data-page-node-id="AGGCE00pJhnqjOAOxmFcXG" class="state-icon"><!--pnid:8n38H1EGvpH1rdLTR65cxx-->😊</span><div data-page-node-id="4qcBwi1WjleOGnTjt26OU6" class="grid-picker" id="finishMoodPicker"></div><span data-page-node-id="qwpjS2yv80XSjb7Ju2DAtE" class="state-label" id="finishMoodLabel"></span></div>
+    </div>
+    <div data-page-node-id="uaISXID7k5aD6hlfs3Jrv7" class="modal-buttons">
+      <button data-page-node-id="hXkKd9wjpdwO869q0g8Djz" class="modal-btn secondary" data-act="closeFinishModal"><!--pnid:oEIFJuYxEJSsPYCStD2s5C-->取消</button>
+      <button data-page-node-id="6W0abpCgXO9vgjRDUzl7V2" class="modal-btn primary" data-act="confirmFinish"><!--pnid:Dx6JrgTKH9ieabTjhpziB1-->保存</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:LnSd4c84xQxjsynbTcBicv--><!-- 分享打卡海报 -->
+<div data-page-node-id="DaGbFxl11pufl8Ha6EZO0x" class="modal-overlay" id="sharePosterModal">
+  <div data-page-node-id="bLkCROUvzRJCoTSqyMCTWs" class="modal" style="max-width:430px; max-height:92vh; overflow-y:auto">
+    <button data-page-node-id="xWxR9Pa44MMza5yxC6KW31" aria-label="关闭" class="modal-close" data-act="closeSharePoster"><!--pnid:rxxvQH8A346qWVPFVhPcMK-->✕</button>
+    <h3 data-page-node-id="Gia3V0bL5jVujyGbbRXpO6"><!--pnid:JWexeuBGkINKxrYX2ZSkN8-->📤 分享打卡海报</h3>
+    <div data-page-node-id="Z2dHDwF34GwJ1BJmTfCu6x" style="font-size:var(--fs-body); color:var(--text-light); margin-bottom:var(--sp-10); line-height:1.5"><!--pnid:xUbiULOo5jsIrHhLNYv3TO-->选一个模板，点击后生成你的专属努力海报。生成后点下方「保存图片」直接下载<b data-page-node-id="c1rOnkOm1ZjJBLH9ne8yXf" style="color:var(--text)"><!--pnid:kergcsUAArn7ahDrYMwtax-->高清原图</b><!--pnid:QKpEAZHKYOob7AbTpmvFtg-->（长按预览可能会卡顿，不建议）。</div>
+    <div data-page-node-id="9TBHO9bCiwQl6JBeWHnoxk" class="sp-tabs">
+      <button data-page-node-id="7OusK5nvXmZwNOiUuJnX9i" class="sp-tab active" data-t="all" data-act="setPosterType" data-act-args='["all"]'><!--pnid:KaQgunfBUafZGDL7yHGQsC-->🏆 全能</button>
+      <button data-page-node-id="V8eumLl0iEYerco9XonruG" class="sp-tab" data-t="seg" data-act="setPosterType" data-act-args='["seg"]'><!--pnid:kraFD1khB00AcMExg9ba9i-->🎮 段数</button>
+      <button data-page-node-id="dsJKTx4pZGPo7D1Vdde0TM" class="sp-tab" data-t="rank" data-act="setPosterType" data-act-args='["rank"]'><!--pnid:z5Fd9mlglchsNa18dADCJj-->⭐ 段位</button>
+      <button data-page-node-id="DPtDbJOp938YE9U8benyww" class="sp-tab" data-t="streak" data-act="setPosterType" data-act-args='["streak"]'><!--pnid:QjiNtq9UA38XXRDZ4iLp2w-->🔥 打卡</button>
+      <button data-page-node-id="Snkh1LZbsWjEvta4yloJNg" class="sp-tab" data-t="today" data-act="setPosterType" data-act-args='["today"]'><!--pnid:NHDG2BJWGG9t7z9FNJA44Y-->🍅 今日</button>
+      <button data-page-node-id="lbSLpDJGnFzMVEEUDfMm65" class="sp-tab" data-t="tree" data-act="setPosterType" data-act-args='["tree"]'><!--pnid:vuNC5VFlqPJ3HAhAyaieSU-->🌳 种树</button>
+      <button data-page-node-id="HEGxLhRQxpO6wgDeYl2DfG" class="sp-tab" data-t="bio" data-act="setPosterType" data-act-args='["bio"]'><!--pnid:dRdtNgSoCjl8dj68Bm3sjl-->⏰ 生物钟</button>
+      <button data-page-node-id="5era9Ipe26EOF6GM0MRJOv" class="sp-tab" data-t="sprint" data-act="setPosterType" data-act-args='["sprint"]'><!--pnid:9RaipY2sCC4FNYLJiNM79Z-->🚀 冲刺</button>
+      <button data-page-node-id="WfiamVAFkxbx6Ir2SnuqjE" class="sp-tab" data-t="plan" data-act="setPosterType" data-act-args='["plan"]'><!--pnid:N0bfatx2hBIyDnDV7wfAYX-->📋 执行力</button>
+      <button data-page-node-id="KRIWyfPR6eRA2O5HeewxpO" class="sp-tab" data-t="wellness" data-act="setPosterType" data-act-args='["wellness"]'><!--pnid:knM6R7NFynkLJJwLDjSdTz-->🧠 身心</button>
+    </div>
+    <div data-page-node-id="6PzfuRGWiuAy0HBBxw0GTf" id="treePosterPicker" style="display:none; margin-bottom:var(--sp-10)"></div>
+    <canvas data-page-node-id="u6CqH3PUQsGYNZ3LPze1G9" height="1440" id="posterCanvas" width="1080" style="width:100%; height:auto; border-radius:var(--radius-md); border:1px solid var(--border)"></canvas>
+    <img data-page-node-id="pzOCsBNV4BGOp1Qj3rmPCn" alt="长按保存海报" id="posterImg" style="display:none; width:100%; height:auto; border-radius:var(--radius-md); border:1px solid var(--border)">
+    <div data-page-node-id="UYPjA4GZ2pOXx9FpMB1psQ" style="font-size:var(--fs-note); color:var(--text-light); text-align:center; margin-top:var(--sp-6)"><!--pnid:3kgtN8YzlC5XcbsV8erwjK-->生成后图片会出现在这里，长按可保存</div>
+    <div data-page-node-id="UuZeuDLvbtKClnPRiMtgBM" class="modal-buttons" style="margin-top:var(--sp-10)">
+      <button data-page-node-id="S7SNnwiaHbmYzAZqHb5dE3" class="modal-btn secondary" data-act="closeSharePoster" style="flex:1"><!--pnid:aBAlQQiTxeOZSVwNT99nnF-->关闭</button>
+      <button data-page-node-id="HTve41D8JKRPx0PfAROOgn" class="modal-btn primary" data-act="savePoster" style="flex:1"><!--pnid:s9nkywhy0Cg3zGLRGZ1zOT-->💾 保存图片</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:vRFv20mOWlYeDSmlpcSdRW--><!-- 打断记录 -->
+<div data-page-node-id="JpEWJiJU7tC1iQmXmniA33" class="modal-overlay" id="interruptModal">
+  <div data-page-node-id="M1y04hiF8k4bUP0nwVWbHB" class="modal">
+    <h3 data-page-node-id="R9gW6E7UAzdmmMVfo2QQNH"><!--pnid:CyfJvQOI6DPlmqgpJIVDj9-->⚠️ 打断记录</h3>
+    <div data-page-node-id="1xwjC9ngvAujLAamwaoqnJ" class="im-interrupt-hint" id="interruptImmersiveHint" style="display:none"></div>
+    <p data-page-node-id="olpNRfzLBrkmMfaTZB7oLv" id="interruptInfo" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-10)"></p>
+    <div data-page-node-id="AH7pmFNaMOGWduqHNJYUiw" class="modal-form-group">
+      <label data-page-node-id="uYLbDFhJ3XfelJA1HLhkVl"><!--pnid:cNjda7LoeJiQlXwlko9nBS-->打断原因（可留空）</label>
+      <textarea data-page-node-id="99CbIHPbrAzIjPNga7XLhb" id="interruptReason" placeholder="被什么打断了…"></textarea>
+      <div data-page-node-id="CaR6JJbaKBVWdCh6x5HYXw" id="interruptQuickBtns" style="display:flex; flex-wrap:wrap; gap:var(--sp-6); margin-top:var(--sp-8)">
+        <button data-page-node-id="W5VqJ8jSzB48bsCvsoUh4v" class="btn-small" data-act="pickInterrupt" data-act-args='["📱 刷手机"]' type="button" style="font-size:var(--fs-body); padding:var(--sp-4) var(--sp-8)"><!--pnid:sYyqGIOihqyY62Y8xndXRv-->📱 刷手机</button>
+        <button data-page-node-id="x6vHWHQFchJ07pQjtX846Q" class="btn-small" data-act="pickInterrupt" data-act-args='["💬 回消息"]' type="button" style="font-size:var(--fs-body); padding:var(--sp-4) var(--sp-8)"><!--pnid:FJM1iqwpv79YwfoHkCqzS7-->💬 回消息</button>
+        <button data-page-node-id="JUQDhx3j9QZs5uYVWFEiPV" class="btn-small" data-act="pickInterrupt" data-act-args='["👥 别人找我"]' type="button" style="font-size:var(--fs-body); padding:var(--sp-4) var(--sp-8)"><!--pnid:DI3mgAzj83K05ekThS9m8L-->👥 别人找我</button>
+        <button data-page-node-id="x4yy2dlXJeFumkjdiVZMsp" class="btn-small" data-act="pickInterrupt" data-act-args='["🔔 通知打扰"]' type="button" style="font-size:var(--fs-body); padding:var(--sp-4) var(--sp-8)"><!--pnid:qOJcwOTHLos6cynPHoUQ4h-->🔔 通知打扰</button>
+        <button data-page-node-id="pH5Kz4aYwG6OjoouniCWrU" class="btn-small" data-act="pickInterrupt" data-act-args='["🚽 上厕所"]' type="button" style="font-size:var(--fs-body); padding:var(--sp-4) var(--sp-8)"><!--pnid:AjdshL0Y9mhiNsVTPYshgy-->🚽 上厕所</button>
+        <button data-page-node-id="0SPOr8jpLLGpWdHiSwEz0g" class="btn-small" data-act="pickInterrupt" data-act-args='["💧 喝水"]' type="button" style="font-size:var(--fs-body); padding:var(--sp-4) var(--sp-8)"><!--pnid:QQqZhgZ8LFRtfBpFiPOuGH-->💧 喝水</button>
+        <button data-page-node-id="xpiUgEGcMfcocZh3YnYNUU" class="btn-small" data-act="pickInterrupt" data-act-args='["🍚 吃东西"]' type="button" style="font-size:var(--fs-body); padding:var(--sp-4) var(--sp-8)"><!--pnid:jKOzShMgNuACar4laqOv6e-->🍚 吃东西</button>
+        <button data-page-node-id="3TLAR81q86IUUk2bugAC0G" class="btn-small" data-act="pickInterrupt" data-act-args='["💭 走神发呆"]' type="button" style="font-size:var(--fs-body); padding:var(--sp-4) var(--sp-8)"><!--pnid:B0w2y06hRze5vm60PgG0XS-->💭 走神发呆</button>
+        <button data-page-node-id="nhNHrqMeDxgfh6jXUXN6Dz" class="btn-small" data-act="pickInterrupt" data-act-args='["😴 困了休息"]' type="button" style="font-size:var(--fs-body); padding:var(--sp-4) var(--sp-8)"><!--pnid:1Q9xlRqZfBKPD2QJZ885Am-->😴 困了休息</button>
+        <button data-page-node-id="MEHPQoGOiiwg5BqWkLPYYU" class="btn-small" data-act="pickInterrupt" data-act-args='["🏠 家务琐事"]' type="button" style="font-size:var(--fs-body); padding:var(--sp-4) var(--sp-8)"><!--pnid:VY2JccNRYDrGhvopXTOAeo-->🏠 家务琐事</button>
+        <button data-page-node-id="1VbktEynQ13e0l4U4SwEFe" class="btn-small" data-act="pickInterrupt" data-act-args='["💼 临时事务"]' type="button" style="font-size:var(--fs-body); padding:var(--sp-4) var(--sp-8)"><!--pnid:zKXYMXBhdspiJvUoYsbfTZ-->💼 临时事务</button>
+        <button data-page-node-id="Yk0pViGecGbtCPLQ70oXn7" class="btn-small" data-act="pickInterrupt" data-act-args='[""]' type="button" style="font-size:var(--fs-body); padding:var(--sp-4) var(--sp-8)"><!--pnid:vcDusLAUVlgWp4rsHGCjTT-->📝 其他（填写）</button>
+      </div>
+      <div data-page-node-id="PZPaXEoz2pHVurZIWMadgr" style="font-size:var(--fs-caption); color:var(--text-light); margin-top:var(--sp-6)"><!--pnid:QlRfFqMlPOnfQHcBhzuvgB-->选「其他」请在上方输入框写一句具体原因，统计时会计入对应分类</div>
+    </div>
+    <div data-page-node-id="WlSnEcsF2a8UOXjHthZ5c2" class="modal-buttons">
+      <button data-page-node-id="k2dM6hFLFpYbjFKSnrekEs" class="modal-btn primary" data-act="resumeFromInterrupt"><!--pnid:d5ZZu9MeR8YdAUyQ6pGzUJ-->继续番茄</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:hLPiH4wXstyNrDFSMbOQNm--><!-- 微休息 -->
+<div data-page-node-id="E06KUvMuSdD96C19ai1ko4" class="modal-overlay micro-break-modal" id="microBreakModal">
+  <div data-page-node-id="pok9BiuAiTaZqjgtDHtw7q" class="modal" style="text-align:center">
+    <h3 data-page-node-id="RdK3HrNaRUXUfle7GWJFGL" style="color: var(--yellow-ink)"><!--pnid:q6PhphsmgwiREI2kbcDCDr-->🧘 微休息</h3>
+    <p data-page-node-id="Pfy1rcj2S7h4QXr9pykCLH" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-6)"><!--pnid:scxwsHLkLcI1KZkGJk3rZB-->闭上眼睛，把注意力放在呼吸上</p>
+    <div data-page-node-id="gpZhisO7qLP9KdpYD34tMq" id="microBreakTimer" style="font-size: calc(48px * var(--fs-boost)); font-weight:800; color: var(--yellow-ink); margin:var(--sp-12) 0"><!--pnid:iNDxrHGkCN3EKbSB0bd3nz-->10</div>
+    <div data-page-node-id="gFdRk7bNkdiJP391LzS1Jm" class="modal-buttons" style="justify-content:center">
+      <button data-page-node-id="hY4Km2ifbguE6OHdXMltE6" class="modal-btn secondary" data-act="skipMicroBreak"><!--pnid:rRFt2hlTvMmuju8PmKSO9x-->跳过</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:Etedl9DIbm369rNjlxtV50--><!-- 清除确认 -->
+
+<!-- 通用定点提醒弹窗（时间到 → 提醒你去做某件事） -->
+<div class="modal-overlay" id="remindModal">
+  <div class="modal">
+    <h3 id="remindModalTitle">⏰ 提醒</h3>
+    <p id="remindModalMsg" style="font-size:var(--fs-title);color:var(--text);line-height:1.8;margin:var(--sp-4) 0 var(--sp-12)"></p>
+    <!-- 竖排整宽：字号放大时「稍后 10 分钟」也不会折行 -->
+    <div class="modal-buttons" style="flex-direction:column">
+      <button class="modal-btn secondary" id="remindSnoozeBtn" data-act="remindSnoozeCurrent">🕐 稍后 10 分钟</button>
+      <button class="modal-btn primary" id="remindAckBtn" data-act="remindAckCurrent">知道了</button>
+    </div>
+  </div>
+</div>
+
+<div data-page-node-id="EHn5uj9wcsrnrMGDQ9Jo1V" class="modal-overlay" id="clearConfirmModal">
+  <div data-page-node-id="l8e9iigoNuNiXu56XCoRd1" class="modal">
+    <h3 data-page-node-id="eISTG7hDs2X6VF97T0XZtM"><!--pnid:ZnT8VBnKxtBry44MHbN4mR-->⚠️ 清除所有数据</h3>
+    <p data-page-node-id="OOMNII9XnUCy31EXW4WF3I" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-10); line-height:1.6"><!--pnid:9nTYLeXoKzNp6GfQE1UEMU-->此操作将清空全部记录、计划、习惯、日记等数据，不可恢复。<br data-page-node-id="tVBfSgZFzahOsPwflxfTyI"><!--pnid:JReIJQ1iqhotsGeokFVrGl-->（清除前会自动备份一份，可在「恢复自动备份」找回）</p>
+    <div data-page-node-id="oxQm8yorPwTCNYqNxLkL72" class="modal-form-group">
+      <label data-page-node-id="n7Kp81C3VbbzxYgKHBrmUS"><!--pnid:Edo4YGM6JTeeMTGpqibyyH-->请输入「清除」二字以确认</label>
+      <input data-page-node-id="0vrGU5A7GyeJqBLQYfqJpm" autocomplete="off" id="clearConfirmInput" data-keys="Enter" data-keydown="confirmClearAllData" placeholder="清除">
+    </div>
+    <div data-page-node-id="TAdB7iq5DA7MnVJnaboIGo" class="modal-buttons">
+      <button data-page-node-id="pYrRpmygrdwlF9ZgfV3w4v" class="modal-btn secondary" data-act="closeModal" data-act-args='["clearConfirmModal"]'><!--pnid:8B4mnsYXoos8IsQRMpXYF9-->取消</button>
+      <button data-page-node-id="HKt8jv8BmeYxdo2GMJOLRL" class="modal-btn danger" data-act="confirmClearAllData"><!--pnid:z5IckmfoQmojX9LTLjDGGQ-->确认清除</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:MryWEqhEs9zHS0nDHzRwFj--><!-- 删除确认 -->
+<div data-page-node-id="x4XgDey78hIHuys0m4zfJd" class="modal-overlay" id="deleteConfirmModal">
+  <div data-page-node-id="HGDf1YW7xbruekQWHkkp3v" class="modal">
+    <h3 data-page-node-id="Z5BLBP4Pa6tN0hahXWYxXX"><!--pnid:0FkCN7eM1p7a1XS0NO2AYJ-->⚠️ 确认删除</h3>
+    <p data-page-node-id="xDs0Jn13nWL46LtCykS85T" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-14); line-height:1.6"><!--pnid:boF01NsungiivK1depwiD0-->确定要删除这条计划吗？删除后无法恢复。</p>
+    <div data-page-node-id="wuwe4FkvRPS1SqVo8A9mnA" class="modal-buttons">
+      <button data-page-node-id="Adxb0qY5ukYXTOGUwc2SCO" class="modal-btn secondary" data-act="closeModal" data-act-args='["deleteConfirmModal"]'><!--pnid:MRDOA67e7ZSjTLqQoMMKDI-->取消</button>
+      <button data-page-node-id="cfcyoC3KcY1YuM4Opi6pQz" class="modal-btn danger" id="deleteConfirmBtn" data-act="executeDelete"><!--pnid:pnK1c2uzVpCCTBPsFfsVbc-->删除</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:zkIq127SddnPjT9q2MW5Rx--><!-- 长休息提示 -->
+<div data-page-node-id="4NwmrfXKeXJ14aGMDCKHIO" class="modal-overlay" id="longBreakModal">
+  <div data-page-node-id="3ESumFAY5cmnevcX4nIspz" class="modal">
+    <h3 data-page-node-id="eoG521dGhnVP8uTBExXem3"><!--pnid:wc3uZh8pCrz0tBRalfzbQ1-->☕ 该长休息了</h3>
+    <p data-page-node-id="yJIc4g8L20FEXOar3gR5dA"><!--pnid:CGyu3xhRCOmPOs0gWuYrqz-->你已经累计完成设定数量的番茄，建议休息一下。</p>
+    <div data-page-node-id="aCRuFJgMA6ggHsW1fMYNSc" class="modal-buttons">
+      <button data-page-node-id="zekbctxtPE22ttwwchRYe0" class="modal-btn secondary" data-act="skipLongBreak"><!--pnid:6bTRQxtbKlPBrQPatyfMKX-->继续学习</button>
+      <button data-page-node-id="kzev50ItrVpjnwOxqKQx4L" class="modal-btn primary" data-act="startLongBreakFromPrompt"><!--pnid:zvrVwhIFcx9lebIQy7nQT5-->开始长休息</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:5HYG77PD39oESBLzSLqb4f--><!-- 沉浸式专注：角色卡（全屏抽卡弹窗） -->
+<div data-page-node-id="AfYX9qkLvplnGILd9wlyay" class="modal-overlay" id="immersiveCardModal">
+  <div data-page-node-id="h6n8Pu79mv4HrpEuIu0RlL" class="im-card-wrap">
+    <div data-page-node-id="qWkdo1ItfHDZOPvAGXV29l" class="im-card">
+      <h3 data-page-node-id="tQ0DJcVn7k3Cn2mYIEhwKY" class="im-card-top"><!--pnid:kkWKOaXYleRmxzAI0tPR0x-->🎴 随机角色卡 · <span data-page-node-id="9uSlSShfUQeCPtiW74jHPQ" id="imCardSeries"></span></h3>
+      <div data-page-node-id="U2N1bGqwXXE5KUVcdUAAS8" class="im-card-avatar" id="imCardAvatar"><!--pnid:njm86WyWNXpn4MKT3UBiqt-->🧑‍🚀</div>
+      <div data-page-node-id="zwfWvwjwDQi8umQWEtC9BD" class="im-card-name" id="imCardName"></div>
+      <div data-page-node-id="Krp7JGhm0w5jtDxdYeX2TC" class="im-card-title" id="imCardTitle"></div>
+      <div data-page-node-id="ILBKUsTMk1wYtzfWqk0GDW" class="im-card-stats" id="imCardStats"></div>
+      <div data-page-node-id="KvbYoVIQN6JHq1AZD524NA" class="im-card-intro" id="imCardIntro"></div>
+      <div data-page-node-id="UaRaOCUmqH9Abw6iyj5xGJ" class="im-card-btns modal-buttons" style="margin-top:0">
+        <button data-page-node-id="ieciiwNduj2ivpDV2CK8d0" class="modal-btn secondary" data-act="cancelImmersiveCard"><!--pnid:JvXUYRWFWD4Eq2xEB60PQa-->暂不冒险</button>
+        <button data-page-node-id="bbb7JZqWM6NYRNBu1xNY1K" class="modal-btn primary" data-act="confirmImmersiveStart"><!--pnid:C78jHYrwppnkRIVdSKBdfs-->🚀 进入冒险</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--pnid:ZDxpJoUCavlVK5qReOw3SJ--><!-- 沉浸式专注：章节过渡页（全屏动态小说文字，点击跳过） -->
+<div data-page-node-id="aNc4sUCgQPLe4ebPbb98HD" id="immersiveTransition" data-act="hideImmersiveTransition">
+  <div data-page-node-id="n6oQrlRJTCkpiGh9c7siYk" class="im-trans-inner">
+    <div data-page-node-id="ea42UjaTInAwfHTB1UUm4T" class="im-trans-kicker"><!--pnid:naH0FmIaPSQlOc5KxTCdWW-->—— 章节过渡 ——</div>
+    <div data-page-node-id="7vlH9wLJ3Rk1LBqtJzibZS" class="im-trans-title" id="imTransTitle"></div>
+    <div data-page-node-id="jRdUQ5d3r2w3w4VmqcW6Nv" class="im-trans-prev" id="imTransPrev"></div>
+    <div data-page-node-id="Dip9jPmYLGUmeLlTD6OCV6" class="im-trans-text" id="imTransText"></div>
+    <div data-page-node-id="1mT1Nq2SBCBVLiuLn09WUq" class="im-trans-ambient" id="imTransAmbient"></div>
+    <div data-page-node-id="tXSYcVJUgSI0U34eLgS6Ff" class="im-trans-hint"><!--pnid:SVXq1jmo2kab6vlwYFVcoq-->点击任意处跳过</div>
+  </div>
+</div>
+
+<!--pnid:GaeammTMBPDFY4ZPxfzjsu--><!-- 沉浸式专注：中途紧急事件横幅（顶部警报，非模态不打断计时） -->
+<div data-page-node-id="lDkGHCrOy45lauPAjKplhh" id="imLiveEvent">
+  <div data-page-node-id="loQIg9TXBt4w6FgdsAo9by" class="im-live-title" id="imLiveEventTitle"></div>
+  <div data-page-node-id="vhw3TkXeyTcleEahmQNZv8" class="im-live-text" id="imLiveEventText"></div>
+</div>
+
+<!--pnid:AD1e4sXyN8mVEkhHZYMDve--><!-- 沉浸式专注：角色台词弹幕 -->
+<div data-page-node-id="0LT2pMW1k0t3Ts8jE17h9c" id="immersiveVoiceLine"></div>
+
+<!--pnid:T9xtGO6th8Q8tiaDyMS4JT--><!-- 沉浸式专注：Bad Ending -->
+<div data-page-node-id="ndCwPSPKIX9qdbEPy4JwVp" class="modal-overlay" id="immersiveBadEndingModal">
+  <div data-page-node-id="AegriMBT9ZvQq0xtJ6VPGb" class="modal im-bad-modal">
+    <h3 data-page-node-id="acKEpp5upq12WNJDnQ4xCb"><!--pnid:2pVtk3hPTOoeruebRsdhRK-->💀 Bad Ending</h3>
+    <div data-page-node-id="YTaEBVrWcjNHjePsGYCcXx" class="im-bad-title"><!--pnid:3cFg0TDY30DAjEV7tQzY6x-->你迷失在了时空裂缝中……</div>
+    <p data-page-node-id="NaY9ZFybEzaHmbU8HRywhI" class="im-bad-text" id="imBadText"></p>
+    <div data-page-node-id="LCTNJVkemnrpD2cte24TgW" class="modal-buttons">
+      <button data-page-node-id="4fRxlM3URbYoVFflO2bpEG" class="modal-btn secondary" data-act="closeModal" data-act-args='["immersiveBadEndingModal"]'><!--pnid:0CCXO4uQzYmOnFM9HD9y0l-->先缓缓</button>
+      <button data-page-node-id="wWnPmAQuRtfHxiGldJ7Epd" class="modal-btn primary" data-act="restartImmersiveAfterBadEnding"><!--pnid:1UWNK024pXrlrH1Hlf8r38-->🔄 重新开始</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:r7JcSVumXq4jzeHgtu3oOF--><!-- 沉浸式专注：冒险总结 -->
+<div data-page-node-id="aipFKl1VAhs5uDkMExITkC" class="modal-overlay" id="immersiveSummaryModal">
+  <div data-page-node-id="4AgUXr95REk7lwP03i2L0I" class="modal" style="max-width:460px; max-height:90vh; overflow-y:auto">
+    <h3 data-page-node-id="accv5CyjDZ0oU7pGsVi7Au"><!--pnid:d5xJAoOHjHH1XxlqjFYTjF-->🏁 冒险结束</h3>
+    <div data-page-node-id="w1dQJrOYv3U4KfWsE0tgNP" class="im-sum-series" id="imSumSeries"></div>
+    <div data-page-node-id="raJOYCjy8AACtKHOsx2QlV" class="im-sum-role" id="imSumRole"></div>
+    <div data-page-node-id="NWHI6DQdCE1kApWI9vOi09" class="im-sum-endtitle" id="imSumEndTitle"></div>
+    <div data-page-node-id="kiZbHteQTy02dlwfXBgAUm" class="im-sum-endtext" id="imSumEndText"></div>
+    <div data-page-node-id="ulVYiKdQ7gTpDx2SLTCcWp" class="im-sum-chapters" id="imSumChapters"></div>
+    <div data-page-node-id="BYnkISw7ysNvjgWTiKcWue" class="im-sum-stats" id="imSumStats"></div>
+    <div data-page-node-id="r5CSzTQR5RRnWyz9KAY6O4" class="im-sum-comment" id="imSumComment"></div>
+    <div data-page-node-id="r0iKD5ZO3vc2xczpetQgs0" class="im-sum-ach" id="imSumAch"></div>
+    <div data-page-node-id="54kndjLzclsybtURi4Vzun" class="modal-buttons">
+      <button data-page-node-id="afON6EUCXWCHEwVX3Cplxw" class="modal-btn secondary" data-act="closeModal" data-act-args='["immersiveSummaryModal"]'><!--pnid:yniZmcs1MwIDdvw8ck83fK-->关闭</button>
+      <button data-page-node-id="9bZm3oy8o4fz10UwEwhycZ" class="modal-btn secondary" data-act="drawImmersivePoster"><!--pnid:fni3Q1RfISPfWytTahH9Ah-->🎨 冒险海报</button>
+      <button data-page-node-id="8C0HC2WkMeZeCI3p829RBE" class="modal-btn primary" data-act="restartImmersiveAfterSummary"><!--pnid:I5elE7QQr8LFHsJ4LspHDt-->🔄 再来一轮</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:oywvXIR3QKfYfAbS17BsS0--><!-- 沉浸式专注：冒险总结海报 -->
+<div data-page-node-id="0VapOgbu4EvxxedhVhlbxW" class="modal-overlay" id="immersivePosterModal">
+  <div data-page-node-id="n9aU9ZXJD0kN1MTCLnAqAY" class="modal" style="max-width:430px; max-height:92vh; overflow-y:auto">
+    <button data-page-node-id="DfUDfwDPpOvZ1QipMEeQvL" aria-label="关闭" class="modal-close" data-act="closeModal" data-act-args='["immersivePosterModal"]'><!--pnid:YouRMlvykdRMIcBteQ0nJJ-->✕</button>
+    <h3 data-page-node-id="Ri7pMu4pTxnVh71yD3bdSs"><!--pnid:o43G3s5DVAKbvHz4KNyHCN-->🎨 冒险总结海报</h3>
+    <div data-page-node-id="TOz9kIlsZSyu8a0Oqj2PWE" style="font-size:var(--fs-body); color:var(--text-light); margin-bottom:var(--sp-10); line-height:1.5"><!--pnid:oosk36YBUgEHAwBQ9JybSK-->你的专属冒险战绩！长按下方图片可保存/分享（已压缩为轻量 JPEG，不会卡死）。</div>
+    <canvas data-page-node-id="vhuhBvK2FILA5GEtu5XCly" height="1440" id="imPosterCanvas" width="1080" style="width:100%; height:auto; border-radius:var(--radius-md); border:1px solid var(--border)"></canvas>
+    <img data-page-node-id="GWz7QSaVe1RT3tyYHmYtqi" alt="长按保存冒险海报" id="imPosterImg" style="display:none; width:100%; height:auto; border-radius:var(--radius-md); border:1px solid var(--border)">
+      <div data-page-node-id="CrOrzporieOVTUU9RaZssB" class="modal-buttons" style="margin-top:var(--sp-10)">
+      <button data-page-node-id="H17gxXz3bSHKVQvjtqKXJf" class="modal-btn secondary" data-act="closeModal" data-act-args='["immersivePosterModal"]' style="flex:1"><!--pnid:jXDg2qRRhJT941uKaTPB9v-->关闭</button>
+      <button data-page-node-id="brvAQEbb4GqvdjxFTIP7MR" class="modal-btn primary" data-act="saveImmersivePoster" style="flex:1"><!--pnid:iD4HPmDyexgQZpa0Sja7h9-->💾 保存图片</button>
+    </div>
+  </div>
+</div>
+
+<!-- 【5.4.6 沉浸式剧情副本 · 格式说明弹窗】 -->
+<div data-page-node-id="ImScHelpModal" class="modal-overlay" id="importedScriptHelpModal">
+  <div data-page-node-id="ImScHelpModalBody" class="modal" style="max-width:520px; max-height:88vh; overflow-y:auto">
+    <button data-page-node-id="ImScHelpClose" aria-label="关闭" class="modal-close" data-act="closeModal" data-act-args='["importedScriptHelpModal"]'><!--pnid:ImScHelpCloseT-->✕</button>
+    <h3 data-page-node-id="ImScHelpTitle" style="margin-bottom:var(--sp-8);">📋 副本 JSON 格式说明</h3>
+    <a data-page-node-id="ImScHelpBtnStore" href="https://docs.qq.com/doc/DR2haQ1FHZG1BRWJk" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:var(--sp-6);margin-bottom:var(--sp-10);padding:var(--sp-12) var(--sp-12);border-radius:var(--radius-md);background:linear-gradient(135deg,#722ED1,#9254DE 50%,#1890FF);color:var(--white);font-weight:800;font-size:var(--fs-body);letter-spacing:.3px;text-decoration:none;box-shadow:0 4px 14px rgba(114,46,209,.32);text-align:center;line-height:1.4;">🎁 现成副本 · 打开腾讯文档查看</a>
+    <div data-page-node-id="ImScHelpDesc" style="font-size:var(--fs-note); color:var(--text-light); margin-bottom:var(--sp-8); line-height:1.5;">把你的剧本写成一个 JSON 文件就能导入。副本会与内置剧本同构，进入「固定副本」抽卡池（固定/随机比例在 设置→🎮沉浸式专注 里可调）。</div>
+    <div id="imScriptHelpContent" data-page-node-id="imScriptHelpContent"></div>
+    <div id="imScriptHelpTip" data-page-node-id="imScriptHelpTip" style="margin-top:var(--sp-10); padding:var(--sp-8) var(--sp-10); background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); font-size:var(--fs-caption); color:var(--text-light); line-height:1.55;"></div>
+    <div data-page-node-id="ImScHelpBtns" class="modal-buttons" style="margin-top:var(--sp-10)">
+      <button data-page-node-id="ImScHelpBtnCopy" class="modal-btn secondary" data-act="copySampleScriptJson" style="flex:1">📋 复制示例 JSON</button>
+      <button data-page-node-id="ImScHelpBtnDl" class="modal-btn secondary" data-act="downloadSampleScriptJson" style="flex:1">📥 下载模板</button>
+      <button data-page-node-id="ImScHelpBtnClose" class="modal-btn primary" data-act="closeModal" data-act-args='["importedScriptHelpModal"]' style="flex:1">知道了</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:QmwIdunExbPUhyvZ4Rb0tQ--><!-- 记录详情 -->
+<div data-page-node-id="GMT1CIPPRWsqNQby3z4YH1" class="modal-overlay" id="recordDetailModal">
+  <div data-page-node-id="4CJXkuITjabULVm67cBCvF" class="modal" style="max-height:80vh; overflow-y:auto">
+    <h3 data-page-node-id="recDetTitleN" id="recordDetailTitle">📋 记录详情</h3>
+    <div data-page-node-id="L2VtZ7Nll3B6xzqxzhu9V8" id="recordDetailBody"></div>
+  </div>
+</div>
+
+<!--pnid:ZPGhElhd7LvSdTJLS6j7VH--><!-- 习惯详情 -->
+<div data-page-node-id="H8QM850rGfcuLkFZmUEybO" class="modal-overlay" id="habitDetailModal">
+  <div data-page-node-id="mIPdjBYzp2tzjH37mgfqdD" class="modal" style="max-height:80vh; overflow-y:auto">
+    <h3 data-page-node-id="habDetTitleN" id="habitDetailTitle">🌱 习惯详情</h3>
+    <div data-page-node-id="mXPXQRm0wFC92SQlvzYvmX" id="habitDetailBody"></div>
+  </div>
+</div>
+
+<!-- 新建 / 编辑习惯（2026-10-30）：
+     与「新增计划」同一副形态（右上角 ＋ → 这个弹窗 → 保存才落盘）。
+     节奏块由 repeatUIHtml('habit') 铺（与计划页同一份控件、同一套规则运算），
+     这里只留一个空容器 —— 控件随每次打开重铺，不写死在模板里。 -->
+<div class="modal-overlay" id="habitEditModal">
+  <div class="modal" style="max-height:86vh; overflow-y:auto">
+    <h3 id="habitEditTitle">🌱 新建习惯</h3>
+    <div class="setting-row">
+      <div class="setting-label">名称</div>
+      <input type="text" class="setting-input" id="habitEditName" maxlength="24" placeholder="例如：早睡 / 喝水 2L / 背单词" style="flex:1;text-align:left;">
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">分类</div>
+      <select class="setting-input" id="habitEditCat" style="flex:1;"></select>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">类型</div>
+      <select class="setting-input" id="habitEditPol" style="flex:1;">
+        <option value="good">养成：做到就打勾</option>
+        <option value="bad">戒除：今天没做就打勾</option>
+      </select>
+    </div>
+    <div style="margin-top:var(--sp-10)">
+      <div class="setting-label" style="margin-bottom:var(--sp-6)">节奏（哪天要做）</div>
+      <div id="habitRepeatBox"></div>
+    </div>
+    <!-- 排期：长在习惯这张卡上，控件全用计划卡的 —— .tf-chips 列已排的段、
+         .tf-chip--action「＋ 在日程表选」→ 去网格点两格。日程表里不留任何习惯痕迹。
+         用户原话：「我原先怎么给每个计划排日期你不知道吗？」+「为什么在日程表上放一堆习惯？」 -->
+    <div style="margin-top:var(--sp-10)">
+      <div class="setting-label" style="margin-bottom:var(--sp-6)">时段（几点做）</div>
+      <div id="habitBlockBox"></div>
+      <div id="habitEditLegacyHint" style="display:none;font-size:var(--fs-caption);color:var(--text-light);margin-top:var(--sp-6);line-height:1.6;"></div>
+    </div>
+    <!-- 单日：和计划的「单日」同一套语义 —— 这天整组覆盖规则时段，× 恢复。
+         用户原话：「计划不是可以支持给单独哪天排期吗？习惯不支持，复用一下」。 -->
+    <div style="margin-top:var(--sp-10)">
+      <div class="setting-label" style="margin-bottom:var(--sp-6)">单日（某天不一样）</div>
+      <div id="habitDayPlanBox"></div>
+    </div>
+    <div style="margin-top:var(--sp-12)">
+      <div class="setting-label" style="margin-bottom:var(--sp-6)">子计划（可选 · 每步可排期）</div>
+      <div id="habitSubBox"></div>
+    </div>
+    <div style="margin-top:var(--sp-12)">
+      <div class="setting-label" style="margin-bottom:var(--sp-6)">说明（可选）</div>
+      <textarea id="habitEditNote" placeholder="为什么做这件事 / 做到什么算数" style="width:100%;padding:var(--sp-8);border:1px solid var(--border-strong);border-radius:var(--radius-sm);min-height:64px;font-family:inherit;"></textarea>
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn secondary" data-act="closeModal" data-act-args='["habitEditModal"]'>取消</button>
+      <button class="modal-btn primary" data-act="saveHabitEdit">保存</button>
+    </div>
+    <div class="modal-buttons" id="habitEditDel" style="display:none">
+      <button class="modal-btn danger" data-act="deleteHabitFromEdit">删除这个习惯</button>
+    </div>
+  </div>
+</div>
+
+<!-- 分类管理（2026-11-04）：新建 / 排序 / 删除收在一处。
+     原来「📁 分类」只能新建，分类多了以后顺序全凭建立顺序，改不了。 -->
+<div class="modal-overlay" id="habitCatModal">
+  <div class="modal" style="max-height:80vh; overflow-y:auto">
+    <h3>📁 分类管理</h3>
+    <div id="habitCatBody"></div>
+    <div class="modal-buttons">
+      <button class="modal-btn secondary" data-act="addHabitCat">＋ 新建分类</button>
+      <button class="modal-btn primary" data-act="closeModal" data-act-args='["habitCatModal"]'>关闭</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:VLszVgJO0Lvq2vqwKg9PgL--><!-- 个人历史 -->
+<div data-page-node-id="BpXQR5KKHvQnOSmvRIjxD8" class="modal-overlay history-modal" id="historyModal">
+  <div data-page-node-id="8A1jCCKT8C0T0jJW1v77oe" class="modal">
+    <h3 data-page-node-id="wUFm7hnTvSDH7jjDVW2CFx"><!--pnid:WwoMpk7gKmhaFue5VBt7l2-->📁 个人历史</h3>
+    <div data-page-node-id="IG65gPjcv3oXyCLx8W4eaF" id="historyBody"></div>
+    <div data-page-node-id="HRYv8X1jHowmydRA7ABmMM" class="modal-buttons">
+      <button data-page-node-id="l1eFh7mY28ArTRRYz8Iw0A" class="modal-btn primary" data-act="closeModal" data-act-args='["historyModal"]'><!--pnid:cLq7xTjTbbtClcXs2G2jM9-->关闭</button>
+    </div>
+  </div>
+</div>
+
+<div data-page-node-id="P1FKFTXGfLxrdHmngkwwpj" class="rank-feedback-toast" id="rankFeedbackToast"></div>
+
+<!-- 回顾（艾宾浩斯遗忘曲线） -->
+<div data-page-node-id="u7yoGV5Oe71vfPrRlGFc3p" class="modal-overlay" id="reviewModal">
+  <div data-page-node-id="3hB4N4XJQpBL8P1uHSPuYu" class="modal">
+    <h3 data-page-node-id="xcq4V8U7ksGthtBirdmifg"><!--pnid:sB6L4JqAkgD9GO0k1Fz1X5-->🧠 回顾</h3>
+    <div data-page-node-id="It1P05CNrATl5O7R4J9Pge" id="reviewModalBody" class="review-body"></div>
+    <div class="modal-buttons" style="margin-top:var(--sp-12)">
+      <button class="modal-btn secondary" data-act="closeModal" data-act-args='["reviewModal"]'>关闭</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:4CahOVj8lettePRbhxziVh--><!-- 回顾设置：已斩掉的天数（可恢复）+ 只看番茄的日志开关 -->
+<div data-page-node-id="f41zAOupILlOYBhL8Tu2kW" class="modal-overlay" id="reviewSettingsModal">
+  <div data-page-node-id="GpXojHiemXFHZqa6WgEnIK" class="modal">
+    <h3 data-page-node-id="EW7FUoKasHrYayFZaM0chY"><!--pnid:XD7FGTVnGgfosWnujZKXEj-->⚙️ 回顾设置</h3>
+    <div data-page-node-id="NR197gxjGNPUaASREFh0Ps" id="reviewSettingsBody" class="review-body"></div>
+    <div class="modal-buttons" style="margin-top:var(--sp-12)">
+      <button class="modal-btn secondary" data-act="closeModal" data-act-args='["reviewSettingsModal"]'>关闭</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:DofkpN2A0BOwBvwS0WjaAo--><!-- 补记记录 -->
+<div data-page-node-id="OpNO1F75hjoXUKx569NzOB" class="modal-overlay" id="addRecordModal">
+  <div data-page-node-id="ZB2B4UWJWYdC2og3V3lnst" class="modal">
+    <h3 data-page-node-id="yoagkKoOrypcCrsw4Od6Yg"><!--pnid:kgT8RvTbUA01KD5NZYaUL9-->补记一条记录</h3>
+    <div data-page-node-id="SUQndTen2bLDy56nAWJnoA" style="display:flex; gap:var(--sp-8); margin-bottom:var(--sp-10)">
+      <div data-page-node-id="UtowSOV6X5XhvdPpLouD3G" style="flex:1">
+        <label data-page-node-id="rib7xQsEHN74oks0p1jH0n" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4); display:block"><!--pnid:6FOBvy3KcjV4BKsubtCmMq-->日期</label>
+        <input data-page-node-id="tw2ktnD0kJ0Y94D0hq4iKP" id="addRecordDate" type="date" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
+      </div>
+      <div data-page-node-id="fMsB7NVMdSF9PEmP2Ih0I5" style="flex:1">
+        <label data-page-node-id="7Wa938N0HxHkX85Q5fCRwm" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4); display:block"><!--pnid:bbgjUavu0ReSLE3qEUPwsh-->开始时间</label>
+        <div data-page-node-id="9gv8RPlriKo1QmBBD2Ipkp" style="display:flex; gap:var(--sp-6); align-items:center">
+          <select data-page-node-id="ntXNjmPTQe6WWaPaeiajJP" id="addRecordHour" data-change="updateAddRecordEnd" style="flex:1; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)"></select>
+          <span data-page-node-id="EEKndqz5fyncTfRqZegMFY" style="font-size:var(--fs-title); color:var(--text-light)"><!--pnid:jkq1TYyJ7xFT4xP9Au8tu5-->:</span>
+          <select data-page-node-id="vilEifrUHdC2OVcX38evwf" id="addRecordMinute" data-change="updateAddRecordEnd" style="flex:1; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)"></select>
+        </div>
+      </div>
+    </div>
+    <div data-page-node-id="AvkoOLgiePxDVrvmXResCx" class="modal-form-group">
+      <label data-page-node-id="pqVS4WKdy5PzGfDALdkZk7" style="margin-bottom:var(--sp-4)"><!--pnid:U6ZUk2QYQIsqkwO0xN6dMG-->任务名称</label>
+      <input data-page-node-id="sS2YWMQH45Nnlj5XyEUNFC" id="addRecordTask" data-focus="__selfSelect" placeholder="未命名任务" type="text" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
+    </div>
+    <!-- 关联计划（选填）：原来只按「任务名精确匹配」找计划，名字差一个字就静默不关联，
+         记录在日志里看着像凭空冒出来的。这里给一个显式入口（见 saveAddRecord 的兼容分支）。 -->
+    <div data-page-node-id="Rt6YuQwLpKcVn3bXsA9dEf" style="display:flex; gap:var(--sp-8); margin-bottom:var(--sp-10)">
+      <div data-page-node-id="Hj2WqZxNvBmLpR7tYcK5Ua" style="flex:1">
+        <label data-page-node-id="Mn4TbVgHsPkLqZ8wXrD2Cy" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4); display:block"><!--pnid:Qw7ZxNcVbMkLpRt5YhJ3Ad-->关联计划（选填）</label>
+        <select data-page-node-id="Bv5NcXzLpQwRtYm7KdH2Sf" id="addRecordPlan" data-change="onAddRecordPlanChange" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
+          <option value=""><!--pnid:Lp3QwZxVbNcRmKt8YhJ5Dg-->不关联</option>
+        </select>
+      </div>
+      <div data-page-node-id="Ye8JhRtVbNcLmQw3ZdX5Kp" style="flex:1">
+        <label data-page-node-id="Cf2GzQwLpRtVbNx7YmK4Hd" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4); display:block"><!--pnid:Rt5YhJbVnLcQwZx9KmP3Df-->子任务（选填）</label>
+        <select data-page-node-id="Nx7KmVbLpQwRtYc4ZhJ6Sd" id="addRecordSub" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
+          <option value=""><!--pnid:Qw3ZxVbNcLmRtYk8JhP5Dg-->整条计划</option>
+        </select>
+      </div>
+    </div>
+    <div data-page-node-id="W0Lm9Y1kOf7FRNn8jh16ar" style="display:flex; gap:var(--sp-8); margin-bottom:var(--sp-10)">
+      <div data-page-node-id="z2d5lgOK4wuOlprxAoQfDQ" style="flex:1">
+        <label data-page-node-id="Oiri6mebTfKF9IUQiduiCU" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4); display:block"><!--pnid:90Qt9iLVOBwq8YgmITwdoN-->专注分钟</label>
+        <input data-page-node-id="aencju1fe53mLl2vGMgxdR" id="addRecordDuration" min="1" data-input="updateAddRecordEnd" type="number" value="25" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); text-align:center">
+      </div>
+      <div data-page-node-id="SbJAqz1rP6N6A3wmSpRzTk" style="flex:1">
+        <label data-page-node-id="FhXJe4SULPv0GeCt5DmXoX" style="font-size:var(--fs-title); color:var(--text-light); margin-bottom:var(--sp-4); display:block"><!--pnid:R67NcbQPVPB7eRdzAN4BlO-->类型</label>
+        <select data-page-node-id="xtsMYHgobPTOY56mKPyxfO" id="addRecordType" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm)">
+          <option data-page-node-id="yeKi0e5n5frFu6peisFSCQ" value="full"><!--pnid:LYBmoMQaAMlhpxUjCteyzW-->完整🍅</option>
+          <option data-page-node-id="K6BsZDJCxA462pmB9zmZXH" value="half"><!--pnid:uBou4VlyjjVhBMzz1crJlm-->半个🍅</option>
+          <option data-page-node-id="BQ3Qx6hmbw6f8ZtoXFisYd" value="incomplete"><!--pnid:yz7PIbpgZuOJgG8Ca6HmUk-->未完成</option>
+          <option value="log">仅记录（只记时间，不算番茄）</option>
+        </select>
+      </div>
+    </div>
+    <div data-page-node-id="SJ1ELAXwPsz5cl6Mu8ylo4" style="margin-bottom:var(--sp-10); background:#F2FBF2; border:1px dashed #4CAF50; border-radius:var(--radius-sm); padding:var(--sp-10) var(--sp-12); display:flex; justify-content:space-between; align-items:center">
+      <span data-page-node-id="eQDGkNJZnXGvn37d129xXT" style="font-size:var(--fs-title); color:var(--text-light)"><!--pnid:jS8hEyik7OI6FctTSxvHUC-->⏰ 结束时间（自动按专注分钟算）</span>
+      <span data-page-node-id="YrLMZDwIo7q2kbMxidDMGY" id="addRecordEndShow" style="font-size:var(--fs-hero); font-weight:700; color:var(--ok)"><!--pnid:iZLTB18UpNEJlTawpdO5mo-->09:25</span>
+    </div>
+    <div data-page-node-id="RKbootlIiA7Az4ihfMZofm" class="state-section" style="margin-bottom:var(--sp-10)">
+      <div data-page-node-id="0e1oPuQofkDNOubyW8yipI" class="state-section-title"><!--pnid:VI1dIrUb67mGDThotjykXl-->结束时的状态（选填）</div>
+      <div data-page-node-id="nMfkoMegZ9odfAQ8O9lrrC" class="state-row"><span data-page-node-id="IOLyk6yKQ0uupCJOxYUSNK" class="state-icon"><!--pnid:1Ek5wBryBIHnEfU7Ew2psR-->🔋</span><div data-page-node-id="1ufgZcrmveuJOVwB6A8Aru" class="grid-picker" id="addRecordEnergyPicker"></div><span data-page-node-id="9gcdl6Fas4jCZl0holzRFO" class="state-label" id="addRecordEnergyLabel"></span></div>
+      <div data-page-node-id="7buWtV7OFHWoODr4aZyY5J" class="state-row"><span data-page-node-id="LB7launp6Pf3PTdLy1ZMcb" class="state-icon"><!--pnid:2VYPvmtq77T52CL0uScN1s-->😊</span><div data-page-node-id="cNN1mrkDPbsLNVbLPxxHQb" class="grid-picker" id="addRecordMoodPicker"></div><span data-page-node-id="YZUiXIkRuhR9A6hlTn2v3i" class="state-label" id="addRecordMoodLabel"></span></div>
+    </div>
+    <div data-page-node-id="CYPIkvlQn4FSdWg485G5TZ" class="modal-buttons">
+      <button data-page-node-id="n2uw5afGzNVWTxveEllPlx" class="modal-btn secondary" data-act="closeModal" data-act-args='["addRecordModal"]'><!--pnid:ExUp9otT8vDnxhhCsLkdxL-->取消</button>
+      <button data-page-node-id="4WVZAzgQV0q15okDu9bYbN" class="modal-btn primary" data-act="saveAddRecord"><!--pnid:v9wYw38jtGcRpenDudN0yj-->保存</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:2nsmGZF8stzvXPLWQ4SSGW--><!-- 新增计划 -->
+<div data-page-node-id="0YRB0oJelm2f6wAhiOG8Nd" class="modal-overlay" id="addTodoModal">
+  <div data-page-node-id="6aRvzK75YZ44l0AnUQipq0" class="modal">
+    <h3 data-page-node-id="4cPFPnVDMyEGrON7C0kjH7"><!--pnid:PPoUqNMKIR9ADHCLZq2SjP-->➕ 新增计划</h3>
+    <div data-page-node-id="N4JnNHtPhrR9nQTfBg5K2Y" class="modal-form-group">
+      <label data-page-node-id="oDdWxZ7BZjndPQtlcla1JS"><!--pnid:zviGiddhIGrvI0CmXyurah-->任务标题</label>
+      <input data-page-node-id="fUba8KUkbi9A1tPzmtRQRI" id="addTodoTitle" placeholder="输入任务名称" type="text">
+    </div>
+    <div data-page-node-id="y7S5dNRl1qrUPnBUkP8Rgj" class="modal-form-group">
+      <label data-page-node-id="XWGOTRZr6wnd5drPF9zztQ"><!--pnid:KSV8RH1Mky2xqQfmqE15Jm-->详情备注</label>
+      <textarea data-page-node-id="OwJYnN6h6mGX1FmCcbNSWa" id="addTodoDetail" placeholder="具体要做什么…" style="min-height:60px"></textarea>
+    </div>
+    <div data-page-node-id="RVckOS0jvNl55lIPyMJKtE" class="modal-form-group">
+      <label data-page-node-id="HbqbykAzQxCW7O03YgOzb4" style="display:flex; align-items:center; justify-content:space-between; width:100%"><!--pnid:PejotTXuwOC0sRIE8La8we-->标签<span data-page-node-id="GAl5lrFd7ZaxGegBpQam7R" data-act="openTagManagerModal" style="cursor:pointer; font-size:var(--fs-caption); font-weight:700; color:var(--blue-dark); background:rgba(var(--blue-rgb),0.12); border:1px solid rgba(var(--blue-rgb),0.35); padding:var(--sp-2) var(--sp-10); border-radius:var(--radius-full)"><!--pnid:AwHy0OxKf5a0AhjwTUGnT9-->⚙ 管理标签</span></label>
+      <input data-page-node-id="iCg4Z3JQUcCPBIaQe6ERMB" id="addTodoTag" maxlength="8" placeholder="如：学习" type="text">
+      <div data-page-node-id="QJcvhZhoRrQ3ZNVzqLyPnq" class="used-tags-row" id="addTodoUsedTags" style="display:flex; flex-wrap:wrap; gap:var(--sp-4); margin-top:var(--sp-6)"></div>
+    </div>
+    <div class="modal-form-group">
+      <label>四象限</label>
+      <div id="addTodoQuadBox"></div>
+    </div>
+    <div data-page-node-id="ewijSCxsVAK2Kl84GOOEOE" class="modal-form-group">
+      <label data-page-node-id="36Zyf3vifXKZTgTCTOPv77"><!--pnid:ShOIdI9oH0gd92DJqrPQ83-->最晚完成日</label>
+      <input data-page-node-id="GiIgqI4zLIumLOXUCVZaKv" id="addTodoDeadline" type="date">
+    </div>
+    <div class="modal-form-group">
+      <label style="display:flex; align-items:center; justify-content:space-between; width:100%">排期<span class="add-help" id="addTodoExtraHelpBtn" role="button" tabindex="0" aria-expanded="false" aria-controls="addTodoExtraHelp" aria-label="排期怎么填" title="排期怎么填" data-stop="1" data-act="tbToggleAddExtraHelp" data-act-args='["@this"]' data-keys="Enter Space" data-keydown="tbToggleAddExtraHelp" data-keydown-args='["@this"]'>?</span></label>
+      <div class="add-block-row">
+        <label class="add-block-field">
+          <span class="add-block-tag">开始</span>
+          <span class="add-block-wrap"><input id="addTodoBlockStart" type="datetime-local" title="这段排期从几点开始；不填就是没排期"><span class="add-block-ghost" aria-hidden="true">选择年月日 时:分</span></span>
+        </label>
+        <label class="add-block-field">
+          <span class="add-block-tag">结束</span>
+          <span class="add-block-wrap"><input id="addTodoBlockEnd" type="datetime-local" title="这段排期到几点结束；留空按预计🍅自动算（每个 25 分）"><span class="add-block-ghost" aria-hidden="true">选择年月日 时:分</span></span>
+        </label>
+      </div>
+      <div id="addTodoExtraChips" class="tf-chips add-extra-chips"></div>
+      <div class="add-pomo-actions" style="margin-top:var(--sp-6)">
+        <span class="tf-chip tf-chip--action" id="addTodoExtraBtn" data-stop="1" data-act="todoExtraArmFromModal" title="收起弹窗，在日程表上点两格选一段时间">＋ 再加一段排期</span>
+      </div>
+      <div id="addTodoExtraHelp" class="add-extra-help" style="display:none;">上面「开始 → 结束」就是这条计划的第一段排期，两个框都能选到<b>年月日 + 时分</b>；不想排就都留空。<br>一段可以从今天排到明天，跨天也行 —— 每段各归各天。<br>一天里要占好几段时间，就点「＋ 再加一段排期」：弹窗收起 → 在日程表上点两格 → 点完自动回到这里，已排的段会列在下面。</div>
+    </div>
+    <div data-page-node-id="flmVv7HyfP5NLXTf7ImSu7" class="modal-form-group">
+      <label data-page-node-id="4PWQZJnGXCZcJEtSZBiqir"><!--pnid:vP3RnIx9olgNIHrtQJXNPu-->提醒</label>
+      <input data-page-node-id="kUixEAHgpIwyyhshvjB0bE" id="addTodoRemind" type="datetime-local" title="到点响一声；和排期没有关系，不填就不响">
+    </div>
+    <div data-page-node-id="RMzKxSCUjhutlJQa67OQKU" class="modal-form-group">
+      <label data-page-node-id="fLzc7rCXmWCq3m027XZtPP"><!--pnid:FQ8FAKFoWpXUhJn9nPVNVF-->预计🍅</label>
+      <div class="add-pomo-row">
+        <input data-page-node-id="rVmKZY1A5K4scI0V0f5I6b" id="addTodoPomodoros" min="0" max="999" placeholder="可空" step="0.5" type="number" data-input="syncAddTodoPomoQuick">
+      </div>
+      <div class="tf-chips add-pomo-quick" id="addTodoPomoQuick"></div>
+    </div>
+    <div class="modal-form-group">
+      <label>重复周期</label>
+      <div id="addTodoRepeatBox"></div>
+    </div>
+    <div data-page-node-id="SZD3Tn6jUlcCzs2X1hudoB" class="modal-form-group">
+      <label data-page-node-id="Ao5GCbt9PbkO4pUWBJ1u0r" style="display:flex; align-items:center; justify-content:space-between; width:100%"><!--pnid:DHJMkSLTnEX5GdWf1i8qSs-->子任务<span data-page-node-id="cEQLX9ltWqEQgOJh2InliT" data-act="addNewTodoSubRow" style="cursor:pointer; font-size:var(--fs-caption); font-weight:700; color:var(--blue-dark); background:rgba(var(--blue-rgb),0.12); border:1px solid rgba(var(--blue-rgb),0.35); padding:var(--sp-2) var(--sp-10); border-radius:var(--radius-full)"><!--pnid:155NsABZr18vTuWYkeDdcW-->＋ 添加子任务</span></label>
+      <div data-page-node-id="Tg0rBTcCptiGgvu69Tnmhi" id="addTodoSubsBox" style="display:flex; flex-direction:column; gap:var(--sp-6)"></div>
+      <div data-page-node-id="lflQvdGaZfPyYc4ZQzpK6c" style="font-size:var(--fs-caption); color:var(--text-light); margin-top:var(--sp-6); line-height:1.5"><!--pnid:y7QeMNPcv89F5ntnVwX1zr-->回车可快速加下一行 · 子任务在计划列表和计时页都能勾选</div>
+    </div>
+    <div data-page-node-id="dbHPAfU1wzehOq99Fvj9A0" class="modal-buttons">
+      <button data-page-node-id="T2ZMfVtYPJN52hAi8am2he" class="modal-btn secondary" data-act="closeModal" data-act-args='["addTodoModal"]'><!--pnid:CC4UDEitZYjwgCho0A6KzM-->取消</button>
+      <button data-page-node-id="BGS1jX4EdK0wJH2uL8h01D" class="modal-btn primary" data-act="confirmAddTodo"><!--pnid:0kpaz5Vmf02a9oanuOXDDB-->确定</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:srunIzmUDzYpIfjJped8y0--><!-- 标签管理弹窗（点选/删除/清空用过的标签） -->
+<div data-page-node-id="3klwZZsYGmXWGC4jRcT5w4" class="modal-overlay" id="tagManagerModal">
+  <div data-page-node-id="gxKNuNnvsQaDyprG9AZoxK" class="modal">
+    <h3 data-page-node-id="1W42kKaZOge0k9sNUuePG0"><!--pnid:u207J2agwgQvYvsu7tXLI1-->🏷️ 管理标签</h3>
+    <div data-page-node-id="PYIGcSMnU9MEd8LL3oXczA" style="font-size:var(--fs-note); color:var(--text-light); line-height:1.6; margin-bottom:var(--sp-10)"><!--pnid:ciWxRc3LNgwPV22i53o1bM-->这里是你用过的所有标签。点选可直接填到输入框；✕ 删除单个；不需要了可以清空。删除只影响候选列表，已存在任务上的标签保留。</div>
+    <div data-page-node-id="kWL2Z6J2R8MDtjA34LgJEs" id="tagManagerList" style="display:flex; flex-wrap:wrap; gap:var(--sp-6); max-height:280px; overflow-y:auto; padding:var(--sp-4)"></div>
+    <div data-page-node-id="f754s0nmrxPS8dTRDXURUg" class="modal-buttons">
+      <button data-page-node-id="sJ6vHxzLjVsr7j7XtE2HIc" class="modal-btn solid-danger" data-act="clearAllTags"><!--pnid:BWY46QvIx6cfck9GozgvWd-->🗑 清空全部</button>
+      <button data-page-node-id="p3QTtStKLSXTa9PhmiYvls" class="modal-btn secondary" data-act="closeModal" data-act-args='["tagManagerModal"]'><!--pnid:50MhYSbMUbZdEu1zpnfJZO-->关闭</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:ZAzMFUkVabLgdB7ICsiuc3--><!-- 倒数日 -->
+<div data-page-node-id="CpCSWKHqjIc1fzzjJGshns" class="modal-overlay" id="countdownModal">
+  <div data-page-node-id="nI2YpN0nqHyE41K7qsQ35T" class="modal">
+    <h3 data-page-node-id="aNVdJwZfIUFv0Z0sRO8ht3" id="countdownModalTitle"><!--pnid:0F6yKrKuqfkjDwJTKMoqHt-->➕ 新增倒数日</h3>
+    <div data-page-node-id="s2LU4vtvA8WI4KIzdDmHxV" class="modal-form-group">
+      <label data-page-node-id="anW7uw4HpcqZIE244hVqIE"><!--pnid:udZsHy0fFRdBuTE89QRRGV-->图标</label>
+      <select data-page-node-id="LkxPkcLKtcRPKCoRirXLVJ" id="countdownIcon" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)">
+        <option data-page-node-id="lc9Lztv2Y3OKpyemfztlec" value="📌"><!--pnid:ll2gndlkjvGCDGZjSYkYTb-->📌 重要</option>
+        <option data-page-node-id="9eNommfoTzv2mL2V9nyaRG" value="🎂"><!--pnid:sManNe5WceMxxFUGblBTSy-->🎂 生日</option>
+        <option data-page-node-id="z5BQRT6MXsqEjXwFAZQwUZ" value="📚"><!--pnid:ijW9LXVWUBNNKMpwKA7YWk-->📚 考试</option>
+        <option data-page-node-id="knrE1fessA5brvmBsu1mMh" value="✈️"><!--pnid:DN00ANfJb80bSOOMcOn9f9-->✈️ 旅行</option>
+        <option data-page-node-id="PAy05xjtiVxLuNUthTp7CH" value="💼"><!--pnid:XSgSyCLbbRCToJt3l5oC7I-->💼 工作</option>
+        <option data-page-node-id="j06wAhDijMCUh6ybgafBnL" value="🏃"><!--pnid:Nhl9Piv7A3OJxBhnIIizNj-->🏃 目标</option>
+        <option data-page-node-id="y6Y0MYYe6XGamkCuTTTqyA" value="🎉"><!--pnid:QRMBuOtczlRBvXDovXFHiy-->🎉 庆祝</option>
+        <option data-page-node-id="ryt6DW4i1kWuc9yVRfxLvd" value="❤️"><!--pnid:EmHmqZSTI5bPPHz66gEd1j-->❤️ 纪念日</option>
+      </select>
+    </div>
+    <div data-page-node-id="TRVckREGJ2bHfBXQxLGOVf" class="modal-form-group">
+      <label data-page-node-id="x8tk06OOWMNSseVxQ15VES"><!--pnid:svmsMEVBDTq2RUtaSWt02U-->事件名称</label>
+      <input data-page-node-id="kUIMX5IRFQ1nbE6J8SP3rk" id="countdownTitle" placeholder="例如：考研" type="text" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)">
+    </div>
+    <div data-page-node-id="BXJOT9qxJFpSjfL0QLemnj" class="modal-form-group">
+      <label data-page-node-id="0skf77QnIr1BzQGHZInoPJ"><!--pnid:9MHnTsiYNj0MYO7zS64yEB-->目标日期</label>
+      <input data-page-node-id="RMW6nXljyB1DQ2F2zSwxzz" id="countdownDate" type="date" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)">
+    </div>
+    <div class="modal-form-group">
+      <label>备注 <span style="color:var(--text-light);font-weight:400;">（可不填）</span></label>
+      <input id="countdownNote" placeholder="例如：带身份证、提前 30 分钟到" type="text" maxlength="40" style="width:100%; padding:var(--sp-8); border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:var(--fs-title)">
+    </div>
+    <div class="modal-form-group">
+      <label style="display:flex;align-items:center;gap:var(--sp-8);cursor:pointer;font-weight:600;">
+        <input id="countdownPinned" type="checkbox" style="width:20px;height:20px;flex-shrink:0;">
+        <span>📌 显示在计划页</span>
+      </label>
+      <div style="font-size:var(--fs-caption);color:var(--text-light);margin-top:var(--sp-4);">勾选的倒数日会出现在「计划」页顶部。一个都不勾时，计划页只显示最近的一个。</div>
+    </div>
+    <div data-page-node-id="YQvVlI6qkIaVMf7TJqPM2S" class="modal-buttons">
+      <button data-page-node-id="DMqzJ0Jz71LKsH50CU6SYQ" class="modal-btn secondary" data-act="closeModal" data-act-args='["countdownModal"]'><!--pnid:S2dLoV8Y0xiAQcpTN7YDjR-->取消</button>
+      <button data-page-node-id="4bps5C4UTIS5ZE213I3vJa" class="modal-btn danger" id="countdownDeleteBtn" data-act="deleteCountdown" data-act-args='["@global:editingCountdownId","countdownModal"]' style="display:none"><!--pnid:yyepplatVWP7MWavDfdDWP-->删除</button>
+      <button data-page-node-id="RTsdr6Abu3CjuUSSJugMhv" class="modal-btn primary" data-act="saveCountdown"><!--pnid:rgzuryPrRKDOYSwcixKQWl-->保存</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:FB6sY7OYOZ6wNPVCV9zQpq--><!-- 日记日历 -->
+<div data-page-node-id="BDArvP9LIVBEqJsWUzdGj8" class="modal-overlay calendar-modal" id="calendarModal">
+  <div data-page-node-id="DuDC6kqEMQwORBeOR6WC7X" class="modal">
+    <div data-page-node-id="8aqYP2n85eymC7bIjDUE4o" class="calendar-header">
+      <button data-page-node-id="NQG1PirJ9VoYZSmaXtPSkm" data-act="changeCalendarMonth" data-act-args='["-1"]' title="上一月"><!--pnid:bDwYWOcZ0GrXbbPdcOGh5S-->‹</button>
+      <h3 data-page-node-id="Msnfrc9AAgoEq6t5xBopGF" class="cal-title-host"><button class="cal-title-btn" id="calendarTitleBtn" data-act="openCalendarJump" title="点这里换年 / 换月" aria-label="选择年份和月份"><span id="calendarTitle"><!--pnid:jEqnpW72P7yLVttZ5Aka6e-->2026年8月</span><span class="ct-arrow">▾</span></button></h3>
+      <button data-page-node-id="Qm4xRpcQPk0LLVSJNHAGSh" data-act="changeCalendarMonth" data-act-args='["1"]' title="下一月"><!--pnid:Nzga2gaqnyBEMASGYnhu7N-->›</button>
+    </div>
+    <!-- 年月快速跳转（此前只能一月一月地翻，跨年很痛苦） -->
+    <div data-page-node-id="calJumpRow1" class="cal-jump" id="calendarJumpRow" style="display:none">
+      <div class="cal-jump-line">
+        <span class="cal-jump-lbl">年</span>
+        <button class="cal-jump-btn" data-act="changeCalendarYear" data-act-args='["-1"]'>‹ 上年</button>
+        <span class="cal-jump-val" id="calendarJumpYear">2026</span>
+        <button class="cal-jump-btn" data-act="changeCalendarYear" data-act-args='["1"]'>下年 ›</button>
+      </div>
+      <div class="cal-jump-line" id="calendarJumpMonths"></div>
+    </div>
+    <div data-page-node-id="w1NuTSClgZHIa15Sm4lIvr" class="calendar-grid" id="calendarGrid"></div>
+    <input data-page-node-id="iqBkNB8tBSzATBtyCa547q" class="calendar-search" id="calendarSearch" data-input="searchDiaries" data-input-args='["@value"]' placeholder="🔍 搜索日记关键词…" type="text">
+    <div data-page-node-id="v1ofZL9xMRMdpNvkPBsxAD" class="calendar-search-results" id="calendarSearchResults"></div>
+    <div data-page-node-id="rW8L2SaUQ7SnzHKw8Gmupi" class="modal-buttons">
+      <button data-page-node-id="e4HhpY3ojsTqH69oaSuZdj" class="modal-btn secondary" data-act="closeModal" data-act-args='["calendarModal"]'><!--pnid:47Vl19YUhLjVP6hl9c5SkJ-->关闭</button>
+      <button data-page-node-id="GdxpMAotuZD8bL9BAE2RBw" class="modal-btn primary" data-act="goToTodayDiary"><!--pnid:jwb7VGpIPGAQqpYiw2KflW-->📍 回到今天</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:i71LwUXL3pqZZPGsRpibHH--><!-- 专注记录日历 -->
+<div data-page-node-id="IkwpRNkC2hSiFI6GYipZVF" class="modal-overlay calendar-modal" id="logCalendarModal">
+  <div data-page-node-id="CQST6ZXTTU2C8niFjq2ASl" class="modal">
+    <h3 data-page-node-id="4wuLu6BG9SUemowovZWTa8" style="text-align:center; margin-bottom:var(--sp-10)"><!--pnid:E7RUZfvyiFhrIpfapt35FK-->📅 专注记录日历</h3>
+    <div data-page-node-id="D7qTsNwYOAoQ6S70dtaTLQ" class="calendar-header">
+      <button data-page-node-id="qxSoTHshVKHWN7KWL1bb7Q" data-act="changeLogCalendarMonth" data-act-args='["-1"]' title="上一月"><!--pnid:1oxXzcGkcsfYg7zZ01LF94-->‹</button>
+      <button data-page-node-id="sPugQkPBgkfjIxiL0EjGUN" class="cal-title-btn" data-act="toggleLogCalJump" title="点这里换年 / 换月" aria-label="选择年份和月份"><span id="logCalTitle"><!--pnid:l3FGwGmUgJTg2FodqdEMV5-->2026年8月</span><span class="ct-arrow">▾</span></button>
+      <button data-page-node-id="dh5qi7CA3YEEg3MKXgmSkE" data-act="changeLogCalendarMonth" data-act-args='["1"]' title="下一月"><!--pnid:dgHIgwsvnxpZFyTnQ68ugn-->›</button>
+    </div>
+    <div data-page-node-id="logCalJumpRow1" class="cal-jump" id="logCalJump" style="display:none">
+      <div class="cal-jump-line">
+        <span class="cal-jump-lbl">年</span>
+        <button class="cal-jump-btn" data-act="changeLogCalYear" data-act-args='["-1"]'>‹ 上年</button>
+        <span class="cal-jump-val" id="logCalJumpYear">2026</span>
+        <button class="cal-jump-btn" data-act="changeLogCalYear" data-act-args='["1"]'>下年 ›</button>
+      </div>
+      <div class="cal-jump-line" id="logCalJumpYears"></div>
+      <div class="cal-jump-line" id="logCalJumpMonths"></div>
+    </div>
+    <div data-page-node-id="7ivKjwwNBVvFpAhxcOynnr" class="calendar-grid" id="logCalGrid"></div>
+    <div data-page-node-id="6OMmGrfU45JqeU5u03HWGf" style="text-align:center; font-size:var(--fs-body); color:var(--text-light); margin-bottom:var(--sp-10)"><!--pnid:Wv1acCvjNgDeLdbasovjEv-->数字 = 这天的番茄数 · 点日期看当天</div>
+    <div data-page-node-id="wQbT0PIqKzJbbVca9srpD1" class="modal-buttons" style="flex-wrap:wrap; gap:var(--sp-6)">
+      <button data-page-node-id="logCalAllBtn001" class="modal-btn secondary" data-act="logRangeAll">全部时间</button>
+      <button data-page-node-id="logCalMonBtn001" class="modal-btn secondary" data-act="logRangeThisMonth">看整月</button>
+      <button data-page-node-id="Y4PQrUOVY8ZhDvkuk7LZyK" class="modal-btn primary" data-act="logRangeToday"><!--pnid:UfVVKTXf8xZFmzgSeEpN28-->📍 今天</button>
+    </div>
+  </div>
+</div>
+
+<!-- 传记日历：按年 / 月 / 日定位（十年数据靠它跳，不靠翻月份下拉） -->
+<div data-page-node-id="bioCalModalRoot1" class="modal-overlay calendar-modal" id="bioCalModal">
+  <div data-page-node-id="bioCalModalBox01" class="modal">
+    <h3 data-page-node-id="bioCalModalHead01" style="text-align:center; margin-bottom:var(--sp-10)">📅 传记日历</h3>
+    <div data-page-node-id="bioCalHeaderRow1" class="calendar-header">
+      <button data-page-node-id="bioCalPrevBtn01" data-act="changeBioCalMonth" data-act-args='["-1"]' title="上一月">‹</button>
+      <button data-page-node-id="bioCalTitleBtn01" class="cal-title-btn" data-act="toggleBioCalJump" title="点这里换年 / 换月" aria-label="选择年份和月份"><span id="bioCalTitle">2026年10月</span><span class="ct-arrow">▾</span></button>
+      <button data-page-node-id="bioCalNextBtn01" data-act="changeBioCalMonth" data-act-args='["1"]' title="下一月">›</button>
+    </div>
+    <div data-page-node-id="bioCalJumpRow01" class="cal-jump" id="bioCalJump" style="display:none">
+      <div class="cal-jump-line">
+        <span class="cal-jump-lbl">年</span>
+        <button class="cal-jump-btn" data-act="changeBioCalYear" data-act-args='["-1"]'>‹ 上年</button>
+        <span class="cal-jump-val" id="bioCalJumpYear">2026年</span>
+        <button class="cal-jump-btn" data-act="changeBioCalYear" data-act-args='["1"]'>下年 ›</button>
+      </div>
+      <div class="cal-jump-line" id="bioCalJumpYears"></div>
+      <div class="cal-jump-line" id="bioCalJumpMonths"></div>
+    </div>
+    <div data-page-node-id="bioCalGridBox01" class="calendar-grid" id="bioCalGrid"></div>
+    <div data-page-node-id="bioCalTipRow001" style="text-align:center; font-size:var(--fs-body); color:var(--text-light); margin-bottom:var(--sp-10)">数字 = 这天有几条 · 点日期只看那天</div>
+    <div data-page-node-id="bioCalBtnsRow01" class="modal-buttons">
+      <button data-page-node-id="bioCalAllBtn001" class="modal-btn secondary" data-act="bioCalAll">全部时间</button>
+      <button data-page-node-id="bioCalTodayBtn1" class="modal-btn secondary" data-act="bioCalToday">📍 今天</button>
+      <button data-page-node-id="bioCalCloseBtn1" class="modal-btn primary" data-act="closeModal" data-act-args='["bioCalModal"]'>关闭</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:QjGUGwWy8ZoNf4dUgWcwIB--><!-- 白噪音 -->
+<!--pnid:Cd0ro6KjemjRyI1Rvkonb1--><!-- 树命名弹窗 -->
+    <div data-page-node-id="h7PKYNJTybsZup8GwPDE0C" class="modal-overlay" id="treeNameModal" data-self="1" data-act="closeModal" data-act-args='["treeNameModal"]'>
+      <div data-page-node-id="29T42eIiS6hKSHWg7BqB9V" class="modal" style="width:300px; text-align:center">
+        <div data-page-node-id="fDy0UUmQr1vcb8rtwwzwCQ" id="treeNameModalIcon" style="font-size: calc(34px * var(--fs-boost)); line-height:1"><!--pnid:DDcROJyywkkls40Jlt11sp-->🌱</div>
+        <h3 data-page-node-id="xCDdWcd4azNg1Z2hgpHxOy" style="font-size:var(--fs-title); margin:var(--sp-8) 0 var(--sp-2); color:var(--text)"><!--pnid:34FzEcMzcD173FKFx1j8jx-->给树取个名字</h3>
+        <div data-page-node-id="f64HFAFxjUAlweYfROzh5R" style="font-size:var(--fs-body); color:var(--text-light); margin-bottom:var(--sp-14)"><!--pnid:weCf4BiHBkA0TTlN8Cyd5j-->每棵树都有自己的名字，可以改成你喜欢的</div>
+        <div data-page-node-id="Y6Hs29EDCtphW6OB0WhGn8" id="renameCardHint" style="font-size:var(--fs-note); margin-bottom:var(--sp-10); min-height:18px"></div>
+        <input data-page-node-id="nIfbWw22ZaYHT9QdXM0Dm9" id="treeNameInput" maxlength="8" data-keys="Enter" data-keydown="saveTreeName" placeholder="默认名「小番茄」，可修改" type="text" style="width:100%; padding:var(--sp-10) var(--sp-12); font-size:var(--fs-title); border:1.5px solid var(--border); border-radius:var(--radius); background:var(--bg); color:var(--text); outline:none; box-sizing:border-box; text-align:center">
+        <div data-page-node-id="AIQsY3QhUwZFpsJ2uSj5u8" class="modal-buttons" style="margin-top:var(--sp-14)">
+          <button data-page-node-id="wDx6e15d8yA5BHsA4FUXIk" class="modal-btn primary" data-act="saveTreeName"><!--pnid:jUnTleaIJAJz4gyNHC8sVs-->💕 起名</button>
+          <button data-page-node-id="euENMdRHwA4cTI5WAd8Kct" class="modal-btn secondary" data-act="clearTreeName"><!--pnid:8LarGuii4FAzcRO2XBfPBq-->恢复默认</button>
+        </div>
+      </div>
+    </div>
+    <div data-page-node-id="VZ1NI8uWN8TyrgvwZCmDqR" class="modal-overlay" id="noiseModal">
+  <div data-page-node-id="HLY7CEd5sxhXftmCaparUj" class="modal" style="max-height:85vh; overflow-y:auto">
+    <h3 data-page-node-id="iu0F5uzHr3ziooJwD1YePB" style="text-align:center; margin-bottom:var(--sp-8)"><!--pnid:uvUzAEBqu0zpNmj1ITN3kc-->🎵 白噪音</h3>
+    <div data-page-node-id="HQGJSOToOaLUQp3aotopoS" class="noise-tabs">
+      <div data-page-node-id="W8VTYM17ZPHEYI3c7amctL" class="noise-tab active" data-tab="builtin" data-act="switchNoiseTab" data-act-args='["builtin"]'>🎧 内置白噪音</div>
+      <div data-page-node-id="MyPlTabBtn001" class="noise-tab" data-tab="mypl" data-act="switchNoiseTab" data-act-args='["mypl"]'>📋 我的歌单</div>
+    </div>
+    <div data-page-node-id="zrIvGHNPtPAp5KZcNPWubL" id="noiseBuiltin">
+      <div data-page-node-id="AJEShIL6IbJvxiVBEcWW3S" class="noise-builtin">
+        <div data-page-node-id="i48qbfhDbCDYXSMIbnYq8H" class="noise-now" id="noiseNow"><span data-page-node-id="4JAQbfSYDxvCHQdEr5RO6d" class="now-icon"><!--pnid:uZORPhlsCjVcZ59D7TFTpL-->🌧️</span><span data-page-node-id="8rpJdx8HMp7wtBLpdTbKlP" id="noiseNowName"><!--pnid:71a59m3twA533EGxeoZrxT-->雨声</span></div>
+        <div data-page-node-id="qv70cHCe4JDdVoqH1Gu6kF" class="noise-controls">
+          <button data-page-node-id="uwF5O4fVzJiWPgAmkbsGWU" class="btn-circle" data-act="prevNoise" title="上一首"><!--pnid:5cKD20pipvq78q4ob4UgJG-->⏮</button>
+          <button data-page-node-id="4pl49nFYJQKtuBupYiLYrK" class="btn-circle primary" id="noisePlayBtn" data-act="toggleNoise" title="播放/暂停"><!--pnid:XXWgSymtJWZSPb4FWBT4rd-->▶</button>
+          <button data-page-node-id="prltYVg5Gan7BeWlZg2xw9" class="btn-circle" data-act="nextNoise" title="下一首"><!--pnid:5BPaoL2GOxFIlxHLjaYkUG-->⏭</button>
+        </div>
+        <div data-page-node-id="5Fv33I3fl10nucrBtlNmGG" class="noise-vol">
+          <span data-page-node-id="sAcj4Zj4Siee0SKGFlbHfO"><!--pnid:rgQj2E6fP7aZQ1J6foYy4l-->🔈</span>
+          <input data-page-node-id="Rfp6X7PPwIzIykI20QIHGc" id="noiseVol" max="100" min="0" data-input="setNoiseVolume" data-input-args='["@value/100"]' type="range" value="40">
+          <span data-page-node-id="qeSbKcdg5D55TS2I6CLG3N"><!--pnid:4aqpo5XnZ8fKdleSnFQD6c-->🔊</span>
+        </div>
+        <div data-page-node-id="AhqicBlj0wCLEenvXCIfQp" class="noise-hint"><!--pnid:Cgcx9vExLBAVcchdeLdt0E-->网易云官方直链播放真实录音 · 单曲失效自动跳下一首<br data-page-node-id="EPJBQMDPUUEvvr56sEweSt"><!--pnid:BokCZpfIHdqU5DZ37Eobz7-->如需更多歌曲可切到「我的歌单」tab 自行添加</div>
+        <audio data-page-node-id="r4hAWJjTwcN82F1pKBAyit" id="noiseAudio" loop preload="none" style="display:none"></audio>
+      </div>
+    </div>
+    <div id="noiseMypl" style="display:none">
+      <div class="mypl-wrap">
+        <div class="noise-now" id="myplNow"><span class="now-icon">🎵</span><span id="myplNowName">未播放</span></div>
+        <div class="noise-controls">
+          <button class="btn-circle" data-act="myplPrev" title="上一首">⏮</button>
+          <button class="btn-circle primary" id="myplPlayBtn" data-act="myplToggle" title="播放/暂停">▶</button>
+          <button class="btn-circle" data-act="myplNext" title="下一首">⏭</button>
+        </div>
+        <div class="noise-vol">
+          <span>🔈</span>
+          <input id="myplVol" max="100" min="0" data-input="myplSetVol" data-input-args='["@value/100"]' type="range" value="40">
+          <span>🔊</span>
+        </div>
+        <div style="margin-top:var(--sp-10); padding-top:var(--sp-8); border-top:1px solid var(--border);">
+          <div style="font-size:var(--fs-note); font-weight:700; color:var(--text); margin-bottom:var(--sp-6);">➕ 添加歌曲</div>
+          <div class="mypl-add-row">
+            <input type="text" id="myplInput" placeholder="粘贴网易云歌曲链接或ID，如 1409940952">
+            <button class="mypl-add-btn" data-act="myplAddFromInput">添加</button>
+          </div>
+          <div class="mypl-batch-area">
+            <textarea id="myplBatchInput" placeholder="批量导入：每行一个歌曲ID或分享链接，如&#10;1409940952&#10;1871223092&#10;https://music.163.com/song?id=1355263448"></textarea>
+            <button class="mypl-batch-btn" data-act="myplBatchImport">📥 批量导入</button>
+          </div>
+        </div>
+        <div style="margin-top:var(--sp-10); padding-top:var(--sp-8); border-top:1px solid var(--border);">
+          <div style="font-size:var(--fs-note); font-weight:700; color:var(--text); margin-bottom:var(--sp-4);">🎵 我的歌曲列表</div>
+          <div class="mypl-list" id="myplList"></div>
+        </div>
+        <div class="noise-hint">网易云官方直链播放 · 列表永久保存在本地<br>单曲失效会自动跳下一首 · 歌曲ID可从网易云网页版URL获取</div>
+        <audio id="myplAudio" loop preload="none" style="display:none"></audio>
+      </div>
+    </div>
+    <div data-page-node-id="8MQPgvFrsbcLyK7Fg4ZESj" class="modal-buttons" style="margin-top:var(--sp-12)">
+      <button data-page-node-id="dm9tDemwKcUNPcmR7gWqeH" class="modal-btn secondary" data-act="closeNoiseModal"><!--pnid:CgW351LacHLdkv6pRV1kDm-->关闭</button>
+    </div>
+  </div>
+</div>
+
+<!--pnid:OdPTIw2gg6ufzb4WXS46U9--><!-- 沉浸模式 -->
+<div data-page-node-id="ryKU8iLbSvzI8Gxmj2yNpC" class="immersion-mode" id="immersionMode" data-act="toggleImmersion">
+  <div data-page-node-id="Zmfj0qczXahs5gfp0v1Rb4" class="immersion-time" id="immersiveTime"><!--pnid:3UEni1WNPf5m7O7GPN4Tbl-->25:00</div>
+  <div data-page-node-id="PqWxMtTKAmS2Pszr7ENq3J" class="immersion-task" id="immersiveTask"><!--pnid:S25eNl3GNoY4nLr3xn6D0z-->未命名任务</div>
+  <div data-page-node-id="Kw7Ty9JBQL3vso2s36dL9Q" class="immersion-exit-hint"><!--pnid:OOW2dVF21ES5sUr3s9Qu0S-->点击屏幕退出全屏专注</div>
+</div>
+
+<div data-page-node-id="7ZLBLQNi4J2lf0yaSRWBa9" class="toast-container" id="toastContainer"></div>
+<div data-page-node-id="3tgTxBKBepfcfQnXrGkRp7" class="auto-save-hint" id="autoSaveHint"><!--pnid:rMObfLBbPZlOBGwVGCGLiq-->已自动保存</div>
+<!--pnid:O9mtsbTMEW7i3Bf6JF3wMq--><!-- 日志页右下角：逐天跳转箭头（放 body 直接子级，避免视图动画 transform 破坏 fixed 定位） -->
+<button data-page-node-id="wDfcL7distEcWgMaS8Zlnt" id="logJumpArrow" data-act="jumpLogDay" title="跳到下一天记录" style="display:none"><!--pnid:wTkVQLWnSsHZoH0PswbT7h-->↓</button>
+

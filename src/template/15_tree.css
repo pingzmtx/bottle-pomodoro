@@ -1,0 +1,749 @@
+/* ---------- 8. 番茄树 ---------- */
+.tree-container {
+  text-align: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-16);
+  margin-bottom: var(--sp-14);
+  box-shadow: none;
+}
+.tree-visual { font-size: calc(64px * var(--fs-boost)); line-height: 1; margin: var(--sp-8) 0; }
+.tree-progress { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-4); font-weight: 700; }
+.tree-progress-bar { height: 10px; background: #eee; border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); }
+.tree-progress-fill { height: 100%; background: var(--green); border-radius: var(--radius-xs); transition: width 0.3s; }
+.harvest-item { font-size:var(--fs-title); color: var(--text-light); padding: var(--sp-6) 0; border-bottom: 1px solid #eee; }
+
+/* 树种选择器 */
+.tree-species-bar { display: flex; gap: var(--sp-6); justify-content: center; flex-wrap: wrap; margin-bottom: var(--sp-10); }
+.tree-species-btn {
+  padding: var(--sp-6) var(--sp-10);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  font-size:var(--fs-title);
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  transition: transform .12s, background .15s;
+}
+.tree-species-btn:active { transform: scale(0.93); }
+.tree-species-btn.active { background: var(--green); color: var(--white); border-color: var(--green-dark); }
+.tree-species-btn.locked { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.6); }
+.tree-species-btn .sp-icon { font-size:var(--fs-sub); }
+.tree-species-btn.species-folded { display: none; }
+.tree-species-more {
+  padding: var(--sp-6) var(--sp-10);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  font-size:var(--fs-body);
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+}
+.tree-species-more:active { transform: scale(0.93); }
+.tree-species-btn.recommended { border-color: var(--yellow); box-shadow: 0 0 6px rgba(255,193,7,0.5); position: relative; }
+.tree-species-btn.recommended::after {
+  content: '推荐';
+  position: absolute;
+  top: -8px; right: -4px;
+  font-size:var(--fs-caption);
+  font-weight: 500;
+  color: var(--white);
+  background: var(--yellow);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+/* 季节指示器 */
+.tree-season-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  font-size:var(--fs-title);
+  font-weight: 700;
+  padding: var(--sp-2) var(--sp-10);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  margin-bottom: var(--sp-8);
+}
+.tree-season-badge.spring { background: #FFF0F5; color: #E91E63; border-color: #F8BBD0; }
+.tree-season-badge.summer { background: var(--ok-bg); color: var(--ok); border-color: var(--ok-line); }
+.tree-season-badge.autumn { background: #FFF8E1; color: var(--accent-ink); border-color: #FFCC80; }
+.tree-season-badge.winter { background: var(--info-bg); color: var(--info-ink); border-color: var(--info-line); }
+.tree-season-hint { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-2); margin-bottom: var(--sp-6); line-height: 1.5; }
+.tree-season-hint b { color: var(--text); }
+
+/* 果实收获 */
+.tree-fruit-section { margin-top: var(--sp-12); padding: var(--sp-10); background: var(--bg); border: 2px dashed var(--border); border-radius: var(--radius); }
+.tree-fruit-display { display: flex; align-items: center; justify-content: center; gap: var(--sp-8); margin-bottom: var(--sp-8); }
+.tree-fruit-icon { font-size: calc(34px * var(--fs-boost)); animation: fruitBounce 2s ease-in-out infinite; }
+@keyframes fruitBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.tree-fruit-count { font-size:var(--fs-sub); font-weight: 800; color: var(--primary-ink); }
+.tree-fruit-empty { font-size:var(--fs-title); color: var(--text-light); text-align: center; padding: var(--sp-4); }
+
+/* 树阶段信息 */
+.tree-stage-info { display: flex; align-items: center; justify-content: center; gap: var(--sp-6); margin-top: var(--sp-6); font-size:var(--fs-title); }
+.tree-stage-info .tsi-name { font-weight: 800; color: var(--text); }
+.tree-stage-info .tsi-species { font-size:var(--fs-title); color: var(--text-light); background: var(--bg); padding: var(--sp-2) var(--sp-8); border-radius: var(--radius-xs); border: 1px solid var(--border); }
+
+/* 称号 / 浇水 / 图鉴 */
+.tree-top-row { display: flex; align-items: center; justify-content: center; gap: var(--sp-10); margin-bottom: var(--sp-8); flex-wrap: wrap; }
+/* 金币抽奖 */
+.tree-lottery { margin-top: var(--sp-10); padding: var(--sp-8) var(--sp-10); background: linear-gradient(135deg,#FFF8E1,#FFEFD2); border: 2px dashed #FFD98A; border-radius: var(--radius); }
+.tree-lottery-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-4); }
+.tree-lottery-title { font-size:var(--fs-title); font-weight: 800; color: #8D6E63; }
+.tree-lottery-count { font-size:var(--fs-body); font-weight: 600; color: var(--text); background: var(--white); border: 1px solid #FFD98A; border-radius: var(--radius-full); padding: var(--sp-2) var(--sp-10); }
+.tree-lottery-row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); }
+.tree-lottery-tip { font-size:var(--fs-note); color: var(--text-light); line-height: 1.4; }
+.tree-lottery-btn { background: var(--fill-primary); color: var(--on-fill); border: none; border-radius: var(--radius); padding: var(--sp-6) var(--sp-14); font-size:var(--fs-body); font-weight: 600; flex-shrink: 0; }
+.tree-lottery-btn:active { transform: scale(.95); }
+.tree-lottery-btn.disabled { background: #ccc; color: var(--white); }
+.tree-lottery-result { margin-top: var(--sp-6); min-height: 26px; text-align: center; font-size:var(--fs-hero); font-weight: 900; color: var(--yellow-ink); }
+.tree-lottery-result .tl-lucky { font-size:var(--fs-note); font-weight: 600; color: #E91E63; margin-left: var(--sp-6); }
+.tree-lottery-result.tl-pop { animation: badgePop .5s ease; }
+/* 神秘际遇 */
+.mystery-box { margin-top: var(--sp-10); padding: var(--sp-8) var(--sp-10); background: linear-gradient(135deg,#EDE7F6,#E8EAF6); border: 2px dashed #B39DDB; border-radius: var(--radius); }
+.mystery-title { display: flex; align-items: center; font-size:var(--fs-title); font-weight: 800; color: #5E35B1; cursor: pointer; user-select: none; }
+.mystery-row { display: flex; align-items: center; gap: var(--sp-8); padding: var(--sp-6) var(--sp-4); border-bottom: 1px solid #D1C4E9; }
+.mystery-row:last-child { border-bottom: none; }
+.mystery-row .ms-icon { font-size:var(--fs-sub); }
+.mystery-row .ms-info { flex: 1; min-width: 0; }
+.mystery-row .ms-name { display: block; font-size:var(--fs-body); font-weight: 600; color: var(--text); }
+.mystery-row .ms-desc { display: block; font-size:var(--fs-note); color: var(--text-light); }
+.mystery-row.done .ms-name { color: var(--green-ink); }
+.mystery-claim { background: var(--green); color: var(--white); border: none; border-radius: var(--radius-sm); padding: var(--sp-4) var(--sp-10); font-size:var(--fs-note); font-weight: 600; }
+.mystery-tip { font-size:var(--fs-note); color: var(--text-light); margin-top: var(--sp-6); line-height: 1.5; }
+.tree-title-badge {
+  font-size:var(--fs-title);
+  font-weight: 800;
+  padding: var(--sp-4) var(--sp-12);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, #FFF8E1, #FFE0B2);
+  color: #B36A00;
+  box-shadow: var(--shadow-sm);
+}
+.tree-title-badge .tt-star { color: var(--gold); text-shadow: 0 0 4px rgba(255,215,0,.6); }
+.tree-shop-btn {
+  font-size:var(--fs-body);
+  font-weight: 600;
+  color: var(--white);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-6) var(--sp-12);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  -webkit-tap-highlight-color: transparent;
+}
+.tree-shop-btn:active { transform: translate(1px,1px); box-shadow: 0 0 0 var(--border-strong); }
+
+.tree-scene {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: var(--sp-16) var(--sp-10) var(--sp-14);
+  margin: 6px auto 8px;
+  max-width: 280px;
+  position: relative;
+}
+/* ---------- 自定义皮肤：树木背景 / 计时器壁纸（上传图片垫底展示） ---------- */
+.tree-custom-bg, .timer-wallpaper {
+  position: absolute; top:0;right:0;bottom:0;left:0;pointer-events: none;
+  background-position: center; background-size: cover; background-repeat: no-repeat;
+}
+/* 边框修复：top:-2px;right:让背景图延伸到;bottom:border;left:下方，消除图片边缘与边框的间隙； border-radius: var(--radius-md); overflow: hidden; top:-2px;right:-2px;bottom:-2px;left:-2px }
+/* 壁纸必须真正垫底：z-index:-1 把图片压到普通内容之下（旧版 z-index:0 会让壁纸罩在
+   计时器内容上面，一旦不透明度拉高就把整个页面盖住）。#view-timer 用 isolation
+   建立层叠上下文，保证 -1 层只垫在内容下方、不会穿到页面背景底下。 */
+.timer-wallpaper { z-index: -1; }
+#view-timer { position: relative; isolation: isolate; }
+/* 开启壁纸时：把计时页的卡片/按钮变半透明，让壁纸从底下透出来，才是真正的壁纸效果 */
+#view-timer.has-wallpaper .timer-circle { background: rgba(255,255,255,.62); }
+#view-timer.has-wallpaper .btn-start { background: rgba(212,237,218,.62); }
+#view-timer.has-wallpaper .btn-finish { background: rgba(209,236,241,.62); }
+#view-timer.has-wallpaper .btn-interrupt { background: rgba(255,243,205,.62); }
+#view-timer.has-wallpaper .end-session-btn,
+#view-timer.has-wallpaper #encourageText,
+#view-timer.has-wallpaper .current-todo-section,
+#view-timer.has-wallpaper .today-stats,
+#view-timer.has-wallpaper .timer-rank-strip,
+#view-timer.has-wallpaper .timer-badge.show { background: rgba(255,255,255,.62); }
+#view-timer.has-wallpaper .current-todo-select { background: rgba(255,255,255,.7); }
+/* 商店皮肤滑杆 */
+.skin-slider { display: flex; align-items: center; gap: var(--sp-8); margin-top: var(--sp-6); }
+.skin-slider .ss-label { font-size:var(--fs-caption); color: var(--text-light); font-weight: 500; white-space: nowrap; min-width: 52px; }
+.skin-slider .ss-val { font-size:var(--fs-caption); color: var(--primary-ink); font-weight: 500; min-width: 42px; text-align: right; }
+.skin-slider input[type=range] { flex: 1; min-width: 0; accent-color: var(--primary); height: 22px; }
+.skin-tip { font-size:var(--fs-caption); color: var(--text-light); line-height: 1.55; margin-top: var(--sp-6); }
+.skin-shop-item { border: 1px solid var(--border); border-radius: var(--radius); padding: var(--sp-10) var(--sp-12); margin-bottom: var(--sp-10); background: var(--bg); }
+.skin-shop-item .skin-head { display: flex; align-items: center; gap: var(--sp-8); }
+.skin-shop-item .skin-icon { font-size:var(--fs-h1); line-height: 1; }
+.skin-shop-item .skin-name { font-size:var(--fs-body); font-weight: 600; color: var(--text); }
+.skin-shop-item .skin-state { font-size:var(--fs-caption); color: var(--text-light); font-weight: 500; margin-left: auto; }
+.skin-shop-item .skin-desc { font-size:var(--fs-caption); color: var(--text-light); line-height: 1.55; margin-top: var(--sp-4); }
+.skin-actions { display: flex; flex-wrap: wrap; gap: var(--sp-6); margin-top: var(--sp-8); }
+.skin-preview { width: 100%; height: 92px; border-radius: var(--radius); border: 1px solid var(--border); margin-top: var(--sp-8); background-size: cover; background-position: center; background-color: var(--surface-2, var(--bg)); }
+/* ===== 壁纸拖拽定位：全屏遮罩（透明，露出真实计时页做画布）+ 目标圈 + 底部工具条 ===== */
+#skinDragModal {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 300;
+  background: rgba(0,0,0,0.28);
+  cursor: grab;
+  touch-action: none;
+  overflow: hidden;
+}
+#skinDragModal.show { display: block; }
+#skinDragRing {
+  position: absolute;
+  border: 2px dashed rgba(255,255,255,0.95);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(0,0,0,0.35), 0 0 18px rgba(255,255,255,0.35) inset;
+  pointer-events: none;
+  display: none;
+  animation: dragRingPulse 1.2s ease-in-out infinite;
+}
+@keyframes dragRingPulse { 0%,100% { transform: scale(1); opacity: .95; } 50% { transform: scale(1.04); opacity: .75; } }
+#skinDragBar {
+  /* 父级 #skinDragModal 是 touch-action:none，会让滑杆/按钮的原生触摸行为失效，这里单独放开 */
+  touch-action: auto;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 301;
+  background: rgba(255,255,255,0.96);
+  border-top: 1px solid var(--border);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 14px rgba(0,0,0,0.18);
+}
+#skinDragBar .sdb-title { font-size:var(--fs-body); font-weight: 600; color: var(--text); margin-bottom: var(--sp-4); }
+#skinDragBar .sdb-tip { font-size:var(--fs-caption); color: var(--text-light); line-height: 1.5; margin-bottom: var(--sp-8); }
+#skinDragBar .sdb-slider { display: flex; align-items: center; gap: var(--sp-8); margin-bottom: var(--sp-8); }
+#skinDragBar .sdb-slider .ss-label { font-size:var(--fs-caption); color: var(--text-light); font-weight: 500; white-space: nowrap; min-width: 40px; }
+#skinDragBar .sdb-slider input[type=range] { flex: 1; accent-color: var(--primary); }
+#skinDragBar .sdb-slider .ss-val { font-size:var(--fs-caption); color: var(--primary-ink); font-weight: 500; min-width: 42px; text-align: right; }
+#skinDragBar .sdb-btns { display: flex; gap: var(--sp-8); }
+#skinDragBar .sdb-btns .modal-btn { padding: var(--sp-10) var(--sp-8); }
+/* ===== 场景氛围层：背景主题 + 前景点缀动画 ===== */
+.scene-deco { position: absolute; top:0;right:0;bottom:0;left:0;pointer-events: none; overflow: hidden; border-radius: var(--radius-md); z-index: 0; }
+.scene-deco span { position: absolute; display: inline-block; line-height: 1; }
+@keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(26px); } }
+@keyframes wave { 0%,100% { transform: translateY(0) rotate(-8deg); } 50% { transform: translateY(-7px) rotate(8deg); } }
+@keyframes twinkle { from { opacity: .2; transform: scale(.8); } to { opacity: 1; transform: scale(1.15); } }
+@keyframes shoot { 0% { opacity: 0; transform: translate(0,0) rotate(35deg); } 3% { opacity: 1; } 8% { transform: translate(-70px,70px) rotate(35deg); opacity: 0; } 100% { opacity: 0; } }
+@keyframes fall { 0% { transform: translateY(-10px); } 100% { transform: translateY(290px); } }
+/* 花园（默认免费）：清爽草地，低饱和不抢戏 */
+.tree-scene.scene-garden {
+  background:
+    radial-gradient(ellipse at 85% 18%, rgba(255,243,179,.5), transparent 46%),
+    linear-gradient(180deg,#C8E6C9 0%,var(--ok-bg) 42%,var(--ok-line) 88%,#81C784 100%);
+}
+/* 田野（平价）：蓝天 + 金灿麦田 */
+.tree-scene.scene-field {
+  background:
+    radial-gradient(circle at 80% 16%, rgba(255,236,150,.9) 0%, transparent 22%),
+    linear-gradient(180deg,#7EC8F0 0%,#B3E5FC 32%,transparent 50%),
+    repeating-linear-gradient(108deg, rgba(255,255,255,.35) 0 6px, transparent 6px 16px),
+    linear-gradient(180deg,#FBE38B 46%,#F5D56B 78%,#EEC94F 100%);
+}
+/* 海边（平价）：碧海蓝天 + 沙滩 */
+.tree-scene.scene-sea {
+  background:
+    radial-gradient(circle at 22% 10%, rgba(255,255,255,.95) 0 14px, rgba(255,255,255,.55) 15px 20px, transparent 21px),
+    radial-gradient(circle at 55% 13%, rgba(255,255,255,.7) 0 10px, transparent 11px),
+    linear-gradient(180deg,#5FB6E0 0%,#8FD0EE 34%,#BFE9F5 56%,#FFF0C9 84%,#F7DCA8 100%);
+}
+/* 星空（热门）：深空星点阵 + 月夜（星星闪烁由 deco 的 twinkle 承担，避免整背景 filter 动画卡顿） */
+.tree-scene.scene-star {
+  background:
+    radial-gradient(1.6px 1.6px at 18% 30%,var(--white),transparent 60%),
+    radial-gradient(1.3px 1.3px at 42% 55%,var(--white),transparent 60%),
+    radial-gradient(1.8px 1.8px at 68% 22%,var(--white),transparent 60%),
+    radial-gradient(1.2px 1.2px at 85% 45%,var(--white),transparent 60%),
+    radial-gradient(1.5px 1.5px at 55% 70%,var(--white),transparent 60%),
+    radial-gradient(1.2px 1.2px at 30% 78%,var(--white),transparent 60%),
+    linear-gradient(180deg,#0B1035 0%,#1A237E 55%,#311B92 100%);
+}
+/* 雪原（高级）：冷白雪景 + 远山 */
+.tree-scene.scene-snow {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.9), transparent 55%),
+    linear-gradient(180deg,#C9D8F0 0%,#E8EEFA 40%,#D6E4F8 100%);
+}
+.scene-snow .tree-visual-wrap { filter: drop-shadow(0 2px 4px rgba(120,140,180,.35)); }
+/* ===== 树光环特效：粒子环绕层 ===== */
+.tree-aura-layer { position: absolute; top:0;right:0;bottom:0;left:0;pointer-events: none; z-index: 0; }
+.tree-aura-layer .ap {
+  position: absolute; top: 50%; left: 50%;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--c,var(--gold)); box-shadow: 0 0 7px var(--c,var(--gold));
+  animation: auraOrbit 3s linear infinite;
+}
+@keyframes auraOrbit { from { transform: rotate(0deg) translateX(38px) rotate(0deg); } to { transform: rotate(360deg) translateX(38px) rotate(-360deg); } }
+/* ===== 场景天气层（叠加在场景上，纯 background-position/transform，无 filter 动画） ===== */
+/* ===== 天气·细雨：SVG tile 离散雨滴（不是贯穿条纹），垂直位移 = tile 高度 → 无缝、零抖动 =====
+   旧版用 repeating-linear-gradient 画连续斜线，位移量与渐变周期不匹配导致循环跳变（观感=抖动），已废弃。 */
+.tree-scene.weather-rain::before,
+.tree-scene.weather-rain::after {
+  content:''; position:absolute; top:0;right:0;bottom:0;left:0;border-radius:var(--radius-md); pointer-events:none; z-index:0;
+}
+/* 远景：细、淡、慢 */
+.tree-scene.weather-rain::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='132'%3E%3Cg stroke='%23eaf3ff' fill='none' stroke-linecap='round'%3E%3Cline x1='9' y1='4' x2='4' y2='21' stroke-width='1.1' stroke-opacity='.30'/%3E%3Cline x1='33' y1='46' x2='28' y2='60' stroke-width='.9' stroke-opacity='.22'/%3E%3Cline x1='58' y1='14' x2='53' y2='33' stroke-width='1.1' stroke-opacity='.28'/%3E%3Cline x1='76' y1='72' x2='71' y2='87' stroke-width='.9' stroke-opacity='.20'/%3E%3Cline x1='19' y1='92' x2='14' y2='109' stroke-width='1' stroke-opacity='.26'/%3E%3Cline x1='46' y1='104' x2='41' y2='120' stroke-width='.9' stroke-opacity='.18'/%3E%3Cline x1='65' y1='52' x2='61' y2='66' stroke-width='.8' stroke-opacity='.16'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:84px 132px; background-repeat:repeat;
+  animation:rainFar 1.9s linear infinite;
+}
+/* 近景：粗、亮、快（与远景速度/大小不同 → 景深）；第二层是贴地雨雾，不参与位移动画 */
+.tree-scene.weather-rain::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='62' height='98'%3E%3Cg stroke='%23f6fbff' fill='none' stroke-linecap='round'%3E%3Cline x1='12' y1='2' x2='6' y2='24' stroke-width='1.6' stroke-opacity='.55'/%3E%3Cline x1='41' y1='30' x2='35' y2='50' stroke-width='1.3' stroke-opacity='.42'/%3E%3Cline x1='24' y1='58' x2='19' y2='76' stroke-width='1.4' stroke-opacity='.46'/%3E%3Cline x1='55' y1='70' x2='50' y2='88' stroke-width='1.2' stroke-opacity='.34'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(0deg, rgba(206,230,255,.22) 0%, rgba(206,230,255,0) 45%);
+  background-size:62px 98px, 100% 100%;
+  background-repeat:repeat, no-repeat;
+  animation:rainNear 1.05s linear infinite;
+}
+@keyframes rainFar  { from{background-position:0 0;}      to{background-position:0 132px;} }
+@keyframes rainNear { from{background-position:0 0, 0 0;} to{background-position:0 98px, 0 0;} }
+/* ===== 天气·飘雪：SVG tile 离散雪花（双层景深），垂直位移 = tile 高度 → 无缝、零抖动 ===== */
+.tree-scene.weather-snow::before,
+.tree-scene.weather-snow::after {
+  content:''; position:absolute; top:0;right:0;bottom:0;left:0;border-radius:var(--radius-md); pointer-events:none; z-index:0;
+}
+/* 远景：小、淡、慢 */
+.tree-scene.weather-snow::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='12' cy='8' r='1.5' fill-opacity='.5'/%3E%3Ccircle cx='38' cy='25' r='1.2' fill-opacity='.4'/%3E%3Ccircle cx='65' cy='12' r='1.8' fill-opacity='.55'/%3E%3Ccircle cx='85' cy='40' r='1.3' fill-opacity='.42'/%3E%3Ccircle cx='22' cy='55' r='1.5' fill-opacity='.48'/%3E%3Ccircle cx='50' cy='68' r='1.2' fill-opacity='.38'/%3E%3Ccircle cx='75' cy='78' r='1.6' fill-opacity='.5'/%3E%3Ccircle cx='8' cy='88' r='1.3' fill-opacity='.44'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:100px 100px; background-repeat:repeat;
+  animation:snowFar 8s linear infinite;
+}
+/* 近景：大、亮、快（与远景速度/大小不同 → 景深） */
+.tree-scene.weather-snow::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='18' cy='10' r='2.5' fill-opacity='.85'/%3E%3Ccircle cx='48' cy='35' r='2.8' fill-opacity='.9'/%3E%3Ccircle cx='68' cy='18' r='2.2' fill-opacity='.75'/%3E%3Ccircle cx='28' cy='58' r='2.6' fill-opacity='.82'/%3E%3Ccircle cx='58' cy='72' r='2.3' fill-opacity='.78'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:80px 80px; background-repeat:repeat;
+  animation:snowNear 4.5s linear infinite;
+}
+@keyframes snowFar  { from{background-position:0 0;}      to{background-position:12px 100px;} }
+@keyframes snowNear { from{background-position:0 0;}      to{background-position:-8px 80px;} }
+/* ===== 天气·流星雨：SVG tile 离散流星（双层景深），垂直位移 = tile 高度 → 无缝、零抖动 =====
+   旧版只有一条流星 94% 时间空白，观感=没买。现改为多层流星持续划过。 */
+.tree-scene.weather-shooting::before,
+.tree-scene.weather-shooting::after {
+  content:''; position:absolute; top:0;right:0;bottom:0;left:0;border-radius:var(--radius-md); pointer-events:none; z-index:0;
+}
+/* 远景：细、淡、慢 */
+.tree-scene.weather-shooting::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='160'%3E%3Cg stroke='%23e8f0ff' fill='none' stroke-linecap='round'%3E%3Cline x1='100' y1='5' x2='115' y2='38' stroke-width='1' stroke-opacity='.35'/%3E%3Cline x1='20' y1='50' x2='36' y2='82' stroke-width='.8' stroke-opacity='.28'/%3E%3Cline x1='70' y1='95' x2='86' y2='128' stroke-width='.9' stroke-opacity='.3'/%3E%3Cline x1='45' y1='130' x2='60' y2='155' stroke-width='.7' stroke-opacity='.22'/%3E%3Ccircle cx='108' cy='42' r='1.5' fill='%23fff' fill-opacity='.4'/%3E%3Ccircle cx='34' cy='86' r='1.2' fill='%23fff' fill-opacity='.35'/%3E%3Ccircle cx='84' cy='132' r='1.3' fill='%23fff' fill-opacity='.38'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:120px 160px; background-repeat:repeat;
+  animation:shootFar 7s linear infinite;
+}
+/* 近景：粗、亮、快 */
+.tree-scene.weather-shooting::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='140'%3E%3Cg stroke='%23ffffff' fill='none' stroke-linecap='round'%3E%3Cline x1='80' y1='8' x2='98' y2='48' stroke-width='1.8' stroke-opacity='.7'/%3E%3Cline x1='10' y1='65' x2='28' y2='105' stroke-width='1.5' stroke-opacity='.55'/%3E%3Cline x1='55' y1='30' x2='72' y2='68' stroke-width='1.6' stroke-opacity='.62'/%3E%3Ccircle cx='96' cy='50' r='2' fill='%23fff' fill-opacity='.8'/%3E%3Ccircle cx='26' cy='107' r='1.8' fill='%23fff' fill-opacity='.7'/%3E%3Ccircle cx='70' cy='70' r='1.9' fill='%23fff' fill-opacity='.75'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:100px 140px; background-repeat:repeat;
+  animation:shootNear 4s linear infinite;
+}
+@keyframes shootFar  { from{background-position:0 0;}      to{background-position:0 160px;} }
+@keyframes shootNear { from{background-position:0 0;}      to{background-position:0 140px;} }
+/* ===== 天气·极光：SVG tile 彩色光带（双层景深），水平位移 = tile 宽度 → 无缝、零抖动 =====
+   旧版只有一片静态渐变微移，观感=没买。现改为多层流动彩色光带。 */
+.tree-scene.weather-aurora::before,
+.tree-scene.weather-aurora::after {
+  content:''; position:absolute; top:0;right:0;bottom:0;left:0;border-radius:var(--radius-md); pointer-events:none; z-index:0;
+}
+/* 远景：宽幅柔和光带，慢速流动 */
+.tree-scene.weather-aurora::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='160'%3E%3Cdefs%3E%3ClinearGradient id='g1' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%2300ff88' stop-opacity='0'/%3E%3Cstop offset='.3' stop-color='%2300ff88' stop-opacity='.18'/%3E%3Cstop offset='.5' stop-color='%2388ffcc' stop-opacity='.25'/%3E%3Cstop offset='.7' stop-color='%23aa88ff' stop-opacity='.2'/%3E%3Cstop offset='1' stop-color='%23aa88ff' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='200' height='100' fill='url(%23g1)'/%3E%3Cpath d='M0,60 Q50,30 100,55 T200,50 L200,100 L0,100Z' fill='%2300ff88' fill-opacity='.08'/%3E%3C/svg%3E");
+  background-size:200px 160px; background-repeat:repeat;
+  animation:auroraFar 12s linear infinite;
+}
+/* 近景：亮色窄光带，快速流动 */
+.tree-scene.weather-aurora::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='140'%3E%3Cdefs%3E%3ClinearGradient id='g2' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%2344ffaa' stop-opacity='0'/%3E%3Cstop offset='.4' stop-color='%2344ffaa' stop-opacity='.28'/%3E%3Cstop offset='.6' stop-color='%23cc88ff' stop-opacity='.3'/%3E%3Cstop offset='1' stop-color='%23cc88ff' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect y='20' width='160' height='80' fill='url(%23g2)'/%3E%3Cpath d='M0,70 Q40,45 80,65 T160,60 L160,100 L0,100Z' fill='%2344ffaa' fill-opacity='.12'/%3E%3C/svg%3E");
+  background-size:160px 140px; background-repeat:repeat;
+  animation:auroraNear 8s linear infinite;
+}
+@keyframes auroraFar  { from{background-position:0 0;}      to{background-position:200px 0;} }
+@keyframes auroraNear { from{background-position:0 0;}      to{background-position:-160px 0;} }
+/* ===== 天气·晨雾：SVG tile 离散雾团（双层景深），水平位移 = tile 宽度 → 无缝、零抖动 =====
+   旧版只有一片静态渐变微移，观感=没买。现改为多层流动雾气。 */
+.tree-scene.weather-mist::before,
+.tree-scene.weather-mist::after {
+  content:''; position:absolute; top:0;right:0;bottom:0;left:0;border-radius:var(--radius-md); pointer-events:none; z-index:0;
+}
+/* 远景：大块淡雾，慢速飘移 */
+.tree-scene.weather-mist::before{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='140'%3E%3Cg fill='%23ffffff'%3E%3Cellipse cx='40' cy='30' rx='35' ry='22' fill-opacity='.12'/%3E%3Cellipse cx='120' cy='55' rx='40' ry='25' fill-opacity='.1'/%3E%3Cellipse cx='70' cy='90' rx='38' ry='24' fill-opacity='.14'/%3E%3Cellipse cx='150' cy='110' rx='30' ry='20' fill-opacity='.09'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:180px 140px; background-repeat:repeat;
+  animation:mistFar 14s linear infinite;
+}
+/* 近景：浓雾团，中速飘移 */
+.tree-scene.weather-mist::after{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='120'%3E%3Cg fill='%23ffffff'%3E%3Cellipse cx='35' cy='25' rx='28' ry='20' fill-opacity='.25'/%3E%3Cellipse cx='100' cy='50' rx='32' ry='22' fill-opacity='.22'/%3E%3Cellipse cx='60' cy='85' rx='30' ry='21' fill-opacity='.28'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:140px 120px; background-repeat:repeat;
+  animation:mistNear 9s linear infinite;
+}
+@keyframes mistFar  { from{background-position:0 0;}      to{background-position:180px 0;} }
+@keyframes mistNear { from{background-position:0 0;}      to{background-position:-140px 0;} }
+/* ===== 地面摆件层 ===== */
+.tree-prop-layer { position: absolute; top:0;right:0;bottom:0;left:0;pointer-events: none; overflow: hidden; border-radius: var(--radius-md); z-index: 0; }
+.tree-prop-layer .prop-item { position: absolute; font-size: calc(32px * var(--fs-boost)); line-height: 1; }   /* 树上摆件放大 */
+.prop-item.prop-cat { animation: propSway 2.4s ease-in-out infinite; transform-origin: 50% 90%; }
+.prop-item.prop-fish { animation: propSwim 3.2s ease-in-out infinite; }
+.prop-item.prop-fountain { animation: propFloat 1.8s ease-in-out infinite; }
+.prop-item.prop-owl { animation: propBlink 4s step-end infinite; }
+.prop-item.prop-mushroom { animation: floatY 3.5s ease-in-out infinite; }
+@keyframes propSway { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+@keyframes propSwim { 0%,100% { transform: translateX(0) rotate(-6deg); } 50% { transform: translateX(9px) rotate(6deg); } }
+@keyframes propFloat { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-5px) scale(1.04); } }
+@keyframes propBlink { 0%,90%,100% { transform: scaleY(1); } 95% { transform: scaleY(.12); } }
+/* 尊重系统「减少动效」设置：直接关闭全部动画（低配设备/动效敏感用户） */
+@media (prefers-reduced-motion: reduce) {
+  .scene-deco span, .tree-mood, .dot.current, .badge-glory, .tree-fruit-icon,
+  .timer-circle.rank-glow, .timer-circle.rank-glory, .tree-scene.scene-star,
+  .tree-aura-layer .ap, .tree-scene.weather-rain::before, .tree-scene.weather-rain::after,
+  .tree-scene.weather-snow::before, .tree-scene.weather-snow::after,
+  .tree-scene.weather-shooting::before, .tree-scene.weather-shooting::after,
+  .tree-scene.weather-aurora::before, .tree-scene.weather-aurora::after,
+  .tree-scene.weather-mist::before, .tree-scene.weather-mist::after, .tree-prop-layer .prop-item {
+    animation: none !important;
+  }
+}
+.tree-visual-wrap { position: relative; display: inline-block; z-index: 1; }
+.tree-decor-layer {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 8px;
+  display: flex;
+  gap: var(--sp-6);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.tree-decor { font-size:var(--fs-sub); filter: drop-shadow(0 2px 2px rgba(0,0,0,.25)); }
+.tree-mood { position: absolute; top: -14px; right: -6px; font-size:var(--fs-h1); animation: pulse 2s infinite; filter: drop-shadow(0 1px 2px rgba(0,0,0,.2)); }
+.tree-bubble {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-6) var(--sp-10);
+  font-size:var(--fs-body);
+  font-weight: 600;
+  color: var(--text);
+  /* 防超界：长句子允许换行 + 限宽，居中后左右留边距，不再溢出屏幕。
+     width:max-content 是关键——absolute+left:50% 的 shrink-to-fit 会以 48px 的树容器为基准
+     把气泡压成竖条，max-content 让宽度由内容决定，再由 max-width 限宽换行 */
+  width: max-content;
+  max-width: min(68vw, 230px);
+  white-space: normal;
+  text-align: center;
+  word-break: break-word;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s, transform .2s;
+  z-index: 6;
+  box-shadow: var(--shadow-sm);
+}
+.tree-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--border);
+}
+.tree-bubble.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.tree-water-row { display: flex; align-items: center; justify-content: center; gap: var(--sp-8); margin: var(--sp-6) 0 var(--sp-4); }
+.tree-water-btn {
+  padding: var(--sp-6) var(--sp-14);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--info-bg);
+  color: var(--info-ink);
+  font-size:var(--fs-title);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+.tree-water-btn:active { transform: translate(1px,1px); box-shadow: 0 0 0 var(--border-strong); }
+.tree-water-btn.done { background: #eee; color: #999; box-shadow: none; cursor: default; }
+.tree-dew-count { font-size:var(--fs-body); color: var(--text-light); }
+.tree-dew-count b { color: #1E88E5; }
+.tree-eternal-stars { font-size:var(--fs-title); font-weight: 700; color: var(--warn); margin-top: var(--sp-4); letter-spacing: 1px; }
+/* 树龄（陪伴天数）：长线主轴，绿色系与年轮的橙（--warn）区分开 */
+.tree-age-line { font-size:var(--fs-title); font-weight: 700; color: var(--green-ink); margin-top: var(--sp-4); letter-spacing: 1px; }
+.tree-age-line .ta-tier { color: var(--warn); font-weight: 800; }
+.tree-age-next { font-size:var(--fs-caption); color: var(--text-light); margin-top: var(--sp-2); }
+.es-row { font-size:var(--fs-body); letter-spacing: 1px; line-height: 1.5; word-break: break-all; }
+.es-more { font-size:var(--fs-caption); color: var(--text-light); font-weight: 500; margin-left: var(--sp-2); letter-spacing: 0; }
+.es-title { font-size:var(--fs-body); font-weight: 600; color: var(--warn); margin-top: var(--sp-2); }
+.es-next { font-size:var(--fs-caption); color: var(--text-light); margin-top: var(--sp-2); }
+/* 封树成林（超长线）+ 林地 */
+.tree-seal-btn { display:block; width:100%; margin-top: var(--sp-8); padding: var(--sp-8) var(--sp-12); border:1px solid var(--green); background: var(--white); color: var(--green-ink); border-radius: var(--radius); font-size: var(--fs-body); font-weight: 600; }
+.tree-seal-btn:active { transform: scale(.98); }
+.tree-grove { margin-top: var(--sp-6); }
+.tg-head { font-size:var(--fs-note); font-weight: 600; color: var(--text-light); cursor: pointer; user-select: none; }
+.tg-row { display:flex; align-items:baseline; justify-content:space-between; gap: var(--sp-8); font-size:var(--fs-note); padding: var(--sp-4) 0; }
+.tg-k { color: var(--text); font-weight: 700; }
+.tg-v { color: var(--text-light); flex-shrink: 0; font-size:var(--fs-caption); }
+
+/* 林地小树林：每封一代画一棵（年轮越多树越壮） */
+.tg-trees { display:flex; flex-wrap:wrap; align-items:flex-end; gap: var(--sp-2) var(--sp-4); padding: var(--sp-6) 0 var(--sp-2); }
+.tg-trees svg { display:block; }
+/* 树龄陪伴装饰：随树龄在身边慢慢出现的小物件（纯氛围，不参与任何数值） */
+.tree-age-decor { position:absolute; inset:0; pointer-events:none; }
+.tree-age-decor span { position:absolute; font-size:var(--fs-title); opacity:.92; line-height:1; }
+.tree-life-log { margin-top: var(--sp-6); border-top: 1px solid var(--border); padding-top: var(--sp-6); }
+.tll-head { font-size:var(--fs-note); font-weight: 600; color: var(--text-light); cursor: pointer; user-select: none; }
+.tll-row { display: flex; justify-content: space-between; font-size:var(--fs-caption); padding: var(--sp-2) 0; gap: var(--sp-8); }
+.tll-k { color: var(--text-light); }
+.tll-v { color: var(--text); font-weight: 700; }
+.tll-sep { font-size:var(--fs-caption); color: var(--text-light); margin-top: var(--sp-6); font-weight: 500; }
+.tll-unknown { font-style: italic; opacity: .65; }
+.tll-note { font-size:var(--fs-tiny); color: var(--text-light); opacity: .75; line-height: 1.5; padding: var(--sp-2) 0 var(--sp-2); }
+.tll-more, .tll-empty { font-size:var(--fs-tiny); color: var(--text-light); margin-top: var(--sp-4); line-height: 1.5; }
+
+/* 每日任务 */
+.tree-daily-tasks {
+  margin: 8px auto 2px;
+  max-width: 280px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-8) var(--sp-10);
+  box-shadow: var(--shadow-sm);
+}
+.tree-task-title { font-size:var(--fs-body); font-weight: 600; color: var(--text); margin-bottom: var(--sp-6); }
+.tree-task-row { display: flex; gap: var(--sp-4); flex-wrap: wrap; }
+.tree-task { font-size:var(--fs-note); padding: var(--sp-2) var(--sp-6); border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg); color: var(--text-light); white-space: nowrap; }
+.tree-task.done { background: var(--ok-bg); color: var(--ok); border-color: var(--ok-line); }
+.tree-task-coin { font-weight: 800; color: var(--text-light); opacity: .55; } /* 未领到的数额：暗 */
+.tree-task-coin.got { color: var(--ok); opacity: 1; } /* 已领到：亮 */
+
+/* 进度条里程碑刻度 */
+.tree-progress-wrap { position: relative; }
+.tree-tick { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--border); opacity: .35; z-index: 1; }
+.tree-progress-bar { height: 10px; background: #eee; border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); position: relative; }
+
+/* 树名 */
+.tree-name-row { display: flex; align-items: center; justify-content: center; gap: var(--sp-4); margin: var(--sp-2) 0 var(--sp-8); cursor: pointer; user-select: none; }
+.tree-name-badge { font-size:var(--fs-sub); font-weight: 800; color: var(--text); letter-spacing: .5px; }
+.tree-name-edit { font-size:var(--fs-note); opacity: .45; transition: opacity .2s; }
+.tree-name-row:hover .tree-name-edit { opacity: 1; }
+/* 树种图鉴 */
+.species-album { margin-top: var(--sp-10); padding: var(--sp-8); background: var(--bg); border: 2px dashed var(--border); border-radius: var(--radius); min-width: 0; }
+.species-album-title { font-size:var(--fs-title); font-weight: 700; color: var(--text); margin-bottom: var(--sp-8); display: flex; align-items: center; justify-content: space-between; }
+.species-album-title .sa-progress { font-size:var(--fs-body); color: var(--text-light); font-weight: 400; }
+.species-card { border: 1px solid var(--border); border-radius: var(--radius); padding: var(--sp-8) var(--sp-10); margin-bottom: var(--sp-8); background: var(--card); }
+.species-card.current { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+.species-card-head { display: flex; align-items: center; gap: var(--sp-6); font-size:var(--fs-title); font-weight: 800; color: var(--text); margin-bottom: var(--sp-6); flex-wrap: wrap; }
+.species-card-head .sc-icon { font-size:var(--fs-hero); }
+.species-card-head .sc-state { font-size:var(--fs-note); font-weight: 600; margin-left: auto; padding: var(--sp-2) var(--sp-8); border-radius: var(--radius-full); white-space: nowrap; }
+.sc-state.locked { background: #F0F0F0; color: #999; }
+.sc-state.part { background: var(--ok-bg); color: var(--green-ink); }
+.sc-state.done { background: var(--accent-bg); color: var(--yellow-ink); }
+.species-stages { display: grid; grid-template-columns: repeat(9, minmax(0,1fr)); gap: var(--sp-2); }
+.species-stages .ss-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size:var(--fs-title); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); filter: grayscale(1); opacity: .35; min-width: 0; }
+.species-stages .ss-cell.lit { filter: none; opacity: 1; background: var(--card); border-color: #ddd; }
+.species-stages .ss-cell.lock { font-size:var(--fs-tiny); color: #bbb; }
+/* 成长图鉴 */
+.tree-album { margin-top: var(--sp-10); padding: var(--sp-8); background: var(--bg); border: 2px dashed var(--border); border-radius: var(--radius); min-width: 0; }
+.tree-album-title { font-size:var(--fs-title); font-weight: 700; color: var(--text); margin-bottom: var(--sp-6); display: flex; align-items: center; justify-content: space-between; }
+.tree-album-title .ta-progress { font-size:var(--fs-body); color: var(--text-light); font-weight: 400; }
+.tree-album-grid { display: grid; grid-template-columns: repeat(9, minmax(0,1fr)); gap: var(--sp-2); min-width: 0; }
+.tree-album-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size:var(--fs-title);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  filter: grayscale(1);
+  opacity: .4;
+  min-width: 0;
+  overflow: hidden;
+}
+.tree-album-cell.lit { filter: none; opacity: 1; border-color: var(--primary); background: var(--accent-bg); box-shadow: 0 0 4px rgba(var(--primary-rgb),.35); animation: tmNewPop .5s ease; }
+.tree-album-bar { height: 8px; background: #eee; border-radius: var(--radius-xs); margin-top: var(--sp-6); overflow: hidden; border: 1px solid var(--border); }
+/* 原写死 #E85D3A→#F0AD4E 线性渐变，换主题时不跟随。改用主色→黄令牌；
+   默认主题下两色与原硬编码完全相同（--primary=#E85D3A / --yellow=#F0AD4E），故逐像素不变。 */
+.tree-album-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--yellow)); border-radius: var(--radius-xs); transition: width .4s ease; }
+.tree-album-tip { font-size:var(--fs-body); color: var(--text-light); margin-top: var(--sp-4); text-align: center; }
+/* 需求⑤：森林成长面板（借鉴 Forest 的长期积累心智：一天一棵树，攒成一片林） */
+.tree-forest { margin-top: var(--sp-10); padding: var(--sp-8); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); min-width: 0; }
+.tree-forest-title { font-size:var(--fs-title); font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap; }
+.tf-acc { font-size: var(--fs-caption); font-weight: 400; color: var(--text-light); }
+/* 今日行：词组靠左紧挨着排（原来 space-between + 换行会把「今日：」和它的内容甩到两端，
+   中间空一大片，读起来像两个不相干的字段）。整行结束才换行。 */
+.tf-today { font-size: var(--fs-note); color: var(--text); margin-top: var(--sp-6); display: flex; align-items: center; justify-content: flex-start; gap: var(--sp-4) var(--sp-8); flex-wrap: wrap; }
+.tf-today b { color: var(--green-ink); }
+/* 树种图例：一行贴片，说明「时长 → 种出什么」。
+   它是**规则说明**不是可点控件，所以去描边、只用 surface-2 底 + 小字 —— 别做成按钮样子。 */
+.tf-species-line { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-4); margin-top: var(--sp-6); font-size: var(--fs-micro); color: var(--text-light); }
+.tf-species-line .tf-sp { display: inline-flex; align-items: center; gap: var(--sp-2); padding: 1px var(--sp-6); border-radius: var(--radius-full); background: var(--surface-2); }
+.tf-next { font-size: var(--fs-caption); color: var(--text-light); margin-top: var(--sp-4); }
+.tf-next b { color: var(--green-ink); }
+.tf-groves { display: flex; align-items: flex-end; gap: var(--sp-4); min-height: 68px; margin-top: var(--sp-8); padding: var(--sp-4) 0; border-bottom: 1px solid var(--border); overflow-x: auto; min-width: 0; }
+.tf-grove { flex: 1 1 0; min-width: 20px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: var(--sp-2); }
+/* column-reverse：先种的那棵在最下面，后种的往上叠 —— 看着像树一棵棵长起来 */
+.tf-grove-icons { display: flex; flex-direction: column-reverse; align-items: center; font-size: var(--fs-caption); line-height: 1.05; }
+.tf-t { line-height: 1.05; }
+.tf-more { font-size: var(--fs-tiny); color: var(--text-light); }
+.tf-grove-date { font-size: var(--fs-tiny); color: var(--text-light); font-variant-numeric: tabular-nums; }
+.tf-chips { display: flex; flex-wrap: wrap; gap: var(--sp-4); align-items: center; margin-top: var(--sp-8); }
+.tf-chip { font-size: var(--fs-caption); color: var(--text-light); border:1px solid var(--hairline); border-radius: var(--radius-full); padding: 2px var(--sp-8); }
+.tf-chip.on { color: var(--green-ink); border-style: solid; border-color: var(--green); background: var(--accent-bg); font-weight: 700; }
+.tf-empty { flex: 1 1 auto; text-align: center; font-size: var(--fs-note); color: var(--text-light); margin: auto; }
+/* 需求④：计划页「备忘」留言板（微信传输助手风：一条条气泡，自说自记） */
+#logMemoView { display: none; flex-direction: column; gap: var(--sp-8); min-width: 0; }
+.memo-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-6); flex-wrap: wrap; }
+.memo-head-main { display: flex; align-items: baseline; gap: var(--sp-8); flex-wrap: wrap; min-width: 0; }
+.memo-title { font-size: var(--fs-title); font-weight: 700; color: var(--text); }
+.memo-sub { font-size: var(--fs-caption); color: var(--text-light); }
+.memo-head-ops { display: flex; align-items: center; gap: var(--sp-4); }
+.memo-settings { display: flex; flex-direction: column; gap: var(--sp-6); padding: var(--sp-8) var(--sp-10); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-input); }
+.memo-set-row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); font-size: var(--fs-note); color: var(--text); }
+.memo-set-row select { border: 1px solid var(--border-strong); background: var(--card); color: var(--text); border-radius: var(--radius-sm); padding: var(--sp-2) var(--sp-4); font-size: var(--fs-note); }
+.memo-set-hint { font-size: var(--fs-caption); color: var(--text-light); line-height: 1.5; }
+.memo-expired { display: flex; align-items: center; gap: var(--sp-6); flex-wrap: wrap; padding: var(--sp-6) var(--sp-10); font-size: var(--fs-caption); color: var(--yellow-ink); background: var(--accent-bg); border: 2px dashed var(--yellow); border-radius: var(--radius-input); }
+.memo-list { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-8); max-height: 52vh; overflow-y: auto; padding: var(--sp-10) var(--sp-8); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); min-width: 0; }
+/* 双栏对话：**我**靠右、**对面**靠左 —— IM 的通行布局
+   （同类开源实现 chat-viewer 也是「用户靠右 / 对方靠左」；Loopback 把私人笔记
+   呈现成 Messenger 式对话，走的是同一套语感）。
+   备忘默认仍是"自己给自己留话"，所以**不带 side 的老数据一律留在右栏**，零迁移。 */
+.memo-row { display: flex; width: 100%; justify-content: flex-end; }
+.memo-row.is-other { justify-content: flex-start; }
+.memo-bubble { position: relative; max-width: 86%; padding: var(--sp-8) var(--sp-12); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-xs); font-size: var(--fs-body); line-height: 1.55; color: var(--text); cursor: pointer; box-shadow: 0 1px 2px rgba(var(--primary-rgb), 0.06); }
+/* 我这边的气泡：淡主色底 + 主色边；对面保持白底。左右不只是位置差，颜色也不同。 */
+.memo-row:not(.is-other) .memo-bubble { background: rgba(var(--primary-rgb), 0.10); border-color: rgba(var(--primary-rgb), 0.32); }
+.memo-row.is-other .memo-bubble { border-bottom-right-radius: var(--radius-lg); border-bottom-left-radius: var(--radius-xs); }
+.memo-bubble--soon { border-color: var(--yellow); }
+.memo-text { white-space: pre-wrap; word-break: break-word; }
+.memo-foot { display: flex; align-items: center; gap: var(--sp-6); margin-top: var(--sp-2); font-size: var(--fs-micro); color: var(--text-light); }
+.memo-left { color: var(--yellow-ink); font-weight: 700; }
+/* 气泡操作按钮：做成一眼能认出的圆形实心按钮。
+   原来是无边框的纯文字（↩ / ✕），字又小，既点不准也不像能点。 */
+.memo-del, .memo-reply {
+  display: none; align-items: center; justify-content: center;
+  margin-left: var(--sp-6); width: 30px; height: 30px;
+  border: 1px solid var(--border); background: var(--card); color: var(--text-light);
+  font-size: var(--fs-note); line-height: 1; cursor: pointer;
+  border-radius: var(--radius-full); padding: 0; vertical-align: middle;
+}
+.memo-reply:hover, .memo-del:hover { color: var(--on-fill); background: var(--fill-primary); border-color: var(--fill-primary); }
+.memo-row.open .memo-del, .memo-row.open .memo-reply { display: inline-flex; }
+/* ---------- 引用回复：把「自己跟自己对话」做成 A→B→A 的来回 ----------
+   只加一个可选父指针（appData.memos[].replyTo），复用现有气泡与保留期逻辑。 */
+.memo-quote { font-size: var(--fs-caption); color: var(--text-light); border-left: 1px solid var(--border);
+  padding-left: var(--sp-6); margin-bottom: var(--sp-4); max-width: 100%;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* 回复缩进一级，视觉上成为上面那条的回声；缩进方向跟着气泡走 */
+.memo-row.is-reply { padding-right: 14px; }
+.memo-row.is-other.is-reply { padding-right: 0; padding-left: 14px; }
+.memo-replybar { display: none; align-items: center; gap: var(--sp-6); margin-bottom: var(--sp-4);
+  padding: var(--sp-4) var(--sp-8); border-radius: var(--radius-xs);
+  background: var(--bg); font-size: var(--fs-caption); color: var(--text-light); }
+.memo-replybar.show { display: flex; }
+.memo-replybar span { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.memo-empty { width: 100%; text-align: center; color: var(--text-light); font-size: var(--fs-note); padding: var(--sp-20) 0; }
+/* 发送前先选「这条谁说的」：靠右的自己和靠左的对面，共用一个输入框 */
+.memo-side-btn { flex: 0 0 auto; border: 1px solid var(--border-strong); background: var(--card); color: var(--text-light);
+  border-radius: var(--radius-input); padding: var(--sp-10); font-size: var(--fs-note); font-weight: 600; cursor: pointer; white-space: nowrap; }
+.memo-side-btn.is-other { color: var(--on-fill); background: var(--fill-primary); border-color: var(--fill-primary); }
+.memo-side-btn:active { transform: scale(.96); }
+.memo-sendbar { display: flex; gap: var(--sp-6); align-items: center; }
+.memo-sendbar input { flex: 1 1 auto; min-width: 0; border: 1px solid var(--border-strong); background: var(--card); color: var(--text); border-radius: var(--radius-input); padding: var(--sp-8) var(--sp-10); font-size: var(--fs-body); font-family: inherit; }
+.memo-send-btn { flex: 0 0 auto; border: none; background: var(--fill-primary); color: var(--on-fill); border-radius: var(--radius-input); padding: var(--sp-10) var(--sp-16); font-size: var(--fs-body); font-weight: 600; cursor: pointer; }
+
+
+/* ---- 森林面板（01eN 重绘）：自适应网格 + SVG 树 ----
+   旧版把窗口内每一天挤成一行等宽列，日期必然互相叠字；这里改成自适应列数，
+   格宽小于 44px 就不再塞新列，日期字号缩到 micro 且 nowrap。 */
+.fs-wins { display: flex; gap: var(--sp-6); margin: var(--sp-8) 0 var(--sp-6); }
+.fs-win { border: 1px solid var(--border); background: var(--card); color: var(--text-light); font-size: var(--fs-micro); font-weight: 500; padding: var(--sp-2) var(--sp-10); border-radius: var(--radius-full); cursor: pointer; font-family: inherit; }
+.fs-win.on { background: var(--fill-primary); border-color: var(--primary-dark); color: var(--on-fill); }
+.fs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: var(--sp-6); }
+/* 格子底色 = 当天强度：用主色的透明度分四档（同色相深浅，不换色相）。
+   空白天保持中性浅底，于是"一片林子"整体是同色系的浓淡，色相不打架。 */
+.fs-day { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: var(--sp-2); min-height: 64px; padding: var(--sp-6) var(--sp-2) var(--sp-4); border-radius: var(--radius-sm); background: var(--surface-2); border: 1px solid var(--hairline); }
+.fs-day.fs-s1 { background: rgba(var(--primary-rgb), .10); }
+.fs-day.fs-s2 { background: rgba(var(--primary-rgb), .19); }
+.fs-day.fs-s3 { background: rgba(var(--primary-rgb), .30); }
+.fs-day.fs-s4 { background: rgba(var(--primary-rgb), .42); }
+.fs-day.is-today { border: 1px solid var(--primary); }
+/* 底色是主色的**深浅**（不是换色相），最深也只有 .42 的透明度，
+   所以日期一律用常规辅助色即可读 —— 不再需要反白。 */
+.fs-day .fs-date { color: var(--text-light); }
+.fs-plot { flex: 1 1 auto; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; }
+.fs-tree { display: block; }
+.fs-more { align-self: center; font-size: var(--fs-micro); font-weight: 500; color: var(--text-light); }
+.fs-bare { display: block; width: 6px; height: 6px; border-radius: var(--radius-full); background: var(--hairline); }
+.fs-date { font-size: var(--fs-micro); color: var(--text-light); line-height: 1; white-space: nowrap; }
+
+/* 一年视图：12 格（按月聚合）。一格 = 一个月，格内放得下一小片林子（最多 4 棵）——
+   一天一格的话手机上每格只有几像素，树会小到看不出形态。 */
+.fs-grid.is-year { grid-template-columns: repeat(3, 1fr); gap: var(--sp-8); }
+.fs-grid.is-year .fs-mo { min-height: 104px; padding: var(--sp-6) var(--sp-4); justify-content: flex-end; }
+.fs-grid.is-year .fs-plot { justify-content: center; align-content: flex-end; gap: var(--sp-2); }
+.fs-grid.is-year .fs-tree { width: 22px; height: 25px; }
+.fs-grid.is-year .fs-mo-name { font-size: var(--fs-caption); font-weight: 500; }
+
+/* 「今日」行里的树与网格是同一套 SVG，而 .fs-tree 默认 display:block 是给网格对齐用的 ——
+   直接塞进普通行内容器会让几棵树各占一行、把整行撑高。这里改成横排。 */
+.tf-today b { display: inline-flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+
+/* ---- 里程碑「地标徽记」：图标 + 名称 + 数量 ----
+   未解锁的图标去色（灰轮廓），已解锁的是彩色地标。
+   底色由 --accent-bg（橙）改为 --ok-bg（淡绿）—— 原来「绿边框 + 橙底」是两个色相。 */
+.tf-chip { display: inline-flex; align-items: center; gap: var(--sp-4); }
+
+.tf-chip:not(.on) .tf-chip-icon { filter: grayscale(1); opacity: .45; }
+
+.tf-chip.on { background: var(--ok-bg); }
+
+/* ---- 林地底板：解锁里程碑越多，地面越"厚"（data-terra 0→3 档）----
+   用中性层逐档加深而不是换色相：格子本身是主色的透明度，叠在中性底上会整体略沉，
+   形成"这片林子更成熟了"的观感，同时不引入第二个色相。 */
+.fs-grid { padding: var(--sp-8); border-radius: var(--radius-md); transition: background .5s ease, box-shadow .5s ease; }
+.fs-grid[data-terra="1"] { background: var(--surface-2); }
+.fs-grid[data-terra="2"] { background: var(--surface-3); }
+.fs-grid[data-terra="3"] { background: var(--surface-3); box-shadow: inset 0 0 0 1.5px var(--hairline); }
+
+/* ---- 金币明细（账本流水）----
+   设计出处：HabitTrove 的货币模型 = 余额 + 流水。面板只读账本；
+   「撤销」写一条**反向流水**而不是删原条目 —— 原始记录与撤销记录都留着，可回溯。
+   is-rev 的是撤销流水（划线弱化），避免看着像又一笔收入。 */
+.coin-ledger-list {
+  max-height: 46vh; overflow-y: auto; margin: 0 var(--sp-4);
+  border-top: 1px solid var(--hairline);
+}
+.coin-ledger-row {
+  display: flex; align-items: center; gap: var(--sp-8);
+  padding: var(--sp-8) var(--sp-4); border-bottom: 1px solid var(--hairline);
+  font-size: var(--fs-note);
+}
+.coin-ledger-amt {
+  flex: 0 0 auto; min-width: 62px; text-align: right;
+  font-weight: 900; font-variant-numeric: tabular-nums; color: var(--yellow-ink);
+}
+.coin-ledger-amt.down { color: var(--text-light); }
+.coin-ledger-amt.rev { color: var(--text-light); text-decoration: line-through; }
+.coin-ledger-meta { flex: 1 1 auto; min-width: 0; }
+.coin-ledger-rsn { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.coin-ledger-sub { color: var(--text-light); font-size: var(--fs-caption); margin-top: 2px; }
+.coin-ledger-undo {
+  flex: 0 0 auto; border: 1px solid var(--hairline); background: transparent;
+  color: var(--text-light); border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-8); font-size: var(--fs-caption); cursor: pointer;
+}
+.coin-ledger-undo:hover { color: var(--primary-ink); border-color: var(--primary); }
+.coin-ledger-empty { text-align: center; color: var(--text-light); font-size: var(--fs-note); padding: var(--sp-16) 0; }

@@ -1,0 +1,669 @@
+/* ---------- 6. 二级 Tab 条：日志 / 计划 / 统计三页共用同一套语言 ----------
+   改前这三页各写一套：日志=1.5px 边 + 硬阴影 + 胶囊圆角，统计=1px 边 + 8px 圆角 +
+   条状底边。三个页面来回切，同一个控件跳两种形态。
+   现在收口成一条共享规则：胶囊 + hairline + surface-2，选中态主色填充。
+   ★ 别再给某一页单独覆写圆角/描边 —— 那正是这三条长得不一样的来源。 */
+.log-tabs, .stats-nav {
+  display: flex;
+  gap: var(--sp-6);
+  margin-bottom: var(--sp-12);
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: var(--sp-8);
+  border-bottom: 1px solid var(--hairline);
+}
+.log-tabs::-webkit-scrollbar, .stats-nav::-webkit-scrollbar { display: none; }
+/* 三页都是 5 个左右：等分一行 + 超长省略，谁都塞得下、谁都不被裁一半。
+   之前 flex:0 0 auto 按内容宽排，计划页的「⏳ 倒数日」和日志页的「💬 备忘」
+   都会滚出屏幕外，看起来像坏了。 */
+.log-tab, .stats-nav-item {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--sp-6) var(--sp-4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  color: var(--text-light);
+  /* 13px 不是随手取的：五个等分格在 398px 上行宽约 75px，
+     「🔒🌳 种树」这种带两个 emoji 的最长项 15px 会溢成省略号，13px 才放得下。 */
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+  line-height: 1.45;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.log-tab:active, .stats-nav-item:active { transform: translateY(1px); }
+
+/* 未解锁角标：右上角挂一个，绝对定位所以不吃字宽 */
+.log-tab, .stats-nav-item { position: relative; }
+.stats-nav-lock {
+  position: absolute;
+  top: 1px;
+  right: 4px;
+  /* 用 em 不用 px：角标要跟着用户字号设置一起缩放，且设计尺度里没有 9px 这一档 */
+  font-size: .62em;
+  line-height: 1;
+  opacity: .75;
+  pointer-events: none;
+}
+.log-tab.active, .stats-nav-item.current {
+  background: var(--fill-primary);
+  color: var(--on-fill);
+  border-color: var(--fill-primary);
+}
+
+
+
+
+.log-record { padding: var(--sp-10) var(--sp-14); border-bottom: 1px solid #eee; font-size:var(--fs-title); }
+.log-record:last-child { border-bottom: none; }
+
+
+
+
+
+.log-record-note { font-size:var(--fs-title); color: var(--text); background: #F9F6F0; padding: var(--sp-6) var(--sp-8); border-radius: var(--radius-xs); margin-top: var(--sp-4); line-height: 1.5; }
+
+
+/* ===== 日志 › 专注记录：按日分组卡片 =====
+   一行只讲三件事——做了什么 / 多久 / 什么时候。
+   时长右对齐成一列「数字」，扫一眼就能比长短；备注降为次级灰字。 */
+.log-sum-strip {
+  display: flex; background: var(--card); border: 1px solid var(--hairline);
+  border-radius: var(--radius-md); overflow: hidden; margin: var(--sp-20) 0 var(--sp-6);
+}
+.log-sum-cell { flex: 1; text-align: center; padding: var(--sp-10) var(--sp-4); }
+.log-sum-cell + .log-sum-cell { border-left: 1px solid var(--hairline); }
+.log-sum-num { font-size: var(--fs-sub); font-weight: 800; color: var(--primary-ink); line-height: 1.15; white-space: nowrap; }
+.log-sum-lab { font-size: var(--fs-note); color: var(--text-light); margin-top: var(--sp-2); white-space: nowrap; }
+/* 时长格里的单位（小时/分钟）：跟在数字后的小号字，让格名能固定成「记录时长」 */
+.log-sum-unit { font-size: 0.72em; font-weight: 600; }
+
+.log-date-header {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline;
+  gap: var(--sp-2) var(--sp-8);
+  font-weight: 600; font-size: var(--fs-body); color: var(--text);
+  padding: 0 var(--sp-6) var(--sp-6); margin-top: var(--sp-16);
+}
+.log-date-header > span:first-child { flex: 1 1 100%; min-width: 0; }
+.log-date-header .log-date-sum {
+  font-weight: 600; font-size: var(--fs-note); color: var(--text-light);
+  margin-left: auto; max-width: 100%; text-align: right;
+  /* 摘要现在带两个时长（记录/专注），窄屏允许折行，别再撑出横向溢出 */
+  white-space: normal;
+}
+.log-date-header[data-today] span:first-child { color: var(--primary-ink); }
+/* 摘要里的番茄数：旁边这堆都是灰色时长，它用主色 + 粗体挑出来。
+   前面那个 · 用 ::before 出，避免和「专注 50 分钟」粘成一坨。 */
+.log-date-pomo {
+  margin-left: var(--sp-6);
+  color: var(--primary-ink);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.log-date-pomo::before { content: '·'; margin-right: var(--sp-4); opacity: .45; font-weight: 400; }
+.log-day-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); overflow: hidden;
+}
+
+.timeline-item { display: block; padding: 0; }
+.timeline-content {
+  position: relative; min-width: 0;
+  padding: var(--sp-14) var(--sp-16);
+  background: transparent; border: none;
+  border-bottom: 1px solid var(--hairline);
+  border-radius: 0; margin: 0; cursor: pointer;
+}
+.timeline-item:last-child .timeline-content { border-bottom: none; }
+.timeline-content.grouped { border-left: var(--sp-4) solid var(--primary); }
+.log-row-head { display: flex; align-items: baseline; gap: var(--sp-8); }
+.log-row-head .timeline-title { flex: 1; min-width: 0; margin-bottom: 0; padding-right: 0;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.log-row-head .timeline-dur { flex-shrink: 0; }
+.timeline-content:not(.grouped) .log-row-head { padding-right: calc(var(--sp-24) + var(--sp-12)); }
+/* 第三层：预计/实际 · 打断 · 待补填 · 电量心情 —— 固定独占一行 */
+.log-row-meta2 {
+  display: flex; align-items: center; flex-wrap: wrap;
+  gap: var(--sp-6) var(--sp-8);
+  margin-top: var(--sp-6);
+}
+.log-row-meta2 > .timeline-tag { margin-left: 0; padding: var(--sp-4) var(--sp-10); }
+.log-row-meta2:empty { display: none; }
+.log-row-meta2 .log-state-cmp { margin-left: 0; }
+/* 时长统一靠后端右对齐，不再与标题争宽 */
+.timeline-time-line .timeline-dur { margin-left: auto; flex-shrink: 0; }
+
+.timeline-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: var(--sp-8); border: 1px solid var(--border); }
+.timeline-dot.full { background: var(--primary); border-color: var(--primary-dark); }
+.timeline-dot.half { background: var(--yellow); border-color: var(--yellow-dark); }
+.timeline-dot.incomplete { background: var(--text-light); border-color: var(--text-light); }
+.timeline-dot.interrupted { background: #999; border-color: #666; }
+.timeline-dot.log { background: #5B9BD5; border-color: #3B6EA5; }
+.timeline-dot.pending { background: transparent !important; }
+.timeline-dot.grouped { box-shadow: 0 0 0 var(--sp-2) rgba(var(--primary-rgb), 0.18); }
+
+.timeline-title { font-size: var(--fs-title); font-weight: 800; line-height: 1.25; margin-bottom: var(--sp-2); padding-right: var(--sp-24); word-break: break-word; }
+.timeline-dur { font-size: var(--fs-body); font-weight: 600; color: var(--primary-ink); white-space: nowrap; font-variant-numeric: tabular-nums; line-height: 1.2; }
+
+.timeline-time-line { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-6) var(--sp-8); margin-top: var(--sp-6); }
+.timeline-time { font-size: var(--fs-body); font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; letter-spacing: -0.2px; }
+.timeline-time-line .timeline-tag { margin-left: 0; }
+.timeline-tag { display: inline-block; font-size: var(--fs-body); padding: var(--sp-4) var(--sp-12); border-radius: var(--radius-full); font-weight: 600; white-space: nowrap; }
+.tag-plan { background: rgba(76,175,80,.14); color: var(--green-ink); }
+
+
+
+
+
+.tag-pending { background: #F0F0F0; color: #666; }
+.timeline-tag.tag-merge { background: #EEF3F8; color: #4A6E93; }
+/* 专注记录里的「计划关联」行：四象限徽标 + 标签 + 正在做的子任务 */
+.log-row-meta3 { display: flex; flex-wrap: wrap; gap: var(--sp-4); align-items: center; margin-top: var(--sp-4); }
+.timeline-tag.tag-label { background: rgba(76,175,80,.14); color: var(--green-ink); font-size: var(--fs-caption); }
+.timeline-tag.tag-sub { background: var(--bg); color: var(--text-light); font-size: var(--fs-caption); border: 1px solid var(--border); }
+/* 「打断 N 次」：原为 inline 写死 #FFF3CD —— 深色（蓝调）模式下亮成一块、刺眼。
+   改走变量：底色 warn-bg（浅淡黄 / 深暗棕自动切换），描边留 yellow 的警示感。 */
+.timeline-tag.tag-interrupt { background: var(--warn-bg); color: var(--text); border: 1px solid var(--yellow); }
+.timeline-more {
+  position: absolute;
+  right: 2px; top: 2px;
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-light); cursor: pointer;
+  border-radius: var(--radius-xs);
+  font-size: var(--fs-note); font-weight: 600;
+}
+.log-record-note {
+  font-size: var(--fs-body); color: var(--text-light);
+  background: none; padding: 0; margin-top: var(--sp-6); line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.log-sub-wrap { margin-top: var(--sp-8); border-top: 1px solid var(--hairline); padding-top: var(--sp-8); }
+.log-sub-item { display: flex; align-items: center; gap: var(--sp-8); padding: var(--sp-4) 0; font-size: var(--fs-body); }
+.log-sub-time { font-weight: 700; font-variant-numeric: tabular-nums; }
+.log-sub-dur { flex: 1; color: var(--text-light); }
+.log-sub-type { flex: 0 0 auto; font-size: var(--fs-caption); font-weight: 500; padding: 1px var(--sp-4); border-radius: var(--radius-full); background: var(--card); border: 1px solid var(--border); color: var(--text-light); }
+/* ── 定点提醒：iOS 分组列表范式（Alarms 那种：左侧大时间 + 说明，右侧开关） ── */
+.ios-list { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: var(--sp-10); }
+.ios-row { display: flex; align-items: center; gap: var(--sp-10); padding: var(--sp-10) var(--sp-14); border-bottom: 1px solid var(--border); }
+.ios-row:last-child { border-bottom: none; }
+.ios-row-off { opacity: .55; }
+.ios-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ios-time-input { font-size: var(--fs-hero); font-weight: 800; font-variant-numeric: tabular-nums; border: none; background: transparent; color: var(--text); padding: 0; width: 100%; }
+.ios-label-input { border: none; background: transparent; color: var(--text-light); font-size: var(--fs-note); padding: 0; width: 100%; }
+.ios-label-input::placeholder { color: var(--text-light); opacity: .7; }
+.ios-chip-row { display: flex; align-items: center; gap: var(--sp-6); flex-wrap: wrap; margin-top: 2px; }
+.ios-chip { font-size: var(--fs-caption); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-full); padding: 1px var(--sp-8); background: var(--bg); font-family: inherit; }
+.ios-chip-quiet { color: var(--text-light); }
+select.ios-chip { appearance: none; -webkit-appearance: none; }
+.ios-row-right { flex: 0 0 auto; display: flex; align-items: center; gap: var(--sp-6); }
+.ios-switch { position: relative; display: inline-block; width: 46px; height: 28px; flex: 0 0 auto; }
+.ios-switch input { opacity: 0; width: 0; height: 0; }
+.ios-switch-slider { position: absolute; inset: 0; background: var(--border); border-radius: var(--radius-full); transition: background .18s; }
+.ios-switch-slider:before { content: ""; position: absolute; width: 22px; height: 22px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform .18s; box-shadow: 0 1px 3px rgba(0, 0, 0, .25); }
+.ios-switch input:checked + .ios-switch-slider { background: var(--primary); }
+.ios-switch input:checked + .ios-switch-slider:before { transform: translateX(18px); }
+.ios-row-del { border: none; background: transparent; color: var(--text-light); font-size: var(--fs-title); cursor: pointer; padding: 0 var(--sp-2); line-height: 1; }
+.ios-row-del:active { color: var(--danger); }
+.log-sub-act { font-weight: 700; color: var(--primary-dark); padding: 0 var(--sp-6); cursor: pointer; }
+/* 起始→结束的状态对比：数字当主角，emoji 退成浅灰小字，不再压过数字 */
+.log-row-meta2 { margin-top: var(--sp-6); }
+.log-state-cmp { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-4) 0; color: var(--text);
+  font-size: var(--fs-body); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.log-state-cmp .st-ico { font-size: .86em; line-height: 1; opacity: .78; margin-right: var(--sp-2); vertical-align: -1px; }
+.log-state-cmp .st-grp + .st-grp { margin-left: var(--sp-16); }
+.log-state-cmp .st-grp { letter-spacing: .02em; }
+.log-state-cmp .st-arw { color: var(--text-light); font-weight: 400; }
+.log-state-cmp .st-val { font-weight: 800; }
+body.dark-mode .timeline-tag.tag-merge { background: #22303E; color: #9FB6CB; }
+body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
+
+.more-menu {
+  position: absolute;
+  right: 0; top: 32px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  z-index: 50;
+  min-width: 120px;
+  box-shadow: var(--shadow-soft);
+}
+.more-menu-item { padding: var(--sp-8) var(--sp-12); font-size:var(--fs-title); cursor: pointer; border-bottom: 1px solid #eee; }
+.more-menu-item:last-child { border-bottom: none; }
+.more-menu-item.danger { color: var(--danger); }
+
+
+
+.diary-field { margin-bottom: var(--sp-8); }
+.diary-field label { font-size:var(--fs-title); color: var(--text-light); display: block; margin-bottom: var(--sp-4); font-weight: 700; }
+.diary-field textarea, .diary-field input {
+  width: 100%;
+  padding: var(--sp-10);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  /* 日记 / 复盘是「长文读写区」：用 17px（--fs-title）而不是 16px 的正文下限。
+     iOS 的正文本身就是 17pt；输入框里装的是自己反复回看的字，该取正文档而非最小档。 */
+  font-size:var(--fs-title);
+  line-height: 1.8;
+  background: var(--card);   /* 不再写死浅黄：跟着主题与蓝调模式走 */
+  color: var(--text);
+  font-family: inherit;
+}
+/* 文本框**高度自适应**：内容少就矮、写多了才长，到 max-height 才转框内滚动。
+   原先四个框一律固定 110px —— 绝大多数日子每个框只写一两行，
+   那 440px 的固定高度就是把整页顶到"要滑很久"的元凶。 */
+.diary-field textarea { min-height: 52px; max-height: 40vh; overflow-y: auto; resize: none; }
+.diary-row { display: flex; gap: var(--sp-8); }
+.diary-row .diary-field { flex: 1; min-width: 0; }
+/* 日记里的可折叠分组（「其他记录」「今日反馈」）：标题行整条可点，右侧一个指示箭头 */
+.diary-fold-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); cursor: pointer; }
+.diary-fold-head .dfh-arrow { color: var(--text-light); flex-shrink: 0; }
+.diary-fold-head.open .dfh-arrow { transform: rotate(90deg); }
+.diary-fold-body { margin-top: var(--sp-8); }
+/* 感恩日记：一条一行，行首一个小序号 */
+.gratitude-row { display: flex; align-items: center; gap: var(--sp-8); margin-bottom: var(--sp-6); }
+.gratitude-row .gr-i { flex: 0 0 auto; width: 18px; text-align: center; font-size: var(--fs-caption); color: var(--text-light); font-weight: 500; }
+.gratitude-row input {
+  flex: 1; min-width: 0;
+  padding: var(--sp-8) var(--sp-10);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  /* 与「每日复盘」的 textarea 同档（长文读写区 17px），不要一个 16 一个 17 */
+  font-size: var(--fs-title);
+  background: var(--card);
+  color: var(--text);
+  font-family: inherit;
+}
+
+
+.diary-view-btn.active { background: var(--fill-primary); color: var(--on-fill); }
+.diary-current-date {
+  font-size:var(--fs-sub);
+  font-weight: 700;
+  color: var(--primary-dark);
+  text-align: center;
+  margin-bottom: var(--sp-12);
+  padding: var(--sp-8);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+/* 日历弹窗 */
+.calendar-modal .modal { max-width: 360px; }
+.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-12); }
+.calendar-header button {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  font-size:var(--fs-sub);
+  font-weight: 700;
+  cursor: pointer;
+}
+.calendar-header .cal-title { margin: 0; font-size:var(--fs-sub); font-weight: 700; }
+/* 年月标题：做成「一眼就是按钮」的胶囊。
+   旧版标题只是加了 cursor:pointer 的纯文字 —— 。现在：左右箭头翻月，中间这颗按钮点开
+   就是「年 ‹ 2026 › + 12 个月」，三处日历（日记/专注记录/总览）共用同一套。
+   ★ 选择器带 `button.` 提高优先级：上面 .calendar-header button 是 32×32 的方块，
+   标题按钮需要自适应宽度。 */
+.calendar-header button.cal-title-btn {
+  width: auto; height: auto;
+  display: inline-flex; align-items: center; gap: var(--sp-6);
+  padding: var(--sp-4) var(--sp-10);
+  border: 1px solid var(--border); border-radius: var(--radius-full);
+  background: var(--card); color: var(--text);
+  font-size:var(--fs-title); font-weight: 800;
+  cursor: pointer;
+}
+.calendar-header button.cal-title-btn:active { background: var(--primary-soft, rgba(255,87,34,.1)); }
+.cal-title-btn .ct-arrow { font-size:var(--fs-caption); color: var(--primary-ink); }
+/* 标题按钮的外壳（.calendar-header 里用 h3 承载，满足弹窗统一结构要求）：
+   撑开剩余宽度并居中，不参与 32×32 的箭头尺寸规则。 */
+.cal-title-host { flex: 1; margin: 0; display: flex; justify-content: center; align-items: center; }
+/* 年月快速跳转面板 */
+.cal-jump { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--sp-8) var(--sp-10); margin-bottom: var(--sp-8); }
+.cal-jump-line { display: flex; align-items: center; gap: var(--sp-6); flex-wrap: wrap; }
+.cal-jump-line + .cal-jump-line { margin-top: var(--sp-6); }
+.cal-jump-lbl { font-size:var(--fs-note); color: var(--text-light); font-weight: 600; }
+.cal-jump-val { font-size:var(--fs-body); font-weight: 600; color: var(--primary-ink); min-width: 46px; text-align: center; }
+.cal-jump-btn { font-size:var(--fs-note); padding: var(--sp-2) var(--sp-8); border-radius: var(--radius-sm); border: 1px solid var(--border-strong); background: var(--card); color: var(--text); cursor: pointer; }
+.cal-jump-btn:active { background: var(--primary-soft, rgba(255,87,34,.1)); }
+/* 月份格：必须 flex:0 0 auto + nowrap，否则 12 格挤在一行时被压窄，
+   「10」会折成「1/0」、「9」的条数会跟数字挤成两行。 */
+.cal-jump-m { font-size:var(--fs-note); min-width: 34px; flex:0 0 auto; white-space:nowrap; padding: var(--sp-2) 0; text-align: center; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--card); cursor: pointer; }
+.cal-jump-m.on { border-color: var(--primary); color: var(--primary-ink); font-weight: 800; }
+.cal-jump-m:active { background: var(--primary-soft, rgba(255,87,34,.1)); }
+.calendar-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: var(--sp-4); margin-bottom: var(--sp-12); }
+.calendar-weekday { text-align: center; font-size:var(--fs-title); font-weight: 700; color: var(--text-light); padding: var(--sp-4) 0; }
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size:var(--fs-title);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  position: relative;
+}
+.calendar-day.has-diary { background: var(--fill-primary); color: var(--on-fill); border-color: var(--primary-dark); font-weight: 700; }
+.calendar-day.today { border-color: var(--yellow); border-width: 1px; }
+.calendar-day.disabled { color: #ccc; cursor: not-allowed; }
+.calendar-day.empty { cursor: default; }
+/* ── 日程表月历（.hm）：颜色深浅 = 当天折算番茄数 ──
+   色阶只共用 --hm1~--hm4（与日志页「专注记录日历」同一套档位），不另配色；
+   同一天在两处看到的深浅必须一模一样。 */
+.calendar-day.hm { flex-direction: column; gap: 0; line-height: 1.05; font-weight: 600; }
+.calendar-day.hm .hm-d { font-size: var(--fs-title); }
+.calendar-day.hm .hm-n { font-size: var(--fs-micro); font-weight: 500; opacity: .9; }
+.calendar-day.hm.lv1 { background: var(--hm1); color: #2b2118; }
+.calendar-day.hm.lv2 { background: var(--hm2); color: #2b2118; }
+.calendar-day.hm.lv3 { background: var(--hm3); color: #2b2118; }
+.calendar-day.hm.lv4 { background: var(--hm4); color: #fff; }
+/* 有记录但 0 番茄（纯补记）：空心描边，别看起来像空白 */
+.calendar-day.hm.lv0.hasrec { box-shadow: inset 0 0 0 1.5px var(--hm1); }
+/* 这天有**一次性**计划的排期：右上角一个点。循环计划不点（天天都在，点了没信息） */
+.calendar-day.hm.has-plan::after {
+  content: ''; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px;
+  border-radius: 50%; background: var(--primary);
+}
+.calendar-day.hm.lv4.has-plan::after { background: #fff; }
+.calendar-search { width: 100%; padding: var(--sp-8); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size:var(--fs-title); margin-bottom: var(--sp-10); }
+.calendar-search-results { max-height: 120px; overflow-y: auto; margin-bottom: var(--sp-10); }
+.calendar-search-item { padding: var(--sp-8) var(--sp-10); border-bottom: 1px solid #eee; font-size:var(--fs-title); cursor: pointer; }
+.calendar-search-item:hover { background: var(--warn-bg); }   /* 不写死浅黄：深色下 hover 不再亮成一块 */
+.calendar-search-item .sr-date { font-weight: 700; color: var(--primary-ink); }
+.calendar-search-item .sr-snippet { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-2); }
+
+/* 日记总览 */
+.diary-overview-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: var(--sp-12);
+  box-shadow: none;
+  overflow: hidden;
+}
+.diary-overview-header {
+  background: var(--fill-primary);
+  color: var(--on-fill);
+  padding: var(--sp-10) var(--sp-14);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+.diary-overview-header .ov-date { font-size:var(--fs-title); font-weight: 700; }
+.diary-overview-header .ov-arrow { font-size:var(--fs-sub); transition: transform 0.2s; }
+.diary-overview-item.collapsed .ov-arrow { transform: rotate(-90deg); }
+.diary-overview-body { padding: var(--sp-10) var(--sp-12); font-size:var(--fs-body); line-height: 1.6; }
+.diary-overview-item.collapsed .diary-overview-body { display: none; }
+
+
+/* ---------- 7. 统计页 ---------- */
+/* 容器只管「粘在顶部 + 底色 + 底边」，形态（胶囊/边距/字重）全部来自上面那条
+   共享的 .log-tabs / .stats-nav 规则，不再在这里重写一遍。 */
+.stats-nav {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 20;
+}
+/* 统计页顶部与头部栏对齐：去掉 view 默认顶内边距，Tab 条顶格在头部栏下沿 */
+#view-stats { padding-top: 0; }
+#view-stats .stats-nav { margin-top: 0; border-radius: 0 0 var(--radius) var(--radius); }
+/* 统计页小字整体放大：图表标签/分析文案 10-13px 级 → 13-15px */
+#view-stats [style*="font-size:var(--fs-micro)"], #view-stats [style*="font-size:var(--fs-micro)"], #view-stats [style*="font-size:var(--fs-micro)"], #view-stats [style*="font-size:var(--fs-micro)"], #view-stats [style*="font-size:var(--fs-tiny)"], #view-stats [style*="font-size:var(--fs-tiny)"] { font-size:var(--fs-note) !important; }
+#view-stats [style*="font-size:var(--fs-caption)"], #view-stats [style*="font-size:var(--fs-caption)"] { font-size:var(--fs-body) !important; }
+#view-stats [style*="font-size:var(--fs-note)"] { font-size:var(--fs-body) !important; }
+
+.stats-header { text-align: center; margin-bottom: var(--sp-16); }
+
+.stats-total { font-size: calc(51px * var(--fs-boost)); font-weight: 800; color: var(--primary-ink); }
+
+
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-10); margin-bottom: var(--sp-16); }
+/* 统计页快速跳转导航 */
+#statsJumpNav .jump-pill {
+  flex-shrink: 0;
+  font-size:var(--fs-note);
+  font-weight: 600;
+  padding: var(--sp-6) var(--sp-12);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  transition: all .2s;
+}
+#statsJumpNav .jump-pill:active { transform: scale(.94); }
+#statsJumpNav .jump-pill.jump-rank { border-width: 1px; font-size:var(--fs-note); }
+/* 板块专属分析折叠区 */
+.block-an-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  font-size:var(--fs-caption);
+  font-weight: 500;
+  color: var(--text-light);
+  background: var(--card);
+  border:1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  padding: var(--sp-2) var(--sp-10);
+  margin: var(--sp-4) 0 var(--sp-2);
+  cursor: pointer;
+  user-select: none;
+}
+.block-an-btn:active { transform: scale(.96); }
+.block-an-body {
+  font-size:var(--fs-note);
+  line-height: 1.9;
+  color: var(--text-light);
+  background: var(--bg);
+  border:1px solid var(--hairline);
+  border-radius: var(--radius);
+  padding: var(--sp-8) var(--sp-12);
+  margin: var(--sp-2) 0 var(--sp-6);
+}
+.an-spin { display: inline-flex; align-items: center; gap: var(--sp-8); color: var(--text-light); font-size:var(--fs-note); }
+.an-spin::before {
+  content: ""; width: 13px; height: 13px;
+  border: 1px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: anRotate .8s linear infinite;
+}
+@keyframes anRotate { to { transform: rotate(360deg); } }
+/* 日志页右下角逐天跳转箭头 */
+#logJumpArrow {
+  position: fixed; right: 14px; bottom: 88px; z-index: 50;
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--fill-primary); color: var(--on-fill); font-size:var(--fs-h1); font-weight: 900;
+  border: none; box-shadow: 0 3px 12px rgba(0,0,0,.28);
+  align-items: center; justify-content: center;
+  cursor: pointer; transition: transform .15s;
+}
+#logJumpArrow:active { transform: scale(.9); }
+.stats-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-12);
+  text-align: center;
+  box-shadow: none;
+}
+.stats-card .card-num { font-size: calc(26px * var(--fs-boost)); font-weight: 800; }
+.stats-card .card-label { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-4); }
+
+.week-chart {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-14);
+  box-shadow: none;
+  margin-bottom: var(--sp-14);
+}
+.week-chart h3 { font-size:var(--fs-title); margin-bottom: var(--sp-12); }
+
+
+
+
+
+
+
+/* 日志页头四颗按钮（📅 日期 / 🔍 筛选 / + 补记 / 🧠 回顾）：
+   ★ 「这一排应该跟『专注记录』四个字在它旁边，而且靠右」。
+   做法不是加换行控制，而是把按钮本身收窄到放得下 —— 4 颗按钮要在 412/360 宽度下
+   跟标题同处一行，靠的是字号 15px→13px（caption 档）+ 内边距 8px→6px，
+   信息一个不删。位置对齐在 23_view_log.html 里用 margin-left:auto 保证。 */
+.log-hd-btn { padding: var(--sp-4) var(--sp-4); font-size: var(--fs-caption); line-height: 1.4; }
+@media (max-width: 340px) {
+  .log-hd-btn { padding: var(--sp-2) var(--sp-4); font-size: var(--fs-caption); }
+}
+/* 筛选面板里的关键词搜索：跟「全部类型 / 清除」同一档高度，别做成一个占半屏的大白条
+*/
+#logSearch {
+  padding: var(--sp-4) var(--sp-10);
+  font-size: var(--fs-note);
+  border-radius: var(--radius-sm);
+  line-height: 1.5;
+}
+/* 传记搜索的命中高亮。写在样式表里而不是内联：内联等于把颜色/圆角/间距三档 token
+   全绕过去，以后调色得回来翻 JS 字符串（lint 也一直在报）。 */
+.bio-hl {
+  background: rgba(232, 93, 58, .22);
+  color: inherit;
+  border-radius: var(--radius-xs);
+  padding: 0 var(--sp-2);
+}
+
+/* ── 日志日历格子：按番茄数热力分档（复用统计页 --hm* 色阶，不新增颜色） ── */
+.logcal-day{position:relative;text-align:center;padding:var(--sp-6) 0;border-radius:var(--radius-sm);
+  cursor:pointer;font-size:var(--fs-title);line-height:1.15;color:var(--text);transition:background .15s}
+.logcal-day.empty{background:transparent;opacity:.55}
+.logcal-day.lv1{background:var(--hm1);color:#2b2118;font-weight:700}
+.logcal-day.lv2{background:var(--hm2);color:#2b2118;font-weight:700}
+.logcal-day.lv3{background:var(--hm3);color:#2b2118;font-weight:700}
+.logcal-day.lv4{background:var(--hm4);color:#fff;font-weight:700}
+.logcal-day.sel{box-shadow:inset 0 0 0 2px var(--text)}
+.logcal-day .logcal-d{display:block;font-size:var(--fs-title)}
+.logcal-day .logcal-n{display:block;font-size:var(--fs-micro);opacity:.9;font-weight: 500}
+.logcal-legend{grid-column:1/-1;display:flex;align-items:center;justify-content:flex-end;gap:4px;
+  font-size:var(--fs-micro);color:var(--text-light);margin-top:var(--sp-6)}
+.logcal-day.lv0.hasrec{background:transparent;box-shadow:inset 0 0 0 1.5px var(--hm1)}
+
+
+/* 近 7 天趋势：图例原来紧贴 SVG，会压住底部日期行 */
+#trendLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-8) var(--sp-12);
+  margin-top: var(--sp-8);
+}
+/* 不要给 svg 开 overflow:visible：x 轴文字会顶出容器，
+   320px 下「10/25」会越界到 right=332（viewport 门禁红）。
+   日期行需要的空间由 #trendLegend 的 margin-top 让出来。 */
+
+
+/* 页签不再等分：5 个中文标签在 360px 下每格只有 62px，
+   「⏳ 倒数日」「🥇 排行榜」放不下就被省略成「倒…」「排…」（用户实测反馈）。
+   改成按内容宽 + 横向滚动：宁可滑一下，也不要残字。 */
+.log-tab, .stats-nav-item {
+  /* ★ flex-grow:1 + flex-basis:auto（不是 0）：
+       - 空间够 → 各自按内容宽起步，再把剩余空间均分掉 → 整行铺满，和原来一样；
+       - 空间不够 → min-width:max-content 撑住，谁都压不扁 → 整条横向滚动。
+     之前写 flex:0 0 auto，剩余空间全堆在右边，右边就空出一大块。 */
+  flex: 1 0 auto;
+  min-width: max-content;
+  padding-left: var(--sp-6);
+  padding-right: var(--sp-6);
+  text-overflow: clip;
+}
+
+/* 趋势图容器是 inline 的 overflow-x:auto + 内层 width:100% + 左右 padding，
+   默认 content-box 下「100% + 20px」比容器宽 20px → 320px 视口量到溢出 17px。
+   给内层统一 border-box，宽度不再被 padding 撑破。 */
+#trendChart > div { box-sizing: border-box; }
+
+
+/* ========== 提醒页：拆掉"卡中卡中卡" ==========
+   原来三层：外层卡片(白底+描边) → 每行(灰底+描边+圆角) → 输入框(白底+描边+圆角)。
+   一个屏上出现 8~10 个白方块互相套着，是这一页"糊"的根源。
+   现在：外层卡片保留（它是页面的分组），内部一律降成"分隔线列表 + 裸文字"。 */
+#planBreakView .ios-list {
+  background: transparent; border: 0; border-radius: 0; overflow: visible;
+  margin-bottom: var(--sp-10);
+}
+#planBreakView .ios-row { border-bottom: 1px solid var(--hairline); padding: var(--sp-10) 0; }
+#planBreakView .ios-row:last-child { border-bottom: 1px solid var(--hairline); }
+/* 重复方式 / 日期这些 chip 原来是"淡底+描边+胶囊"，第三个盒子，去掉 */
+#planBreakView .ios-chip {
+  border: 0; background: transparent; padding: 0;
+  color: var(--text-light); font-size: var(--fs-caption);
+}
+#planBreakView select.ios-chip { color: var(--text); text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--border-strong); }
+/* 「重置」是低频动作，不该占一整个实心按钮的高度 */
+#planSbReset {
+  background: transparent !important; border: 0 !important;
+  color: var(--primary-ink) !important; padding: 0 !important;
+  min-height: 0 !important; font-size: var(--fs-body) !important;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+/* 行内输入框：没有盒子，只有文字；聚焦时给一条下划线做反馈 */
+#planBreakView .flat-time, #planBreakView .flat-text {
+  border: 0; background: transparent; box-shadow: none; outline: none;
+  font-variant-numeric: tabular-nums;
+}
+#planBreakView .flat-time:focus, #planBreakView .flat-text:focus {
+  box-shadow: 0 1px 0 0 var(--primary);
+}
+#planBreakView .flat-text::placeholder { color: var(--text-light); opacity: .65; }
+
+#planBreakView .flat-select, #planBreakView .flat-input {
+  border: 0; background: transparent; box-shadow: none; outline: none;
+}
+#planBreakView .flat-select {
+  text-decoration: underline; text-underline-offset: 2px;
+  text-decoration-color: var(--border-strong);
+}
+#planBreakView .flat-input:focus { box-shadow: 0 1px 0 0 var(--primary); }
+/* 「重置」是低频动作：字重不该比正文还重 */
+#planSbReset { font-weight: 600 !important; }
+/* ===== 年份控件（2026-11-07）=====
+   ‹ 年 › 常驻，中间那颗年份按钮是快跳入口：记录多了以后，从今年翻到三年前
+   要按六下，点它直接开年份网格一次到位。 */
+.yr-nav-year {
+  min-width: 48px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--primary-ink);
+}
+/* 快跳弹窗里的年份格：上面年份、下面该年番茄数（倒序，最近的在上）
+   年份多了会撑高 —— 弹窗里限高 52vh 自己滚，不把"取消"顶出屏幕。 */
+.yr-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-8) var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  cursor: pointer;
+  line-height: 1.2;
+}
+.yr-pick b { font-size: var(--fs-title); font-weight: 800; font-variant-numeric: tabular-nums; }
+.yr-pick span { font-size: var(--fs-micro); color: var(--text-light); font-variant-numeric: tabular-nums; }
+.yr-pick.on {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+.yr-pick.on b { color: var(--primary-ink); }

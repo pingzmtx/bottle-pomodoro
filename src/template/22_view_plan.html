@@ -1,0 +1,141 @@
+  <!--pnid:KOqFkPa8IpEgtzqW2XSRVg--><!-- ========== 计划页 ========== -->
+  <section data-page-node-id="pfoPswAZ9wrxzHm8T2sjkC" class="view" id="view-plan">
+    <!-- 计划页二级导航：计划 / 习惯 / 目标 / 提醒（定点提醒 + 定点休息） -->
+    <div data-page-node-id="3PGaHMbxBIa5SHruZofqkH" class="log-tabs">
+      <div data-page-node-id="tNjTS6XyrZap4eojfjWr3w" class="log-tab active" data-tab="plan" data-act="switchPlanTab" data-act-args='["plan"]'><!--pnid:yRXxEQbIC7mmWOv5XdbRn3-->📋 计划</div>
+      <div data-page-node-id="rIep7vApsBJFWW58RJrbFW" class="log-tab" data-tab="habit" data-act="switchPlanTab" data-act-args='["habit"]'><!--pnid:UgQATtQaPsR32fKQkzYl5Y-->🌱 习惯</div>
+      <div class="log-tab" data-tab="goal" data-act="switchPlanTab" data-act-args='["goal"]'>🎯 目标</div>
+      <div class="log-tab" data-tab="break" data-act="switchPlanTab" data-act-args='["break"]'>⏰ 提醒</div>
+      <div class="log-tab" data-tab="countdown" data-act="switchPlanTab" data-act-args='["countdown"]'>⏳ 倒数日</div>
+    </div>
+    <div data-page-node-id="DQm5uQYd5gSrPwsssZdJ21" id="planTodoView">
+
+      <div data-page-node-id="Vlub9gsEsDMizOD0FM9COd" style="display:flex; justify-content:space-between; align-items:center">
+        <div data-page-node-id="jjjBCDr9qNrN2K8okIz89N" class="section-title" style="margin:0"><!--pnid:XWHhnrDagN6AXDLHvLRjDj-->📋 今日计划</div>
+        <div style="display:flex; gap:var(--sp-6); align-items:center; flex-shrink:0">
+          <!-- 日程网格的展开/收起：**唯一入口**，就放在加号旁边（原先分踞「网格上方」与「网格抬头」两处）。
+               文案与 aria-expanded 由 01eA 的 renderTimeBlockGrid() 每次重画时同步；
+               状态只有一份（appData.settings.tbGridFolded），别处不要再挂第二个开关。 -->
+          <button class="btn-small tb-paper-fold" id="tbFoldToggle" data-act="tbToggleGridFold" aria-expanded="true" title="展开 / 收起日程网格" style="white-space:nowrap; background:transparent; color:var(--text-light); border-color:transparent; font-weight:var(--fw-medium)">收起</button>
+          <button data-page-node-id="iIxymMYmHrVxa8AoDyltdE" class="btn-small" data-act="openAddTodoModal" title="新增计划" style="background:var(--fill-primary); color:var(--on-fill); width:34px; height:34px; padding:0; font-size:var(--fs-hero); line-height:1; border-radius:var(--radius); flex-shrink:0"><!--pnid:u146PgJc1y3cPIWqfdl3HQ-->＋</button>
+        </div>
+      </div>
+      <!-- 日程规划网格：**不做成单独一页**，就摆在计划列表上方，跟下面的计划同屏对照 -->
+      <div id="tbShellHost" style="margin-bottom:var(--sp-14)"></div>
+      <!-- 今日必做（由昨日「明日必做」次日自动带入；带特殊标记，位于计划列表顶部） -->
+      <div id="planTodoMustRows" style="margin-bottom:var(--sp-14)"></div>
+      <div data-page-node-id="MXyyS9s2KZRoiJ7UY5zFq5" id="todoPersistHint" style="display:none; font-size:var(--fs-caption); color:var(--text-light); line-height:1.6; margin:var(--sp-4) 0 var(--sp-10); padding:var(--sp-8) var(--sp-10); border-radius:var(--radius); background:var(--surface-2)"><!--pnid:SwxWirCcBS5LI5OHvRbSTT-->未完成的任务会一直保留在这里，直到你完成或手动删除；已勾选完成的会在次日零点自动清掉。</div>
+      <div data-page-node-id="9b5rwDL56JAOZcUXSsROyU" id="planCountdownList" style="margin-bottom:var(--sp-12)"></div>
+      <!-- 周计划日期题头：看非今天时显示「正在看哪天」；看今天时隐藏（界面与改版前一致）。
+           内容由 01eC 的 renderTodos 填写（日期状态的宿主是 01eA）。 -->
+      <div class="todo-date-caption" id="todoDateCaption" style="display:none"></div>
+      <div data-page-node-id="DnEvBbhW6EyPDBSFEU6RkA" class="sort-bar">
+        <span class="sort-label">排序</span>
+        <select data-page-node-id="6MH0QY2uy2HHgmiDUsVjbq" id="todoSortBy" data-change="setTodoSort" data-change-args='["@value"]'>
+          <option data-page-node-id="BDithDn1Kib0QGdlH3lZKr" value="manual"><!--pnid:6baaEVO8vLOsqmJi2YgxcW-->手动</option>
+          <option data-page-node-id="fu2e3w3g7lRC5HICkK7wiS" value="created"><!--pnid:3H9pHwNvI3I4YOwyVlIMbf-->创建时间</option>
+          <option data-page-node-id="Wf29qEybAJmp" value="planTime"><!--pnid:l8MznXxFohLk-->计划时间</option>
+          <option data-page-node-id="zlYJ7SaMAOQz" value="quad"><!--pnid:kpcodehdDjdW-->四象限</option>
+          <option data-page-node-id="wgkowaj8UK3UmU9NsOMTsJ" value="pomodoros"><!--pnid:X197WYdlFdCgLmGqD2B9ib-->预计🍅数</option>
+          <option data-page-node-id="5WSdpJ9ghMoDwQU8AWXarb" value="done"><!--pnid:MTIxiZ9lpK8h8FBEMmuDeM-->完成状态</option>
+        </select>
+        <button data-page-node-id="48YsSNkPXC7RmTx3p3c72d" class="sort-dir-btn" id="todoSortDir" data-act="toggleTodoSortDir" title="切换排序方向"><!--pnid:BINixqBBFQR3m1LR503tvY-->↓</button>
+        <button class="sort-dir-btn sort-eye-btn" id="todoDoneToggle" data-act="toggleTodoDoneHidden" title="隐藏今天已完成的任务" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div data-page-node-id="t8CcLLyR2K4SEMoEmLfs7G" class="todo-list" id="todoList"></div>
+      <!-- 今日习惯 dock（2026-11-04）：习惯不再只能切到「🌱 习惯」页看 ——
+           计划页底部挂一条，**默认折叠成一行**（今天该做几个 / 打了几个），
+           点开就是可勾选的习惯行。一屏里「今天排的计划」和「今天该做的习惯」同框，
+           不用来回切标签。内容由 01eB 的 renderPlanHabitDock() 填，
+           折叠状态落在 settings.planHabitDockOpen（默认 false = 折叠）。 -->
+      <div id="planHabitDock"></div>
+      <!-- 累计番茄（2026-11-07）：计划页最下方一张卡 —— 上面是本自然年的账
+           （今年 1/1 至今：之前 + 今天 = 本年），下面是全历史总番茄数。
+           为什么上段要拆成三段而不是只给一个总数：只给总数的话，今天新做的 8 个
+           会被埋在 182 里，看不出"今天有没有在涨"。
+           ★ 口径是「本自然年」，不是滚动 365 天：滚动窗口每少一天补进一天，
+             数字天天在原地，看不出又涨了（用户明确否掉了）。
+           数字由 01eC 的 renderPlanPomoTotal() 填，一律千分位精确显示
+           （fmtPomoGrouped，不换「万」——换万会让 `1.23万 + 8 = 1.23万` 两边相等），
+           字号再按显示位数自动降档，保证不撑破卡片。 -->
+      <div id="planPomoTotal"></div>
+    </div>
+
+        
+    <div data-page-node-id="uPVvowmL1F0mDAjJFR9oDf" id="planHabitView" style="display:none">
+
+      <!-- 习惯页抬头（2026-10-30）：原来的「输入框 + 添加按钮」只能建出"每天"的习惯，
+           节奏 / 分类 / 戒除型都得建完再进详情改两遍。改成与计划页同一副形态：
+           标题 + 右上角圆形「＋」→ habitEditModal（34×34，与「新增计划」同一个规格）。
+           快速添加的输入条整条撤掉：它和弹窗是两条建习惯的路，留着必然出现
+           "在输入框里建的习惯没有节奏"这种半成品数据。 -->
+      <div style="display:flex; justify-content:space-between; align-items:center">
+        <div class="section-title" style="margin:0">🌱 习惯</div>
+        <div style="display:flex; gap:var(--sp-6); align-items:center; flex-shrink:0">
+          <button class="btn-small" data-act="openHabitCatModal" style="white-space:nowrap; background:var(--card); color:var(--text); border-color:var(--border)" title="分类管理：新建 / 排序 / 删除">📁 分类</button>
+          <button class="btn-small" data-act="addHabit" title="新建习惯" aria-label="新建习惯" style="background:var(--fill-primary); color:var(--on-fill); width:34px; height:34px; padding:0; font-size:var(--fs-hero); line-height:1; border-radius:var(--radius); flex-shrink:0">＋</button>
+        </div>
+      </div>
+      <div data-page-node-id="O1FvFxZUsd4W8UXIVaFLTL" class="sort-bar">
+        <span data-page-node-id="5zl4NWP9mlhF7DDymjmDqg" class="sort-label"><!--pnid:bcQX2TAa5nkfp6doTRAfpS-->排序</span>
+        <select data-page-node-id="T150dxfjiXUF4YTxyBh6td" id="habitSortBy" data-change="setHabitSort" data-change-args='["@value"]'>
+          <option data-page-node-id="FzBEkevPk59vrdXVWPY5UO" value="manual"><!--pnid:ih6LK4exNnlo32yRQIPEOb-->手动</option>
+          <option data-page-node-id="OjCx9Nf7sPg1E6ALwfngwZ" value="created"><!--pnid:w3vFcDFpZf3MHKIyAszW8T-->创建时间</option>
+          <option data-page-node-id="ba0hQdTqef0MK8OmQpp55l" value="streak"><!--pnid:HLrQq2fIRNnBoQDVBhfbIH-->连续天数</option>
+          <option data-page-node-id="EDJIRJ2mFndzT8CbPeqYWn" value="points"><!--pnid:vUxTbEp9LcnwGaSUw0lyjN-->成长点数</option>
+          <option data-page-node-id="ouSwJibKdax8PVUP7rxEHa" value="checked"><!--pnid:hXEIj9iQlJim7D506cDeER-->打卡状态</option>
+        </select>
+        <button data-page-node-id="M5ebSTTbLffZZMxB53BdmW" class="sort-dir-btn" id="habitSortDir" data-act="toggleHabitSortDir" title="切换排序方向"><!--pnid:7ta2OsvpZBzLz4VyHcrM6e-->↓</button>
+      </div>
+      <div data-page-node-id="ZiS3rLnLj43clApubJ7AxB" class="habit-list" id="habitList"></div>
+    </div>
+
+    <!-- 计划页二级导航： 目标（必做3件事在上 → 今日专注目标在下，达成领 10🪙） -->
+    <div id="planGoalView" style="display:none">
+      <!-- 手账四页入口（九个方向 / 复盘 / 回看 / 愿望清单）。
+           ★ 放在这一页最顶上，不放进列表里：用户的原话是「你做了那么多页面，
+             结果找不着，在那个目标里」—— 之前九向只在「⋯」里、复盘只在
+             「到日子了」的提示条里、愿望清单只在「⋯」里，翻遍这页也凑不齐。
+             导航条必须第一眼就在，且不能跟着列表一起被过滤/空态挤掉
+             （目标一条都没有时它更要露出来）。由 01eE 的 renderLifeHub 填内容。 -->
+      <div id="lifeHub"></div>
+      <div id="planGoalMustDo"></div>
+      <!-- 今日番茄目标 + 领奖励。★ 必须在人生目标之上：
+           每天要用的「领奖励」不能因为新功能被挤到页面最下面（用户 2026-10-26 反馈）。
+           排序原则是「每天用的在上，每周用的在下」。 -->
+      <div id="planGoalMain" style="margin-top:var(--sp-14)"></div>
+      <!-- 本周重点 + 周期提示（检查点 / 收尾窗口）。★ 排在人生目标之上：
+           「这周做什么」比「今年做什么」近，打开目标页第一眼该看到的是它。
+           由 01eF_ui_lifecycle.js 渲染；为空时不占高度（innerHTML 是空串）。 -->
+      <div id="lifeWeekFocus" style="margin-top:var(--sp-18)"></div>
+      <!-- 人生目标（年 / 月 / 愿望）。★ 容器名是 lifeGoalsList，不是 planGoalList：
+           planGoal* 是既有 ID 家族（View/MustDo/Main），由 switchPlanTab 与
+           renderGoalPage 统一管理，往里插新成员会让「这 ID 归谁渲染」变含混；
+           更实际的风险是照抄旧名 → 模板写 planGoalList、JS 查 lifeGoalsList，
+           页面上就是一块空白，而且不报错。 -->
+      <div id="lifeGoalsList" style="margin-top:var(--sp-18)"></div>
+    </div>
+
+    <!-- 计划页二级导航：⏰ 定点休息（由设置页移入；每日最多 4 个时刻，到点提醒休息） -->
+    <div id="planBreakView" style="display:none"></div>
+
+    <!-- 计划页二级导航：⏳ 倒数日（由日志页移入，与「💬 备忘」互换位置 ——
+         倒数日是「还有多少天」的规划，属于计划；备忘是随手记，属于日志） -->
+    <div id="planCountdownView" style="display:none">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--sp-14)">
+        <div class="section-title" style="margin-bottom:0">📌 倒数日</div>
+        <button class="btn-small" data-act="openAddCountdownModal" style="background:var(--fill-primary); color:var(--on-fill); white-space:nowrap">➕ 添加</button>
+      </div>
+      <div class="sort-bar" style="margin:0 0 var(--sp-6);">
+        <span class="sort-label">排序</span>
+        <select id="cdSortSelect" data-change="setCountdownSort" data-change-args='["@value"]'>
+          <option value="date">按日期</option>
+          <option value="added">按添加时间</option>
+        </select>
+        <span style="margin-left:auto;font-size:var(--fs-caption);color:var(--text-light);">点 📌 固定到计划页顶部</span>
+      </div>
+      <div id="countdownList"></div>
+    </div>
+
+  </section>
+

@@ -1,0 +1,2693 @@
+
+
+.plan-tab.active { background: var(--yellow); }
+
+.plan-content.active { display: block; }
+
+
+
+.add-todo-bar { display: flex; gap: var(--sp-6); margin-bottom: var(--sp-10); }
+.add-todo-bar input { flex: 1; padding: var(--sp-10); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-size:var(--fs-title); background: var(--card); color: var(--text); }
+/* 习惯页新增栏的两个按钮一律跟随主题，不再各用一枚固定的语义色/表面色：
+   · 「添加」原本是 .btn-solid--green（写死 --green）。各套皮肤的 --green 是"功能性绿"，
+     在粉色主题（玫瑰松）下就是一块青绿，与顶栏/底栏/当前 tab 的粉两个色系 —— 跳色点。
+     改成实心主色（--primary + --on-primary，深色下 --on-primary 自动翻深，不会白字刺眼）。
+     .add-todo-bar 只用在习惯页（22_view_plan.html 的习惯视图），作用域安全。
+   · 「分类」原本靠模板行内 style 给了 --card 底 + --text 字，只是一块奶油色，跟主色无关。
+     改成主色系的浅底胶囊：--accent-bg / --accent-ink 是每套主题**成对**定义的浅底+深字令牌
+     （default/nord/tokyo/gruvbox/rosepine/catppuccin × 明暗 共 12 组全覆盖），对比度由主题自己保证，
+     也避开了 --primary-rgb 在默认深色下未同步主色（仍是浅色橙分量）这个坑。
+   ⚠️ 「分类」的颜色来自 src/template/22_view_plan.html 的行内 style，行内优先级高于任何选择器，
+      只能用 !important 盖掉颜色三项；那条行内样式不在本次可改的文件边界内 ——
+      把它删掉之后，这里的三处 !important 可以一并去掉。 */
+.add-todo-bar .btn-small.btn-solid--green {
+  background: var(--fill-primary); border-color: var(--fill-primary); color: var(--on-fill);
+}
+body.dark-mode .add-todo-bar .btn-small.btn-solid--green {
+  background: var(--fill-primary); border-color: var(--fill-primary); color: var(--on-fill);
+}
+.add-todo-bar .btn-small:not(.btn-solid) {
+  background: var(--accent-bg) !important;
+  color: var(--accent-ink) !important;
+  border-color: var(--accent-ink) !important;
+}
+
+/* 排序栏 */
+.sort-bar { display: flex; align-items: center; gap: var(--sp-6); margin: var(--sp-10) 0 var(--sp-6); }
+/* 「排序」是标签不是主体：降一档字号和对比度，读的时候先看见当前值。
+   右端用 margin-left:auto 把两个按钮推到底 —— 原来 select 撑满宽度，
+   选中值「手动」孤零零贴在左边、下拉箭头却飘在最右边，中间 300px 全空，
+   看起来像两个不相干的控件被拼在一行。 */
+.sort-bar .sort-label { font-size:var(--fs-caption); color: var(--text-light); flex-shrink: 0; }
+.sort-bar select {
+  flex: 0 1 auto;
+  max-width: 50%;
+  min-width: 0;
+  padding: var(--sp-4) var(--sp-18) var(--sp-4) var(--sp-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size:var(--fs-title);
+  font-weight: var(--fw-semibold);
+  background: transparent;
+  color: var(--text);
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%237F8C8D'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 2px center;
+}
+/* ↓ 按钮在「手动」排序下是 display:none（手动没有方向），所以不能把
+   margin-left:auto 挂它身上 —— 元素不可见时自动外边距跟着失效，
+   眼睛按钮会贴在「手动」右边。改成让 select 自己吃满剩余空间。 */
+.sort-bar select { margin-right: auto; }
+.sort-bar .sort-dir-btn {
+  padding: var(--sp-4) var(--sp-8);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size:var(--fs-title);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  flex-shrink: 0;
+  min-height: 34px;
+  min-width: 38px;
+  box-shadow: none;
+}
+.sort-bar .sort-dir-btn:active { transform: translate(1px,1px); }
+
+
+/* 手动排序按钮 */
+.todo-move, .habit-move { display: inline-flex; gap: var(--sp-4); flex-shrink: 0; }
+.move-btn {
+  padding: var(--sp-2) var(--sp-8) !important;
+  font-size:var(--fs-body) !important;
+  min-height: 30px !important;
+  min-width: 34px !important;
+  background: var(--card);
+  color: var(--text);
+}
+.move-btn:active { transform: translate(1px,1px); }
+
+/* 待办列表 */
+.todo-list { margin-top: var(--sp-14); }
+/* 周计划日期题头：看非今天时挂在排序栏上方，一句话讲清「列表只显示这天」。
+   主色淡底走 --primary-rgb 分量（项目里统一的半透明主色写法，不发明新令牌）。 */
+.todo-date-caption {
+  display: flex; align-items: center; gap: var(--sp-6); flex-wrap: wrap;
+  font-size: var(--fs-caption); font-weight: 500; color: var(--primary-ink);
+  background: rgba(var(--primary-rgb), .08);
+  border: 1px solid rgba(var(--primary-rgb), .35); border-radius: var(--radius-sm);
+  padding: var(--sp-6) var(--sp-10); margin-bottom: var(--sp-8);
+}
+.todo-date-caption .tdc-back {
+  margin-left: auto; border: 1px solid var(--border); background: var(--card);
+  color: var(--text); border-radius: var(--radius-full);
+  padding: var(--sp-2) var(--sp-10); font-size: var(--fs-tiny); font-weight: 500;
+  font-family: inherit; cursor: pointer;
+}
+/* 列表内的分组题头（「之前没完成的 / 未排期」）。
+   做成带 data-id 的伪行插进 #todoList——renderTodosRows 会剥掉无 data-id 的子节点，
+   所以它必须走行机制才能稳定留在列表里（复用之、不每帧重建）。 */
+.todo-group-head {
+  display: flex; align-items: center; gap: var(--sp-6);
+  margin: var(--sp-12) 0 var(--sp-6); padding: 0 var(--sp-4);
+  font-size: var(--fs-tiny); font-weight: 900; color: var(--text-light);
+}
+.todo-group-head::after {
+  content: ''; flex: 1 1 auto; height: 1px; background: var(--border);
+}
+/* 「之前没完成的」题头可点击折叠（看未来日期时它是噪音，默认收起）：
+   手型 + 计数 + ▸/▾。折叠时题头就是这组的唯一入口，行不在 DOM 里。 */
+.todo-group-head.is-fold { cursor: pointer; user-select: none; -webkit-user-select: none; }
+.todo-group-head.is-fold:active { opacity: .65; }
+.todo-group-head .tgh-count { flex: 0 0 auto; font-weight: 400; opacity: .8; }
+.todo-group-head .tgh-arrow { flex: 0 0 auto; font-size: var(--fs-tiny); }
+/* 「别的时候安排的」题头：只留文字 + 条数，收起走右上角的总开关眼睛，不另加控件 */
+.todo-otherday-head > span { display: flex; align-items: center; gap: var(--sp-6); }
+/* 眼睛藏起「今天不做的周期任务」后的回执行：可点，点了展开看全部。
+   用虚线框 + 淡色，读起来像脚注而不是一条任务。 */
+.todo-eye-hint {
+  margin: var(--sp-10) 0 var(--sp-4); padding: var(--sp-8) var(--sp-10);
+  border:1px solid var(--hairline); border-radius: var(--r-sm);
+  font-size: var(--fs-tiny); color: var(--text-light); line-height: 1.5;
+  cursor: pointer; user-select: none; -webkit-user-select: none;
+}
+.todo-eye-hint:active { opacity: .65; }
+/* 逐条放回清单：同一个回执条下面展开，chip 用实心小片而不是行 —— 
+   这里最多几条，行会把"提示"变成"列表"，反而更像新长出来的一块界面。 */
+.todo-eye-list {
+  display: flex; flex-wrap: wrap; gap: var(--sp-6);
+  margin: 0 0 var(--sp-6);
+}
+.todo-eye-chip {
+  display: inline-flex; align-items: center; gap: var(--sp-4);
+  max-width: 100%;
+  padding: var(--sp-4) var(--sp-10);
+  border: 1px solid var(--hairline); border-radius: var(--radius-full);
+  background: var(--surface-2); color: var(--text);
+  font-size: var(--fs-tiny); line-height: 1.4;
+  cursor: pointer;
+}
+.todo-eye-chip:active { opacity: .65; }
+.todo-eye-chip-x { color: var(--text-light); font-size: var(--fs-micro); }
+.todo-eye-chip.is-all { border-style: dashed; color: var(--text-light); }
+/* 单条「今天先不看」的小眼睛（在「⚙ 设置」左边）。
+   只放图标、不放字：它是「这条今天别出现」的即时手势，不是又一个配置项。
+   视觉上比设置矮半档（无描边、surface-2 底、等宽压低字形），按下去不抢主操作的注意力。 */
+.todo-item .btn-small.tf-eye {
+  padding: var(--sp-6) var(--sp-8);
+  color: var(--text-light);
+  line-height: 1;
+  /* 已标记「今天先不看」：和右上角那个眼睛开关同一套语汇 —— 开着就有填充色。
+     关掉总闸后它仍显示这个态，说明"标记还在，再打开就会收起"。 */
+}
+.todo-item .btn-small.tf-eye.is-on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary, var(--surface-1));
+}
+.todo-item .btn-small.tf-eye:active { opacity: .6; }
+/* 任务列表回到「一条一张卡」的形态。
+   ★ 中途试过 Linear / iOS 设置那种"整组一个容器 + 行间 hairline"的写法，
+     理由是"四条任务其实是同一个列表的四行"。实际用下来不如一叠卡：
+     ① 一叠卡每条的边界不用读也看得见，扫列表时眼睛有落点；
+     ② 手动上过色的行（border-left 色条）在整组容器里只能贴着外框，
+        到第 3、4 行就离开了卡片边界，看着像表格里的色块而不是"这条被标记了"；
+     ③ 拖拽排序时整卡浮起来（.dragging 的阴影）在有外框的容器里会撞边界。
+     所以容器只保留间距，不再画底色和边框。 */
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: var(--sp-10);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--sp-8);
+  gap: var(--sp-10);
+  flex-wrap: wrap;
+}
+.todo-item.done .todo-text { text-decoration: line-through; color: var(--text-light); }
+.todo-checkbox {
+  width: 22px; height: 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  position: relative;   /* 为触点扩展伪元素定位 */
+}
+/* 移动端触点扩展：视觉仍 22px，但可点热区扩到 40px（符合触屏最小目标，
+   手指不精准也不会点空）。用 ::before 透明层实现，零视觉改动。 */
+.todo-checkbox::before {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  width: 40px; height: 40px; transform: translate(-50%, -50%);
+}
+.todo-checkbox.checked { background: var(--green); }
+.todo-text { flex: 1 1 auto; font-size:var(--fs-title); min-width: 6em; overflow-wrap: anywhere; }
+.todo-detail-preview {
+  font-size:var(--fs-note);
+  color: var(--text-light);
+  margin-top: var(--sp-2);
+  /* 折叠态备注最多显示 4 行（原先是 1 行 nowrap）：
+     用户 10-19 「字数一多就得展开」，4 行足够放下常见备注，
+     再长的仍然可以展开看全文。
+     ★ 15px/1.45：比正文小一号、但比 13px 好读。4 行约 87px，
+       手机上是 3 行（见 1A_dark_misc.css 的 719 断点）。 */
+  white-space: pre-wrap;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+  max-width: 100%;
+  line-height: 1.45;
+  /* 不支持 line-clamp 的引擎按确定行高裁切：用 calc 算死，
+     不用百分比（Safari 对百分比高度继承的解释会让第 4 行半露）。 */
+  max-height: calc(var(--fs-note) * 1.45 * 4);
+}
+.todo-pomodoros { font-size:var(--fs-title); color: var(--primary-ink); font-weight: 700; flex-shrink: 0; }
+
+/* 顺序：先任务、后分类。改前每行是「重要紧急 写周报」——
+   用最重的实心色块说最次要的信息，四行排下去就是四个红蓝黄绿的路灯。
+   象限是「这条任务的属性」，不是「这条任务最重要的事」。 */
+/* 标题在前、象限在后：标题是这行的内容，象限是它的属性。
+   （同类信息在别处也这么排：分类 chip → 标题 → 状态。） */
+/* 任务行上的象限：用回实心彩色胶囊（.quad-badge 原样式在 1A_dark_misc.css）。
+   ★ 中间有一轮把它改成「小圆点 + 淡灰字」，理由是"四行排下去像四个路灯"。
+     用户 2026-10-27 直接问「那个圈起来的框呢」—— 那个色块本身就是这条任务的
+     唯一醒目标记，去掉之后任务行变成一列灰字，扫视时找不到重点。
+     **不要再把它降级成小圆点**：要降噪去改更弱的地方（分类 chip、次级元信息）。 */
+.todo-content { flex: 1; min-width: 0; }
+/* 标题行：回到 caeeab9 之前的写法 —— 放不下就折行，别压字。
+   ★ 中间那轮"品质升级"把这里改成 `flex-wrap: nowrap` + `.todo-text{min-width:0}`，
+     理由是"标签折到第二行会让行高不齐、右端出现缺口"。代价是：
+     一行有分类 + 象限 + 预计🍅 + 搁置天后，中文标题被压到**一个字宽**，
+     竖着往下堆（用户 2026-10-27 的截图：数学 / 英语 / 预计3 都竖了）。
+     横对齐的整齐感换不来"任务名读不出来" —— 这是卡片里唯一必须读的东西。 */
+.todo-title-row { display: flex; align-items: center; gap: var(--sp-6) var(--sp-10); flex-wrap: wrap; }
+.todo-pomodoros-info { font-size:var(--fs-title); color: var(--text-light); font-weight: 600; }
+.todo-pomodoros-actual { font-size:var(--fs-body); color: var(--green-ink); font-weight: 600; margin-left: var(--sp-4); }
+/* 展开箭头：四行任务就四个 ▾，排成右边缘一列三角，比任务本身还抢眼。
+   它是个次要功能（看详情与设置），降到「隐约可见」就够 ——
+   opacity 只在按下时提起来，告诉用户「这行能点开」。 */
+.todo-expand-btn {
+  width: 24px; height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-light);
+  opacity: .38;
+  font-size:var(--fs-body);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;   /* 为触点扩展伪元素定位 */
+}
+/* 触点扩展：视觉仍 24px，热区 40px */
+.todo-expand-btn::before {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  width: 40px; height: 40px; transform: translate(-50%, -50%);
+}
+/* ===== 计划 › 展开面板：分区表单
+   每个格子都带中文标签，不再是一排看不懂的 emoji 小框；
+   输入框改成浅底内嵌（无边框），和卡片边框区分开「容器」与「可编辑」。 */
+.todo-detail-expanded {
+  display: none; flex: 0 0 100%;
+  min-width: 0; box-sizing: border-box;
+  margin-top: var(--sp-12); padding-top: var(--sp-12);
+  border-top: 1px solid var(--hairline);
+}
+/* 面板里所有块都跟着父宽走：flex 子项默认 min-width:auto，
+   输入框/datetime 这类有固有宽度的控件会把面板顶宽、把右侧按钮挤出屏幕。 */
+.todo-detail-expanded .tf-field,
+.todo-detail-expanded .tf-row,
+.todo-detail-expanded .tf-subs,
+.todo-detail-expanded .tf-actions { min-width: 0; box-sizing: border-box; }
+.todo-detail-expanded.show { display: block; }
+.tf-field { margin-bottom: var(--sp-12); }
+.tf-label {
+  font-size: var(--fs-tiny); font-weight: 500; color: var(--text-light);
+  letter-spacing: .04em; margin-bottom: var(--sp-6);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tf-input, .todo-detail-expanded textarea {
+  width: 100%; box-sizing: border-box;
+  padding: var(--sp-10) var(--sp-12);
+  border: none; border-radius: var(--radius-input);
+  background: var(--surface-2, var(--bg));
+  color: var(--text); font-size: var(--fs-body); font-family: inherit;
+  -webkit-appearance: none; appearance: none;
+}
+.todo-detail-expanded textarea { min-height: 62px; resize: vertical; line-height: 1.5; margin-bottom: 0; }
+/* select 复用 .tf-input 时要把下拉箭头要回来。
+   .tf-input 为了让 iOS 的输入框不长内阴影写了 appearance:none，select 一并被扒掉了箭头 ——
+   「节奏（哪天要做）」那一栏就变成一个灰块，看着像只读文字，用户不知道能点。 */
+select.tf-input { -webkit-appearance: menulist; appearance: menulist; padding-right: var(--sp-6); }
+.tf-input:focus, .todo-detail-expanded textarea:focus {
+  outline: 2px solid rgba(232, 93, 58, .3); outline-offset: 0;
+}
+.tf-row { display: flex; gap: var(--sp-10); margin-bottom: var(--sp-12); align-items: flex-start; }
+.tf-row > .tf-label { flex: 0 0 4.6em; padding-top: var(--sp-10); margin-bottom: 0; }
+.tf-chips { flex: 1 1 0; min-width: 0; display: flex; flex-wrap: wrap; gap: var(--sp-6); align-items: center; }
+.tf-chip {
+  cursor: pointer; user-select: none;
+  font-size: var(--fs-note); font-weight: 600;
+  padding: var(--sp-6) var(--sp-12);
+  border-radius: var(--radius-full);
+  background: var(--bg); color: var(--text); border: 1px solid var(--border);
+}
+.tf-chip.on { background: var(--fill-primary); color: var(--on-fill); border-color: var(--primary-dark); }
+.tf-input--chip { width: 5.6em; text-align: center; }
+.tf-input--num { width: 4.4em; text-align: center; }
+/* 「单日」一行：日期 + 起止 + 一个「排到这天」。整行能换行，窄屏不会把时段挤成 50px 空壳
+*/
+.tf-dp-form { display: flex; flex-wrap: wrap; gap: var(--sp-6); align-items: center; margin-top: var(--sp-8); }
+/* 日期框独占一行：320~412 宽时和两个时间框挤同行会把年份截成「2026/10/1」 */
+.tf-dp-form > .tf-input--date { flex: 1 1 100%; min-width: 0; padding: var(--sp-8) var(--sp-10); font-size: var(--fs-note); }
+.tf-dp-form > .tf-input--time { flex: 0 0 7.8em; width: 7.8em; min-width: 7.8em; padding: var(--sp-8) var(--sp-6); font-size: var(--fs-note); text-align: center; }
+.tf-dp-line { display: flex; flex-wrap: wrap; gap: var(--sp-6); align-items: center; flex: 1 1 100%; }
+.tf-dp-line > .tf-input--time { flex: 0 0 7.8em; width: 7.8em; min-width: 7.8em; padding: var(--sp-8) var(--sp-6); font-size: var(--fs-note); text-align: center; }
+.tf-dp-dash { color: var(--text-light); font-weight: 700; }
+.tf-chip--dayplan { border-color: var(--primary); background: rgba(var(--primary-rgb), .08); font-variant-numeric: tabular-nums; }
+.tf-chip--muted { border-style: dashed; color: var(--text-light); font-weight: 600; cursor: default; }
+.tf-chip .tf-chip-x { margin-left: var(--sp-6); opacity: .55; font-weight: 800; }
+.tf-chip .tf-chip-x:hover { opacity: 1; }
+.tf-unit { font-size: var(--fs-note); color: var(--text-light); }
+.tf-subs { border-top: 1px solid var(--hairline); padding-top: var(--sp-10); margin-bottom: var(--sp-12); }
+.tf-sub {
+  display: flex; align-items: center; gap: var(--sp-8);
+  padding: var(--sp-6) var(--sp-8); border-radius: var(--radius-input);
+}
+.tf-sub.done { background: rgba(46, 125, 50, .10); }
+.tf-sub-txt { flex: 1; min-width: 0; font-size: var(--fs-body); line-height: 1.4; }
+.tf-sub.done .tf-sub-txt { text-decoration: line-through; text-decoration-color: var(--green); color: var(--text-light); }
+.tf-sub-del { cursor: pointer; opacity: .45; font-size: var(--fs-body); padding: 0 var(--sp-6); }
+.tf-sub-add { display: flex; gap: var(--sp-6); margin-top: var(--sp-6); }
+.tf-sub-add .tf-input { flex: 1 1 auto; min-width: 0; }
+.tf-sub-add .btn-small { flex: 0 0 auto; white-space: nowrap; }
+/* 展开区「详情」模式：只读，不放输入框，视觉上比编辑态轻 */
+.tf-view-note {
+  font-size: var(--fs-body); line-height: 1.55; color: var(--text);
+  background: var(--surface-2); border-radius: var(--radius-input);
+  padding: var(--sp-10) var(--sp-12); margin-bottom: var(--sp-10);
+  white-space: normal; word-break: break-word;
+}
+/* 用户自己写的文字才 pre-wrap；排期块是 DOM 行，不能被模板缩进撑出空行 */
+.tf-note-txt { white-space: pre-wrap; word-break: break-word; }
+.tf-view-note--empty { color: var(--text-light); font-style: italic; }
+.tf-view-meta { display: flex; flex-wrap: wrap; gap: var(--sp-6); margin-bottom: var(--sp-10); }
+.tf-meta-item {
+  font-size: var(--fs-note); color: var(--text-light);
+  background: var(--surface-2); border-radius: var(--radius-sm);
+  padding: var(--sp-4) var(--sp-10); white-space: nowrap;
+}
+/* 逾期 = 红字 + 淡红底。折叠态那一行（.todo-due-line）与展开态芯片共用同一条规则：
+   同一件事只有一种视觉口径，改色也只改一处。 */
+.tf-meta-item.overdue, .todo-due-line.overdue {
+  color: var(--red); background: rgba(211, 47, 47, .10); font-weight: 700;
+}
+.todo-due-line.overdue {
+  display: inline-block; padding: 0 var(--sp-6); border-radius: var(--radius-sm);
+}
+.tf-meta-item.on { color: var(--primary-dark); background: rgba(255, 152, 0, .12); font-weight: 700; }
+.tf-actions {
+  display: flex; gap: var(--sp-8); justify-content: flex-end; align-items: center;
+  border-top: 1px solid var(--hairline); padding-top: var(--sp-10);
+}
+.todo-used-tags { display: flex; flex-wrap: wrap; gap: var(--sp-4); }
+body.dark-mode .tf-input, body.dark-mode .todo-detail-expanded textarea { background: var(--surface-2); }
+body.dark-mode .todo-detail-expanded { border-top-color: var(--border); }
+body.dark-mode .tf-actions, body.dark-mode .tf-subs { border-color: var(--border); }
+
+
+
+
+
+
+/* 习惯列表 */
+.habit-list { margin-top: var(--sp-4); }
+/* grid 分列：每个元素认自己的列，缺失的元素（眼睛 / ↑↓）不会把后面的往前顶。
+   行距给 0 —— 子计划自己带 margin-top，再加 row-gap 会翻倍。 */
+.habit-item > .habit-checkbox { grid-column: 1; }
+.habit-item > .habit-info { grid-column: 2; }
+.habit-item > .habit-eye { grid-column: 3; }
+.habit-item > .habit-move { grid-column: 4; }
+.habit-item > .habit-arrow { grid-column: 5; }
+.habit-item { row-gap: 0; }
+.habit-item {
+  /* 2026-11-05：flex → grid，为的是让子计划独占第二行横跨整卡。
+     ★ 为什么不用 flex-wrap：换了 wrap 之后第一行会被 eye/move/arrow 挤窄，
+       「连续 0 天 · 达标 80%」当场被截成「连续 0 天 · 达标 ⋯」（实测）。
+       分列之后每列宽度各归各的，info 该多宽还是多宽，子计划另起一行拿满整宽。 */
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  padding: var(--sp-10);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--sp-8);
+  gap: var(--sp-10);
+}
+.habit-checkbox {
+  width: 24px; height: 24px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.habit-checkbox.checked { background: var(--green); border-color: var(--green-dark); }
+.habit-checkbox.checked::after { content: '✓'; color: var(--white); font-size:var(--fs-title); font-weight: 700; }
+.habit-info { flex: 1; min-width: 0; }
+.habit-title-row { display: flex; align-items: center; gap: var(--sp-6); min-width: 0; }
+.habit-name { font-size:var(--fs-title); font-weight: 600; }
+.habit-stage-badge {
+  flex: 0 0 auto; font-size: var(--fs-caption); /* 原来 --fs-micro(10px)，比旁边正文小两档，缩成一粒 */
+  color: var(--green-ink);
+  background: var(--ok-bg); border-radius: var(--radius-full);
+  padding: 2px var(--sp-10); font-weight: 500; white-space: nowrap;
+}
+/* 永远单行：「🔥 连续 0 天 · 达标 0%」在 390px 上自然宽 177px，而信息列只有 160px，
+   会被折成两行（「连续 0 天 ·」/「达标 0%」），行高 106 → 116，一眼就是错位。
+   宁可省略号也不折行 —— 这行是「一眼扫过去的数字」，断了就失去意义。 */
+.habit-streak {
+  font-size:var(--fs-note); color: var(--yellow-ink); margin-top: var(--sp-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  /* 「🔥 连续 0 天 · 达标 0%」在 168px 的信息列里就差 1px（scrollWidth 169 / clientWidth 168），
+     于是末位被切成「达标 ⋯」。借 3px 给盒子（右边是 6px 的行距，看不出来）。 */
+  width: calc(100% + 3px);
+}
+/* ===== 习惯「节奏」升级（2026-10-30）=====
+ * ① 节奏徽标：告诉用户这条习惯哪天做（无规则不显示，每天是默认值不必占位）
+ * ② 眼睛：逐条「今天先不看」，次日自动回来
+ * ③ 「今天不用做」区：默认收起，一行标题就是回执（几条、为什么、怎么展开）
+ * 视觉沿用 surface ladder：不新增卡片、不投影，区头只用一条 hairline 分隔。 */
+.habit-rep {
+  flex: 0 0 auto; font-size: var(--fs-caption); line-height: 1.5;
+  color: var(--text-light); border: 1px solid var(--border);
+  border-radius: var(--radius-full); padding: 0 var(--sp-6); white-space: nowrap;
+}
+/* 390px 上标题行挤不下「名称 + 戒 + 节奏 + 段位」四件：**换行，不缩名字**。
+   挤不下的徽标落到第二行，行高只多 2px；反过来（让名字逐字折行）会把
+   「跑步 5 公里」压成一列字，那是真的没法读。 */
+.habit-title-row { flex-wrap: wrap; row-gap: 2px; }
+.habit-eye {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: var(--radius-full);
+  color: var(--text-light); cursor: pointer; opacity: .55;
+}
+/* 390px 上要给「眼睛」腾位置：行内间距 10 → 8 → 6。实测口径（390×844）：
+   统计行自然宽 177px，8px 间距时信息列只有 160px → 折行；6px 间距信息列 180px → 单行。
+   行内 5 个元素 4 个间隙，每省 2px 就是 8px，正好是差的那一点点。 */
+.habit-item { column-gap: var(--sp-6); }
+.habit-rate { white-space: nowrap; }
+/* 详情弹窗：统计数字后面的单位（比标签小一档，不参与四等分网格的宽度竞争） */
+/* 习惯两个弹窗里的 setting-row：label 只占自己的宽度，把余量留给控件。
+   .setting-label 默认 flex:1 1 0，于是「类型」两个字占掉一半宽度、select 只剩 138px，
+   而「养成：做到就打勾」要 144px——选项被裁成「养成：做到就」（实测）。
+   详情 / 新建编辑两个弹窗用同一个修法，免得改了一处漏一处。 */
+#habitDetailBody .setting-row > .setting-label,
+#habitEditModal .setting-row > .setting-label { flex: 0 0 auto; }
+/* 详情弹窗「用于目标」：标签独占一行，chips 换到下一行占满 300px ——
+   同一行放不下三个目标名（每个大约 90px），而这一行的信息量恰恰在于「哪几个」 */
+.setting-row--goal { flex-wrap: wrap; align-items: flex-start; }
+.setting-row--goal > .setting-label { flex: 0 0 auto; padding-top: 2px; }
+.setting-row--goal > .tf-chips { flex: 1 1 100%; }
+.habit-unit { font-style: normal; font-size: var(--fs-micro); font-weight: 400; color: var(--text-light); margin-left: 2px; }
+/* 详情弹窗「节奏」行：标签只占自己的宽度，值可省略，编辑按钮永不折行 */
+.habit-rep-row { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: var(--sp-8); }
+.habit-rep-line { flex: 1 1 auto; min-width: 0; font-size: var(--fs-title); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 详情页节奏：一周七格，命中的实心 —— 让"周一/周三/周五"一眼可见，
+   而不是"每周 3 次"这种还要自己换算成哪天。只读，所以不设 cursor:pointer，
+   要改只能走右边的「编辑」（那里面就是计划页同一套勾选）。 */
+/* 详情页节奏：两行结构 —— 第一行「节奏 …… 编辑」，第二行七格。
+   弹窗内容宽只有 253px，七格芯片 234px 加标签加按钮放不下，
+   「编辑」会被顶出弹窗（实测 right 406 > 390），所以不能挤一行。
+   ★ 必须写 .setting-row.habit-rep-stack（0,2,0）：18_settings.css 的 .setting-row
+     有 align-items:center / justify-content:space-between，同优先级时它先加载也会赢，
+     结果是头部缩成 103px 居中、芯片只占 210px —— 看着像被"居中了一下"。 */
+.setting-row.habit-rep-stack {
+  flex-direction: column; align-items: stretch; justify-content: flex-start;
+  gap: var(--sp-8);
+}
+/* 详情页「排期」那一组：标签 + chips 两行。
+   ★ 同 .habit-rep-stack 的坑：只写 .habit-block-stack（0,1,0）会被 18_settings.css
+     的 .setting-row 覆盖回 flex 行，于是 label + 说明 + chips 全挤一行，
+     chips 撑破卡片、「改时段」被挤成竖排跑到弹窗外面（实测 right 406 > 390）。 */
+.setting-row.habit-block-stack { display: block; }
+.setting-row.habit-block-stack .habit-rep-head { margin-bottom: var(--sp-6); }
+.setting-row.habit-block-stack .tf-hint { font-size: var(--fs-caption); color: var(--text-light); }
+.habit-block-stack .habit-block-row { margin-top: 0; }
+.habit-rep-head { display: flex; align-items: center; gap: var(--sp-8); }
+.habit-rep-head .btn-small { margin-left: auto; white-space: nowrap; }
+.habit-rep-wds { display: flex; justify-content: space-between; gap: 0; width: 100%; }
+.habit-rep-wds .repeat-wd { cursor: default; }
+.habit-rep-line {
+  font-size: var(--fs-note); color: var(--text-light); text-align: right;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.habit-detail-note {
+  margin-top: var(--sp-8); padding: var(--sp-8) var(--sp-10);
+  font-size: var(--fs-title); color: var(--text-light); line-height: 1.65;
+  background: var(--surface-2); border-radius: var(--radius-sm);
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.habit-eye:hover { opacity: 1; background: var(--surface-2); color: var(--text); }
+/* dock 行尾的「＋ 加一步」：和眼睛同一个按钮壳子，只把字重提一档、常态不压那么暗
+   （眼睛是"今天先不看"，＋ 是"再拆一步"，后者是主动动作，太灰会被当成装饰） */
+.habit-eye.on {
+  width: auto; padding: 0 var(--sp-8); font-size: var(--fs-caption);
+  border: 1px solid var(--border); color: var(--primary-ink); opacity: 1;
+}
+.habit-due-line { font-size: var(--fs-note); color: var(--text-light); margin: var(--sp-2) 0 var(--sp-8); }
+.habit-due-line b { color: var(--text); font-weight: var(--fw-semibold); }
+.habit-off-head {
+  display: flex; align-items: center; gap: var(--sp-6);
+  padding: var(--sp-8) 0; margin-top: var(--sp-10);
+  border-top: 1px solid var(--border);
+  cursor: pointer; user-select: none;
+}
+.habit-off-head .habit-off-name { font-size: var(--fs-note); color: var(--text); }
+.habit-off-count {
+  font-size: var(--fs-caption); color: var(--text-light);
+  background: var(--surface-2); border-radius: var(--radius-full); padding: 0 var(--sp-8);
+}
+.habit-off-hint {
+  flex: 1; min-width: 0; font-size: var(--fs-caption); color: var(--text-light);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.habit-off-head .folder-caret { flex: 0 0 auto; width: 16px; height: 16px; transition: transform .18s ease; }
+.habit-off-head .folder-caret path { fill: none; stroke: var(--text-light); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.habit-off-head.open .folder-caret { transform: rotate(90deg); }
+.habit-off-actions { display: flex; justify-content: flex-end; margin: var(--sp-2) 0 var(--sp-8); }
+/* 今天不用做的行：压暗，但不动布局；勾选框仍可点（= 补一次卡） */
+.habit-item--off { opacity: .6; }
+.habit-item--off .habit-name { color: var(--text-light); }
+
+/* 习惯备注预览：同 .todo-detail-preview，单行省略号，不留空行 */
+.habit-note {
+  font-size:var(--fs-body);
+  color: var(--text-light);
+  margin-top: var(--sp-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.habit-arrow { color: var(--text-light); font-size:var(--fs-h1); cursor: pointer; padding: 0 var(--sp-4); }
+
+/* 倒数日 */
+.countdown-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-14);
+  margin-bottom: var(--sp-10);
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.countdown-info { flex: 1; }
+.countdown-title { font-size:var(--fs-title); font-weight: 700; margin-bottom: var(--sp-4); }
+.countdown-date { font-size:var(--fs-title); color: var(--text-light); }
+.countdown-days { text-align: center; flex-shrink: 0; margin-left: var(--sp-10); }
+.countdown-days .num { font-size: calc(34px * var(--fs-boost)); font-weight: 800; color: var(--primary-ink); }
+.countdown-days .unit { font-size:var(--fs-title); color: var(--text-light); }
+
+
+
+/* ---- 多段排期：计划卡上的入口与「另排」chips ----
+   入口放在「番茄」行末尾（不新起一行：编辑面板已经很长）；chips 行只在有额外段时出现。 */
+.tf-chip--action { border-style: dashed; border-color: var(--primary); color: var(--primary-dark); }
+.tf-chip--action:hover { background: rgba(var(--primary-rgb), .10); }
+/* 排期段 chip：所有段同款 —— 没有主段/另排之分，也没有"重叠"要标
+   （加段时就不允许重叠，写不进去的东西不必在界面上再提示一遍）。 */
+.tf-chip--block { display: inline-flex; align-items: center; gap: var(--sp-4); cursor: default; background: var(--surface-2); }
+.tf-chip-x {
+  cursor: pointer; font-weight: 700; line-height: 1; padding: 0 var(--sp-2);
+  color: var(--text-light); border-radius: var(--radius-full);
+}
+.tf-chip-x:hover { background: var(--surface-3); color: var(--primary-dark); }
+.tf-extra-note { font-size: var(--fs-note); color: var(--text-light); }
+
+/* 主段 chip：实线（额外段是虚线），并带一个「主」字标签 */
+
+
+/* 展开（只读）时的「排期」清单：主段 + 另排段，一眼看全。
+   折叠态不显示；编辑态用带 × 的 chips，两者不要混。 */
+/* 备注卡里的自动排期：上方虚线分隔，读起来仍是同一张卡。
+   日期 / 时间 / 主次 三列对齐，截图时一眼能对上；不写进 t.detail。 */
+.tf-note-sched { margin-top: var(--sp-10); padding-top: var(--sp-8); border-top: 1px solid var(--hairline); }
+.tf-note-sched-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-4); }
+.tf-note-sched-label { font-size: var(--fs-note); font-weight: 600; color: var(--text-light); letter-spacing: .04em; }
+
+/* 一行一段：日期（跨天才有）→ 时间 → 主/另排。
+   ★ 不用 flex:1 把标签推到最右：那样时间在左、标签在右，中间一大片空白，
+     读起来像两列而不是一行（截图给老师看时更明显）。 */
+.tf-view-seg { display: flex; align-items: baseline; gap: var(--sp-8); padding: var(--sp-2) 0; font-size: var(--fs-note); }
+.tf-view-seg-date { flex: 0 0 auto; min-width: 3.4em; color: var(--text-light); font-variant-numeric: tabular-nums; }
+/* 展开态「排期」按日期分组：一行 = 完整年月日（小字）+ 这一天的各段（粗字）。
+   ★ 日期写全，段只写时分 —— 隔天排期不写日期就分不清是哪天。 */
+.tf-sched-row {
+  display: flex; align-items: baseline; gap: var(--sp-8);
+  flex-wrap: wrap; padding: var(--sp-2) 0;
+}
+.tf-sched-day {
+  flex: 0 0 auto;
+  font-size: var(--fs-caption); font-weight: 500; color: var(--text-light);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+/* 重复任务的模板段：日期头不是日期，是重复规则（每天 / 每周一、三）。
+   ★ 「既然重复的，刨开那个单日排期，为什么它还会精确到日呢？这会让人产生误解吧」
+   —— 于是它读起来必须像"规则"而不像"某一天"：不正体数字、用主色浅底，一眼区分于真日期。 */
+.tf-sched-day--rep {
+  color: var(--primary-dark);
+  background: rgba(var(--primary-rgb), .12);
+  border-radius: var(--radius-xs);
+  padding: 0 var(--sp-4);
+}
+/* 「其余日子」：被按天覆盖时，模板那一段也得看得见（否则像被改掉了）。
+   排在同一天的覆盖行之后、字色稍淡 —— 它是"别的日子"，不是今天。 */
+.tf-sched-row--tpl { opacity: .72; }
+.tf-sched-row--tpl .tf-sched-day:first-child { color: var(--text-light); }
+/* 按天覆盖的段：日期是真的，补一句「仅这天」，免得又跟模板混为一谈 */
+.tf-sched-tag {
+  margin-left: var(--sp-4);
+  padding: 0 var(--sp-4);
+  border-radius: var(--radius-xs);
+  background: var(--fill-primary);
+  color: var(--on-fill);
+  font-size: var(--fs-caption); font-weight: 500;
+}
+.tf-sched-segs {
+  flex: 1 1 auto; min-width: 0;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--sp-6);
+  font-size: var(--fs-note);
+}
+.tf-sched-sep { color: var(--text-light); }
+.tf-sched-segs .tf-view-seg { padding: 0; font-size: inherit; }
+.tf-view-seg-time { flex: 0 0 auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tf-view-seg-kind { flex: 0 0 auto; font-size: var(--fs-note); color: var(--text-light); }
+.tf-view-seg-main { color: var(--primary-dark); }
+
+/* 排序栏右侧的「眼睛」：切换是否显示今天已完成的任务。
+   与方向按钮同款外观；睁眼=显示中、闭眼（斜杠）=已隐藏。 */
+.sort-bar .sort-eye-btn { display: inline-flex; align-items: center; justify-content: center; }
+.sort-bar .sort-eye-btn svg { display: block; }
+/* 眼睛是「换个看法」的开关，不是主操作：它原来和「↓」用同一个 surface-2 底色方块，
+   孤零零挂在排序栏最右边，看起来像一颗没写完的下拉框。
+   去掉底色和描边，只留图标本身；开启时给主色，其余时间跟旁边的小字同灰。 */
+.sort-bar .sort-eye-btn {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-light);
+  box-shadow: none;
+}
+.sort-bar .sort-eye-btn.is-on { color: var(--primary-dark); border-color: transparent; background: transparent; }
+
+/* ---- 展开态：子任务进度（对标滴答清单的清单进度）----
+   只在展开后出现；折叠态连段数都不显示，这里更不能抢戏。
+   进度条 4px、无动画以外的装饰，数字用 note 字号。 */
+.tf-sub-prog { display: flex; align-items: center; gap: var(--sp-8); margin: var(--sp-8) 0 var(--sp-6); }
+.tf-sub-prog-txt { flex: 0 0 auto; font-size: var(--fs-note); color: var(--text-light); }
+.tf-sub-prog-bar {
+  flex: 1 1 auto; height: 4px; background: var(--surface-3);
+  border-radius: var(--radius-full); overflow: hidden;
+}
+.tf-sub-prog-bar > i { display: block; height: 100%; background: var(--primary); border-radius: inherit; }
+.tf-sub-prog-btn {
+  flex: 0 0 auto; cursor: pointer; padding: var(--sp-2) var(--sp-8);
+  font-size: var(--fs-note); color: var(--text-light);
+  background: transparent; border: 1px solid var(--hairline); border-radius: var(--radius-full);
+}
+.tf-sub-prog-btn:hover { color: var(--primary-dark); border-color: var(--primary); }
+/* 展开后的动作行最多四个按钮：手机上必须能换行，否则「设置」被挤出卡片 */
+.tf-actions { flex-wrap: wrap; }
+
+/* ---- 折叠态：最晚完成日一行（2026-10-21 从标题行搬下来，不是删除）----
+   标题行只放「这一刻要做什么」；日期属于元信息，排在下面单独一行，
+   与备注预览、排期行同列。淡色不抢眼，逾期时才由 .overdue 转红（规则见上，
+   与 .tf-meta-item.overdue 共用一条，不再各写一份）。
+   字号走 --fs-note 令牌：设置页的字号缩放（--fs-user）要能带动它，
+   写死 12px 会在「大字号」档下变成全卡最小的一行。 */
+.todo-due-line {
+  font-size: var(--fs-note);
+  color: var(--text-light);
+  margin-top: var(--sp-2);
+  letter-spacing: .02em;
+  line-height: 1.4;
+}
+
+
+/* ---- 折叠态：另排段一行 ----
+   「我只是希望它折叠起来也能够显示」。
+   只列另排段（主段时间标题行已有），不写「N 段」，直接把时段摊出来；
+   多段用 · 分隔，太长自然换行，不省略 —— 截图时不能少一段。 */
+.todo-extra-line {
+  display: flex; gap: var(--sp-6); align-items: baseline;
+  margin-top: var(--sp-2); font-size: var(--fs-note); line-height: 1.5; color: var(--text);
+}
+.todo-extra-k { flex: 0 0 auto; color: var(--primary-dark); font-weight: 700; }
+.todo-extra-v { flex: 1 1 auto; min-width: 0; word-break: break-word; }
+/* 折叠态里的重复标记：**只有一个符号**，不写「每天」「每周日 至 12/31」。
+   周期是细节，展开后 meta 徽标里看。原先是占一整行的「重复 🔄 每周日 至 …」，
+   两行信息压成一行之后列表能一屏多看几条。
+   不命中的日子变淡 —— 原来靠「· 今天不做」几个字说明，现在没有文字位，
+   改用透明度表达（full 1 / off .4），信息不丢且不占宽。 */
+.todo-rep-badge {
+  display: inline-block; margin-left: var(--sp-6); font-size: var(--fs-note);
+  line-height: 1; opacity: .85; cursor: default; vertical-align: baseline;
+}
+.todo-rep-badge--off { opacity: .32; }
+
+/* ========== 人生目标（年 / 月 / 愿望清单）· 2026-10 ==========
+   设计取向：目标页是「看方向」的地方，不是「管理 20 个卡片」的地方。
+   所以卡片一律做成**分隔线列表**（借鉴提醒页去嵌套的结论），不用「白底 + 描边 + 阴影」的三层盒子 ——
+   一屏 8 个目标时，8 个盒子互相压，什么重点都看不出来。
+   进度条 + 时间线是 tududi 的双指标：只有完成率会骗人（做完 3/10 是 30%，但时间可能已过 70%）。 */
+
+.lg-head { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--sp-6); margin-bottom: var(--sp-6); }
+/* 分类 chip 与右侧 ⋯/＋ 同处一行，超出就横滑。
+   原来 chip 是 wrap：430 宽下 4 个就满，第 5 个「成长」掉到第二行，
+   而第二行右边空着一大片 —— 换行本身没错，错在「明明能滑过去，
+   却把一行拆成两行、还留半行空白」。横滑 + 右侧渐隐，一眼看出还能往右。 */
+.lg-chips {
+  flex: 1 1 auto; min-width: 0;
+  display: flex; flex-wrap: nowrap; gap: var(--sp-6);
+  overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: none;
+  padding-right: var(--sp-16);
+  /* 右侧渐隐：让裁断读起来是「还能往右滑」，而不是「控件被切坏了」。
+     留 16px 空白做缓冲，没溢出时最后一个 chip 也不会被淡到。 */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent);
+}
+.lg-chips::-webkit-scrollbar { display: none; }
+.lg-chip {
+  flex: 0 0 auto;
+  /* 高度按最小触控目标给：原来 28px 高，手指要瞄。36px 是「看得清也点得中」的下限。 */
+  min-height: 36px;
+  display: inline-flex; align-items: center;
+  padding: var(--sp-4) var(--sp-12);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-light);
+  font-size: var(--fs-caption);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.lg-chip.on { border-color: var(--primary); color: var(--primary-ink); background: rgba(var(--primary-rgb), .08); }
+.lg-add {
+  flex: 0 0 auto; width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--hairline); border-radius: var(--radius-full);
+  background: transparent; color: var(--primary-ink);
+  font-size: var(--fs-title); line-height: 1; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 分组标题在卡片**外面**（iOS section header 的规矩）：
+   小字、灰、带一点字距，和卡片拉开 8px。它属于"这一段是什么"，不属于任何一张卡。 */
+.lg-sec { margin-top: var(--sp-24); }
+.lg-sec-head {
+  display: flex; align-items: baseline; gap: var(--sp-6);
+  padding: 0 var(--sp-4) var(--sp-8);
+  color: var(--text-light); font-size: var(--fs-caption);
+  letter-spacing: .06em;
+}
+.lg-sec-n { opacity: .6; font-variant-numeric: tabular-nums; }
+
+/* 「以往」折叠条：默认收起，显示条数。
+   ★ 做成一行灰字按钮而不是「往年」分组标题 —— 分组标题不带动作，
+   用户会以为只是标题、点不动，然后就再也找不到那些旧目标了。 */
+.lg-arch {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; margin-top: var(--sp-24);
+  min-height: 44px; padding: 0 var(--sp-4);
+  background: none; border: 0; font: inherit;
+  color: var(--text-light); font-size: var(--fs-caption);
+  letter-spacing: .06em; -webkit-tap-highlight-color: transparent;
+}
+.lg-arch:active { opacity: .6; }
+.lg-arch.on { color: var(--text); }
+.lg-arch-x { color: var(--primary); font-size: var(--fs-caption); letter-spacing: 0; }
+
+/* inset grouped：整组一块白底，圆角在外层，行与行之间只有一条 hairline。
+   这是 iOS 设置页/健康页的标准做法 —— 一组是"一坨"，不是"一叠卡片"。 */
+.lg-group {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  /* 只有一层几乎看不见的投影托住"这是浮在页面上的"，不叠描边 */
+  box-shadow: 0 1px 2px rgba(20,26,48,.05);
+}
+.lg-card {
+  padding: var(--sp-14);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  background: transparent;
+  transition: background var(--dur-xs) var(--ease-out);
+}
+.lg-card + .lg-card { border-top: 1px solid var(--hairline); }
+/* 刚保存的那条：底子闪一下再从主色淡回原样。
+   不用描边 —— 描边会临时改变卡片边界，和上面的 hairline 打架；
+   底色渐变只动颜色，高度和位置都不变，滚过去也不会跳。 */
+.lg-card.focus { animation: lgCardFocus .9s var(--ease-out); }
+@keyframes lgCardFocus {
+  0%   { background: rgba(var(--primary-rgb), .14); }
+  100% { background: transparent; }
+}
+/* 系统里关掉动画时不要留下一个永久高亮的卡片 */
+@media (prefers-reduced-motion: reduce) {
+  .lg-card.focus { animation: none; }
+}
+/* 按下态用「底色变灰」而不是「整体变透明」：iOS 的列表行就是这么反馈的，
+   透明度会让文字发虚，看起来像禁用。 */
+.lg-card:active { background: var(--surface-hover, var(--surface-2)); }
+.lg-card-top { display: flex; align-items: flex-start; gap: var(--sp-8); }
+.lg-title { flex: 1 1 auto; min-width: 0; color: var(--text); font-size: var(--fs-body); font-weight: 600; line-height: 1.45; }
+.lg-badge {
+  flex: 0 0 auto;
+  padding: 0 var(--sp-6);
+  border-radius: var(--radius-full);
+  background: var(--surface-3);
+  color: var(--text-light);
+  font-size: var(--fs-caption);
+  line-height: 1.7;
+}
+.lg-badge.done { background: rgba(var(--green-rgb), .16); color: var(--green-ink); }
+.lg-badge.paused { background: var(--surface-3); color: var(--text-light); opacity: .8; }
+/* 「待衡量」是状态不是提醒：只描一圈淡边，不填底色，也不跟「已达成」抢眼 */
+.lg-badge.ghost {
+  background: transparent;
+  border: 1px solid var(--hairline);
+  color: var(--text-light);
+  opacity: .85;
+}
+
+/* 往期没收尾的目标：一条出路而不只是一句「已过期」。
+   做成贴片式小按钮（surface-2 底、无色边框），和卡片里它下面那行统计信息同一量级 ——
+   它是个次要动作，不该用主色实心把整张卡的注意力抢走。 */
+.lg-roll {
+  align-self: flex-start;
+  min-height: 32px;
+  margin-top: var(--sp-6);
+  padding: 0 var(--sp-12);
+  border: 0; border-radius: var(--radius-full);
+  background: var(--surface-2);
+  color: var(--primary);
+  font: inherit; font-size: var(--fs-caption);
+  -webkit-tap-highlight-color: transparent;
+}
+.lg-roll:active { opacity: .6; }
+/* 「放下了」和转期并排，但必须更弱：它是了结，不是推荐动作。
+   同一个贴片形状，靠颜色降级表达从属关系（同一行里两种强调会互相抵消）。 */
+.lg-drop { color: var(--text-light); margin-left: var(--sp-6); }
+
+/* 空态里的一句出口：「看全部目标」。用文字按钮而不是实心按钮 ——
+   这是修正一次误触筛选的退路，不是页面主操作。 */
+.lg-linkbtn {
+  margin-left: var(--sp-6); padding: 0;
+  border: 0; background: transparent;
+  color: var(--primary); font: inherit;
+  text-decoration: underline; text-underline-offset: 2px;
+  -webkit-tap-highlight-color: transparent;
+}
+.lg-linkbtn:active { opacity: .6; }
+
+/* 目标做成了：一条实心主按钮，只在「进度真的到 100%」那一格出现。
+   它不是常驻控件 —— 常驻的话每张卡上都有一个「我完成了」，
+   既催办又占位；只在达成那一刻出现，才像一句祝贺而不是一个待办。 */
+.lg-done {
+  align-self: stretch;
+  min-height: 44px;
+  margin-top: var(--sp-8);
+  border: 0; border-radius: var(--radius-full);
+  background: rgba(var(--green-rgb), .14);
+  color: var(--green-ink);
+  font: inherit; font-size: var(--fs-caption); font-weight: var(--fw-medium);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .12s ease;
+}
+.lg-done:active { transform: scale(.98); }
+.lg-meta { margin-top: var(--sp-4); color: var(--text-light); font-size: var(--fs-caption); line-height: 1.5; }
+/* 领域 + 状态连在一起写，中间一个淡点隔开，不左右拉平 ——
+   拉平会在中间留出 200px 空白，两个各自 4 个字的短词被推到屏幕两端，
+   眼睛要跨越整张卡才接得上「事业」和「待衡量」的关系。 */
+.lg-metarow {
+  display: flex; align-items: baseline; gap: var(--sp-6);
+  margin-top: var(--sp-4);
+  color: var(--text-light); font-size: var(--fs-caption); line-height: 1.5;
+}
+.lg-meta-t { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lg-meta-em { font-size: var(--fs-caption); }
+/* 分隔点由 CSS 生成，省一个 DOM 节点，且不会被读屏念出来 */
+.lg-metarow > .lg-need::before { content: '·'; margin-right: var(--sp-6); opacity: .55; }
+/* 「待衡量」是缺省状态，不是警告：只给淡灰字，不加底色不加边框 */
+.lg-need { flex: 0 0 auto; color: var(--text-light); opacity: .85; }
+.lg-card .lg-meta + .lg-track { margin-top: var(--sp-12); }
+/* 「为什么做这个」是注释，不是内容：用左侧竖线引注，不用横线分隔。
+   横线会让它看起来像"另一块信息"，竖线只表示"这是对上面那句话的补充"。 */
+.lg-why {
+  margin-top: var(--sp-10);
+  padding-left: var(--sp-10);
+  border-left: 2px solid var(--hairline);
+  color: var(--text-light); font-size: var(--fs-caption); line-height: 1.6;
+}
+.lg-nums { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-8); margin-top: var(--sp-8); font-variant-numeric: tabular-nums; }
+.lg-pct { color: var(--text); font-size: var(--fs-title); font-weight: 600; letter-spacing: -.01em; }
+.lg-time { color: var(--text-light); font-size: var(--fs-caption); }
+/* 习惯目标的绝对口径：「每周 3 次 · 到 12/31 需 61 次 · 已打 24 次」。
+   百分比回答不了「还差几次」，而这行能。 */
+.lg-habitneed {
+  margin-top: var(--sp-4);
+  font-size: var(--fs-micro); color: var(--text-light); line-height: 1.4;
+}
+.lg-unmeasured { color: var(--text-light); font-size: var(--fs-caption); }
+.lg-note { margin-top: var(--sp-4); color: var(--text-light); font-size: var(--fs-caption); }
+
+/* 双指标轨道：底色 = 全长；填充 = 已完成；竖线 = 时间走到了哪 */
+.lg-track {
+  position: relative; height: 6px; margin-top: var(--sp-12);
+  border-radius: var(--radius-full);
+  /* 轨道必须"比卡片亮一点"。用 --surface-3 时深色会变成比卡片更暗的黑洞。 */
+  background: rgba(var(--line-rgb, 31, 42, 55), .16);
+}
+.lg-fill { position: absolute; top: 0; bottom: 0; left: 0; border-radius: var(--radius-full); background: var(--primary); }
+.lg-now {
+  /* 时间线要比轨道高出一截才看得见：同高时它只是一小段灰，分不清是"时间到了哪" */
+  position: absolute; top: -4px; bottom: -4px; width: 2px;
+  background: var(--text); opacity: .55; transform: translateX(-1px);
+  border-radius: var(--radius-full);
+}
+
+/* 空态 */
+.lg-empty { padding: var(--sp-16) var(--sp-2) var(--sp-8); }
+.lg-empty-title { color: var(--text); font-size: var(--fs-body); font-weight: 600; }
+.lg-empty-hint { margin-top: var(--sp-6); color: var(--text-light); font-size: var(--fs-caption); line-height: 1.65; }
+.lg-samples { margin-top: var(--sp-12); display: flex; flex-direction: column; gap: var(--sp-8); }
+.lg-sample {
+  text-align: left; padding: var(--sp-10) var(--sp-12);
+  border: 1px dashed var(--border-strong); border-radius: var(--radius);
+  background: transparent; color: var(--text); font-size: var(--fs-caption); cursor: pointer;
+}
+.lg-sample:active { opacity: .7; }
+
+/* ---------- 编辑弹窗 ----------
+   字段比普通弹窗多（周期/日期/进度方式/明细），必须自己滚：.modal 的 85vh
+   会让整个 overlay 滚，底部「保存」掉到屏幕外，用户以为没有保存按钮。 */
+/* iOS 的「新建」不是居中对话框，是从底部升起的 sheet（新建提醒事项、新建日历事件都是）。
+   居中对话框在手机上只有 68% 屏幕高，字段一多就顶出屏幕，按钮永远看不见。 */
+/* overflow: hidden —— 遮罩自己不滚。sheet 的中间段已经自己滚，遮罩再能滚就变成
+   「手指一滑动的是整层」，弹层被拖着蹭出上下两条缝（用户说的「底下那个洞」）。 */
+#lifeGoalModal, #lifeEvalModal, #lifeReviewModal, #lifeBoardModal, #lifeMoreModal, #lifeGridModal, #lifeWishModal { align-items: flex-end; padding: 0; overflow: hidden; }
+#lifeGoalModalBox, #lifeEvalModalBox, #lifeReviewModalBox, #lifeBoardModalBox, #lifeMoreModalBox, #lifeGridModalBox, #lifeWishModalBox {
+  width: 100%; max-width: 480px;
+  /* ★ 必须 min(92vh, 100%)，不能只写 92vh。
+     软键盘弹起时遮罩被钉到视觉视口（body.kb-open 把 --vv-h 设成约 470px），
+     但 92vh 量的是**布局视口**（仍是 900），于是弹层还按 731px 排，flex-end 就把它
+     往上顶出 261px —— 标题连同一半输入框跑到屏幕外，正是「一点输入框就顶到最上面」。
+     100% 相对遮罩（此时高 470、padding 10）取，键盘态自然收缩到 450。
+     通用 .modal 那条 `body.kb-open ... .modal { max-height: 100% }` 是 4 个类，
+     特异性 0,4,0，被这里的 ID 规则盖过，所以改必须落在本行。 */
+  max-height: min(92vh, 100%);
+  margin: 0 auto;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: var(--sp-16) var(--sp-16) 0;
+  display: flex; flex-direction: column;
+  overflow: hidden;              /* 内部区域自己滚，弹窗本身不滚 */
+  position: relative;
+}
+/* 三段式：标题固定 / 中间滚动 / 按钮固定。
+   ★ 不要改回绝对定位：一期试过，footer 会盖住最后一行（点不到），
+     而 sticky 只在元素已进入视口后才生效 —— 内容一长照样被推出屏幕。
+     flex + min-height:0 是这里唯一稳的组合。
+   ★ 每加一个 sheet 弹窗，三处选择器（body / foot / title）都要补 id，
+     漏一个就等于那层既不能滚、按钮也不固定，box 的 overflow:hidden 直接裁掉尾部。 */
+#lgModalBody, #lifeEvalBody, #lifeReviewBody, #lifeBoardBody, #lifeMoreBody, #lifeGridBody, #lifeWishBody {
+  flex: 1 1 auto; min-height: 0;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  /* 滚到底时最后一行贴住页脚描边会像「内容被切了」，留一口气 */
+  padding-bottom: var(--sp-8);
+  /* 键盘弹起后聚焦的输入框滚进可视区时，别贴着页脚 */
+  scroll-padding-bottom: var(--sp-16);
+}
+#lgModalFoot, #lifeEvalFoot, #lifeReviewFoot, #lifeBoardFoot, #lifeMoreFoot, #lifeGridFoot, #lifeWishFoot {
+  flex: 0 0 auto;
+  display: flex; gap: var(--sp-8); justify-content: flex-end;
+  /* 底部安全区：安卓手势条 / iOS home 指示条会压住按钮 */
+  padding: var(--sp-10) 0 max(var(--sp-6), env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--hairline);
+  background: var(--card);
+}
+/* .modal h3 的特异性比类名高，标题样式必须挂在 id 上才生效 */
+#lgModalTitle, #lifeEvalTitle, #lifeReviewTitle, #lifeBoardTitle, #lifeMoreTitle, #lifeGridTitle, #lifeWishTitle { color: var(--text); font-size: var(--fs-title); font-weight: 600; margin-bottom: var(--sp-12); text-align: center; }
+.lg-field-label { display: block; margin: var(--sp-12) 0 var(--sp-6); color: var(--text-light); font-size: var(--fs-caption); }
+.lg-input {
+  width: 100%; padding: var(--sp-8) var(--sp-10);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface-2); color: var(--text);
+  font-size: var(--fs-caption); font-family: inherit;
+}
+.lg-input:focus { outline: none; border-color: var(--primary); }
+.lg-textarea { resize: vertical; line-height: 1.55; }
+.lg-seg-row { display: flex; flex-wrap: wrap; gap: var(--sp-6); }
+.lg-seg {
+  flex: 0 0 auto; padding: var(--sp-6) var(--sp-10);
+  border: 1px solid var(--hairline); border-radius: var(--radius-full);
+  background: transparent; color: var(--text-light);
+  font-size: var(--fs-caption); cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.lg-seg.on { border-color: var(--primary); color: var(--primary-ink); background: rgba(var(--primary-rgb), .08); }
+.lg-date-row { display: flex; gap: var(--sp-10); }
+.lg-date-row > div { flex: 1 1 0; min-width: 0; }
+.lg-sub { margin-top: var(--sp-10); }
+.lg-line { display: flex; align-items: center; gap: var(--sp-8); padding: var(--sp-6) 0; border-bottom: 1px solid var(--hairline); }
+.lg-line-t { flex: 1 1 auto; min-width: 0; color: var(--text); font-size: var(--fs-caption); line-height: 1.5; }
+.lg-tick {
+  flex: 0 0 auto; width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border-strong); border-radius: var(--radius-xs);
+  background: transparent; color: var(--on-fill); font-size: var(--fs-caption); cursor: pointer;
+}
+.lg-tick.on { background: var(--primary); border-color: var(--primary); }
+/* 只过渡颜色，不做一次性动画 —— 列表每次重渲都会重建这些节点，
+   带 animation 的勾选框会整页弹一遍，比没有动画更吵。 */
+.lg-tick { transition: background .14s ease, border-color .14s ease; }
+.lg-x {
+  flex: 0 0 auto; width: 22px; height: 22px;
+  border: 0; background: transparent; color: var(--text-light);
+  font-size: var(--fs-title); line-height: 1; cursor: pointer;
+}
+.lg-add-row { display: flex; gap: var(--sp-6); margin-top: var(--sp-8); align-items: center; }
+.lg-mini {
+  flex: 0 0 auto; padding: var(--sp-6) var(--sp-10);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface-2); color: var(--text); font-size: var(--fs-caption); cursor: pointer;
+}
+.lg-measure-row { display: flex; gap: var(--sp-4); align-items: center; padding: var(--sp-6) 0; }
+.lg-mini-input { flex: 1 1 0; min-width: 0; padding: var(--sp-6); text-align: center; }
+.lg-help { margin-top: var(--sp-6); color: var(--text-light); font-size: var(--fs-caption); line-height: 1.6; }
+.lg-range { width: 100%; accent-color: var(--primary); }
+.lg-modal-foot {
+  display: flex; gap: var(--sp-8); justify-content: flex-end;
+  margin-top: var(--sp-16); padding-top: var(--sp-10);
+  position: sticky; bottom: 0; background: var(--card);
+  /* sticky 贴底时上方内容会从按钮背后划过去，加一条 hairline 收边 */
+  border-top: 1px solid var(--hairline);
+}
+.lg-btn {
+  min-height: 44px;                 /* HIG 最小触控目标 */
+  padding: var(--sp-8) var(--sp-16);
+  border: 1px solid var(--hairline); border-radius: var(--radius);
+  background: transparent; color: var(--text); font-size: var(--fs-caption); cursor: pointer;
+}
+.lg-btn.primary { border: 0; background: var(--fill-primary); color: var(--on-fill); }
+.lg-btn.danger {
+  margin-right: auto; border: 0; background: transparent;
+  /* 删除是危险动作，用红色而不是灰字 —— 灰字看起来像"不可用"，
+     点下去才发现是删除，iOS 也不会把 destructive 写成次级色。 */
+  color: var(--red);
+}
+
+/* ---------- 卡片上的里程碑勾选（2026-10-26 加）----------
+   用户原话：「里程碑在外面也看不到，必须点进去」。
+   现在未完成的摊在卡片上，就地可勾 —— 和子任务一个手感。
+   行高按 HIG 的 44pt 触控目标给：勾选框本身只有 20px，但整行都可点。 */
+.lg-chip--manage { color: var(--text-light); border-style: dashed; }
+.lg-ms { margin-top: var(--sp-4); display: flex; flex-direction: column; }
+.lg-ms-row {
+  display: flex; align-items: center; gap: var(--sp-8);
+  min-height: 44px; padding: var(--sp-2) 0;
+  background: transparent; border: 0; text-align: left;
+  color: var(--text); cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.lg-ms-row:active { opacity: .55; }
+.lg-ms-t { flex: 1 1 auto; min-width: 0; font-size: var(--fs-body); line-height: 1.5; color: var(--text); }
+.lg-ms-more { color: var(--text-light); font-size: var(--fs-caption); padding-left: 28px; }
+/* 「还有 N 条」现在可点：给它和勾选行同样的左右留白，但保持灰字 ——
+   它是「看更多」，不该和里程碑本身抢视觉。整行 44px 高，手指好按。 */
+.lg-ms-more--btn {
+  display: block; width: 100%; min-height: 44px;
+  border: 0; background: transparent; text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+.lg-ms-more--btn:active { color: var(--text); }
+
+/* 就地加里程碑：输入框 + 两个小按钮挤一行。
+   图标式「＋ 里程碑」刻意做得比勾选行矮、比它淡 —— 它是补充动作，
+   和「勾掉一条」不是一回事，不该长得一样。 */
+.lg-ms-addbtn {
+  margin-top: var(--sp-2); min-height: 40px; padding: 0 var(--sp-2);
+  border: 0; background: transparent; text-align: left;
+  color: var(--text-light); font-size: var(--fs-caption);
+  -webkit-tap-highlight-color: transparent;
+}
+.lg-ms-addbtn:active { color: var(--primary); }
+.lg-ms-add { display: flex; align-items: center; gap: var(--sp-6); margin-top: var(--sp-8); }
+.lg-ms-in {
+  flex: 1 1 auto; min-width: 0; height: 40px;
+  padding: 0 var(--sp-10);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface-2); color: var(--text);
+  font-size: var(--fs-note); font-family: inherit;
+  outline: none;
+}
+.lg-ms-in:focus { border-color: var(--primary); }
+.lg-ms-ok {
+  flex: 0 0 auto; height: 40px; padding: 0 var(--sp-12);
+  border: 0; border-radius: var(--radius-sm);
+  background: var(--primary); color: #fff;
+  font-size: var(--fs-note); font-weight: var(--fw-semibold);
+  -webkit-tap-highlight-color: transparent;
+}
+.lg-ms-ok:active { opacity: .82; }
+.lg-ms-x {
+  flex: 0 0 auto; height: 40px; padding: 0 var(--sp-8);
+  border: 0; background: transparent; color: var(--text-light);
+  font-size: var(--fs-note); font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- 分类管理 ---------- */
+.lg-area-row { display: flex; align-items: center; gap: var(--sp-6); margin-top: var(--sp-8); }
+.lg-emoji-input { flex: 0 0 46px; min-width: 0; text-align: center; padding-left: 0; padding-right: 0; }
+.lg-area-used { flex: 0 0 auto; color: var(--text-light); font-size: var(--fs-caption); padding: 0 var(--sp-4); white-space: nowrap; }
+.lg-area-add { display: flex; gap: var(--sp-6); margin-top: var(--sp-16); align-items: center; }
+#lifeAreaModalBox { max-height: 68vh; overflow-y: auto; }
+
+/* ========== 编辑弹窗：iOS 表单（2026-10-26 重做）==========
+   列表页用 inset grouped，弹窗也用同一套：分组白卡 + 行 + 右侧值。
+   之前的「小标签 + 大输入框」在每个字段上各占两三行，一屏放不下四个字段。 */
+
+.lg-form {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: var(--sp-14);
+}
+.lg-row {
+  display: flex; align-items: center; gap: var(--sp-10);
+  padding: var(--sp-10) var(--sp-14);
+  min-height: 46px;
+}
+.lg-row + .lg-row { border-top: 1px solid var(--hairline); }
+.lg-row--tight { padding-top: var(--sp-4); padding-bottom: var(--sp-4); }
+.lg-row--stack { display: block; padding-top: var(--sp-12); padding-bottom: var(--sp-12); }
+.lg-row--block { display: block; padding-top: var(--sp-12); padding-bottom: var(--sp-12); }
+
+.lg-row-k {
+  flex: 0 0 auto;
+  color: var(--text); font-size: var(--fs-caption);
+  white-space: nowrap;
+}
+.lg-row--block .lg-row-k {
+  display: block; margin-bottom: var(--sp-6);
+  color: var(--text-light); font-size: var(--fs-caption);
+}
+
+/* 行内输入：没有盒子的输入框（iOS 的值都在行尾，不加边框） */
+.lg-row-v {
+  flex: 1 1 auto; min-width: 0;
+  border: 0; background: transparent; outline: none;
+  color: var(--text-light); font-size: var(--fs-caption); font-family: inherit;
+  text-align: right; padding: 0;
+}
+.lg-row-v--left { text-align: left; color: var(--text); }
+.lg-row-v--muted { color: var(--text-light); font-size: var(--fs-caption); }
+.lg-row-in {
+  width: 100%; border: 0; background: transparent; outline: none;
+  color: var(--text); font-size: var(--fs-body); font-family: inherit;
+  padding: 0; line-height: 1.45;
+}
+.lg-row-in::placeholder, .lg-row-v::placeholder { color: var(--text-light); opacity: .55; }
+.lg-row-in--area { resize: none; min-height: 44px; font-size: var(--fs-caption); line-height: 1.6; }
+.lg-inline { font-size: var(--fs-caption); }
+
+/* 原生 select 去掉外观，只留行尾的文字（点开仍是系统选择器） */
+.lg-select {
+  -webkit-appearance: none; appearance: none;
+  background: transparent; border: 0; outline: none;
+  text-align: right; text-align-last: right;
+  color: var(--text-light); font-size: var(--fs-caption); font-family: inherit;
+  padding-right: 0;
+}
+
+/* iOS 分段控件：灰底槽 + 白色浮起片 */
+.lg-seg-group {
+  display: flex; flex: 1 1 auto; min-width: 0;
+  gap: 2px; padding: 2px;
+  background: rgba(var(--line-rgb, 31, 42, 55), .08);
+  border-radius: var(--radius);
+}
+.lg-seg-item {
+  flex: 1 1 0; min-width: 0;
+  padding: var(--sp-6) var(--sp-4);
+  border: 0; border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-light);
+  font-size: var(--fs-caption); font-family: inherit;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background var(--dur-xs) var(--ease-out);
+}
+.lg-seg-item.on {
+  background: var(--card);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(20,26,48,.12);
+}
+body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
+
+/* 数值指标：一行名字 + 一行「起 / 当前 / 目标」 */
+.lg-measure-top { display: flex; align-items: center; gap: var(--sp-8); }
+.lg-measure-name { flex: 1 1 auto; min-width: 0; font-size: var(--fs-caption); color: var(--text); }
+.lg-measure-nums { display: flex; gap: var(--sp-8); margin-top: var(--sp-8); }
+.lg-measure-cell {
+  flex: 1 1 0; min-width: 0;
+  display: flex; align-items: center; gap: var(--sp-4);
+  padding: var(--sp-6) var(--sp-8);
+  border-radius: var(--radius-sm);
+  background: rgba(var(--line-rgb, 31, 42, 55), .05);
+}
+.lg-measure-cell span { flex: 0 0 auto; color: var(--text-light); font-size: var(--fs-caption); }
+.lg-measure-cell input {
+  flex: 1 1 auto; min-width: 0; width: 100%;
+  border: 0; background: transparent; outline: none;
+  color: var(--text); font-size: var(--fs-caption); font-family: inherit;
+  text-align: center; padding: 0;
+  -moz-appearance: textfield;
+}
+.lg-measure-cell input::-webkit-outer-spin-button,
+.lg-measure-cell input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.lg-range { width: 100%; accent-color: var(--primary); }
+.lg-range-num { margin-top: var(--sp-6); color: var(--text); font-size: var(--fs-caption); font-weight: 600; text-align: right; }
+
+.lg-help--pad { padding: 0 var(--sp-6) var(--sp-6); }
+
+/* 习惯关联的算式预览：选完习惯就把「哪一段 / 要几次 / 打了几次 / 几%」摆出来。
+   ★ 不用描边、不用卡片底 —— 它是同一行 select 的延伸说明，不是另一个控件。
+     用 surface-2 顶多算「下沉的小字号」，再画个框就变成第二个输入区了。 */
+.lg-link-prev {
+  margin: var(--sp-6) var(--sp-6) 0;
+  padding: var(--sp-8) var(--sp-10);
+  background: var(--surface-2);
+  border-radius: var(--radius-xs);
+}
+.lg-link-prev-l1 { font-size: var(--fs-caption); color: var(--text); font-weight: 500; }
+.lg-link-prev-l2 {
+  margin-top: var(--sp-2); font-size: var(--fs-caption); color: var(--primary-ink);
+  font-variant-numeric: tabular-nums;
+}
+.lg-link-prev-l3 { margin-top: var(--sp-4); font-size: var(--fs-micro); color: var(--text-light); }
+
+/* 表单里的焦点反馈：去掉浏览器默认的橙色描边（和全站设计不搭），
+   改成「整行微微变色」—— 和 iOS 编辑态一致，也让键盘用户知道在哪一行。 */
+.lg-form input:focus, .lg-form textarea:focus, .lg-form select:focus,
+.lg-form input:focus-visible, .lg-form textarea:focus-visible, .lg-form select:focus-visible {
+  outline: 0 !important; box-shadow: none !important;
+}
+.lg-row:focus-within { background: rgba(var(--line-rgb, 31, 42, 55), .04); }
+
+/* 内容区底部留一点空隙，滚到底时最后一行不贴边 */
+#lgModalBody { padding-bottom: var(--sp-6); }
+
+/* ==================================================================
+ * 目标层 · 二期：本周重点 / 检查点 / 收尾窗口
+ *
+ * 视觉延续一期的 iOS inset grouped：组标题在卡外（小字灰），整组共用一块底，
+ * 组内行与行之间只有一条 hairline，不给每行单独做盒子。
+ * 这里不定义任何新的字号/字重档位，全部走 --fs-* 令牌。
+ *
+ * 为什么这一块不用「卡片 + 描边」：一屏里已经有 3 段目标组（今年/本月/愿望），
+ * 再来 3 个盒子，视觉上就没有主次了。周重点靠「它在最上面」区分，不靠阴影。
+ * ================================================================== */
+
+/* ---------- 本周重点 ----------
+ * 一页手账的「三条」：编号 + 勾 + 一句话，编号旁边留一条待填横线。
+ * ★ 空态不再是一句说明文字。用户对这一块的原话是「就一行字啊在那，
+ *   真的很丑」—— 那时没写重点时整块只有一个标题、一个 0/3 和一句提示。
+ *   现在三条槽位永远画出来：空着的是手账里还没填的横线，不是「这里什么都没有」。
+ * ★ 「关联到目标」整个去掉：一周三条是「这周推哪几件事」，挂年度目标
+ *   既不改变任何统计，又让人以为一周只能服务一个目标。字段留在数据里
+ *   （老数据、CSV 导出还在用），界面上不再出现。
+ */
+.lw-card {
+  margin-top: var(--sp-16);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  background: var(--surface-1);
+  overflow: hidden;
+}
+/* 头部两行：标题 / 这一周是哪几天。日期原来和标题挤在同一行末尾，
+   像标题的尾巴；单独一行之后，卡片第一眼是「本周重点 · 10/26 – 11/1」。 */
+.lw-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--sp-10);
+  padding: var(--sp-12) var(--sp-14) var(--sp-10);
+}
+.lw-head-l { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+.lw-title {
+  color: var(--text); font-size: var(--fs-note); font-weight: var(--fw-semibold);
+}
+.lw-range {
+  color: var(--text-light);
+  font-size: var(--fs-micro);
+  font-variant-numeric: tabular-nums;
+}
+/* 三个点：空心=还没写，淡红=写了没做完，实红=做完了。
+   原来的「0/3」只是一个数字，点阵一眼能看出还剩几个空格。 */
+.lw-dots { flex: 0 0 auto; display: inline-flex; align-items: center; gap: var(--sp-6); padding-top: var(--sp-6); }
+.lw-dot {
+  width: 7px; height: 7px; border-radius: var(--radius-full);
+  border: 1px solid var(--border-strong);
+  background: transparent;
+}
+.lw-dot.has { border-color: transparent; background: rgba(var(--primary-rgb), .32); }
+.lw-dot.on { border-color: transparent; background: var(--primary); }
+
+/* 槽位表：编号列固定宽度，条目 / 输入行 / 空行共用，所以三行左端是一条竖线 */
+.lw-slots { display: flex; flex-direction: column; }
+.lw-slots > * { border-top: 1px solid var(--hairline); }
+.lw-slots > *:first-child { border-top: 0; }
+.lw-num {
+  flex: 0 0 auto; width: 18px;
+  color: var(--text-light);
+  font-size: var(--fs-micro); font-weight: var(--fw-medium);
+  font-variant-numeric: tabular-nums; text-align: right;
+}
+.lw-item .lw-row {
+  display: flex; align-items: stretch;
+  padding-left: var(--sp-14);
+}
+/* 44px：iOS 的最小可点高度，点「勾」和点「文字」都算整行 */
+.lw-main {
+  flex: 1 1 auto; min-width: 0;
+  display: flex; align-items: center; gap: var(--sp-10);
+  min-height: 44px;
+  padding: var(--sp-8) var(--sp-4) var(--sp-8) var(--sp-10);
+  border: 0; background: transparent;
+  text-align: left; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.lw-main:active { background: var(--surface-hover, var(--surface-2)); }
+.lw-tick {
+  flex: 0 0 auto;
+  width: 20px; height: 20px;
+  border: 1.5px solid var(--border-strong, var(--border));
+  border-radius: var(--radius-full);
+  position: relative;
+}
+.lw-tick.on { background: var(--primary); border-color: var(--primary); }
+/* 对勾用伪元素画，不用字符 —— 字符会因为字体不同而偏心 */
+.lw-tick.on::after {
+  content: ''; position: absolute; left: 6px; top: 2.5px;
+  width: 5px; height: 10px;
+  border: solid var(--on-primary, #fff); border-width: 0 1.6px 1.6px 0;
+  transform: rotate(45deg);
+}
+.lw-t {
+  flex: 1 1 auto; min-width: 0;
+  color: var(--text); font-size: var(--fs-body); line-height: 1.45;
+  /* 这里原来是 nowrap + 省略号：本周重点是用户自己写的一句话，
+     被截掉就只能看到前半句，而条目本身又没有第二处显示全文的地方。
+     允许折行 —— 两行的高度远好过一句没说完的话。 */
+  overflow-wrap: anywhere;
+}
+.lw-item.done .lw-t { color: var(--text-light); text-decoration: line-through; }
+
+/* 待填的空槽：一条横线，不写「还没写」—— 三行都写提示会把一张卡
+   变成三个提示，而空行本身已经说明一切。 */
+.lw-slot {
+  display: flex; align-items: center; gap: var(--sp-10);
+  min-height: 40px;
+  padding: 0 var(--sp-14) 0 var(--sp-14);
+  opacity: .5;
+}
+.lw-slot-line {
+  flex: 1 1 auto;
+  border-bottom: 1px dashed var(--border);
+  transform: translateY(-2px);
+}
+/* 删除压到 0.28 不透明度：三行排出一列 ✕ 会让人先看到三个删除按钮，
+   而这周重点是「要做什么」。 */
+.lw-x {
+  flex: 0 0 auto;
+  width: 34px;
+  border: 0; background: transparent;
+  color: var(--text-light); font-size: var(--fs-caption); line-height: 1;
+  opacity: .28;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.lw-x:active { opacity: .8; }
+
+.lw-add {
+  display: flex; align-items: center; gap: var(--sp-10);
+  padding: var(--sp-8) var(--sp-12) var(--sp-8) var(--sp-14);
+}
+.lw-input {
+  flex: 1 1 auto; min-width: 0;
+  padding: var(--sp-8) var(--sp-10);
+  border: 0; border-radius: var(--radius);
+  background: var(--surface-2); color: var(--text);
+  font-size: var(--fs-caption); font-family: inherit;
+}
+.lw-input:focus { outline: none; box-shadow: 0 0 0 1.5px rgba(var(--primary-rgb), .35); }
+.lw-add-btn {
+  flex: 0 0 auto;
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--card); color: var(--text);
+  font-size: var(--fs-body); line-height: 1; cursor: pointer;
+}
+.lw-add-btn:active { background: var(--surface-2); }
+.lw-foot {
+  padding: 0 var(--sp-14) var(--sp-12) calc(var(--sp-14) + var(--sp-20));
+  color: var(--text-light);
+  font-size: var(--fs-micro); line-height: 1.6;
+}
+.lw-carry {
+  display: block; width: 100%;
+  padding: var(--sp-10) var(--sp-14);
+  border: 0; border-top: 1px solid var(--hairline);
+  background: transparent; color: var(--primary-ink);
+  font-size: var(--fs-caption); text-align: left; cursor: pointer;
+}
+.lw-carry:active { background: var(--surface-hover, var(--surface-2)); }
+
+/* ---------- 周期提示条（检查点 / 收尾 / 数值陈旧） ----------
+   一条一行文字，不是横幅、不是红点、不占固定位置：
+   它只在窗口内出现，出现时也不需要用户「关掉」。 */
+/* 提示条整组共用一张卡、行间一条 hairline ——
+   原来每条各占一个独立圆角框，三四个框摞在一起，像三个并列的按钮在抢注意力。
+   现在它们是一张卡里的几行，谁重要靠**文字颜色**区分，不靠边框。 */
+.lc-notices {
+  margin-top: var(--sp-12);
+  margin-bottom: var(--sp-14);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: var(--card);
+  overflow: hidden;
+}
+/* 只有一条时的退让形态：没有边框、没有底色，就是周重点卡下方的一行字。
+   它仍然整行可点（min-height 保留 40px 触控高度），只是不再看起来像一张卡。 */
+.lc-notices--plain {
+  border: 0;
+  background: transparent;
+  margin-top: var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+.lc-notices--plain > .lc-notice { padding-left: var(--sp-6); padding-right: var(--sp-6); }
+.lc-notices--plain .lc-arrow { display: none; }
+.lc-notice, .lc-stale {
+  display: flex; align-items: center; gap: var(--sp-8);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--sp-10) var(--sp-14);
+  border: 0; border-radius: 0;
+  background: transparent; color: var(--text);
+  text-align: left; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.lc-notice + .lc-notice, .lc-notice + .lc-stale, .lc-stale + .lc-notice,
+.lc-stale + .lc-stale { border-top: 1px solid var(--hairline); }
+.lc-notice:active, .lc-stale:active { background: var(--surface-hover, var(--surface-2)); }
+/* 「该收尾了」是这一组里唯一要动手的，所以只有它用主色文字 */
+.lc-notice--eval .lc-notice-t { color: var(--primary-ink); }
+.lc-notice-t { flex: 1 1 auto; min-width: 0; font-size: var(--fs-caption); line-height: 1.45; }
+.lc-stale { min-height: 40px; }
+.lc-stale-t { flex: 1 1 auto; min-width: 0; color: var(--text-light); font-size: var(--fs-caption); }
+.lc-arrow { flex: 0 0 auto; color: var(--text-light); font-size: var(--fs-body); line-height: 1; }
+
+/* ---------- 季度检查点（弹窗内折叠区） ---------- */
+.lg-cp { margin-top: var(--sp-16); border-top: 1px solid var(--hairline); padding-top: var(--sp-10); }
+.lg-cp-sum {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-8);
+  padding: var(--sp-6) 0;
+  color: var(--text-light); font-size: var(--fs-caption);
+  cursor: pointer; list-style: none;
+}
+.lg-cp-sum::-webkit-details-marker { display: none; }
+.lg-cp-sum::after { content: '›'; color: var(--text-light); transition: transform .18s; }
+.lg-cp[open] .lg-cp-sum::after { transform: rotate(90deg); }
+.lg-cp-n { margin-left: auto; margin-right: var(--sp-6); opacity: .7; font-variant-numeric: tabular-nums; }
+.lg-cp-body { padding-top: var(--sp-4); }
+.lg-cp-row { padding: var(--sp-8) 0; border-top: 1px solid var(--hairline); }
+.lg-cp-row:first-of-type { border-top: 0; }
+.lg-cp-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); }
+.lg-cp-q { color: var(--text); font-size: var(--fs-caption); font-variant-numeric: tabular-nums; }
+.lg-cp-done {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--hairline); border-radius: 50%;
+  background: transparent; color: var(--on-primary, #fff);
+  font-size: var(--fs-caption); line-height: 1; cursor: pointer;
+}
+.lg-cp-done.on { background: var(--green, #57A862); border-color: var(--green, #57A862); }
+.lg-cp-line { display: flex; gap: var(--sp-6); margin-top: var(--sp-6); }
+.lg-cp-target { flex: 0 0 84px; }
+.lg-cp-note { flex: 1 1 auto; min-width: 0; }
+
+/* ---------- 收尾面板 ---------- */
+.le-sub {
+  margin-bottom: var(--sp-12);
+  color: var(--text-light); font-size: var(--fs-caption); line-height: 1.6;
+}
+.le-group { margin-bottom: var(--sp-14); }
+.le-group-head {
+  margin-bottom: var(--sp-6);
+  color: var(--text-light); font-size: var(--fs-caption);
+}
+.le-goal {
+  padding: var(--sp-10) 0;
+  border-top: 1px solid var(--hairline);
+}
+.le-goal:first-of-type { border-top: 0; }
+.le-goal-top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-8); }
+.le-goal-t {
+  flex: 1 1 auto; min-width: 0;
+  color: var(--text); font-size: var(--fs-body); line-height: 1.45;
+}
+.le-goal-p {
+  flex: 0 0 auto;
+  color: var(--text-light); font-size: var(--fs-caption);
+  font-variant-numeric: tabular-nums;
+}
+.le-acts { display: flex; gap: var(--sp-6); margin-top: var(--sp-8); }
+.le-btn {
+  flex: 1 1 0; min-width: 0;
+  min-height: 40px;
+  padding: var(--sp-6) var(--sp-8);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--card); color: var(--text);
+  font-size: var(--fs-caption); line-height: 1.2; cursor: pointer;
+  white-space: nowrap;
+}
+.le-btn:active { background: var(--surface-2); }
+.le-btn--ghost { border-color: var(--hairline); color: var(--text-light); }
+/* 二次确认态：只换颜色、不换位置（换位置会让人误点成旁边那个按钮） */
+.le-btn--ghost.armed {
+  border-color: var(--red);
+  color: var(--red);
+}
+.le-empty { padding: var(--sp-16) 0; color: var(--text-light); font-size: var(--fs-caption); text-align: center; }
+
+/* 360 及以下的窄屏：周重点的关联注释行没收窄的必要 ——
+   它已经独占一行（不再和标题抢宽度），省略号只在真的写不下时出现。
+   这一条留空占位，等有实际需要再填。 */
+
+/* ==================================================================
+ * 目标层 · 三期：复盘
+ *
+ * 分步引导，一屏一个问题。所以这一块的版式规则就一条：
+ *   **每一屏只有一个「主角」** —— 一个大问句 + 一个输入区，
+ *   其余全是灰字说明。堆成表单就又变回一屏八格、没人填。
+ * 同样不引入新字号档位，全部走 --fs-* 令牌。
+ * ================================================================== */
+
+.rv-sub { margin-bottom: var(--sp-14); color: var(--text-light); font-size: var(--fs-caption); line-height: 1.65; }
+.rv-empty { padding: var(--sp-24) var(--sp-8); color: var(--text-light); font-size: var(--fs-caption); line-height: 1.8; text-align: center; }
+
+/* 历史列表：一行一条，整行可点（不是小字链接） */
+.rv-list { display: flex; flex-direction: column; gap: var(--sp-8); }
+.rv-item {
+  display: block; width: 100%;
+  padding: var(--sp-12) var(--sp-14);
+  border: 1px solid var(--hairline); border-radius: var(--radius);
+  background: var(--card); color: var(--text);
+  text-align: left; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.rv-item:active { background: var(--surface-hover, var(--surface-2)); }
+.rv-item-top { display: flex; align-items: baseline; gap: var(--sp-8); }
+.rv-item-p { flex: 1 1 auto; min-width: 0; font-size: var(--fs-body); font-variant-numeric: tabular-nums; }
+.rv-item-c { flex: 0 0 auto; color: var(--text-light); font-size: var(--fs-caption); }
+.rv-item-t {
+  margin-top: var(--sp-4);
+  color: var(--text-light); font-size: var(--fs-caption); line-height: 1.55;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rv-item-d { margin-top: var(--sp-4); color: var(--text-light); font-size: var(--fs-caption); opacity: .75; }
+
+/* 分步编辑 */
+.rv-step { padding-bottom: var(--sp-8); }
+.rv-q { color: var(--text); font-size: var(--fs-body); line-height: 1.5; margin-bottom: var(--sp-8); }
+.rv-opt { color: var(--text-light); font-size: var(--fs-caption); }
+/* 周复盘顶部翻周：一周一屏，补录别的周只能靠这两个箭头。
+   ★ 两侧各 44px 触控高度，中间那行日期用 tabular-nums ——
+     翻周时数字宽度一致，标题不会左右抖。 */
+.rv-wnav {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-8); margin: 0 0 var(--sp-12);
+}
+.rv-wnav-b {
+  flex: 0 0 auto; min-height: 44px; padding: 0 var(--sp-8);
+  background: none; border: 0; color: var(--text-light);
+  font-size: var(--fs-caption); cursor: pointer;
+}
+.rv-wnav-b:active { color: var(--primary); }
+/* 到本周为止：按钮还在原处（位置固定，手指不用追），但不再可点 ——
+   直接抽掉按钮会让中间的日期往右滑。 */
+.rv-wnav-b.off { opacity: .28; pointer-events: none; }
+.rv-wnav-t {
+  flex: 1 1 auto; text-align: center;
+  font-size: var(--fs-caption); color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.rv-meta { margin: calc(-1 * var(--sp-4)) 0 var(--sp-12); color: var(--text-light); font-size: var(--fs-caption); font-variant-numeric: tabular-nums; }
+
+/* 月度一屏里的两段分界：「月初写」的那半和「月末写」的那半。
+   ★ 加这条线不是为了好看，是因为两段填法相反（一个往前定、一个往后看），
+     不划线用户会觉得整屏都在问「这个月干什么」—— 而月度已经过完了。 */
+.rv-sec-hd {
+  display: flex; align-items: baseline; gap: var(--sp-8);
+  margin-top: var(--sp-4); padding-top: var(--sp-14);
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-body); font-weight: var(--fw-semibold); color: var(--text);
+}
+.rv-sec-hd:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.rv-sec-when {
+  margin-left: auto; flex: 0 0 auto;
+  font-size: var(--fs-micro); font-weight: var(--fw-regular); color: var(--text-light);
+  padding: 1px var(--sp-6); border-radius: var(--radius-pill, 999px); background: var(--surface-2);
+}
+.rv-sec-tip { margin-top: var(--sp-4); font-size: var(--fs-micro); color: var(--text-light); line-height: 1.5; }
+.rv-select, .rv-input {
+  width: 100%;
+  padding: var(--sp-10) var(--sp-12);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface-2); color: var(--text);
+  font-size: var(--fs-body); font-family: inherit;
+}
+.rv-input:focus, .rv-select:focus { outline: none; border-color: var(--primary); }
+.rv-input::placeholder { color: var(--text-light); }
+.rv-area { resize: vertical; line-height: 1.6; min-height: 96px; }
+.rv-help { margin-top: var(--sp-8); color: var(--text-light); font-size: var(--fs-caption); line-height: 1.65; }
+.rv-focus {
+  margin: var(--sp-4) 0 var(--sp-14);
+  padding: var(--sp-10) var(--sp-12);
+  border-left: 2px solid var(--primary);
+  background: rgba(var(--primary-rgb), .05);
+  color: var(--text); font-size: var(--fs-caption); line-height: 1.6;
+}
+
+/* 「上次你写的下一步」：整块抬高，因为它是这一屏最该被看见的东西 */
+.rv-last {
+  margin-top: var(--sp-4);
+  padding: var(--sp-10) var(--sp-12);
+  border: 1px dashed var(--border); border-radius: var(--radius);
+  background: transparent;
+}
+.rv-last-k { color: var(--text-light); font-size: var(--fs-caption); margin-bottom: var(--sp-4); }
+.rv-last-v { color: var(--text); font-size: var(--fs-caption); line-height: 1.6; }
+
+/* 汇总 */
+.rv-sum { padding: var(--sp-10) 0; border-top: 1px solid var(--hairline); }
+.rv-sum:first-of-type { border-top: 0; }
+.rv-sum-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-8); color: var(--text); font-size: var(--fs-caption); }
+.rv-sum-p { color: var(--text-light); font-variant-numeric: tabular-nums; }
+.rv-sum-k { margin-top: var(--sp-6); color: var(--text-light); font-size: var(--fs-caption); }
+.rv-sum-v { margin-top: var(--sp-2); color: var(--text); font-size: var(--fs-caption); line-height: 1.65; white-space: pre-wrap; }
+.rv-dim { color: var(--text-light); }
+.rv-actions { margin-top: var(--sp-18); display: flex; justify-content: flex-end; }
+
+.rv-btn {
+  min-height: 40px;
+  padding: var(--sp-8) var(--sp-16);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--card); color: var(--text);
+  font-size: var(--fs-caption); cursor: pointer;
+}
+.rv-btn:active { background: var(--surface-2); }
+.rv-btn.primary { border: 0; background: var(--fill-primary); color: var(--on-fill); }
+.rv-btn.danger { border-color: transparent; background: transparent; color: var(--red); }
+#lifeReviewFoot { gap: var(--sp-8); }
+
+/* 复盘入口不是待办，用灰字退后一层 */
+.lc-review .lc-notice-t { color: var(--text-light); }
+
+/* 养成 / 戒除：徽标只占一个字宽，靠颜色区分，不改行高与字号。
+   向左的竖线是「戒除」的唯一形状提示 —— 只换颜色的话，色弱用户看不出来。 */
+.habit-pol {
+  flex: 0 0 auto;
+  padding: 0 var(--sp-4);
+  border: 1px solid var(--red);
+  border-radius: var(--radius-sm, 4px);
+  color: var(--red);
+  font-size: var(--fs-caption);
+  line-height: 1.5;
+}
+.habit-item--bad { box-shadow: inset 2px 0 0 var(--red); }
+.habit-item--bad .habit-name { color: var(--text); }
+
+/* ---------- 进度一览（榜单）---------- */
+.lgb-sub { margin-bottom: var(--sp-12); color: var(--text-light); font-size: var(--fs-caption); line-height: 1.65; }
+.lgb-list { display: flex; flex-direction: column; }
+.lgb-row { padding: var(--sp-10) 0; border-top: 1px solid var(--hairline); }
+.lgb-row:first-child { border-top: 0; }
+.lgb-top { display: flex; align-items: baseline; gap: var(--sp-8); }
+/* 名次用等宽数字，前十名不会因为 1 和 10 的宽度差把标题推来推去 */
+.lgb-rank {
+  flex: 0 0 20px;
+  color: var(--text-light); font-size: var(--fs-caption);
+  font-variant-numeric: tabular-nums;
+}
+.lgb-name {
+  flex: 0 1 auto; min-width: 0;
+  color: var(--text); font-size: var(--fs-caption); line-height: 1.45;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.lgb-pct {
+  flex: 0 0 auto;
+  color: var(--text); font-size: var(--fs-caption);
+  font-variant-numeric: tabular-nums;
+}
+.lgb-spacer { flex: 1 1 auto; min-width: 0; }
+.lgb-area {
+  flex: 0 1 auto; min-width: 0;
+  color: var(--text-light); font-size: var(--fs-caption);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.lgb-track {
+  position: relative; height: 4px;
+  margin: var(--sp-8) 0 0 28px;
+  background: var(--surface-3, var(--surface-2)); border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.lgb-fill { position: absolute; top: 0; bottom: 0; left: 0; background: var(--primary); border-radius: var(--radius-full); }
+.lgb-row--dim .lgb-name { color: var(--text-light); }
+.lgb-row--dim .lgb-pct { color: var(--text-light); }
+
+/* 补录提示：用暖色边框而不是红色，它不是错误，是「这次记录的前提」 */
+.rv-warn {
+  margin-top: var(--sp-10);
+  padding: var(--sp-8) var(--sp-10);
+  border-left: 2px solid var(--primary);
+  background: rgba(var(--primary-rgb), .05);
+  border-radius: 0 var(--radius-sm, 4px) var(--radius-sm, 4px) 0;
+}
+
+/* 里程碑全部完成时留在卡片上的那一条：勾上、划掉、颜色退后 ——
+   它不再需要吸引注意力，只是给「我刚勾的那下」一个回执。 */
+.lg-ms-row.done .lg-ms-t { color: var(--text-light); text-decoration: line-through; }
+
+/* ---------- 排序模式 ----------
+   只在排序模式下才出现手柄、才加 position:relative。
+   平时卡片一个像素都不变 —— 用户对目标页的观感已经定过两轮了。 */
+.lg-card.sorting {
+  position: relative;
+  padding-right: 42px;
+}
+.lg-sort-handle {
+  position: absolute; right: 4px; top: 50%;
+  transform: translateY(-50%);
+  width: 34px; height: 44px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px;
+  color: var(--text-light);
+  /* 关键：从手柄开始的触摸不滚动页面。
+     设在这里而不是拖动时用 JS 改 —— touch-action 必须在触摸开始前生效。 */
+  touch-action: none;
+  cursor: grab;
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.lg-sort-handle i {
+  display: block; width: 14px; height: 2px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+  opacity: .8;
+}
+.lg-card.lg-dragging {
+  opacity: .92;
+  background: var(--card);
+  box-shadow: var(--shadow-lg, 0 8px 20px rgba(0, 0, 0, .14));
+  border-radius: var(--radius);
+}
+
+/* 本周复盘那一格：只有一个动作，所以做得比历史列表更「可点」——
+   底色用很淡的主色，和下面的白卡片区分开，但它不是提醒，不加重。 */
+.rv-week {
+  display: flex; align-items: center; gap: var(--sp-10);
+  width: 100%;
+  min-height: 52px;
+  margin-bottom: var(--sp-12);
+  padding: var(--sp-10) var(--sp-14);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: rgba(var(--primary-rgb), .05);
+  text-align: left; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.rv-week:active { background: rgba(var(--primary-rgb), .09); }
+.rv-week-k { flex: 0 0 auto; color: var(--text-light); font-size: var(--fs-caption); }
+.rv-week-v {
+  flex: 1 1 auto; min-width: 0;
+  color: var(--text); font-size: var(--fs-caption); line-height: 1.45;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rv-week.done .rv-week-v { color: var(--text-light); }
+
+/* ---------- 复盘列表页的三个周期入口 ----------
+   周 / 月 / 年不是同一个问题的三种粒度，是三个不同的问题，所以并排摆三格，
+   每格把自己的问题写在下面（「月 · 主题 + 5 件优先 + KISS 四栏」）。
+   ★ 不做成一行 chip：chip 只放得下「周 月 年」四个字，用户据此判断不出
+     点进去会遇到什么 —— 之前只露出「本周」一格，就成了「这个复盘只能周复盘」。 */
+/* 三种复盘原来是并排三格 —— 430 宽下每格 119px，一句话要折三行，
+   而"这一格覆盖哪几天"和"什么时候该写"根本没地方写。
+   改成三行一条：左边标题 + 覆盖范围，右边什么时候写，问题在第二行。
+   一行一个粒度，谁该写、写哪段、何时写，一眼对上。 */
+.rv-cads {
+  display: flex; flex-direction: column;
+  margin-bottom: var(--sp-12);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.rv-cad {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  column-gap: var(--sp-8);
+  padding: var(--sp-12) var(--sp-14);
+  border: 0; border-top: 1px solid var(--hairline);
+  border-radius: 0;
+  background: transparent;
+  text-align: left; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.rv-cad:first-child { border-top: 0; }
+.rv-cad:active { background: var(--surface-3); }
+.rv-cad-t {
+  order: 1; flex: 0 0 auto;
+  display: flex; align-items: baseline; gap: var(--sp-4);
+  color: var(--text); font-size: var(--fs-body); font-weight: 600;
+}
+.rv-cad-done {
+  font-style: normal; font-weight: 400;
+  color: var(--text-light); font-size: var(--fs-micro);
+}
+/* 这一格覆盖哪几天（10/26 – 11/1 / 2026 年 10 月 / 2026 年），紧跟在标题后面 */
+.rv-cad-p {
+  order: 2; flex: 0 0 auto;
+  color: var(--text-light);
+  font-size: var(--fs-micro);
+  font-variant-numeric: tabular-nums;
+}
+/* 什么时候写：贴在行的最右端。
+   用户的抱怨是「不知道什么时候该周复盘 / 月复盘 / 年复盘」——
+   答案写在这一行上，不让人去翻说明。进入窗口时抬成主色。 */
+.rv-cad-when {
+  order: 3; flex: 0 0 auto; margin-left: auto;
+  color: var(--text-light);
+  font-size: var(--fs-micro);
+  font-weight: var(--fw-medium);
+}
+/* 要问的问题单独占第二行 */
+.rv-cad-q {
+  order: 4; flex: 1 1 100%;
+  margin-top: var(--sp-4);
+  color: var(--text-light); font-size: var(--fs-micro); line-height: 1.5;
+}
+.rv-cad.due { background: var(--card); }
+.rv-cad.due .rv-cad-when { color: var(--primary-ink); }
+/* 已写过的格子只在标题上多两个字，不填色 —— 三行都填满红会变成一条色带，
+   而「今天要不要写」不是刷打卡。 */
+.rv-cad.done { background: var(--card); }
+
+/* 「⋯」入口：和分类 chip 等高，但不带文字 —— 三个动作收进它后面 */
+/* display:inline 是给「emoji 掉到下一行」兜的：span 在 flex 容器里会被
+   blockify 成 block，正常情况仍与文字同排；但只要某处 .lg-chip 丢了
+   display:flex（旧缓存、被别的规则覆盖），block 的 span 就会把名字顶到
+   第二行，chip 从「💪 健康」变成上下两行。显式声明 inline 后，即使容器
+   退化成 block 也还是同一行。 */
+.lg-chip-e { display: inline; margin-right: var(--sp-4); }
+.lg-chip--more {
+  width: 36px; min-height: 36px; padding: 0;
+  justify-content: center;
+  color: var(--text-light);
+}
+.lg-chip--more:active { background: var(--surface-2); }
+
+/* 更多菜单：一行一个动作，整行可点 */
+.lm-list { display: flex; flex-direction: column; }
+.lm-item {
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 48px;
+  padding: var(--sp-10) var(--sp-4);
+  border: 0; border-top: 1px solid var(--hairline);
+  background: transparent; color: var(--text);
+  font-size: var(--fs-body); text-align: left; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.lm-item:first-child { border-top: 0; }
+.lm-item:active { background: var(--surface-2); }
+
+/* 头部右侧的动作组：⋯ 和 ＋ 固定不参与横滑，分类 chip 滑到它们左边就停 */
+.lg-acts {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: var(--sp-6);
+}
+/* 窄屏下分类 chip 只留文字：三个「emoji + 名」在 320 宽放不下，
+   一挤就只剩半格可滑。 */
+@media (max-width: 340px) {
+  .lg-chip-e { display: none; }
+}
+
+/* ---------- 六期 · 回看（只读）—— 已删，样式保留最小一组 ----------
+   回看整块并进了日志页的日期筛选（见 01eG 的 rvOpenLogRange）。
+   下面只留「三个跳转」用的 .rv-jump，其余（.rv-scope / .rv-recall-switch /
+   .rv-chip / .rv-recall-entry）随功能一起删掉了 —— 留着不用的选择器，
+   下一个人会以为还有一块页面在用。 */
+.rv-jump {
+  display: flex; align-items: center; gap: var(--sp-6); flex-wrap: wrap;
+  padding: var(--sp-10) var(--sp-12); margin-bottom: var(--sp-12);
+  background: var(--surface-2); border-radius: var(--radius);
+}
+.rv-jump-tx {
+  flex: 1 1 auto; min-width: 104px;
+  font-size: var(--fs-caption); color: var(--text-light);
+}
+.rv-jump-b {
+  flex: 0 0 auto; cursor: pointer; font-family: inherit;
+  padding: var(--sp-6) var(--sp-10); border-radius: var(--radius-full);
+  border: 1px solid var(--hairline); background: var(--surface-1);
+  color: var(--text); font-size: var(--fs-caption); white-space: nowrap;
+}
+.rv-jump-b:active { background: var(--surface-3); }
+/* ---------- 日志页的复盘提醒条 ----------
+   一条一行，说是哪一段、覆盖哪天到哪天、点进去就是那段的编辑态。
+   ★ 只在「该写还没写」时出现：周复盘周日之前不催（提前写等于瞎猜），
+     月复盘最后一周才提醒，年复盘 12 月中旬起。常年挂一条「去写复盘」
+     会变成背景噪音，最后没人看它。 */
+#logReviewBar:empty { display: none; }
+.lr-bar {
+  display: flex; align-items: center; gap: var(--sp-8); width: 100%;
+  padding: var(--sp-10) var(--sp-12); margin-bottom: var(--sp-8);
+  border: 1px solid var(--hairline); border-radius: var(--radius);
+  background: var(--surface-1); color: var(--text);
+  font-family: inherit; font-size: var(--fs-caption); text-align: left;
+  cursor: pointer;
+}
+.lr-bar:active { background: var(--surface-2); }
+.lr-bar-t { flex: 0 0 auto; font-weight: var(--fw-medium); }
+.lr-bar-d { flex: 1 1 auto; min-width: 0; color: var(--text-light);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lr-bar-go { flex: 0 0 auto; color: var(--accent); }
+/* 到今天为止这段已经全过去了的，用更淡的一档 —— 它还能补，但不是当务之急 */
+.lr-bar.late { opacity: .72; }
+/* ---------- 年度九宫格 ----------
+   一页看全九个方向。用 grid 三列而不是 flex-wrap：
+   九格必须严格 3×3，数量不是 9 的倍数时也不能变成 3+2 的散排 ——
+   少的那格留着空位，"这里我没安排"本身就是信息。 */
+/* 九个方向：手机上就是九行，不摆成方块。
+   3 列在 430 宽里每格只剩约 118px，「把副业做成能覆盖房租的收入」被压成
+   三行竖条，而旁边空格子只有两个字 —— 一行里高矮差 3 倍，边框全断。
+   3×3 是纸手账的排版（A5 横开），手机上没有那张纸，硬复刻只会得到九个窄条。
+   换成九行之后每行都能读完整句，填没填一眼能数出来（填了的行有字、有进度）。
+   纸感靠 hairline 分隔 + 留白保留，不靠方块。 */
+.lgrid {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--sp-4);
+}
+.lgrid-c {
+  display: flex; flex-direction: column; align-items: stretch;
+  gap: var(--sp-6);
+  position: relative;
+  min-height: 44px; min-width: 0;
+  padding: var(--sp-12) var(--sp-2);
+  border: 0;
+  border-bottom: 1px solid var(--hairline);
+  border-radius: 0;
+  background: transparent;
+  font-family: inherit; text-align: left; cursor: pointer;
+  color: inherit;
+}
+.lgrid-c:last-child { border-bottom: 0; }
+.lgrid-c:active { background: var(--surface-2); }
+.lgrid-hd {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: var(--sp-6);
+  width: 100%; min-width: 0;
+}
+.lgrid-c:not(.has) .lgrid-hd { opacity: .6; }
+.lgrid-e { font-size: var(--fs-note); line-height: 1.2; flex: 0 0 auto; }
+.lgrid-n {
+  font-size: var(--fs-caption); line-height: 1.3; color: var(--text);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.lgrid-g {
+  flex: 1 1 auto; min-width: 0;
+  font-size: var(--fs-note); color: var(--text); line-height: 1.5;
+  /* 列表里不截断：这是「今年这个方向想做什么」的唯一出口，
+     截成两行就等于把用户写的后半句藏起来。 */
+  overflow-wrap: anywhere;
+}
+/* 一个方向下的若干条目标：纵向一列。
+   不加这层的话，.lgrid-c 的行向 flex 会把每条目标变成并排的一列。 */
+.lgrid-lines {
+  flex: 1 1 auto; min-width: 0;
+  display: flex; flex-direction: column; gap: var(--sp-4);
+}
+/* 一条目标一行；同一方向下多条时，行与行之间留一点气口，
+   但比行与行之间（hairline 分隔）小 —— 它们属于同一个方向。 */
+.lgrid-line {
+  display: flex; align-items: flex-start; gap: var(--sp-6);
+}
+/* 月度目标在九向里的小标：不然年度和月度混在一列，看不出哪条是这阵子的 */
+.lgrid-m {
+  flex: 0 0 auto; align-self: center;
+  padding: 0 var(--sp-4); border-radius: var(--radius-full);
+  background: var(--surface-3); color: var(--text-light);
+  font-size: var(--fs-micro); line-height: 1.6;
+}
+.lgrid-p {
+  flex: 0 0 auto; align-self: center;
+  font-size: var(--fs-micro); color: var(--text-light); font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+/* 空格子：右端一个 22% 的 ＋。整行本来就可点，这个 ＋ 只是说明
+   「这行还能写」，不是第二个按钮 —— 所以淡到几乎看不见，不抢左边领域名。 */
+.lgrid-empty {
+  position: absolute; right: var(--sp-4); top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  opacity: .3;
+  font-size: var(--fs-note);
+  line-height: 1.5;
+}
+.lgrid-foot {
+  font-size: var(--fs-caption); color: var(--text-light);
+  line-height: 1.65; padding: var(--sp-10) 2px var(--sp-8);
+}
+
+/* 年份切换条：今年在前，往年在后。
+   往年的页是只读的 —— 它回答的是「那年我干成了什么」，不是给人穿越回去改计划用。
+   左侧对齐内容（不用等分）：年份是个标签，不是一组并列的开关。 */
+.lgrid-years {
+  display: flex; gap: var(--sp-6);
+  margin: 0 calc(-1 * var(--sp-2)) var(--sp-12);
+  padding: 0 var(--sp-2);
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.lgrid-years::-webkit-scrollbar { display: none; }
+.lgrid-ys {
+  flex: 0 0 auto; min-height: 32px; padding: 0 var(--sp-12);
+  border: 0; border-radius: var(--radius-full);
+  background: var(--surface-3); color: var(--text-light);
+  font: inherit; font-size: var(--fs-caption);
+  font-variant-numeric: tabular-nums;
+  -webkit-tap-highlight-color: transparent;
+}
+.lgrid-ys.on { background: var(--primary); color: #fff; }
+
+/* 展厅里的两行小字：快照（那年冻结的数字）和「那年没安排」。
+   它们都是旁注，和进度百分比同量级，不做成徽章。 */
+.lgrid-snap {
+  flex: 0 0 auto; align-self: flex-start;
+  margin-top: var(--sp-2);
+  font-size: var(--fs-micro); color: var(--text-light);
+  font-variant-numeric: tabular-nums;
+}
+.lgrid-p.ok { color: var(--green-ink); }
+/* 只读的往年页：整块降一点对比度，和「今年 · 计划」区分开 */
+.lgrid-theme-v, .lgrid-note-v {
+  font-size: var(--fs-note); line-height: 1.65; color: var(--text);
+  white-space: pre-wrap;
+}
+
+/* 年度关键词：年计划最上面的一行。
+   做成「一行字」而不是卡片 —— 它不是待办，是一年贴在墙上的那句话。
+   输入框本身无框无底，只有下面一条极淡的线，写上去才看得出能改。 */
+.lgrid-theme { padding: var(--sp-2) 0 var(--sp-12); }
+.lgrid-theme-k {
+  display: block; margin-bottom: var(--sp-4);
+  font-size: var(--fs-micro); color: var(--text-light);
+}
+.lgrid-theme-in {
+  width: 100%; box-sizing: border-box;
+  padding: var(--sp-4) 2px;
+  border: 0; border-bottom: 1px solid var(--border);
+  border-radius: 0; background: transparent;
+  color: var(--text); font-size: var(--fs-note); font-weight: 600;
+  font-family: inherit; letter-spacing: .02em;
+}
+.lgrid-theme-in:focus { outline: none; border-bottom-color: var(--primary); }
+
+/* 年复盘顶部的「年初写的」：
+   左侧一条竖线 + 两行「标签 + 内容」，语气淡 —— 它是参照物，不是要填的表。
+   和年计划里「今年不做什么」同一套语汇（都是竖线块），一眼能对上。 */
+.rv-start {
+  margin: var(--sp-4) 0 var(--sp-12);
+  padding-left: var(--sp-10);
+  border-left: 1px solid var(--border);
+}
+.rv-start-r {
+  display: flex; gap: var(--sp-8); align-items: baseline;
+  margin-bottom: var(--sp-4); font-size: var(--fs-caption); line-height: 1.6;
+}
+.rv-start-k { flex: 0 0 auto; color: var(--text-light); font-size: var(--fs-micro); }
+.rv-start-v { flex: 1 1 auto; color: var(--text); }
+.rv-start-t {
+  margin-top: var(--sp-6);
+  font-size: var(--fs-micro); color: var(--text-light); opacity: .8;
+}
+
+/* 年初寄语：九向页最底下的一块手写区。
+   用左竖线而不是整圈描边 —— 它是「一段话」，不是「一个输入项」。 */
+.lgrid-note { margin-top: var(--sp-12); }
+.lgrid-note-k {
+  display: block; margin-bottom: var(--sp-6);
+  font-size: var(--fs-micro); color: var(--text-light);
+}
+.lgrid-note-in {
+  width: 100%; box-sizing: border-box;
+  padding: var(--sp-8) var(--sp-10);
+  border: 0; border-left: 2px solid rgba(var(--primary-rgb), .35);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--surface-2);
+  color: var(--text); font-size: var(--fs-caption); line-height: 1.7;
+  font-family: inherit; resize: none;
+}
+.lgrid-note-in:focus { outline: none; border-left-color: var(--primary); }
+
+/* 目标页顶部的九向入口：和「回看这段时间」同一语汇（一行、图标 + 两行字 + 箭头），
+   因为它俩都是「去另一页看全景」，不是目标卡本身。 */
+/* ---------- 手账三页入口（年计划 / 复盘 / 人生愿望）----------
+   三格等分一行，图标在上、名字在下。
+   ★ 这几页以前分别藏在「⋯」折叠菜单、复盘弹层里、以及只在「到日子了」才出现的
+     提示条里 —— 用户翻遍目标页也找不到，原话是「你做了那么多页面，结果找不着」。
+     导航必须常驻、必须一屏可见；而且不能再单独占一行大字（之前那条
+     「🧭 2026 年的九个方向 / 哪些方向还空着」占 44px 只通向一个页面）。 */
+.lg-hub {
+  /* 三格：年计划 / 复盘 / 人生愿望。
+     ★ 月计划整块撤了（用户的判断：月份一格一句「什么时候动」在手机上
+       既填不满也不回看，反而让年计划变长）。三格在 412 宽下每格约 123px。 */
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-6); margin-bottom: var(--sp-14);
+}
+.lg-hub-c {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-4);
+  /* 62px：图标 + 一行字 + 上下 8px，比 48px 的触控下限高，又不至于占掉半屏 */
+  min-height: 62px; padding: var(--sp-8) var(--sp-4);
+  border: 1px solid var(--hairline); border-radius: var(--radius);
+  background: var(--surface-2);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.lg-hub-c:active { background: var(--surface-3); }
+.lg-hub-ic { font-size: var(--fs-body); line-height: 1; }
+/* nowrap：320 宽下 1/4 是 67px，「愿望清单」四个字需要 52px，够；
+   真放不下时宁可省略也不要折成两行把格子的等高打破 */
+.lg-hub-t {
+  color: var(--text-light); font-size: var(--fs-micro); line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* ---------- 年复盘：这一年 ---------- */
+/* 满意度 0–10 一排点选。11 个圆点挤在 375 宽里每个约 30px，
+   用横向滚动而不是缩小 —— 点选目标低于 28px 就开始点错。 */
+.rv-sat {
+  /* 0–10 共 11 个，必须一行全露出来。
+     用 flex + overflow-x 时第 11 个（10 分）会被挤到屏幕外 ——
+     而「满分」恰恰是最想点的那个，滑一下才发现它存在是设计事故。
+     所以改成等分网格：宽度按容器算，永远不溢出。 */
+  display: grid; grid-template-columns: repeat(11, 1fr); gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+}
+.rv-sat-b {
+  aspect-ratio: 1; min-width: 0; cursor: pointer; font-family: inherit;
+  border-radius: var(--radius-full); border: 1px solid var(--hairline);
+  background: var(--surface-2); color: var(--text-light);
+  font-size: var(--fs-caption); font-variant-numeric: tabular-nums;
+}
+.rv-sat-b.on {
+  background: var(--primary); border-color: var(--primary);
+  color: var(--on-primary); font-weight: var(--fw-medium);
+}
+
+.rv-pick-note {
+  font-size: var(--fs-caption); color: var(--text-light);
+  padding: var(--sp-2) 0 var(--sp-10);
+}
+.rv-pick-go {
+  margin-left: var(--sp-8);
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+/* 12 个月：月份标签固定宽，输入框吃掉剩余宽度。
+   用 grid 而不是 flex，是为了 12 行的输入框左边缘严格对齐 ——
+   错一像素，纵向扫过去就看得见。 */
+.rv-mrow {
+  /* 34px 是「10 月」三个字符不折行的下限（30px 时 10/11/12 月会折成两行，
+     那一行的格子和旁边对不齐，看着像表格被撞歪了）。 */
+  display: grid; grid-template-columns: 34px 1fr; gap: var(--sp-6);
+  align-items: center;
+}
+.rv-mk { white-space: nowrap; }
+/* 12 个月排成两列六行：一屏之内看完整年。
+   单列十二行要滑两屏，而这一页的意义就是「一眼扫过这一年」。
+   格子变窄是真的，但那正好对上纸质手账的月格 —— 一格一件事，不是一行一段话。 */
+.rv-months {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: var(--sp-6) var(--sp-10);
+}
+.rv-mk {
+  font-size: var(--fs-caption); color: var(--text-light);
+  font-variant-numeric: tabular-nums;
+}
+.rv-mv { padding: var(--sp-6) var(--sp-8); font-size: var(--fs-caption); }
+
+/* ---- 月复盘 · KISS 四栏 ----
+   四个动词各占一栏，两列排：一屏能同时看见「保留」和「停止」，
+   这是这一页最想要的效果 —— 该继续的和该放下的必须摆在同一个视野里。
+   颜色只用左侧一道 2px 竖线区分，不做四块彩底：
+   四个彩色块会让它看起来像四张不同性质的卡片，其实它们是同一个问题的四个方向。 */
+.rv-kiss {
+  /* ★ 曾经是 grid 2×2（四格并排）。用户原话：「那个保留开始什么的，
+     没有必要硬叠成这个四个小方块，你一个一个的也行，我感觉这样竖着
+     比较适合手机版」。对：430 宽下每格只有 170px、一行 11 个字，
+     而手机是竖着划的 —— 竖排四个整行框，每个 400px 宽，一眼读得完。
+     手账纸上是 2×2，但纸是 21cm 宽，手机不是。 */
+  display: flex; flex-direction: column;
+  gap: var(--sp-8); margin-top: var(--sp-10);
+}
+.rv-kiss-b {
+  display: flex; flex-direction: column;
+  background: var(--surface-2);
+  border-left: 2px solid var(--text-light);
+  border-radius: var(--radius-xs);
+  padding: var(--sp-8) var(--sp-10);
+}
+.rv-kiss-b--keep { border-left-color: var(--primary); }
+.rv-kiss-b--improve { border-left-color: var(--text-light); }
+.rv-kiss-b--start { border-left-color: var(--blue, var(--primary)); }
+.rv-kiss-b--stop { border-left-color: var(--red); }
+/* 竖排后标题不再需要两行 —— 一行「动词 + 说明」放得下，省 16px 高度 */
+.rv-kiss-h { display: flex; align-items: baseline; gap: var(--sp-6); margin-bottom: var(--sp-2); }
+.rv-kiss-h b { font-size: var(--fs-caption); font-weight: var(--fw-semibold); }
+.rv-kiss-h span { font-size: var(--fs-micro); color: var(--text-light); line-height: 1.35; }
+.rv-kiss-t {
+  width: 100%; box-sizing: border-box; resize: none;
+  /* 2 列 + 430 宽 → 每格约 170px，14px 字号一行只放 11 个字。
+     原来固定 min-height:56px 又不许拉高，写第三行就在框里上下蹭
+     （用户：「它就只能输入几个字，多出来那个字要往下滑」）。
+     现在高度由 01eG 的 rvBindGrow 按 scrollHeight 跟着内容长；min-height 只兜底。 */
+  min-height: 56px; max-height: none;
+  background: transparent; border: none; padding: 0;
+  font-family: inherit; font-size: var(--fs-caption); line-height: 1.5; color: var(--text);
+  overflow: hidden;
+}
+.rv-kiss-t:focus { outline: none; }
+.rv-kiss-v { font-size: var(--fs-caption); line-height: 1.55; white-space: pre-wrap; }
+.rv-kiss--view { margin-top: var(--sp-10); }
+.rv-mrow--prio .rv-mk { color: var(--text-light); }
+
+/* 带序号的条目（月复盘的优先事项、年复盘的各月高光）。
+   序号和内容必须是同一行的两列 —— 用两个块级 div 排，序号会独占一行，
+   变成「1」上面空一行、「交付第一版」在下面，读起来像表格串行了。 */
+.rv-li {
+  display: grid; grid-template-columns: auto 1fr; gap: var(--sp-10);
+  align-items: baseline; margin-top: var(--sp-6);
+}
+.rv-li-k {
+  color: var(--text-light); font-size: var(--fs-caption);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.rv-li-v { color: var(--text); font-size: var(--fs-caption); line-height: 1.6; }
+
+/* ---- 人生愿望清单 ----
+   刻意不像待办列表：没有优先级色条、没有截止日期、没有进度环。
+   勾选框是手账上那种方格，勾上是手写的一笔，不是 app 的 checkbox。 */
+.wish-add { display: flex; gap: var(--sp-8); margin-bottom: var(--sp-12); }
+.wish-add .rv-input { flex: 1 1 auto; min-width: 0; }
+.wish-list { display: flex; flex-direction: column; }
+.wish-row {
+  display: flex; align-items: flex-start; gap: var(--sp-10);
+  padding: var(--sp-10) 0; border-bottom: 1px solid var(--hairline);
+}
+.wish-row:last-child { border-bottom: 0; }
+.wish-box {
+  flex: 0 0 auto; width: var(--sp-20); height: var(--sp-20);
+  margin-top: 0; border: 1px solid var(--border); border-radius: var(--radius-xs);
+  background: var(--surface-2); color: var(--primary);
+  font-size: var(--fs-caption); line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 0;
+}
+.wish-t { flex: 1 1 auto; min-width: 0; font-size: var(--fs-note); color: var(--text); line-height: 1.5; }
+.wish-d { flex: 0 0 auto; font-size: var(--fs-caption); color: var(--text-light); }
+.wish-x {
+  flex: 0 0 auto; border: 0; background: none; color: var(--text-light);
+  font-size: var(--fs-note); line-height: 1; padding: 0 var(--sp-2); cursor: pointer;
+  opacity: .5;
+}
+.wish-x:active { opacity: 1; }
+.wish-done-h {
+  margin: var(--sp-16) 0 var(--sp-4); font-size: var(--fs-caption);
+  color: var(--text-light); letter-spacing: .04em;
+}
+/* 做到的条目：划掉，不是变灰一整行 —— 划掉是手账的动作，变灰是软件的禁用态 */
+.wish-list--done .wish-t { color: var(--text-light); text-decoration: line-through; }
+.wish-list--done .wish-box { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.rv-empty { padding: var(--sp-20) 0; text-align: center; color: var(--text-light); font-size: var(--fs-note); }
+/* ==================== 计划页「今日习惯」dock（2026-11-04）====================
+ * 用户在计划页底部要一条能一眼看完今日习惯的条：折叠=一行，默认折叠。
+ * 视觉上跟计划列表同族（卡片底 + --border 分隔），但**不抢主列表的层级**：
+ * 没有阴影、没有强调色，只靠一个 🌱 和一条计数让人知道"这里还有事"。 */
+.plan-habit-dock:empty { display: none; }
+.phd {
+  margin: var(--sp-16) 0 var(--sp-8);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  overflow: hidden;
+}
+.phd-head {
+  display: flex; align-items: center; gap: var(--sp-6);
+  padding: var(--sp-10) var(--sp-12);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.phd-icon { flex: 0 0 auto; font-size: var(--fs-note); line-height: 1; }
+.phd-title { flex: 1 1 auto; min-width: 0; font-size: var(--fs-note); font-weight: var(--fw-semibold); color: var(--text); }
+.phd-chip {
+  flex: 0 0 auto; font-size: var(--fs-caption); line-height: 1;
+  padding: var(--sp-2) var(--sp-6); border-radius: var(--radius-full);
+  background: var(--bg); color: var(--text-light);
+  font-variant-numeric: tabular-nums;
+}
+.phd-chip.all { background: rgba(var(--primary-rgb), .12); color: var(--primary); }
+.phd-chip.sub { background: none; }
+.phd-head .folder-caret { flex: 0 0 auto; width: 16px; height: 16px; transition: transform .18s ease; }
+.phd-head .folder-caret path { fill: none; stroke: var(--text-light); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.phd.open .phd-head .folder-caret { transform: rotate(90deg); }
+/* ★ 左右不留内距（2026-11-04）：dock 里装的是习惯页那套行原样搬过来的 HTML，
+   行宽若比习惯页窄 16px，信息列就跟着窄 18px，热力图 30 个点会折成两行、
+   「连续 0 天 · 达标 0%」被省略号吃掉 —— 看上去就像"复刻得不太像"。
+   所以让行贴到卡片边（只差 1px 边框），宽度和习惯页一致。
+   需要缩进的标题类元素单独补 padding。 */
+.phd-body { border-top: 1px dashed var(--border); padding: var(--sp-4) 0 var(--sp-8); }
+.phd-body > .habit-due-line, .phd-body > .review-empty, .phd-body > .habit-archive-h { padding-left: var(--sp-10); padding-right: var(--sp-10); }
+.phd-body > .phd-add { margin-left: var(--sp-10); margin-right: var(--sp-10); }
+.phd-row { display: flex; align-items: center; gap: var(--sp-8); padding: var(--sp-6) var(--sp-4); }
+/* 有子计划时，勾选框/名字/＋/› 全部贴第一行（和计划卡一样：标题一行，子任务在下面缩进），
+   否则习惯名下面挂 4 行子计划，勾选框会被垂直居中飘到中间，看着不像这条习惯的。 */
+.phd-row.has-subs { align-items: flex-start; }
+.phd-row.has-subs .habit-checkbox { margin-top: -2px; }
+.phd-row.has-subs .phd-plus, .phd-row.has-subs .phd-arrow { margin-top: -1px; }
+.phd-row + .phd-row { border-top: 1px solid var(--border); }
+.phd-main { flex: 1 1 auto; min-width: 0; }
+.phd-name { font-size: var(--fs-note); color: var(--text); line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.phd-row.done .phd-name { color: var(--text-light); text-decoration: line-through; }
+.phd-tag { font-style: normal; font-size: var(--fs-caption); color: var(--text-light); }
+.phd-arrow { flex: 0 0 auto; display: flex; align-items: center; color: var(--text-light); opacity: .55; cursor: pointer; padding: 0 var(--sp-2); }
+.phd-arrow:active { opacity: 1; }
+/* 子计划芯片：一条一行会太宽，允许折行；勾掉整条降透明度+划掉 */
+.phd-add {
+  margin-top: var(--sp-6); width: 100%; padding: var(--sp-8);
+  border: 1px dashed var(--border-strong); border-radius: var(--radius-sm);
+  background: none; color: var(--text-light); font-size: var(--fs-caption); cursor: pointer;
+  font-family: inherit;
+}
+.phd-add:active { color: var(--primary); border-color: var(--primary); }
+/* 每条习惯行右端的「＋ 加一步」（2026-11-04）：低调的圆形按钮，
+   点开就在这一行下面展开「文字 + 排期日 + 时间」，不用跳弹窗 */
+.phd-plus {
+  flex: 0 0 auto; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-full); color: var(--text-light); font-size: var(--fs-note); line-height: 1;
+  cursor: pointer; opacity: .6;
+}
+.phd-plus:active { opacity: 1; color: var(--primary); }
+/* 展开态是「收起」：一个字号的 ✕，灰的。染成主色（番茄红）会被读成「删掉这个习惯」 */
+.phd-plus.on { opacity: .8; font-size: var(--fs-caption); }
+
+/* ==================== 习惯行的子计划摘要（习惯页）==================== */
+.habit-subline {
+  margin-top: 2px; font-size: var(--fs-caption); color: var(--text-light); line-height: 1.35;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.habit-subline.all { color: var(--primary); opacity: .85; }
+/* 子计划直接摊在习惯行里、就地能勾（2026-11-04）：组件不新造 ——
+   .tf-sub + .sub-cb + .tf-sub-txt 全来自计划卡（任务下的子任务是同一套），
+   这里只压字号/缩进：习惯行的信息列只有约 160px，计划卡那套 padding + 26px 勾选框会把它挤成两行。
+   勾完之后是**单行划掉**，不给整行铺绿底 —— 卡片里再套一个绿盒子就是第二层盒子（surface ladder）。 */
+/* ★ 2026-11-05 第六版：子计划不再塞在 .habit-info（168px）里，而是卡片最后一行、横跨整卡。
+   行被 flex-wrap 挤到第二行（flex-basis:100%），宽度 = 整张卡片，于是可以用**和任务卡
+   一模一样的尺寸**：26px 勾选框 + --fs-body 正文 + 8px 间距。
+   上一版为迁就 168px 把它压成 18px/12px + 省略号，用户原话「非常的小」——那不是字号问题，
+   是位置问题：把一件正文级的东西塞进了脚注的格子。
+   一行放不下就折行（white-space:normal），不截断成「热身 10 分…」。 */
+.habit-subline--list {
+  grid-column: 1 / -1; margin-top: var(--sp-6);
+  /* 缩进到标题列：勾选框在卡片左内边（40px），标题在 72px。
+     子计划从 40 起会像"贴边溢出来的一行"，和标题不在一条竖线上；
+     让整块从标题左边缘起排（26px 勾选框 + 6px 间距 = 32px），读起来是"标题下的一组步骤"。 */
+  padding-left: 32px;
+  white-space: normal; overflow: visible; text-overflow: clip;
+}
+/* padding 与任务卡同款（6px 上下）：之前压成 2px 是为了省高度，结果习惯的子计划
+   比任务的子任务紧一档（29px vs 38px），一眼就看得出不是同一套东西。 */
+.habit-subline--list .tf-sub { padding: var(--sp-6) 0; gap: var(--sp-8); background: transparent; align-items: flex-start; }
+.habit-subline--list .tf-sub .sub-cb { width: 26px; height: 26px; flex: 0 0 auto; margin-top: -1px; }
+.habit-subline--list .tf-sub .sub-cb svg { width: 26px; height: 26px; }
+.habit-subline--list .tf-sub-txt {
+  font-size: var(--fs-body); line-height: 1.4; color: var(--text);
+  white-space: normal; overflow: visible; text-overflow: clip; word-break: break-word;
+}
+.habit-subline--list .tf-sub + .tf-sub { margin-top: 2px; }
+.habit-subline--list .tf-sub.done .tf-sub-txt { text-decoration: line-through; text-decoration-color: var(--green); color: var(--text-light); }
+.habit-subline--list .tf-sub-sched { margin-left: var(--sp-4); font-size: var(--fs-micro); }
+
+/* ★ 2026-11-05 第八版：装上子计划之后，卡片的垂直基线变了。
+   以前整卡只有一行信息（约 60px），勾选框 align-items:center 恰好落在标题那一行；
+   现在下面多了三条子计划（约 90px），居中就把勾选框推到「连续 5 次」那一行（实测
+   checkbox y=690 / 标题 y=644）—— 看上去像"勾的是统计行"。
+   改成顶部对齐：勾选框对准标题，右边那颗 › 也一起提到第一行。 */
+.habit-item { align-items: start; }
+.habit-item > .habit-checkbox { align-self: start; }
+.habit-item > .habit-arrow { line-height: 1.25; }
+/* 标题行允许折行，名字优先占宽：放不下时让徽标折到第二行，而不是把名字压成省略号。 */
+.habit-item .habit-title-row { flex-wrap: wrap; row-gap: 2px; }
+.habit-item .habit-name { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.habit-item .habit-rep { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* 手机上没有 hover，↑↓ 常驻要吃掉 72px —— 而这一列正是标题/热力图/子计划最缺的地方
+   （实测 430 宽下信息列只剩 224px：「晨间拉伸」+「工作日」+「种子」当场被截成「晨间…」）。
+   排序本来就有两条路：长按拖拽、以及详情弹窗里的「上移/下移」。
+   所以触屏（hover:none）收起来，指针设备保留 —— 收起后这一列是 auto，宽度自动让给信息列。 */
+@media (hover: none), (max-width: 640px) {
+  .habit-item > .habit-move { display: none; }
+}
+
+/* ==================== 子计划（习惯详情）====================
+   ★ 2026-11-04 第四版：这里不再有任何自有样式。
+   列表是 .tf-subs / .tf-sub / .sub-cb / .tf-sub-txt / .tf-sub-del，
+   排期是 .tf-chip--dayplan / .tf-chip--muted / .tf-dp-form，
+   添加是 .tf-sub-add + .tf-input + .btn-small —— 全部来自计划卡，
+   一个字都不重写，改计划卡的样式这里自动跟着变。 */
+.habit-sub-group h3 { margin-bottom: var(--sp-6); }
+.hsub-empty { font-size: var(--fs-caption); color: var(--text-light); line-height: 1.5; }
+/* 子计划的排期（今天 20:30 / 11-06 09:00）是名字后面的 12px 小字，
+   不单独占控件 —— 计划卡的子任务行也不带标签。点名字即可改排期。 */
+.habit-sub-group .tf-sub-txt { cursor: pointer; }
+/* 名字 + 排期放不下时会折成两行（253px 的弹窗里「跑后拉伸 10 分钟 今天 07:10」必然折）。
+   .tf-sub 默认 align-items:center，折行后勾选框会飘到两行的正中间，看着像另一条记录 ——
+   顶对齐 + 勾选框微下移 2px，跟第一行文字的中线对齐。 */
+.habit-sub-group .tf-sub { align-items: flex-start; }
+.habit-sub-group .tf-sub .sub-cb { margin-top: 2px; }
+/* ✕ 也一样：默认 align-self 会跟着行高居中，折行时飘到两行之间 */
+.habit-sub-group .tf-sub .tf-sub-del { align-self: flex-start; margin-top: 2px; }
+/* 添加表单底下那行（排期小签 + 取消）：小签在左，取消贴右边 */
+/* 计划页 dock 里的子计划：直接复用 .tf-sub，只压字号和缩进，别另造一套。
+   .tf-subs 自带 border-top + padding-top（计划卡里它是「标题和子任务之间的分隔线」），
+   在这里会正好压在习惯名下面，被读成「名字带下划线」—— 所以只去掉这两条。 */
+.phd-subs {
+  border-top: 0; padding-top: 0; margin: var(--sp-2) 0 0;
+  padding-left: var(--sp-8); /* 与计划卡一致：子任务比标题右移一格 */
+}
+.phd-subs .tf-sub { padding: 0; gap: var(--sp-6); min-height: 0; }
+.phd-subs .tf-sub .sub-cb { width: 18px; height: 18px; flex: none; }
+.phd-subs .tf-sub-txt { font-size: var(--fs-caption); line-height: 1.45; color: var(--text-light); }
+.phd-subs .tf-sub.done .tf-sub-txt { text-decoration: line-through; opacity: .7; }
+.phd-subs .tf-sub-sched { font-size: var(--fs-micro); }
+/* 习惯编辑弹窗里的「时段」说明：弹窗正文是 17px，不压就成了整块大字 —— 用户原话「UI怎么那么丑」。
+   口径抄计划卡 .tf-hint（别的调用方都是 inline 写死字号，这里落到类上）。 */
+#habitBlockBox .tf-hint { font-size: var(--fs-caption); color: var(--text-light); line-height: 1.5; margin-top: var(--sp-4); }
+#habitBlockBox .tf-chips { row-gap: var(--sp-6); }
+/* 表单底下的说明行：和计划卡「单日排期」下面那句提示同款 */
+.habit-sub-group .tf-hint {
+  font-size: var(--fs-caption); color: var(--text-light); margin-top: var(--sp-4);
+}
+.tf-sub-sched { font-style: normal; margin-left: var(--sp-6); font-size: var(--fs-micro); color: var(--text-light); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tf-sub-sched.later { color: var(--primary); opacity: .85; }
+/* ==================== 子计划编辑器（2026-11-05 第七版：降噪）====================
+   三行九盒 → 一行三件。规则：默认值不占地方、控件不用白底、能是一个图标就不做按钮。
+   一行 = 无框输入框 +（有排期才有）小灰字 + 日历图标 + ✕。 */
+#habitSubBox .hsub-row {
+  display: flex; align-items: center; gap: var(--sp-4);
+  padding: var(--sp-8) 0; border-bottom: 1px solid var(--hairline);
+}
+#habitSubBox .hsub-row:last-of-type { border-bottom: 0; }
+/* 输入框：无边框、无底色、无内边距 —— 看着就是一行正文。
+   ★ 不用 .tf-input：那个是「表单控件」，有底色有圆角有 10px 内边距，
+     三行并排就是三个灰白盒子。这里要的是「能改的文字」，聚焦时才显出是输入框。 */
+#habitSubBox .hsub-input {
+  flex: 1 1 auto; min-width: 0; width: auto;
+  padding: 2px 0; border: 0; background: transparent;
+  font-family: inherit; font-size: var(--fs-body); line-height: 1.4; color: var(--text);
+  -webkit-appearance: none; appearance: none;
+}
+#habitSubBox .hsub-input::placeholder { color: var(--text-light); opacity: .65; }
+#habitSubBox .hsub-input:focus { outline: none; box-shadow: 0 1px 0 0 var(--primary); }
+/* 已设的排期：名字后面一行小灰字，不是胶囊也不是按钮 */
+#habitSubBox .hsub-sched-txt {
+  flex: 0 0 auto; font-size: var(--fs-note); color: var(--text-light);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+/* 排期入口：17px 日历图标。默认淡，设了才变主色 */
+#habitSubBox .hsub-icon {
+  flex: 0 0 auto; width: 30px; height: 30px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 0; border-radius: var(--radius-full); background: transparent;
+  color: var(--text-light); opacity: .55; cursor: pointer;
+  transition: opacity .15s, background .15s, color .15s;
+}
+#habitSubBox .hsub-icon:hover, #habitSubBox .hsub-icon:active { opacity: 1; background: var(--surface-2); }
+#habitSubBox .hsub-icon.on { opacity: 1; color: var(--primary); }
+/* ✕：无框无底，比图标再淡一档 */
+#habitSubBox .hsub-del {
+  flex: 0 0 auto; width: 30px; height: 30px; padding: 0;
+  border: 0; background: transparent; cursor: pointer;
+  color: var(--text-light); opacity: .45; font-size: var(--fs-note); line-height: 1;
+}
+#habitSubBox .hsub-del:hover, #habitSubBox .hsub-del:active { opacity: 1; color: var(--red); }
+/* 排期面板：一个浅底圆角块，日期 + 时间并排（不是一个日期框独占一行）。
+   ★ 不带 #habitSubBox 前缀：详情弹窗的排期也走这一块（.hsub-panel），两边必须同一套。 */
+.hsub-panel {
+  /* 展开态：**不加底色**。
+     加底色就等于在弹窗里再造一张小卡片（「卡片里的卡片」），三行展开两次就是两张大白块。
+     从属关系用一条 2px 主色竖线表示：它挂在上面那一行下面，不另立门户。
+     一行装得下：日期 160 + 时间 104 + ✕ 24 + 两个 8px 间距 = 304 ≤ 可用 312。
+     日期必须给 min-width 160 —— 原生 date 控件在 126px 时会把 mm/dd/yyyy 压成 mm/dd/yyy:。 */
+  display: flex; align-items: center; gap: var(--sp-8);
+  margin: 0 0 var(--sp-2) 3px;
+  padding: var(--sp-2) 0 var(--sp-6) var(--sp-12);
+  border-left: 2px solid rgba(var(--primary-rgb), .28);
+  background: transparent;
+}
+.hsub-panel input {
+  border: 0; background: transparent; padding: 2px 0; min-width: 0;
+  font-family: inherit; font-size: var(--fs-note); color: var(--text);
+  -webkit-appearance: none; appearance: none;
+}
+.hsub-panel input:focus { outline: none; }
+.hsub-panel .hsub-date { flex: 1 1 160px; min-width: 160px; }
+/* 日期控件要 ~160px：Chrome 空值时显示 mm/dd/yyyy 再挂一个日历图标，
+   窄一点就被压成「mm/dd/yyy:」（实测）。时间框把原生指示器调淡省几像素。 */
+.hsub-panel input[type=date]::-webkit-calendar-picker-indicator,
+.hsub-panel input[type=time]::-webkit-calendar-picker-indicator { opacity: .45; margin-left: 2px; }
+/* 时间框要给到 112px：Chrome 的 input[type=time] 是「08:30 AM」+ 时钟图标，
+   92px 会把 AM 裁成「A」（实测）。别按中文「上午8:30」估宽度，系统是 12 小时制。 */
+.hsub-panel .hsub-time { flex: 0 0 auto; width: 104px; }
+.hsub-clear {
+  flex: 0 0 auto; border: 0; background: transparent; padding: 2px 0;
+  font-size: var(--fs-note); color: var(--text-light); cursor: pointer;
+}
+/* 详情里「跟着习惯」是文字按钮；编辑器里空间紧，用一个 ✕ 图标代替 */
+.hsub-clear-x {
+  flex: 0 0 auto; margin-left: auto; width: 24px; height: 24px; padding: 0; border: 0; background: transparent;
+  color: var(--text-light); opacity: .55; font-size: var(--fs-note); line-height: 1; cursor: pointer;
+}
+.hsub-clear-x:hover { opacity: 1; color: var(--primary); }
+.hsub-clear:hover { color: var(--primary); }
+/* 加一步：虚线通栏，不抢眼（实心按钮在这一屏太重，会跟上面三行打架） */
+#habitSubBox .hsub-add {
+  width: 100%; margin-top: var(--sp-10); padding: var(--sp-8);
+  border: 1px dashed var(--border); border-radius: var(--radius-input);
+  background: transparent; color: var(--text-light);
+  font-family: inherit; font-size: var(--fs-note); cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+#habitSubBox .hsub-add:hover, #habitSubBox .hsub-add:active { color: var(--primary); border-color: var(--primary); }
+#habitSubBox .hsub-tip {
+  margin-top: var(--sp-8); font-size: var(--fs-caption); color: var(--text-light); line-height: 1.5;
+}
+/* ==================== 分类管理弹窗 ==================== */
+.hcat-row { display: flex; align-items: center; gap: var(--sp-6); padding: var(--sp-8) 0; }
+.hcat-row + .hcat-row { border-top: 1px solid var(--border); }
+.hcat-name { flex: 1 1 auto; min-width: 0; font-size: var(--fs-note); color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hcat-n { flex: 0 0 auto; font-size: var(--fs-caption); color: var(--text-light); }
+.hcat-btn {
+  flex: 0 0 auto; width: 30px; height: 30px; padding: 0;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--card); color: var(--text); font-size: var(--fs-note); line-height: 1; cursor: pointer;
+}
+.hcat-btn:disabled { opacity: .3; }
+.hcat-btn.danger { color: var(--red); }
+
+/* ==================== 计划页底部：累计番茄一行账 ==================== */
+/* 版式：`174 + 8 = 182`，三个数字各占 1fr、`+` / `=` 插在中间；
+   下面一行「之前 / 今天 / 累计」用同一个 5 列网格，nth-child 落到 1/3/5 列，
+   保证标签和数字严格对齐（不靠 padding 凑）。
+   今天那一格用主色底：一天里最该被看见的就是「今天涨了多少」。 */
+.ppc {
+  margin: var(--sp-16) 0 var(--sp-8);
+  padding: var(--sp-14) var(--sp-12) var(--sp-12);
+  background: linear-gradient(180deg, var(--surface-2), var(--card));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+}
+.ppc-eq {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: center;
+  column-gap: 2px;
+}
+/* 口径标签：明说这一行账是「本自然年」，不然「之前 / 本年」会被读成"从有记录以来" */
+.ppc-scope {
+  margin-bottom: var(--sp-10);
+  text-align: center;
+  font-size: var(--fs-micro);
+  letter-spacing: .3px;
+  color: var(--text-light);
+}
+.ppc-num {
+  display: block;
+  text-align: center;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.5px;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--text);
+}
+/* 字号五档：按显示串的位数由 JS 打上 fs-xl / fs-l / fs-m / fs-s / fs-xs。
+   3 位以内最大，往后逐档收 —— 5 列布局单列约 105px，百万级（8 位带千分位）
+   在 fs-xs 仍约 90px，靠这一套永远塞得下，不会被裁成省略号。 */
+.ppc-num.fs-xl { font-size: calc(1.67 * var(--fs-title)); }
+.ppc-num.fs-l { font-size: calc(1.45 * var(--fs-title)); }
+.ppc-num.fs-m { font-size: calc(1.22 * var(--fs-title)); }
+.ppc-num.fs-s { font-size: var(--fs-title); }
+.ppc-num.fs-xs { font-size: calc(.88 * var(--fs-title)); letter-spacing: -.3px; }
+.ppc-op { font-size: var(--fs-body); font-weight: 700; color: var(--text-light); padding: 0 2px; }
+/* 今天：主色底 + 白字，一眼看到「今天涨的」 */
+.ppc-today {
+  display: block;
+  padding: var(--sp-2) 0;
+  border-radius: var(--radius-sm);
+  background: var(--fill-primary);
+  color: var(--on-fill);
+}
+.ppc-today .ppc-num { color: var(--on-fill); }
+.ppc-labels {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  column-gap: 2px;
+  margin-top: var(--sp-6);
+  font-size: var(--fs-micro);
+  color: var(--text-light);
+  text-align: center;
+}
+.ppc-labels span:nth-child(1) { grid-column: 1; }
+.ppc-labels span:nth-child(2) { grid-column: 3; }
+.ppc-labels span:nth-child(3) { grid-column: 5; }
+/* 全历史总量：本年的账在虚线之上，这一行在虚线之下。
+   标签与数字**同一行**（分两行会被读成两块信息，用户原话「它在它下面，感觉有点多余」）。 */
+.ppc-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--sp-8);
+  margin-top: var(--sp-10);
+  padding-top: var(--sp-8);
+  border-top: 1px dashed var(--border);
+  font-size: var(--fs-caption);
+  color: var(--text-light);
+}
+.ppc-total .ppc-num { color: var(--fill-primary); }

@@ -1,0 +1,246 @@
+<style data-page-node-id="ZVMUN0HvxUHrx2vn7yRjtu" data-pnid-children="gWhIeTR9hfmUNnGhuHcd86">
+
+
+/* ---------- 1. CSS变量与基础重置 ---------- */:root {
+  --bg: #F5F0E8;
+  --card: #FFFFFF;
+  --white: #FFFFFF; /* E0 固定白：文字/描边/高光统一引用，不随深色主题翻转 */
+  --black: #000000; /* E0 固定黑：文字/描边统一引用，不随深色主题翻转 */
+  --gold: #FFD700; /* E0 金色：金币/星/奖章统一引用 */
+  --on-primary: #FFFFFF; /* E2-01 主色底上的文字色（按钮）；深色主题下映射为深色以保对比 */
+  --primary: #E85D3A;
+  --primary-dark: #C94A2A;
+  --header-hi: #FF8A50;        /* 顶栏受光高光带（令牌化，原为硬编码） */
+  --header-lo: #C13F22;        /* 顶栏渐深收尾 */
+  --primary-rgb: 232,93,58;    /* 主色的 R,G,B 分量（令牌化，供 rgba() 半透明场景使用） */
+  --glass-hi: #FFFFFF;         /* 计时圆盘玻璃底 · 内圈（令牌化，原为硬编码） */
+  --glass-mid: #FFF6EE;        /* 计时圆盘玻璃底 · 中圈 */
+  --glass-lo: #FBE5D6;         /* 计时圆盘玻璃底 · 外圈 */
+  --green: #5CB85C;
+  --green-rgb: 92,184,92;      /* 语义色 RGB 分量，供 rgba() 半透明场景使用 */
+  --green-dark: #4A9D4A;
+  --red: #D9534F;   /* 语义红（配色语义，区别于「危险操作」语义 --danger #C0392B）。
+                       取值与同组的 --green/--blue/--yellow 同族（Bootstrap 3 系：
+                       #5CB85C / #5B9BD5 / #F0AD4E / #D9534F），白字压上去 3.98:1（AA Large）。
+                       ★ 这条此前**只有 5 套皮肤和深色模式定义**，默认浅色主题下 var(--red) 落空，
+                         后果是「invalid at computed-value time」→ 整条声明退化成初始值：
+                         四象限 q1 选中态变成透明底 + 白字（白底白字，等于没选中）、
+                         日程表 .tb-now-line 的「当前时刻线」整条消失（引用处见 16_timeblock.css）。 */
+  --blue: #5B9BD5;
+  --blue-rgb: 91,155,213;      /* 语义色 RGB 分量 */
+  --blue-dark: #4A82C0;
+  --yellow: #F0AD4E;
+  /* 四象限选中态底色（q1 红 / q2 蓝直接用 --red/--blue，q3 黄 / q4 绿要用**加深版**）：
+     四个 chip 选中后统一「实心彩底 + --on-primary 文字」，与按钮同一套字色。
+     但 --yellow 要同时当提示色/星星色，不能为白字去压暗它 —— 所以 q3/q4 单开两个令牌，
+     由每套主题按"白字 ≥4.5:1"给值（暗色主题反过来：亮底 + --on-primary 深字，直接用 --yellow/--green）。 */
+  --quad-solid-q1: #D5413D;
+  --quad-solid-q2: #317ABE;
+  --quad-solid-q3: #A8680E;
+  --quad-solid-q4: #3B863B;
+  --yellow-dark: #D99530;
+  /* ===== 语义色的"文字专用"版本（--*-ink）=====
+     --primary/--green/--yellow/--blue 是**填充与装饰**色，明度是按"色块好看"定的，
+     拿来当文字放中性底上普遍只有 2.8~3.5:1，小字（13~17px）根本读不清。
+     ink 版只做一件事：保住原色相，压到对页面底 ≥4.5。
+     值不手挑，由 tools/palette_contrast.py 的 fit() 反推（单参数轴、二分到刚好达标，目标 4.6）。
+     ★ 分工：--on-primary = 主色**底上**的字；--primary-ink = 主色**当字**写在中性底上。 */
+  --primary-ink: #B7492E;   /* 对底 4.62 / 对白卡 5.24 */
+  --green-ink:   #3D793D;   /* 4.63 / 5.25 */
+  --yellow-ink:  #8C652E;   /* 4.61 / 5.23 */
+  --blue-ink:    #42709B;   /* 4.60 / 5.22 */
+  /* 段位「萌芽」绿：浅色要压暗才够白卡（4.62），深色要提亮才够深卡。
+     原来 JS 里写死 #6A9955（白卡 3.33），压成 #587F47 后浅色达标、深色只剩 3.44。 */
+  --rank-mengya: #587F47;
+  --purple: #6B5B95;
+  --purple-rgb: 107,91,149;    /* 语义色 RGB 分量 */
+  --purple-dark: #564878;
+  /* 楷体正文的加深：文楷的笔画覆盖率只有系统黑体的 79%（实测 canvas 墨水密度
+     1.1‰ vs 1.4‰），同样的 #2C3E50 在楷体上看着更淡、更「虚」。这里把主文字色
+     往下压两档（白底对比度 11.1:1 → 14.6:1），用来补回笔画的视觉重量。
+     色相保持原样（靛蓝灰），不是换成纯黑 —— 纯黑配米白底会显得生硬。 */
+  --text: #1E2A38;
+  --text-light: #47576A; /* 辅助小字同步加深（白底 5.4:1 → 7.2:1），
+                            原先卡在 AA 的 4.7~5.3 边缘，楷体一细就接近看不清 */
+
+  /* ===== 字重令牌 =====
+     层级由「字重 + 字号 + 行高」三者共同构成，只靠字号不够：全场同一字重会让
+     界面失去主次，读起来像一张加粗海报。正文用常规字重，粗体只留给真正的强调。
+     用法：正文/描述 → --fw-regular；标签/次要按钮 → --fw-medium；
+           区块标题 → --fw-semibold；大号数字与页面主标题才用 --fw-bold。 */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* ===== 字距令牌 =====
+     字距必须随字号变化：大字号要**负**字距（字放大后原来的间距看着就散了），
+     小字要**正**字距（保可读）。一个固定值必然在某处是错的。 */
+  --tracking-display: -0.02em;  /* 计时大数字、页面主标题 */
+  --tracking-tight: -0.01em;    /* 小节标题 */
+  --tracking-normal: 0;          /* 正文：系统字体已自带光学字号调整，不要加 */
+  --tracking-wide: 0.04em;      /* 全大写小标签 */
+
+  /* --border 原本写成 #2C3E50 —— **和 --text 完全相同**，于是每个输入框、每张卡片
+     都描了一道与正文同色的实边（全站 250 处）。这是「像线框图不像成品」的主因：
+     边框和文字抢同样的视觉重量，界面就只剩下一堆格子。
+     改成半透明后，边界还在（输入框仍有可感知轮廓），但退到背景层。
+     ★ 交互控件（输入框/按钮）需要可见轮廓，用 --border-strong；
+       卡片、分割线这类「结构」用 --border 就够。 */
+  --line-rgb: 31, 42, 55;
+  --alpha-line: .10;
+  --alpha-line-strong: .22;
+  --alpha-hairline: .07;   /* 卡片内分割线，比 --border 轻一档 */
+  /* 投影模拟光源而非纸张：带模糊、低透明度、垂直向下的偏移才像"浮起"；
+     无模糊的纯色偏移投影（`Npx Npx 0`）会把元素画成一张贴纸，抢注意力。 */
+  --shadow: 0 1px 2px rgba(20,26,48,0.06), 0 2px 8px rgba(20,26,48,0.06);
+  --radius: 8px;
+  --work: #E85D3A;
+  --short-break: #5CB85C;
+  --long-break: #5B9BD5;
+  /* 年度热力图色阶：浅色/深色各一套，保证两种模式下都直观 */
+  --hm0: #E8E4DC;
+  --hm1: #FFE082;   /* 1~2 个：浅黄 */
+  --hm2: #FFB74D;   /* 2~4 个：橙 */
+  --hm3: #FF7043;   /* 4~7 个：橙红 */
+  --hm4: #D84315;   /* 7+ 个：深红 */
+  --hm-cell-border: #D8D2C6;
+  --c-full: #E85D3A;
+  --c-half: #2E9E5B;
+  --c-min: #3D6FB4;
+  --c-int: #8E44AD;
+  --c-sleep: #3D6FB4;
+  --c-mental: #D99530;
+  --c-energy: #2E9E5B;
+  --c-pleasure: #E85D3A;
+  --c-grid: #E8E1D3;
+  --c-axis: #C9C2B4;
+  /* ========== 动效令牌（统一节奏） ========== */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.25, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-xs: 90ms;
+  --dur-s: 150ms;
+  --dur-m: 225ms;
+  --dur-l: 375ms;
+  --transition-fast: all var(--dur-xs) var(--ease-out);
+  --transition-standard: all var(--dur-m) var(--ease-in-out);
+  --transition-spring: all var(--dur-s) var(--ease-spring);
+  /* ========== 阴影层级 ==========
+     层级由「模糊半径 + 透明度」区分，不由偏移像素数区分。 */
+  --shadow-sm: 0 1px 2px rgba(20,26,48,0.07);
+  --shadow-md: 0 2px 6px rgba(20,26,48,0.08), 0 1px 2px rgba(20,26,48,0.05);
+  --shadow-lg: 0 12px 32px rgba(20,26,48,0.18);
+  --shadow-xl: 0 20px 48px rgba(20,26,48,0.28);
+  --focus-ring: 0 0 0 3px rgba(var(--primary-rgb),0.28);
+  /* ========== 圆角层级 ========== */
+  --radius-xs: 4px;   /* 圆角收口：19 种 → 7 档，详见 tools/w6_scale.py 头部 */
+  --radius-sm: 6px;
+  --radius-md: 12px;  /* 新增 */
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+  /* 间距收口：25 种 → 10 档（>24px 豁免，@media 内豁免）。
+     档位按"实际用量"定，不是硬套 4px 栅格 —— 本项目主力值是 8/10/6/4，
+     强行对齐 4 栅格会把 203 处 10px 压成 8px（真实位移），得不偿失。
+     ★ 间距只乘 --fs-user（不乘 --fs-boost）：系统字号缩放不该把留白也顶开 = 「字撑破卡片」——
+       看着就像「浏览器强行双指放大」而不是「界面变大」。文字和留白一起长，
+       卡片跟着长高、换行更早，才是真正的整站放大。
+       （2026-10-13 修正：原文写的是 --fs-scale，但该变量**全仓并不存在** —— 实际是
+        字号档位乘 --fs-boost × --fs-user、间距只乘 --fs-user，见 11_layout_timer.css §字号/间距缩放。） */
+  --sp-2: 2px;
+  --sp-4: 4px;
+  --sp-6: 6px;
+  --sp-8: 8px;
+  --sp-10: 10px;
+  --sp-12: 12px;
+  --sp-14: 14px;
+  --sp-16: 16px;
+  --sp-20: 20px;
+  --sp-24: 24px;
+  /* ========== 表面层级（背景深浅递进） ========== */
+  --surface-0: #F5F0E8;   /* 最深：页面底色 */
+  --surface-1: #FFFFFF;   /* 常规卡片 */
+  --surface-2: #FBF7EF;   /* 浮起卡片/输入 */
+  --surface-3: #F0EADF;   /* 按压/嵌套 */
+  --ink-strong: #1A2438;
+}
+
+body {
+  /* 实心填充块（选中胶囊 / 主色小按钮）的底色：浅色底上 #E85D3A 压白字只有 3.47，
+     换同色相深一档 #C94A2A → 4.67。形状、色相都不变，只是暗一格。
+     ★ 必须派生在 body：写在 :root 会被冻死，深色模式翻不过来。 */
+  --fill-primary: var(--primary-dark);
+  /* 实心填充块上的字。浅色 / 深色都用白：填充块本身始终是"深一档的主色"，
+     需要白字才够对比（深色下若沿用 --on-primary 的深棕，那块红就看不见了）。 */
+  --on-fill: #FFFFFF;
+  --border:        rgba(var(--line-rgb, 31, 42, 55), var(--alpha-line, .10));
+  --border-strong: rgba(var(--line-rgb, 31, 42, 55), var(--alpha-line-strong, .22));
+  --hairline:      rgba(var(--line-rgb, 31, 42, 55), var(--alpha-hairline, .07));
+}
+
+/* 线型区分：即使色弱也能分辨 */
+.dash-long { stroke-dasharray: 6 3; }
+.dash-dot { stroke-dasharray: 1.5 3.5; stroke-linecap: round; }
+.dash-dashdot { stroke-dasharray: 9 3 2 3; }
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 横向锁滚只设在 html：若设到 body，body 会成为滚动容器，页面里所有 position:sticky 吸顶会失效 */
+/* ★ text-size-adjust 必须是 100%：手机/WebView 的「系统字号/文字缩放」会沿这条路把**每一个
+   px 字号**偷偷乘一个系数（本机实测 1.45×），但**盒子尺寸一分不改** —— 于是字把卡片、
+   胶囊、导航挤爆、折行、裁切，看着就像「浏览器强行双指放大」，还让一堆元素横向溢出。
+   钉死 100% 后，全站文字大小只由应用自己的「字号大小」控制，行为在各平台一致。 */
+html { overflow-x: hidden; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html, body {
+  min-height: 100%;
+  /* ★ 字体只由 --font-body 决定（见 01_fonts.css）。
+     原来这里写死一长串系统字体，换字体时得全站搜替换 —— 现在换字体＝改一个令牌。 */
+  font-family: var(--font-body);
+  font-synthesis: weight;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+  /* 关掉浏览器自己的「横向过度滚动 → 前进/后退」手势。
+     ★ 这是「左右滑会前进后退，而且同时还在切页面」的第二半原因：
+       overscroll-behavior-x 默认是 auto，Chrome/Via 在页面横向滑到边时会
+       触发自己的后退/前进；改成 none 后，横向滑动只归应用自己的手势管。
+       （另一半原因是切视图会往历史栈塞记录，已在 0B_hash路由.js 里改为 replaceState。） */
+  overscroll-behavior-x: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 只禁用交互元素的选中，内容区域（日记/统计/日志）允许复制 */
+button, .nav-item, .log-tab, .team-status-row, .settings-group.foldable .group-header {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  min-height: 100vh;
+  /* ★ 显式给一个字面基准字号：不写的话，页面所有「没有自己字号」的文字会继承浏览器的
+     默认字号（16px × 系统字体档位），在手机上就是被系统偷偷放大的那 1.45×。
+     写死 + 乘 --fs-boost 后，全站文字只剩「设置页字号大小」一个来源。
+     ★ 这里必须走 --fs-body 令牌，不能另写一个 16px/17px 字面量：
+       本轮换楷体时基准从 16 提到 17，如果只改令牌、这里还是硬写的 16px，
+       就会变成「占全站最多的正文（没设字号的继承体）偏偏没跟着变大」——
+       用户看到的仍然是「还是小」。同一个数只能有一个出处。 */
+  font-size: var(--fs-body);
+  /* 行高必须显式给：`normal` 是按「西文字体的平均字高」算的，中文方块字没有那个
+     上下伸展量，套用后行距明显偏挤、整页读起来发闷 —— 这是「廉价感」的常见来源之一。
+     1.5 是中文正文的通行下限（Apple 的排版原则要求 层级 = 字重 + 字号 + 行高 三者共同构成，
+     行高缺席时只能用加粗来拉开层次，那正是本站「全场粗体」的由来）。
+     只作用在没有自己行高的文字上：已有显式 line-height 的规则不受影响。 */
+  line-height: 1.5;
+}
+

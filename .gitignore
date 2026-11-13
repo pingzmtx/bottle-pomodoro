@@ -1,0 +1,35 @@
+# 派生产物 / 本地缓存，不进版本库
+
+# Python 字节码
+__pycache__/
+*.pyc
+*.pyo
+
+# callgraph_ast.js 的输出（1 MB 级派生快照，按需用 `node tools/callgraph_ast.js` 重建；
+# 工具与规格已入库，快照不必入库——避免每次改源码都产生巨大的 diff）
+tools/callgraph.json
+tools/callgraph.selfcheck.json
+
+# 探针临时产物（probe_dep.py 生成，验证完即弃）
+index.probe.html
+
+# 单用例本机运行页（tools/tests/mk_runner.py 生成，用完即删）
+tools/tests/_tmp_run.html
+
+# 依赖报告按需生成物（dep_report.py --md，看过即弃）
+模块依赖报告.generated.md
+
+# macOS
+.DS_Store
+tools/tests/_tmp_block.js
+
+# 对外打包产物
+*_给外部AI_*.zip
+
+# 发布 token（本机凭据，绝不入库 / 不进打包）
+.publish-token
+tools/.ver_seq.json
+
+# 构建中间产物（根目录那份才是站点）
+public/
+dist/

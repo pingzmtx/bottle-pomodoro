@@ -1,0 +1,45 @@
+<!-- 启动画面：静态首元素。
+     必须写在这里（body 第一个节点、主样式块之后），而不是由 JS 动态创建：
+     index.html 单文件里 slot1~slot9 的内联脚本全排在正文之后，等 JS 跑到
+     ensureBootSplash() 时，浏览器早已把 view-timer 渲染出来了 —— 用户先看到
+     主页、几百毫秒后才被加载页盖住，也就是"眼前闪一下"。
+     静态写死在首元素后，浏览器解析到这一行立刻绘制遮罩，首帧即"正在启动"。
+     ★ 语录必须写死一份默认文案（JS 只在跑起来后随机换一句）：整页 3 MB，
+       首次打开/清过缓存时下载要几十秒，这段 HTML 里的字是唯一还能显示的东西 ——
+       留空的话用户看到的就是「一个番茄 + 一条进度条 + 下面什么都没有」，
+       像是页面坏了。boot-hint 同理，纯 CSS 延时 6 秒淡入：加载快时它来不及
+       出现（遮罩早被 JS 摘掉了），只有真慢的时候才需要有句话安抚。 -->
+<div data-page-node-id="QgPtBztu3zh0aVJk7mTn1" class="boot-splash" id="bootSplash">
+  <div class="boot-logo">🍅</div>
+  <div class="boot-title">瓶子专注</div>
+  <div class="boot-quote" id="bootQuote">坐下来，把今天种下去 🌱</div>
+  <div class="boot-bar"><div class="boot-bar-inner"></div></div>
+  <div class="boot-hint">正在加载，文件较大，请稍候 ☕</div>
+</div>
+<div data-page-node-id="UgE0x58PD18pjugjtMJkUl" class="tomato-drop-layer" id="tomatoDropLayer"></div>
+
+<header data-page-node-id="0SpAvarA0sauxj4A8aLkaa" class="header">
+  <span class="header-spacer" aria-hidden="true"></span>
+  <svg data-page-node-id="eCnVsvAVV3we4fqWw5noEq" aria-label="番茄专注" class="tomato-icon" fill="none" role="img" viewBox="0 0 24 24">
+    <path data-page-node-id="PBR36Oa0HvUrsp1DyRoIma" d="M12 4C12 4 10 2 8 3C6 4 7 6 7 6" stroke="#2C3E50" stroke-linecap="round" stroke-width="2"/>
+    <ellipse data-page-node-id="cOtVGMyoGGxXxXME3gbx1S" cx="12" cy="14" fill="#FF6B4A" rx="8" ry="7" stroke="#2C3E50" stroke-width="2"/>
+    <path data-page-node-id="HPTkAaOdap2VUvB7k2fxSa" d="M9 8C10 7 11 7.5 12 7C13 7.5 14 7 15 8" fill="none" stroke="#4CAF50" stroke-linecap="round" stroke-width="2"/>
+  </svg>
+  <div data-page-node-id="VYzG0IKVVvmCpRQEQSCQvH" class="header-brand" style="display:flex; flex-direction:column; align-items:center; line-height:1.2; min-width:0">
+    <div data-page-node-id="dNQ8mC0lW2L87mfyQUqEBt" class="header-brand-row" style="display:flex; align-items:center; justify-content:center; gap:var(--sp-8); min-width:0; max-width:100%">
+      <h1 data-page-node-id="T8l3Y228hZ4knNSwb9wQYS" style="margin:0"><!--pnid:U4JQw3b1TLjwsoMec4eqzz-->番茄专注</h1>
+      <span data-page-node-id="oCZlVm8dRUZGhQOF0GUN1g" class="header-brand-sub" style="font-size:var(--fs-title); font-weight:600; opacity:0.8"><!--pnid:2EpvtKD7KbwwBfXhFLXD0r-->瓶子满天星 ❤️</span>
+    </div>
+  </div>
+  <button class="header-btn" id="quickBtn" data-stop="1" data-act="toggleQuickPanel" title="快捷功能：白噪音 / 全屏专注 / 极简" style="padding:var(--sp-8) var(--sp-10)">🎛</button>
+  <div class="quick-panel" id="quickPanel">
+    <div class="qp-title">快捷功能</div>
+    <div class="qp-item" data-action="noise" data-after="closeQuickPanel" data-act="openNoiseModal"><span class="qp-ico">🎵</span><span class="qp-name">白噪音</span><span class="qp-go">›</span></div>
+    <div class="qp-item" data-action="immerse" data-act="quickGoImmersive"><span class="qp-ico">🎮</span><span class="qp-name">全屏专注</span><span class="qp-go">›</span></div>
+    <a class="qp-item" data-action="docs" href="https://docs.qq.com/doc/DR2haQ1FHZG1BRWJk?dver=" target="_blank" rel="noopener noreferrer" data-act="closeQuickPanel" style="margin-top:var(--sp-4); padding-top:var(--sp-10); border-top:1px solid var(--border); border-radius:0; text-decoration:none; color:var(--text)"><span class="qp-ico">📄</span><span class="qp-name">查看文档</span><span class="qp-go">↗</span></a>
+  </div>
+  <span class="header-spacer right" aria-hidden="true"></span>
+</header>
+
+<main data-page-node-id="lTSDM4AAl1L2HSvWkyhb6p" class="main">
+

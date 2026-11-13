@@ -1,0 +1,281 @@
+  <!--pnid:LfGbWguweATUeAfLXIUxsu--><!-- ========== 设置页 ========== -->
+  <section data-page-node-id="wlfYLX8RugyeBDQvSwWauV" class="view" id="view-settings">
+    <!-- 设置页导航栏 + 文档按钮 -->
+    <div style="display:flex; gap:var(--sp-8); align-items:center; margin-bottom:var(--sp-12); flex-wrap:wrap;">
+      <!-- 导航 chip 行：横向滑动是刻意设计（不占额外高度）。
+         ★ 不要改成 flex-wrap 换行 —— 那样会多占一行高度，破坏了这里的设计。 -->
+      <!-- 右侧渐隐：可滑动区被裁断处如果直接切一刀，看起来像和右边按钮叠在一起；
+           加一层渐隐，缺口感就变成"还能往右滑"而不是"控件坏了"。 -->
+      <div style="flex:1; display:flex; gap:var(--sp-6); overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; margin-right:var(--sp-6); -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%); mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 22px),transparent 100%);">
+        <button class="btn-small" data-act="scrollToSettingGroup" data-act-args='["theme"]' style="font-size:var(--fs-note); flex-shrink:0;">🎨 主题</button>
+        <button class="btn-small" data-act="scrollToSettingGroup" data-act-args='["immersive"]' style="font-size:var(--fs-note); flex-shrink:0;">🎮 沉浸</button>
+        <button class="btn-small" data-act="scrollToSettingGroup" data-act-args='["ghost"]' style="font-size:var(--fs-note); flex-shrink:0;">👻 幽灵</button>
+        <button class="btn-small" data-act="scrollToSettingGroup" data-act-args='["timer"]' style="font-size:var(--fs-note); flex-shrink:0;">⏱️ 计时</button>
+        <button class="btn-small" data-act="scrollToSettingGroup" data-act-args='["notify"]' style="font-size:var(--fs-note); flex-shrink:0;">🔔 通知</button>
+        <button class="btn-small" data-act="scrollToSettingGroup" data-act-args='["tags"]' style="font-size:var(--fs-note); flex-shrink:0;">🏷️ 标签</button>
+        <button class="btn-small" data-act="scrollToSettingGroup" data-act-args='["backup"]' style="font-size:var(--fs-note); flex-shrink:0;">💾 备份</button>
+        <button class="btn-small" data-act="scrollToSettingGroup" data-act-args='["share"]' style="font-size:var(--fs-note); flex-shrink:0;">🔗 分享</button>
+      </div>
+      <a class="btn-small" href="https://docs.qq.com/doc/DR2haQ1FHZG1BRWJk?dver=" target="_blank" rel="noopener noreferrer" style="background:var(--fill-primary); color:var(--on-fill); border-color:var(--primary); font-size:var(--fs-note); flex-shrink:0; display:inline-flex; align-items:center; text-decoration:none; line-height:1;">📄 查看文档</a>
+    </div>
+    <!--pnid:qvnb02ZwxyHcJrviJgLtT8--><!-- 沉浸式专注（置顶：新功能入口优先） -->
+    <div data-page-node-id="Fg4Y3TSAe164lr4XJwxmcS" class="settings-group foldable" data-group="immersive">
+      <h3 data-page-node-id="HCMdfM66sQXixaKUJACa5s" class="group-header" data-act="toggleGroup" data-act-args='["immersive"]'><!--pnid:xftWf2spEUWHfggn1nkLIk-->🎮 沉浸式专注 <span data-page-node-id="i0iEaEbuVJvVsSdug5TPdy" class="group-arrow"><!--pnid:pTCJwO1OxLZ9AzVgk1bGaH-->▼</span></h3>
+      <div data-page-node-id="3fkxhI0aAdBGz2mujCDIgx" class="group-body">
+        <div data-page-node-id="mIx3De15iuygKZ1DWqkhzp" class="setting-row"><div data-page-node-id="9paq6kKaiJnc6SSnZMQgOO" class="setting-label"><!--pnid:5iCkRAvKaP68DetfTPE9hN-->开启沉浸式专注<div data-page-node-id="9GHtW0aNzWUBPWfotZ0yYD" class="setting-desc"><!--pnid:GFXzIBMJ33vWVvUokyYOCr-->开始番茄时随机抽取角色卡，用剧情推进你的专注</div></div><label data-page-node-id="SX5bKeoOTIutiXgC57BTPC" class="switch"><input data-page-node-id="xfBfSNyYgeRv63RPy3kmDp" id="setImmersive" data-change="toggleImmersiveFocus" type="checkbox"><span data-page-node-id="rUEFiTI7Pibsb6LDXgCmXa" class="switch-slider"></span></label></div>
+        <div data-page-node-id="GFbFI9WwYALKSwuiLSDFTp" class="setting-row">
+          <div data-page-node-id="YObm9yVzBz89HXoLAB1fOW" class="setting-label"><!--pnid:awNLicSffm3GFzEQjbfWr6-->玩法说明<div data-page-node-id="afFvvrq1ZLLdz2FW5Bk2mw" class="setting-note-toggle" data-act="toggleNote" data-act-args='["@this"]'><!--pnid:s8NJmk1hcLmhwIUYgY6mc2-->展开说明</div><div data-page-node-id="wb2V54Ad2QxWY03agCgjgh" class="setting-note-content"><!--pnid:DpJ5XhuEvaeuGCkkAUTqRk-->🎴 每次开始专注抽一张角色卡 → 4 个番茄 = 一章冒险（第一章 → 终章）<br data-page-node-id="MRxW1slh8xHHVwPbNrAljr"><!--pnid:HLDGy5LyLj5Kk3h81kja7k-->📖 短休时全屏展示剧情过渡页，番茄完成有角色台词<br data-page-node-id="AnjZePugtfJ6W2NRvLqyA0"><!--pnid:3P3IN1SvThXIFXQWQ5KUFV-->⚠️ 连续 2 个番茄未完成（含半个）将触发 <b data-page-node-id="6P9yPmEiZNPClh3W35T2kI" style="color:var(--danger)"><!--pnid:rPtUHOXSQ3XxQUmc1C4gl3-->Bad Ending</b><!--pnid:rbDm9670aSD2TsUzqsP9wk--> 并重置进度</div></div>
+        </div>
+        <!-- 【5.4.6 抽卡偏好】固定副本 vs 随机剧本的比例，用户自行决定（0=全随机，100=全固定） -->
+        <!-- 【5.4.6 抽卡偏好】默认折叠成一行标题（点开才显示滑杆），与下方剧情副本同款，保持沉浸组清爽 -->
+        <div data-page-node-id="imFixedRow" class="setting-row" style="flex-direction:column;align-items:stretch;gap:0;padding-top:var(--sp-10);border-top:1px solid var(--border);margin-top:var(--sp-6);">
+          <div id="imFixedHead" data-act="toggleImFixedPanel" style="display:flex;align-items:center;justify-content:space-between;gap:var(--sp-8);cursor:pointer;user-select:none;padding:var(--sp-2) var(--sp-2);">
+            <span style="font-size:var(--fs-body);font-weight:800;color:var(--text);">🎴 剧本抽取<span id="imFixedChanceVal" style="display:inline-block;margin-left:var(--sp-6);font-size:var(--fs-caption);color:var(--text-light);font-weight:800;"></span></span>
+            <span id="imFixedHeadArrow" style="font-size:var(--fs-caption);color:var(--text-light);transition:transform .18s;flex-shrink:0;">▶</span>
+          </div>
+          <div class="setting-desc" style="padding:0 var(--sp-2) var(--sp-2);">固定副本＝内置剧本 + 你导入的副本，剩余概率生成随机剧本。点开可调固定/随机比例。</div>
+          <div id="imFixedPanel" style="display:none;flex-direction:column;gap:var(--sp-8);margin-top:var(--sp-8);">
+            <input type="range" id="imFixedChance" min="0" max="60" step="5" value="40" data-input="onImFixedChance" data-input-args='["@value"]' style="width:100%; accent-color:var(--primary); height:24px;">
+            <div class="setting-desc" style="padding:0;">滑块越靠右越容易抽到固定副本（想刷某个特定副本就调高）；固定副本最高只能占 60%，至少保留 40% 随机新剧情。系统会尽量避免连续抽到你最近抽过的固定 / 随机剧情。</div>
+          </div>
+        </div>
+        <!-- 【5.4.6 沉浸式剧情副本 · 导入】默认折叠成一行标题（点开才显示按钮/列表），保证沉浸式组除「开启」开关外保持清爽 -->
+        <div data-page-node-id="ImScRoot" class="setting-row" style="flex-direction:column;align-items:stretch;gap:0;padding-top:var(--sp-10);border-top:1px solid var(--border);margin-top:var(--sp-6);">
+          <div id="imScriptHead" data-act="toggleImportedScriptPanel" style="display:flex;align-items:center;justify-content:space-between;gap:var(--sp-8);cursor:pointer;user-select:none;padding:var(--sp-2) var(--sp-2);">
+            <span style="font-size:var(--fs-body);font-weight:800;color:var(--text);">🎬 剧情副本<span id="imScriptCountNote" style="display:inline-block;margin-left:var(--sp-6);font-size:var(--fs-caption);color: var(--primary-ink);font-weight:700;"></span></span>
+            <span id="imScriptHeadArrow" style="font-size:var(--fs-caption);color:var(--text-light);transition:transform .18s;flex-shrink:0;">▶</span>
+          </div>
+          <div class="setting-desc" style="padding:0 var(--sp-2) var(--sp-2);">导入你自己的剧本，会进入「固定副本」抽卡池（固定/随机比例可在上方滑块自己调）。副本只存在本机，不随备份导出，不影响个人数据。</div>
+          <div id="imScriptPanel" style="display:none;flex-direction:column;gap:var(--sp-8);margin-top:var(--sp-6);">
+            <div style="display:flex;flex-wrap:wrap;gap:var(--sp-6);">
+              <button type="button" class="btn-small" data-act="__clickId" data-act-args='["imScriptFile"]'>📥 导入副本文件</button>
+              <button type="button" class="btn-small" data-act="showImportedScriptHelp">📋 格式说明（含示例模板）</button>
+              <input type="file" id="imScriptFile" accept="application/json,.json" style="display:none" data-change="onImportScriptFile" data-change-args='["@this"]'>
+            </div>
+            <div id="importedScriptsBox"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--pnid:OQjBz5fYzgw1XHYdYMsNTE--><!-- 过去的自己（幽灵对比） -->
+    <div data-page-node-id="Ns74wBiC9HuPyVZts8PFxl" class="settings-group foldable" data-group="ghost">
+      <h3 data-page-node-id="QfcYQrMdMrs8SQok3YxzpL" class="group-header" data-act="toggleGroup" data-act-args='["ghost"]'><!--pnid:BGXnpQMuzW3kSjlud2W1jy-->👻 过去的自己 <span data-page-node-id="a5SFPhGW8IuDzEpkG861vJ" class="group-arrow"><!--pnid:ZHvbxipukDY2dkgtGvtW90-->▼</span></h3>
+      <div data-page-node-id="EZh8wkDdQgXgjbX57ULx2y" class="group-body">
+        <div data-page-node-id="wp00h6Wpp0JYeGPl4Ap3Cg" class="setting-row">
+          <div data-page-node-id="pJ4cZXe6KgVus0tPKjR9P1" class="setting-label"><!--pnid:4udQgqQ2a38UjljQ00rBNS-->显示「过去的自己」对比条<div data-page-node-id="FeQqns9C070UVYj4C2BCho" class="setting-desc"><!--pnid:nazxvBETIULtOUi2piouIK-->计时页展示某一天（去年今日 / 昨天 / 随机历史日）的专注量做参照。它只是记录，超不过不会影响任何奖励，也不会说你什么</div></div>
+          <label data-page-node-id="3tk9jdGlB9ZSY5OGwzj1S3" class="switch"><input data-page-node-id="gsMc1MDQrlAddpDSP0LTPt" id="setGhostEnabled" data-change="toggleGhostEnabled" type="checkbox"><span data-page-node-id="JVG1poYkS6LAUEeYB45zbx" class="switch-slider"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <!--pnid:Qw3H8z48pcsA3BQNJ1i7Mx--><!-- 计时设置 -->
+    <div data-page-node-id="wd856Cz3ulbakomi8DGbT3" class="settings-group foldable" data-group="timer">
+      <h3 data-page-node-id="sGoYRFIgdZN4WCsIpMX7lw" class="group-header" data-act="toggleGroup" data-act-args='["timer"]'><!--pnid:d2rV9pz4SYfEI19hMlCcTz-->⏱️ 计时设置 <span data-page-node-id="wpYeXK5nX2QQBF77VbehVR" class="group-arrow"><!--pnid:v8Gz2IJZhrHLUwsUMwkELq-->▼</span></h3>
+      <div data-page-node-id="I9jUPeM8Vleb8drv1pQg29" class="group-body">
+        <div data-page-node-id="ugVk2PUWKxNm1LDqUTuwRA" class="setting-row"><div data-page-node-id="bH3u5YsnxDTUMGD4KV3lO2" class="setting-label"><!--pnid:IToweIiQ9MszwiIKQ96DLG-->单番茄时长（分钟）</div><input data-page-node-id="0WhW9KgqwVcmKq58OpcxMs" class="setting-input" id="setWork" max="120" min="1" data-change="saveSettings" onwheel="event.preventDefault()" type="number" value="25">
+        
+      </div>
+        <div data-page-node-id="bJLpWQK68rX2bQFa1loBXy" class="setting-row"><div data-page-node-id="DUJc8c8Ubibr5BA8nQmDoU" style="display:flex; gap:var(--sp-6); flex-wrap:wrap; align-items:center">
+          <button data-page-node-id="hMQobklAHoIgdYFPVjTuBq" class="btn-small" data-act="setWorkPreset" data-act-args='["10"]' style="background:var(--card); color:var(--text); border-color:var(--border)"><!--pnid:42fL19sLZkZUenf9Nv2f4z-->🌱 10</button>
+          <button data-page-node-id="twviGyyLhuxs2SWWRu6C3E" class="btn-small" data-act="setWorkPreset" data-act-args='["25"]' style="background:var(--fill-primary); color:var(--on-fill)"><!--pnid:oRUb4OV4apDh0DU97UuO3d-->🌿 25</button>
+          <button data-page-node-id="EbYcw2pW8d2t3cAnNkOAEC" class="btn-small" data-act="setWorkPreset" data-act-args='["50"]' style="background:var(--card); color:var(--text); border-color:var(--border)"><!--pnid:Pi9m5uZUindRVficDfVSBU-->🔥 50</button>
+          <button data-page-node-id="UO2esihVo0w5qZR8eSqirO" class="btn-small" data-act="setWorkPreset" data-act-args='["90"]' style="background:var(--card); color:var(--text); border-color:var(--border)"><!--pnid:pt6K3iPZr4B65nbRm0Psad-->💎 90</button>
+          <span data-page-node-id="7BLx3nhwgF6zi2nKToqVhb" style="font-size:var(--fs-body); color:var(--text-light); align-self:center"><!--pnid:xAjjsQrpAUNrydcf9SCJ0h-->🌱10=简单 · 🌿25=中等 · 🔥50=沉浸式 · 💎90=大师；🪙 专注 ≥24 分钟 +2 · ≥48 +5 · ≥86 +10</span>
+        </div></div>
+        <div data-page-node-id="O4Enc9Mctyj1aC208fmQdd" class="setting-row"><div data-page-node-id="kZiC6ple2aUmLbeB8zZe1D" class="setting-label"><!--pnid:mkSHqbUBf122OlV3EYx6iN-->短休息（分钟）</div><input data-page-node-id="WB9PgZjjYaBHLnKzHx2dQm" class="setting-input" id="setShortBreak" max="30" min="1" data-change="saveSettings" type="number" value="5"></div>
+        <div data-page-node-id="DOWHVMjgL8Yc2l2WXEdLQA" class="setting-row"><div data-page-node-id="n03Yp1PjG3rVU7XAf93kCE" class="setting-label"><!--pnid:JCL9l5RR4KEPtc91stMMGl-->长休息（分钟）</div><input data-page-node-id="KpOjKA77zWXRTjyUoHsNP7" class="setting-input" id="setLongBreak" max="60" min="10" data-change="saveSettings" type="number" value="20"></div>
+        <div data-page-node-id="5ddMQkNkPakpdxGPh7a6q2" class="setting-row"><div data-page-node-id="9sA7wenQxmamyw6e1iivjb" class="setting-label"><!--pnid:IQIABoUqgGlz4cqCNJOECH-->自动长休息所需完整番茄数</div><input data-page-node-id="UAAFleQt17L99V480pCdVK" class="setting-input" id="setLongInterval" max="20" min="1" data-change="saveSettings" type="number" value="4"></div>
+        <div data-page-node-id="1s0yDbE3q300ZUMyG5moWD" class="setting-row"><div data-page-node-id="UeR6cmBFBz5K5YZCn3dPTs" class="setting-label"><!--pnid:VGEfnSSBP9WnDFo8ODhkoS-->进度样式</div><div data-page-node-id="vkYK3XXPi2n4DXxKvM8vmp" class="seg-group" id="progressStyleSeg" style="display:flex; gap:0; background:var(--surface-2,var(--bg)); border:1.5px solid var(--border); border-radius:var(--radius-full); padding:var(--sp-2); width:fit-content"><button data-page-node-id="9NuHfNFAQ2ySYl0vL5sswI" class="seg-btn active" data-v="ring" data-act="setProgressStyle" data-act-args='["ring"]' type="button" style="border:none; background:transparent; font-size:var(--fs-note); font-weight:700; color:var(--text-light); padding:var(--sp-4) var(--sp-14); border-radius:var(--radius-full); cursor:pointer; transition:background .15s,color .15s"><!--pnid:uUqKNrvBG3NHT2maSjeoDZ-->圆环</button><button data-page-node-id="Pp4axfFtp9WfL7DewPfKbu" class="seg-btn" data-v="wave" data-act="setProgressStyle" data-act-args='["wave"]' type="button" style="border:none; background:transparent; font-size:var(--fs-note); font-weight:700; color:var(--text-light); padding:var(--sp-4) var(--sp-14); border-radius:var(--radius-full); cursor:pointer; transition:background .15s,color .15s"><!--pnid:pNbh7Bjgh53qOfZZLLhCx9-->水波</button></div></div>
+        <div data-page-node-id="ds36mKYcT4fGMJzLVbBj99" class="setting-row">
+          <div data-page-node-id="y2pPk9sHf8KiGVGKbr51ju" class="setting-label"><!--pnid:hGFNdRv2Aupa7X7tNnKWef-->番茄之间容错缓冲时长（分钟）<div data-page-node-id="XIwpI25RA381unJF5b65V1" class="setting-note-toggle" data-act="toggleNote" data-act-args='["@this"]'><!--pnid:KlT4LX2hXX2TA8OAsNFzzz-->展开说明</div><div data-page-node-id="bOYh4rPRsL9xZeeICaZRMc" class="setting-note-content"><!--pnid:79JcLvfA3pQ7UXBjq5wkv7-->两个完整番茄之间，自行离开休息的间隔≤缓冲时长则累计保留；＞缓冲时长则累计清零。系统自带短休息不受此限制。</div></div>
+          <input data-page-node-id="6oeFHa3INf9kEEZGxo1yyu" class="setting-input" id="setBufferTime" max="180" min="1" data-change="saveSettings" type="number" value="30">
+        </div>
+        <div data-page-node-id="eRYbU5nZzNcibERHUTey67" class="setting-row"><div data-page-node-id="Ssix6MUiwfZJAZ17Fc8uim" class="setting-label"><!--pnid:kkugOfBs8psIvDH866wp7t-->长休息是否强制</div><label data-page-node-id="JHHZR9dxUBl86ZbWyJBP1v" class="switch"><input data-page-node-id="DhVbnLMcADfM6Y4mFIi6TS" id="setLongForce" data-change="saveSettings" type="checkbox"><span data-page-node-id="wbF2LfGv5NCVSmHb3j9O2C" class="switch-slider"></span></label></div>
+        <div data-page-node-id="y6VBYAnajVVLr5Y4IWAzFB" class="setting-row">
+          <div data-page-node-id="eLRvc7WECt5mnNWnBaJMl8" class="setting-label"><!--pnid:q8RhbqNmKuqI62LaWOAQWz-->自适应建议（心流）<div data-page-node-id="zZBrJaWfqpOXKkALk8Uq8z" class="setting-note-toggle" data-act="toggleNote" data-act-args='["@this"]'><!--pnid:deOXbYLdbTBcVxvUZjRbkB-->展开说明</div><div data-page-node-id="eW47RooKyms98nWXUbg6Hq" class="setting-note-content"><!--pnid:k94kQ1pyuRra3d2hSZczEU-->根据近 7 天表现动态推荐番茄时长：正常推荐 25 分钟（中等），完成率 ≥80% 且完整番茄占比高推荐 50 分钟（沉浸式），打断多/老未完成推荐 10 分钟（简单）先找回状态；<b data-page-node-id="J6t8Xl05RwZRMqahkkP1R8"><!--pnid:cJalgrT4JWZBfkImCzSsW7-->你手动选择难度档或时长后，开始计时以你的选择为准，推荐仅作提示</b><!--pnid:SBgZsHMzhqLjlDJiK8tEWT-->；休息按上一番茄质量推荐 3/5/8 分钟；休息时展示冷知识、结束时给鼓励语；疲劳时主动提示休息。</div></div>
+          <label data-page-node-id="7yKHH3umq2ToEc0S5p8vc5" class="switch"><input data-page-node-id="eVG3qZ9iwAos4V4tkiHIvh" id="setAdaptiveSuggest" data-change="saveSettings" type="checkbox"><span data-page-node-id="pZQET7YAcGMKGlTMhZlRQ3" class="switch-slider"></span></label>
+        </div>
+        <div data-page-node-id="9uz40ZILCA9vutp0XxDYD5" class="setting-row">
+          <div data-page-node-id="SUBuQVBkXYo0vHeBpnLWNn" class="setting-label"><!--pnid:BGJ2IscfAURMeGcnrGSYMg-->极简模式<div data-page-node-id="LoT5gsGUTd9coi2xZHeQn0" class="setting-note-toggle" data-act="toggleNote" data-act-args='["@this"]'><!--pnid:fBPlM0iPHPiv6kji9iIHu6-->展开说明</div><div data-page-node-id="HIDs4b5KJbDr2K0vspNmnH" class="setting-note-content"><!--pnid:Hra4CIIWp9K9a0WpVVNRWD-->一键关掉种树、段位、成就等游戏化叠加层，回归纯粹计时器（工具优先，游戏为辅）。可在设置页随时关闭恢复。</div></div>
+          <label data-page-node-id="OPp5sS92qCn8fynBjMErvZ" class="switch"><input data-page-node-id="4t1d4cL8pHlMWrtfUlCMXN" id="setMinimalMode" data-change="toggleMinimalMode" type="checkbox"><span data-page-node-id="yzAOnztA5DqIcqUnc2aZO0" class="switch-slider"></span></label>
+        </div>
+        <div data-page-node-id="xeijNVvuSn5dQJpKtnsvlg" class="setting-row">
+          <div data-page-node-id="QnW5MoUWEEoH3AXYAz4qJV" class="setting-label"><!--pnid:FYod8vPSyKHwnxQMS687DQ-->打断宽容总时长（分钟，整个番茄共用）<div data-page-node-id="FtjsQ9tuCIOYEmtjcc8j6u" class="setting-note-toggle" data-act="toggleNote" data-act-args='["@this"]'><!--pnid:mzIROAUfcIOuWJlgZm65yp-->展开说明</div><div data-page-node-id="ejEknOqgOI0vTNGdkb32Oc" class="setting-note-content"><!--pnid:g2Y8BYHq2vA3J2xzOH2M29-->一个番茄内可多次打断，所有打断时间共用这一份总额度，不是每次单独分配。总额度内可恢复计时；超过则无法继续暂停，但完成时仍可按实际专注时长自选番茄类型。</div></div>
+          <input data-page-node-id="9DgQC34wuwJ2fl0CEJZAE4" class="setting-input" id="setInterruptTolerance" max="30" min="1" data-change="saveSettings" type="number" value="5">
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">后台/锁屏暂停计时<div class="setting-desc">切到后台或锁屏时自动暂停，回来继续</div></div>
+          <label class="switch"><input id="setBgPause" data-change="saveSettings" type="checkbox"><span class="switch-slider"></span></label>
+        </div>
+        <!-- 微休息：并入「计时设置」里，但单独成块（不折叠，少一层点击） -->
+        <div class="setting-subblock">
+          <div class="setting-subblock-title">🧘 微休息</div>
+        <div data-page-node-id="1U1iygDL8sehHeUMLF1cE7" class="setting-row"><div data-page-node-id="H5bBav5LmREtgOmiOLKh8q" class="setting-label"><!--pnid:veMciZVfcFbpmaAoVqmFzx-->开启微休息</div><label data-page-node-id="3I2ASwJjhyUXPZ5UVf6HfX" class="switch"><input data-page-node-id="ca0a0cFIRqyCtnZhqVQhSm" checked id="setMicroBreak" data-change="saveSettings" type="checkbox"><span data-page-node-id="MWZAxZ9HldzjECP6XdEOmI" class="switch-slider"></span></label></div>
+        <div data-page-node-id="pq45UgsEYGTAjXXPNetRus" class="setting-row"><div data-page-node-id="QZkM9ShpubFpKjCkxflyMO" class="setting-label"><!--pnid:mz48ksotyzMSQGhTvEeAGn-->提醒模式</div><select data-page-node-id="5t74Oxbu7LBtlB9bx5OL7H" class="setting-select" id="setMicroMode" data-change="saveSettings"><option data-page-node-id="A8m0Bh54SmvbmgH4pFoCSd" value="random"><!--pnid:iBnlhdkz9QQvOT51tf04kf-->随机区间</option><option data-page-node-id="CjI3hSANr9SByB5EvlaeKz" value="fixed"><!--pnid:UjFmS8wNrIUUgTb2DZbs1E-->固定间隔</option></select></div>
+        <div data-page-node-id="8ZJjnyroDwpvjjdJuPJ5Tu" class="setting-row" id="rowMicroFixed"><div data-page-node-id="ztO1m5cb57aPceErBbGLg0" class="setting-label"><!--pnid:wRaNdD86wczVNiQRgUU1qs-->固定间隔（分钟）</div><input data-page-node-id="SnXAsy4KxczIIBfTyAG5R7" class="setting-input" id="setMicroInterval" max="30" min="1" data-change="saveSettings" type="number" value="5"></div>
+        <div data-page-node-id="xykFPVRoGdAvznShspsSN5" class="setting-row" id="rowMicroRandom">
+          <div data-page-node-id="Pkb6kTIziOtqaDypwydveV" class="setting-label"><!--pnid:Z773S9ST836nm05V17NS3V-->随机区间（分钟）</div>
+          <div data-page-node-id="k7ftBO8RQ3ihQWNVVr7PPP" style="display:flex; gap:var(--sp-4); align-items:center">
+            <input data-page-node-id="oHDYF5bMGBWMRvjc1dI83u" class="setting-input" id="setMicroMin" max="30" min="1" data-change="saveSettings" type="number" value="3" style="width:50px">
+            <span data-page-node-id="QlHKrzcvBfShaG2yq3sdnB"><!--pnid:bZDX14Ysc669JUju4P7fjp-->~</span>
+            <input data-page-node-id="BzWNmS03CBvPpZGGRcIXMq" class="setting-input" id="setMicroMax" max="60" min="1" data-change="saveSettings" type="number" value="5" style="width:50px">
+          </div>
+        </div>
+        <div data-page-node-id="YoO1MsIwnYSZSS1ndLLyTX" class="setting-row"><div data-page-node-id="J3AzPA4Ss043sqAKujuTzL" class="setting-label"><!--pnid:okPHNCqVNx5sndoxkqjZx3-->单次微休息时长（秒）</div><input data-page-node-id="ZquGFVeFnHWLyfwnT7tP34" class="setting-input" id="setMicroDuration" max="120" min="3" data-change="saveSettings" type="number" value="10"></div>
+        <div data-page-node-id="49f04jj6INXMpTYFOSJFzo" class="setting-row">
+          <div data-page-node-id="WrgkIQQryd2awhT4nYtLqZ" class="setting-label"><!--pnid:sGgMKwqpPPR9tOrsEftfff-->最小间隔兜底（分钟）<div data-page-node-id="pILDXndJceqp9urvzgxJk4" class="setting-note-toggle" data-act="toggleNote" data-act-args='["@this"]'><!--pnid:RALGs8NjbZcQbBtiiPmiVW-->展开说明</div><div data-page-node-id="A8CxFe4rstRzZQn7oTcsf1" class="setting-note-content"><!--pnid:tIORDcVW8h9EUnek0EnalL-->此方法不适合所有专注项目，尤其是创意类工作。若10秒休息后难以快速回神，或听到提示音感到烦躁，建议关闭此功能。</div></div>
+          <input data-page-node-id="nFNtWzfhQKSGLVwGlMHGG1" class="setting-input" id="setMicroMinGap" max="10" min="1" data-change="saveSettings" type="number" value="2">
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <!--pnid:X4UZY5msY3iZkxGCPHwQzU--><!-- 通知与音效 -->
+    <div data-page-node-id="sTnfxUzMGRGl5FtduMelMn" class="settings-group foldable" data-group="notify">
+      <h3 data-page-node-id="vZNjuDu7Xzg1BJFQrQwcTX" class="group-header" data-act="toggleGroup" data-act-args='["notify"]'><!--pnid:B0DQg9w8dW19Dls6LDaTvm-->🔔 通知与音效 <span data-page-node-id="Zn1ns5IHhOgY1e8bS6dXZ5" class="group-arrow"><!--pnid:yU0TDLhPKc5Cc1LC1nI5Lt-->▼</span></h3>
+      <div data-page-node-id="krG4Y6bJnyFIvLAoLsvJzx" class="group-body">
+        <div data-page-node-id="xHg0yBI5IkTKvxfLlnKON3" class="setting-row"><div data-page-node-id="khck5lzgM66LjYXbDZ5klF" class="setting-label"><!--pnid:0vcyLstRr9Z5wwsX4eiqeA-->系统通知<div data-page-node-id="iiYRwK82VpRTGHLND4CzaY" class="setting-desc"><!--pnid:LCmcbUqPvJL4b7DoJMMV9h-->网页锁屏后台计时不可靠</div></div><label data-page-node-id="gJW0jnigmWnEEaYYnm9nM8" class="switch"><input data-page-node-id="JYWKTDSlZF36nDULEx5hvP" checked id="setNotify" data-change="toggleNotify" data-change-args='["@this"]' type="checkbox"><span data-page-node-id="M3l1e5xqpl2HOOk3pfVZOy" class="switch-slider"></span></label></div>
+        <div class="setting-row"><div class="setting-label">通知栏显示剩余时间<div class="setting-desc">专注中在通知栏挂一条「还剩 12:34」的常驻通知，锁屏不解锁也能看进度；休息/结束时自动收起</div></div><label class="switch"><input checked id="setNotifyLive" data-change="saveSettings" type="checkbox"><span class="switch-slider"></span></label></div>
+        <div data-page-node-id="KYCYSJMjQiMCvtGS46ird4" class="setting-row"><div data-page-node-id="AZxWwIgWrlUozq4lwH2i8r" class="setting-label"><!--pnid:n36zGYV1z2vQcIAGFuv3NP-->蓝调模式<div data-page-node-id="PJLqk8nCneBWozEEJLXSI3" class="setting-desc"><!--pnid:WHpLORtTNsJBOXjBdPEGWx-->晚上用不刺眼</div></div><label data-page-node-id="QKq9qJXroG0hDyJ0ap5Ob8" class="switch"><input data-page-node-id="dSlS0R2od0HclPpdSQQTIM" id="setDarkMode" data-change="toggleDarkMode" data-change-args='["@checked"]' type="checkbox"><span data-page-node-id="eDshuxMRTlOAGNmMzwWPFw" class="switch-slider"></span></label></div>
+        <div data-page-node-id="7QE0Qfej2fOUyZ2nARfX88" class="setting-row"><div data-page-node-id="OvxTFESOZQn9zE0yZ6g5iH" class="setting-label"><!--pnid:ZbTH3MRvbhXhxUN9VzOOUY-->全局静音<div data-page-node-id="ly33k7fLbtAzmAaxiqDEc1" class="setting-desc"><!--pnid:dOAdYtJofOeXUEep4mQ2pL-->勾选后关闭所有提示音</div></div><label data-page-node-id="epTjRf4i15z6mwMAHcehrq" class="switch"><input data-page-node-id="pa5kDtoKQNLWB8dpbrvJZN" id="setSound" data-change="saveSettings" type="checkbox"><span data-page-node-id="ArkSyalBf1aEXzYjXLhc6O" class="switch-slider"></span></label></div>
+        <div data-page-node-id="cJcppv7v5gVH5pfyClCvLQ" class="setting-row"><div data-page-node-id="yCijTbYDONISTggENWYJvy" class="setting-label"><!--pnid:DSWGgX7prUzrWx2KQgOo2p-->结束前 1 分钟提醒音<div data-page-node-id="ALdSxjYPduyyavPzMSDVPJ" class="setting-desc"><!--pnid:GXhTwXLWf2ELNqvj3YR5yG-->倒计时剩 1 分钟时的「嘀」提示（默认开）</div></div><label data-page-node-id="lx3yQteeyTZZHiXUBbBl5U" class="switch"><input data-page-node-id="GCoKTJcqR2bFq4k22aEqUK" id="setNearEndSound" data-change="saveSettings" type="checkbox"><span data-page-node-id="PmFDOR3iseZ31A8za9WvZs" class="switch-slider"></span></label></div>
+        <div class="setting-row"><div class="setting-label">12 小时制<div class="setting-desc">时间显示为「2:30」（1–12，不带上午/下午）；关掉则用 24 小时制「14:30」</div></div><label class="switch"><input checked id="setHour12" data-change="toggleHour12" data-change-args='["@this"]' type="checkbox"><span class="switch-slider"></span></label></div>
+        <div class="setting-row"><div class="setting-label">左右滑动切页面<div class="setting-desc">在页面中间左右滑可切换「专注/计划/日志/统计/设置」；靠边的 34px 留给浏览器自己的前进后退手势，不会误触发。关掉后只能用底部导航切换。</div></div><label class="switch"><input checked id="setSwipeNav" data-change="saveSettings" type="checkbox"><span class="switch-slider"></span></label></div>
+        <!--pnid:qXCbnuUrGlKULKQmTrLjAQ--><!--：开/关 + 音量滑条（独立于白噪音） -->
+        <div data-page-node-id="S5cGrlWx16kxbTPJcv0Lxw" class="setting-row"><div data-page-node-id="9S8j7lrYdEjTR0jRcwstDz" class="setting-label"><!--pnid:y16flX0qSfAqLsRaGnR4yH-->操作音效（叮咚/噗）<div data-page-node-id="5bJZmSE0rxbpgcA8jYC6Rk" class="setting-desc"><!--pnid:P6HBgESAnhwkSzdQOFcCU7-->开始/完成/签到/成就/错误时不同提示音</div></div><label data-page-node-id="S8CozPWpcrHvg9PQmfQEPo" class="switch"><input data-page-node-id="pkayTw4oyDWZGZ1x5Lljw6" checked id="setSfxEnabled" data-change="saveSettings" type="checkbox"><span data-page-node-id="dER9tprv7cDUKRsitjwbdJ" class="switch-slider"></span></label></div>
+        <div data-page-node-id="sdrFP5XU2mo2sdjrJElsxH" class="setting-row" style="flex-direction:column; align-items:stretch; gap:var(--sp-6)">
+          <div data-page-node-id="TxltZqG8jKJXjP4V0U8P04" style="display:flex; justify-content:space-between; align-items:center">
+            <div data-page-node-id="0SN5Lmu60scNodjpfEktkG" class="setting-label" style="padding:0"><!--pnid:Rtj7bE9ElPs5lt0pXZGZF5-->音效音量</div>
+            <span data-page-node-id="pw9ZPc3zPpSEAMCeznNda2" id="sfxVolLabel" style="font-size:var(--fs-note); color:var(--text-light)"><!--pnid:t202ehFvlE4hHPgdEkZyOL-->80%</span>
+          </div>
+          <input data-page-node-id="OS73i3Sl36ydYLffN2md24" id="setSfxVolume" max="1" min="0" data-input="updateSfxVolume" data-input-args='["@value"]' step="0.05" type="range" value="1" style="width:100%; accent-color:var(--primary)">
+        </div>
+      </div>
+    </div>
+
+    <!--pnid:fJb3TE5ADTgMsoNYNtlrwb--><!-- 标签管理 -->
+    <div data-page-node-id="uRIGsHuYvw97lav2Y0DAX9" class="settings-group foldable" data-group="tags">
+      <h3 data-page-node-id="YxIoeG65f4JV8eLQWp25IX" class="group-header" data-after="renderTagManageList" data-act="toggleGroup" data-act-args='["tags"]'><!--pnid:iI27kj0GYH5hwSOGHF5hUM-->🏷️ 标签管理 <span data-page-node-id="JJeegfxs0V658x8fMkwW81" id="tagManageCount" style="font-size:var(--fs-caption); font-weight:700; color:var(--text-light); margin-left:var(--sp-4)"></span><span data-page-node-id="H020WZCn2TXm4nxng28cLZ" class="group-arrow"><!--pnid:5ExE61vRaxQBSMnF0IBvbA-->▼</span></h3>
+      <div data-page-node-id="cFnUzMAB2GxvhVtGpWCEJq" class="group-body">
+        <div data-page-node-id="3C9epN8O9F8ctnMyGUADgf" style="font-size:var(--fs-note); color:var(--text-light); line-height:1.6; margin-bottom:var(--sp-8)"><!--pnid:iIi9QjHYmXb5RaRtODjJyK-->添加任务时可直接点选这些标签，不用手打。删除只影响候选列表，已存在任务上的标签保留。</div>
+        <div data-page-node-id="OlKsnlimWdiEP78523aJ37" id="tagManageList" style="display:flex; flex-wrap:wrap; gap:var(--sp-6)"></div>
+        <button data-page-node-id="p94qoitBD6TIwi2gXoVudo" class="btn-small btn-danger" data-act="clearAllTags" style="margin-top:var(--sp-10)"><!--pnid:pJxd4VTIiMCJFSverZZw7F-->🗑 清空全部标签</button>
+      </div>
+    </div>
+    <!--pnid:xQCatv2XoqWeINz5yekMns--><!-- 数据备份与重置 -->
+    <div data-page-node-id="fYO6yFhURGFTn4n3G9dYmd" class="settings-group foldable" data-group="backup">
+      <h3 data-page-node-id="DnCemgw54TOKOiBjqrHJba" class="group-header" data-act="toggleGroup" data-act-args='["backup"]'><!--pnid:lS0hCLXNnQV5YODthu6DsZ-->📦 数据备份与重置 <span data-page-node-id="p60jdrF5QHsMHPT5K6ZDsN" class="group-arrow"><!--pnid:EP2T1TYuPjRlFg1pnhQhGt-->▼</span></h3>
+      <div data-page-node-id="drvA8BJYQPG3pTsH5nHYE8" class="group-body">
+        <div data-page-node-id="RngK6n8lLQXeCbIWbzMm98" id="backupReminderBar" style="margin-bottom:var(--sp-10); padding:var(--sp-10) var(--sp-12); border-radius:var(--radius); font-size:var(--fs-title); font-weight:700; display:none; line-height:1.5"></div>
+        <button data-page-node-id="qC520xVoANXDAZX1vPVlUQ" class="save-btn" data-act="exportData" style="margin-bottom:var(--sp-8)"><!--pnid:KboS9gpbqpfcmsXWfnYogh-->导出全部数据（JSON）</button>
+        <div style="font-size:var(--fs-note); color:var(--text-light); line-height:1.5; margin:-2px 0 var(--sp-8); opacity:.85">导出的文件名若显示为一串乱码，是浏览器的下载方式所致，改名为 tomato_backup_当天日期.json 即可，内容不受影响。</div>
+        <button data-page-node-id="szNa9JKPGJl1l89Dy2pmNV" class="save-btn" data-act="__clickId" data-act-args='["importFile"]' style="margin-bottom:var(--sp-8); background:var(--blue)"><!--pnid:FV3FpRUUXIN6TA9O5hmFAR-->导入数据（JSON）</button>
+        <input data-page-node-id="3uHPA1pvfoX9Mx82wgKhmi" accept=".json" id="importFile" data-change="importData" data-change-args='["@event"]' type="file" style="display:none">
+        <div data-page-node-id="fhJKhrzwtlEfl70CFW6SpZ" style="margin-top:var(--sp-12); padding:var(--sp-10); background:var(--bg); border:1px solid var(--hairline); border-radius:var(--radius)">
+          <div data-page-node-id="dXFCbPDZMPNcX0bkRTVH84" style="font-size:var(--fs-title); font-weight:700; color:var(--text); margin-bottom:var(--sp-4)"><!--pnid:Lusd0QQSstoZVJBs1gDaPN-->🛟 自动备份与恢复</div>
+          <div data-page-node-id="ZGCcfkHpcVEKXwyLfyJ1wd" id="autoBackupInfo" style="font-size:var(--fs-title); color:var(--text-light); line-height:1.5; margin-bottom:var(--sp-8)"><!--pnid:YMBjBcNT3JwCRwbnrPOSfL-->暂无自动备份</div>
+          <button data-page-node-id="RNhZgCnqnKKJXDG2X2TS6i" class="save-btn" data-act="restoreAutoBackup" style="margin-top:0; padding:var(--sp-8); font-size:var(--fs-title); background:var(--purple)"><!--pnid:hCdefQPMazUWL5mCFzGQq7-->恢复自动备份</button>
+          <div data-page-node-id="HJG4K1zKveE7wbXe6Hr8QU" style="font-size:var(--fs-body); color:var(--text-light); line-height:1.5; margin-top:var(--sp-6)"><!--pnid:n7VZ7sesqx3wzdeDgfDCwF-->导入/清除数据前，当前数据会自动备份一份到这里，误操作可一键找回。</div>
+        </div>
+        <div data-page-node-id="ri8BXhWSaNSOvsM8EgHAPL" class="setting-row" style="margin-top:var(--sp-10)"><div data-page-node-id="kZ8twZW8GkUMiXOJTtRJQD" class="setting-label" data-act="runDataHealthCheck" style="color: var(--blue-ink); cursor:pointer"><!--pnid:qyYctTLKVLp8A5geTOr2YR-->🔧 数据体检修复（成长值异常自动清理）</div></div>
+        <div data-page-node-id="iX90IeW0LPa9zFO7lRpJvo" class="setting-row" style="margin-top:var(--sp-10)"><div data-page-node-id="URVdtfV8HjRr77ZfF75eE6" class="setting-label" data-act="clearAllData" style="color:var(--danger); cursor:pointer"><!--pnid:esbTvGjbhR9hGwMntMtRam-->清除所有数据</div></div>
+      </div>
+    </div>
+
+    <!--pnid:p6ig8Ky9U99zklB9V6jUWP--><!-- 分享打卡海报 -->
+    <div data-page-node-id="vXO2apayI1xy96jMLrT0cd" class="settings-group foldable" data-group="share">
+      <h3 data-page-node-id="oXmsYwv0NAlgB7rNd0BRHE" class="group-header" data-act="toggleGroup" data-act-args='["share"]'><!--pnid:Di9DF8dRoxK2feNFqWVv7M-->📤 分享打卡海报 <span data-page-node-id="cv4qQP8rIBiXFAFgxFmAn8" class="group-arrow"><!--pnid:ZDp0Zl8ZF0lNRhU0ab7vhL-->▼</span></h3>
+      <div data-page-node-id="1d6pbpfIOR1chRUZuhFhao" class="group-body">
+        <div data-page-node-id="NG5LJlE00rSjjxJ5oAqkg2" style="font-size:var(--fs-title); color:var(--text-light); line-height:1.6; margin-bottom:var(--sp-10)"><!--pnid:u99OEMgei1k47OsPdnUVWr-->把你在瓶子番茄的努力做成一张豪华海报：段位、连续打卡、今日战报、种树…选个模板一键生成，截图分享给朋友！</div>
+        <button data-page-node-id="Y17T8NgHZ3dCT1i0pxxpI6" class="save-btn" data-act="openSharePoster"><!--pnid:BUvEIHARkAhR8CnKXV4t7s-->🎨 生成分享海报</button>
+      </div>
+    </div>
+
+    <!-- 🧩 更多：目前只有「关于」一项。三层折叠：更多 → 关于 → 关于借鉴 → 条目。
+         两级都用 setting-note-toggle，靠「开关与内容必须相邻」的约定各自找 nextElementSibling，
+         嵌套不会串（外层 toggle 只改外层自己的文案）。 -->
+    <div class="settings-group foldable" data-group="more">
+      <h3 class="group-header" data-act="toggleGroup" data-act-args='["more"]'>🧩 更多 <span class="group-arrow">▼</span></h3>
+      <div class="group-body">
+        <div class="setting-row">
+          <div class="setting-label">关于
+            <div class="setting-desc">番茄专注 · 由 B 站「瓶子满天星」制作 · MIT 协议开源</div>
+            <span class="setting-note-toggle" data-act="toggleNote" data-act-args='["@this"]'>展开说明</span>
+            <div class="setting-note-content">
+              <div class="about-ref-title">关于借鉴</div>
+              <div class="setting-desc" style="margin-top:var(--sp-2)">这个 App 不是从零想出来的，下面这些是它的来源。</div>
+              <span class="setting-note-toggle" data-act="toggleNote" data-act-args='["@this"]'>展开说明</span>
+              <div class="setting-note-content setting-note-content--sub">
+                <div class="about-ref-title">借鉴的开源项目</div>
+                <ul class="about-ref-list">
+                  <li><b>Super Productivity</b></li>
+                  <li><b>HabitTrove</b></li>
+                </ul>
+                <div class="about-ref-title">其它参考</div>
+                <ul class="about-ref-list">
+                  <li><b>Forest</b><span class="about-ref-desc">专注种树的 App（闭源，只借鉴思路）：「我的森林」一天一棵树、攒成一片林</span></li>
+                  <li><b>暂停实验室</b></li>
+                  <li><b>《为什么我能每天学习10小时》</b><span class="about-ref-desc">B 站视频：高频微休息的节奏就参考它</span></li>
+                  <li><b>王一同学的实验室</b><span class="about-ref-desc">日志回顾、日程表、复盘这三个功能都是借鉴自这里</span></li>
+                </ul>
+                <div class="about-ref-title">界面素材</div>
+                <ul class="about-ref-list">
+                  <li><b>Uiverse.io</b></li>
+                  <li><b>Aceternity UI</b></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-label">隐私政策
+            <div class="setting-desc">数据全部存在你这台设备上：没有账号、没有服务器、没有埋点</div>
+            <span class="setting-note-toggle" data-act="toggleNote" data-act-args='["@this"]'>展开说明</span>
+            <div class="setting-note-content setting-note-content--sub">
+              <div class="about-ref-title">不收集任何东西</div>
+              <ul class="about-ref-list">
+                <li><b>没有账号</b><span class="about-ref-desc">不用登录，没有手机号邮箱可泄露</span></li>
+                <li><b>没有服务器</b><span class="about-ref-desc">番茄、任务、日记、段位全在本机浏览器里，不上传</span></li>
+                <li><b>没有埋点</b><span class="about-ref-desc">不接统计 SDK、不接广告，你的点击不会被记录</span></li>
+              </ul>
+              <div class="about-ref-title">用到的浏览器权限</div>
+              <ul class="about-ref-list">
+                <li><b>通知</b><span class="about-ref-desc">番茄结束提醒，可随时在浏览器设置关掉</span></li>
+                <li><b>剪贴板</b><span class="about-ref-desc">只在你点「复制」时写入</span></li>
+                <li><b>屏幕常亮</b><span class="about-ref-desc">专注中防止息屏，退出即释放</span></li>
+              </ul>
+              <div class="about-ref-title">什么时候会联网</div>
+              <ul class="about-ref-list">
+                <li><b>打开页面</b><span class="about-ref-desc">托管在 GitHub Pages（平台侧有常规访问日志）</span></li>
+                <li><b>点「查看文档」</b><span class="about-ref-desc">跳转腾讯文档，由你自己决定要不要点</span></li>
+              </ul>
+              <div class="about-ref-title">怎么删数据</div>
+              <ul class="about-ref-list">
+                <li><b>只删数据</b><span class="about-ref-desc">设置 → 数据备份与重置 → 清空全部数据</span></li>
+                <li><b>彻底清除</b><span class="about-ref-desc">浏览器清除本站点数据即可，没有云端副本</span></li>
+              </ul>
+              <div class="setting-desc" style="margin-top:var(--sp-8)">有疑问：B 站「瓶子满天星」私信。</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!--pnid:RrRkWyFNFe6jSoXSX6D1IB--><!-- 重新查看新手指引：跳过/完成后可随时找回 -->
+    <div data-page-node-id="o93gPwiwlsJeDgi28tlgGs" class="setting-row" style="margin-top:var(--sp-6)"><div data-page-node-id="eVpxgBwY1AvP601ky0ioFv" class="setting-label" data-act="replayGuide" style="color:var(--text-light); cursor:pointer; text-align:center; width:100%"><!--pnid:4UD7aVxwhIoQsgshjoo1F8-->📖 重新查看新手指引</div></div>
+  </section>
+
+  <!-- 页脚：曾用 opacity:0.45 做「低调」，但那是按 #5D6D7E 算的 —— 淡化后混到
+       米白底上只剩 2.04:1 对比度，等于把版权信息变成了噪点。用户的原话是
+       「底部那个…怎么没了呀」。低调应该靠字号小、字色浅一档，不能靠整体透明度：
+       版权与开源协议声明是要让人看得见的，不是装饰。
+       改成 opacity:0.85 + 独立的 --text-light（对比度 4.6:1，过 WCAG AA 小字线）。 -->
+  <div data-page-node-id="lDPZLRg1P1lrGM9aXIUdIB" class="app-foot" style="text-align:center; font-size:var(--fs-caption); line-height:1.7; color:var(--text-light); opacity:0.85; padding:var(--sp-14) var(--sp-16) var(--sp-4); user-select:none"><!--pnid:Qzrn6uDwCcbQryw38NWx6S-->
+    🍅 番茄专注 · 由 B 站「瓶子满天星」制作 · © 2026 · 基于 MIT 协议开源
+    <br><!--ver-tag-->构建版本 <span id="buildVer">—</span>
+  </div>
+</main>
+

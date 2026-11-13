@@ -1,0 +1,584 @@
+/* ---------- 4. 通用组件：按钮 / 卡片 / 模态框 ---------- */
+/* 按钮层次分三档：实心 / 描边 / 幽灵。
+   同一屏只允许一个实心主按钮，其余退成描边或纯文字 —— 主次靠"有没有填充色"
+   表达，比"谁描边更粗"可靠：三个按钮形态相同时只能靠色相区分，主次就没了。
+   :active 用 scale 而非位移：位移是拟物按键的语汇，触屏上更像布局抖了一下。
+   三档分配见下方 .btn-start / .btn-finish / .btn-interrupt。 */
+.btn {
+  padding: var(--sp-12) var(--sp-8);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size:var(--fs-title);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  box-shadow: none;
+  transition: background var(--dur-s) var(--ease-out),
+              border-color var(--dur-s) var(--ease-out),
+              transform var(--dur-xs) var(--ease-out),
+              opacity var(--dur-s) var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.btn:active { transform: scale(.98); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+/* 次要文字行（开始 / start）：按钮的第二行。10-26 删掉过，计时页三个按钮
+   当场从 70px 掉到 49px，看着像"矮方块" —— 高度是靠这一行撑出来的，不是 padding。
+   禁用态只压 opacity（上面 .btn:disabled），不要拆底色/描边：形状属于布局，
+   可点击性交给透明度表达，拆了形状用户会以为按钮变成了别的东西。 */
+.btn .btn-sub { font-size:var(--fs-note); font-weight: var(--fw-regular); opacity: .72; }
+/* 一档 · 实心：全页唯一的填充按钮 */
+.btn-start { background: var(--green); color: var(--on-primary); }
+/* 二档 · 描边：有面但无填充，边界靠 1px 线 */
+.btn-finish { background: var(--surface-1); color: var(--text); border-color: var(--border); }
+/* 三档 · 幽灵：无底无边，只有字 */
+.btn-interrupt { background: transparent; color: var(--text-light); }
+
+
+.btn-small {
+  padding: var(--sp-6) var(--sp-12);
+  font-size:var(--fs-note);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn-small:active { transform: translate(1px,1px); }
+/* 开关型小按钮的激活态（如日志筛选面板里的「🍅 只看番茄」） */
+.btn-small.is-on { background: var(--fill-primary); color: var(--on-fill); border-color: var(--fill-primary); }
+/* 「实心主按钮」的唯一出口：底/字一律走 --primary + --on-primary（深色主题下 --on-primary
+   自动翻深，避免出现"深底白字刺眼 / 浅底浅字看不见"）。别再各处写死 --green/--white。 */
+.btn-solid { background: var(--fill-primary); border-color: var(--fill-primary); color: var(--on-fill); }
+.btn-solid--green { background: var(--green); border-color: var(--green); }
+
+.btn-danger { background: var(--danger-bg); color: var(--danger); }
+
+.save-btn {
+  width: 100%;
+  margin-top: var(--sp-12);
+  padding: var(--sp-14);
+  background: var(--fill-primary);
+  color: var(--on-fill);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size:var(--fs-sub);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.save-btn:active { transform: scale(.985); box-shadow: var(--shadow-sm); }
+.save-btn.purple-btn { background: var(--purple); }
+.save-btn.blue-btn { background: var(--blue); }
+
+.section-title { font-size:var(--fs-sub); font-weight: 700; margin-bottom: var(--sp-10); color: var(--primary-dark); }
+
+/* 模态框 */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  padding: var(--sp-20);
+  overflow-y: auto;
+  /* ★ 遮罩自己就是滚动容器，内容不满一屏时它没有可滚范围 ——
+     手指一划就「滚动链」传给后面的 html，于是弹层开着、底下的页面在动
+     （用户：「为什么打开那个背景依旧能滑动」）。overscroll-behavior 切断链，
+     滚到头也不会外溢。 */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+/* 窄屏弹窗边距：小屏（≤360px）收窄外/内边距，商店等大内容弹窗不拥挤 */
+@media (max-width: 360px) {
+  .modal-overlay { padding: 10px; }
+  .modal-overlay .modal { padding: 14px; }   /* 提高特异性，防被源序在后的 .modal 覆盖 */
+}
+
+/* ===== 顶栏品牌与快捷按钮重叠修正（≤400px）=====
+   事实（无头实测 getBoundingClientRect，320/360/375 三档）：
+     品牌块居中且宽度固定 223px（图标28+gap8+标题+gap8+副标题）
+     快捷按钮 absolute right:10px、min-width:54px（含 ::after 热区更宽）
+     品牌右缘 = vw/2 + 111.5；按钮左缘 = vw - 64
+     ⇒ vw < 351 必然重叠；实测 320 重叠 33px、360 重叠 13px、375 重叠 6px、414 才无碍。
+   表现：副标题「瓶子满天星 ❤️」尾部被按钮压住（320 最明显）。
+
+    第一版修法（padding 左右各 66px）**改出了新问题**：
+     实测 360 档 h1 高 50px（换行成两行）、headerH 由 56 涨到 81px ——
+     横向空间被 padding 吃掉后，内部 flex 行反而挤压换行，比修复前更难看。
+   正确修法（本版）：**不硬挤压可用宽度**，改为让品牌内行**优雅收缩**：
+     ① h1 与副标题 nowrap，禁止中间换行（换行才是真丑）；
+     ② 副标题 flex-shrink + ellipsis，空间不够时省略尾部而非顶开布局；
+     ③ 极窄档（≤330）直接隐藏副标题。
+   注：副标题字号是历史**内联样式**（style="font-size:var(--fs-title)"），
+       内联优先级高于选择器 → 覆盖须 !important（仅此两处，范围可控）。 */
+@media (max-width: 400px) {
+  /* 不再用 padding 预留右侧按钮位（整页 zoom 放大后布局变窄，死 px 预留会不够，
+     1.15 档就撞上）；改为头部里那条 .header-spacer 等宽占位，见文件顶部 .header 区。 */
+  .header h1 { font-size: calc(21px * var(--fs-boost)); letter-spacing: 1px; white-space: nowrap; }
+  .header .tomato-icon { width: 24px; height: 24px; margin-right: 6px; flex-shrink: 0; }
+  .header .header-brand-sub {
+    font-size: calc(15px * var(--fs-boost)) !important;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    min-width: 0; flex-shrink: 1;
+  }
+}
+@media (max-width: 345px) {
+  .header h1 { font-size: calc(19px * var(--fs-boost)); letter-spacing: 0; }
+  .header .header-brand-sub { font-size: calc(13px * var(--fs-boost)) !important; max-width: 72px; }
+  /* 日志汇总条四格（条记录/记录时长/专注时长/番茄）在极窄档收字号，免「1.9 小时」被挤断行 */
+  .log-sum-num { font-size: calc(16px * var(--fs-boost)); }
+  .log-sum-cell { padding-left: 2px; padding-right: 2px; }
+}
+@media (max-width: 330px) {
+  /* 极窄档：副标题隐藏，只保主标题与按钮不打架 */
+  .header .header-brand-sub { display: none !important; }
+}
+/* 修复「老平板弹窗跑到左上角」：
+   居中属性原先只在上面 .modal-overlay 块里声明，而 display:flex 单独在这条，
+   两者相距十余条规则。旧安卓 WebView 对长样式表/新选择器容错差，一旦丢失
+   这条 .show 就退化 block，卡片塌到左上角。这里把 flex 居中**自包含**重复一遍，
+   与上方声明完全同值（现代内核无任何视觉变化），只提高老内核下的存活率。 */
+.modal-overlay.show {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -webkit-box-pack: center;
+  -webkit-align-items: center;
+  -webkit-justify-content: center;
+}
+/* 弹层打开时锁住背后的页面滚动（配合 01e_engine_ui.js 的 _syncModalLock）。
+   html 是滚动器（html{overflow-x:hidden} 让它接管纵向滚动），所以锁 html；
+   body 一起写是为了兜住某些把滚动放在 body 上的环境。
+   ★ 不要用 position:fixed 那套「记 scrollTop 再还原」的方案：
+     这个站有几个视图自己存滚动位置，两套方案撞上会出现「关掉弹层后停在别处」。 */
+html.modal-open, body.modal-open { overflow: hidden; }
+
+/* 微休息弹窗要盖在其它 .modal-overlay 之上。同特异性、本规则在 .modal-overlay 之后
+   （200 → 600），源序即可取胜，无需 !important。（实测：开窗后计算 z-index 仍为 600） */
+.micro-break-modal { z-index: 600; }
+
+/* ---------- 软键盘弹出时：把弹窗钉在「看得见的那块」上 ----------
+   安卓浏览器弹键盘时不动布局视口，只把视觉视口往上推（--vv-top / --vv-h 由
+   01g_engine_init.js 的 initKeyboardInset 写入）。position:fixed 钉的是布局视口，
+   于是遮罩留在原地、弹窗被推到屏幕外，用户看到的是「点一下输入框，框就没了」。
+   这里在 body.kb-open 期间把遮罩改钉到视觉视口，弹窗按可用高度收缩。 */
+body.kb-open .modal-overlay.show {
+  top: var(--vv-top, 0px);
+  bottom: auto;
+  height: var(--vv-h, 100vh);
+  padding: 10px;
+}
+body.kb-open .modal-overlay.show .modal { max-height: 100%; }
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft-xl);
+  padding: var(--sp-20);
+  width: 100%;
+  max-width: 340px;
+  max-height: 85vh;
+  overflow-y: auto;
+  margin: auto;
+}
+.modal h3 { font-size:var(--fs-hero); margin-bottom: var(--sp-12); text-align: center; }
+.modal p { font-size:var(--fs-title); color: var(--text-light); margin-bottom: var(--sp-14); line-height: 1.6; text-align: center; }
+.modal-buttons { display: flex; gap: var(--sp-8); flex-wrap: wrap; }
+.modal-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: var(--sp-12) var(--sp-8);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size:var(--fs-title);
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: transform .12s ease;
+}
+/* 点击反馈：弹窗按钮按下轻微位移 */
+.modal-btn:active { transform: translate(1px,1px); }
+.modal-btn.primary { background: var(--fill-primary); color: var(--on-fill); }
+.modal-btn.secondary { background: var(--card); color: var(--text); }
+.modal-btn.green { background: var(--ok-bg); color: var(--green-ink); }
+.modal-btn.yellow { background: var(--warn-bg); color: var(--yellow-ink); }
+/* 危险操作按钮（清除/删除）：唯一出口，别再在 HTML 里写 inline #FFD5D5 */
+.modal-btn.danger { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+/* 实心红（一次性清空/删除类，强调不可逆；浅底 .danger 用于常规删除） */
+.modal-btn.solid-danger { background: var(--danger); color: var(--white); border-color: var(--danger); }
+.modal-btn.purple { background: var(--purple); color: var(--white); border-color: var(--purple); }
+/* 实心绿（确认/开启类正向操作，与浅底 .green 区分） */
+.modal-btn.solid-green { background: var(--green); color: var(--white); border-color: var(--green); }
+/* 独立主行动按钮（弹窗内不与其他按钮并排的大按钮） */
+.modal-btn.cta { font-size:var(--fs-sub); padding: var(--sp-12) 30px; }
+/* 竖排按钮列（三选一、长选项）：默认横排见 .modal-buttons */
+.modal-buttons.col { flex-direction: column; }
+/* 弹窗内容：行/强调行/留白（0C 动态弹窗专用，替代逐行 inline style） */
+.rs-line { margin: var(--sp-2) 0; }
+.rs-line.rs-hl { color: var(--primary-ink); font-weight: 600; }
+.rs-gap { height: 6px; }
+.rs-body { font-size:var(--fs-body); line-height:1.7; color:var(--text-light); max-height:52vh; overflow-y:auto; }
+.rs-input {
+  width: 100%; box-sizing: border-box; margin-top: var(--sp-10); padding: var(--sp-8);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+  background: var(--card); color: var(--text); font-size:var(--fs-body); font-family: inherit;
+}
+textarea.rs-input { resize: vertical; }
+.rs-foot { margin-top: var(--sp-16); }
+/* 动态确认弹窗卡片略宽（多行长文案不拥挤）——收编为具名类，勿写 inline max-width */
+.modal.modal--confirm { max-width: 420px; }
+.modal-form-group { margin-bottom: var(--sp-12); }
+.modal-form-group label { display: block; font-size:var(--fs-title); font-weight: 600; margin-bottom: var(--sp-4); }
+.modal-form-group input, .modal-form-group select, .modal-form-group textarea {
+  width: 100%;
+  padding: var(--sp-8);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size:var(--fs-title);
+  font-family: inherit;
+}
+.modal-form-group textarea { min-height: 60px; resize: vertical; }
+.micro-break-modal .modal { background: var(--ok-bg); }
+.micro-break-modal .modal h3 { color: var(--green-ink); }
+
+.type-hint {
+  font-size:var(--fs-title);
+  color: var(--text);   /* 同上：黄底正文不用最弱文字档 */
+  background: var(--warn-bg);   /* 不写死浅黄：跟着主题与蓝调模式走 */
+  padding: var(--sp-6) var(--sp-10);
+  border-radius: var(--radius-xs);
+  border: 2px dashed var(--yellow);
+  margin-bottom: var(--sp-10);
+  line-height: 1.5;
+}
+
+/* Toast 提示（顶部堆叠队列，普通提示 + 重要通知统一排队，最多同时 3 条） */
+.toast-container {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  bottom: auto;
+  transform: translateX(-50%);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-6);
+  pointer-events: none;
+  max-width: 90vw;
+}
+.toast-item {
+  background: rgba(44,62,80,0.92);
+  color: var(--white);
+  padding: var(--sp-10) var(--sp-20);
+  border-radius: var(--radius);
+  font-size:var(--fs-body);
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: auto;
+  cursor: pointer;
+  max-width: 100%;
+  word-break: break-all;
+}
+.toast-item.rank-toast-item {
+  background: var(--card);
+  border: 1px solid var(--primary);
+  color: var(--text);
+  font-size:var(--fs-title);
+  font-weight: 800;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.toast-item.show { opacity: 1; transform: translateY(0); }
+
+/* 番茄结算汇总：居中遮罩 + 大卡片（替代顶部小条，醒目且看得完） */
+.settle-mask {
+  position: fixed; top:0;right:0;bottom:0;left:0;z-index: 400;
+  background: rgba(10,14,26,0.45);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.25s var(--ease-out);
+  pointer-events: none;
+}
+.settle-mask.show { opacity: 1; pointer-events: auto; }
+.settle-card {
+  width: min(86vw, 340px);
+  background: var(--card);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-16) var(--sp-16) var(--sp-14);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  transform: scale(0.92) translateY(12px);
+  transition: transform 0.28s var(--ease-spring);
+  max-height: 74vh; overflow-y: auto;
+}
+.settle-card.show { transform: none; }
+.settle-title { font-size:var(--fs-title); font-weight: 800; color: var(--primary-ink); margin-bottom: var(--sp-10); text-align: center; }
+.settle-lines { max-height: 52vh; overflow-y: auto; }
+.settle-line { font-size:var(--fs-body); line-height: 1.65; padding: var(--sp-4) var(--sp-2); border-bottom: 1px solid var(--border); }
+.settle-line:last-child { border-bottom: none; }
+.settle-ok {
+  display: block; width: 100%; margin-top: var(--sp-12); padding: var(--sp-10);
+  border: none; border-radius: var(--radius); background: var(--fill-primary); color: var(--on-fill);
+  font-size:var(--fs-body); font-weight: 600; cursor: pointer;
+}
+.settle-ok:active { transform: scale(0.97); }
+
+.empty-state { text-align: center; padding: 30px var(--sp-20); color: var(--text-light); font-size:var(--fs-title); }
+
+/* ===== 转盘抽奖 ===== */
+.wheel-wrap { position: relative; width: 240px; height: 240px; margin: 6px auto; }
+.wheel { width: 240px; height: 240px; border-radius: 50%; border: 4px solid var(--primary); box-shadow: 0 0 14px rgba(0,0,0,.2), inset 0 0 0 2px var(--white); background: var(--white); overflow: hidden; transform: rotate(0deg); }
+.wheel.spinning { transition: transform 3.2s cubic-bezier(.18,.82,.2,1); }
+.wheel svg { display: block; }
+.wheel-pointer { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: calc(26px * var(--fs-boost)); color: var(--primary-ink); z-index: 2; text-shadow: 0 0 4px var(--white), 0 2px 4px rgba(0,0,0,.25); line-height: 1; }
+
+/* 自动保存提示 */
+.auto-save-hint {
+  position: fixed;
+  top: 70px; right: 16px;
+  font-size:var(--fs-title);
+  color: var(--text-light);
+  background: rgba(255,255,255,0.9);
+  padding: var(--sp-4) var(--sp-10);
+  border-radius: var(--radius-xs);
+  z-index: 150;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.auto-save-hint.show { opacity: 1; }
+
+/* 底部导航 */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 100;
+}
+/* 软键盘弹出时隐藏底部导航：它 position:fixed 钉在视口底，会和正在输入的输入框抢
+   同一块位置。
+   kb-open / --kb-h 由 01g_engine_init.js 的 initKeyboardInset 写入。
+   桌面端 kb 恒为 0，不会命中此规则。 */
+body.kb-open .bottom-nav { display: none; }
+/* 首次打开渐进式引导条：固定在底部导航上方，轻量不遮挡 */
+.first-guide {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(86px + env(safe-area-inset-bottom));
+  width: calc(100% - 24px);
+  max-width: 440px;
+  background: var(--card);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 28px rgba(0,0,0,.18);
+  padding: var(--sp-10) var(--sp-12) var(--sp-8);
+  z-index: 150;   /* 低于弹窗层(200)，引导条显示时打开弹窗不会被它盖住 */
+  flex-direction: column;
+  gap: var(--sp-8);
+  /* ⚠️ 入场动画**故意不写在这里**。基类若挂 `animation: ... both`，元素在
+     「刚被 display:flex、动画尚未真正播放」的帧里会保留 from 状态（opacity:0），
+     于是引导条看得见边框和按钮、内容却**一片空白**（且不会再自己恢复）。
+     实机复现：`display:none` → `display:flex` 后 computed opacity 卡在 0。
+     正确做法（见下）：动画交给 .guide-in 类，由 JS 在真正显示时挂上；
+     静止态必定 opacity:1，任何路径失效都不会隐形。 */
+}
+.first-guide.guide-in { animation: guideRise .28s ease; }
+/* 动画**只做位移，绝不碰 opacity**：这样即便 WebKit 把动画停在 0%（hide→show 后
+   偶发，已复现），最坏也只是卡片低 14px，内容**永远不可能隐形**。
+   （原 guideIn 从 opacity:0 起步 —— 那正是「引导条一片空白」的元凶。） */
+@keyframes guideRise { from { transform: translateX(-50%) translateY(14px); } to { transform: translateX(-50%) translateY(0); } }
+.first-guide-top { display: flex; align-items: flex-start; gap: var(--sp-8); }
+.first-guide-icon { font-size:var(--fs-hero); line-height: 1.2; flex-shrink: 0; }
+.first-guide-text { font-size:var(--fs-note); line-height: 1.6; color: var(--text); flex: 1; }
+.first-guide-bottom { display: flex; justify-content: space-between; align-items: center; }
+.first-guide-dots { display: flex; gap: var(--sp-4); }
+.first-guide-dots .g-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); }
+.first-guide-dots .g-dot.on { background: var(--primary); width: 16px; border-radius: var(--radius-xs); }
+.first-guide-btns { display: flex; gap: var(--sp-8); }
+.first-guide-skip {
+  border: none; background: transparent; color: var(--text-light);
+  font-size:var(--fs-note); font-weight: 600; padding: var(--sp-6) var(--sp-10); cursor: pointer; border-radius: var(--radius-sm);
+}
+.first-guide-skip:active { transform: translate(1px,1px); }
+.first-guide-next {
+  border: none; background: var(--fill-primary); color: var(--on-fill);
+  font-size:var(--fs-note); font-weight: 600; padding: var(--sp-6) var(--sp-14); cursor: pointer; border-radius: var(--radius);
+  transition: transform .12s ease;
+}
+.first-guide-next:active { transform: translate(1px,1px); }
+
+.nav-item {
+  flex: 1;
+  /* 底栏原来用 3px 深色顶线 + 18px 无行高的标签，楷体字的下沉部分被容器裁掉一半
+     （「计时」只剩上半截）。加行高 + 底部补 2px，字完整露出来。 */
+  padding: var(--sp-8) var(--sp-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  cursor: pointer;
+  color: var(--text-light);
+  font-size: var(--fs-title);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.nav-item.active { color: var(--primary-ink); }
+.nav-item svg { width: 22px; height: 22px; }
+
+/* 状态打分格子 */
+.state-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-12);
+  margin-bottom: var(--sp-14);
+  box-shadow: none;
+}
+.state-section-title { font-size:var(--fs-title); font-weight: 700; margin-bottom: var(--sp-10); color: var(--text); }
+.state-row { display: flex; align-items: center; gap: var(--sp-6); margin-bottom: var(--sp-8); }
+.state-row:last-child { margin-bottom: 0; }
+.state-icon { font-size: calc(29px * var(--fs-boost)); flex-shrink: 0; width: 28px; text-align: center; }
+.state-label { font-size:var(--fs-title); font-weight: 700; color: var(--primary-ink); min-width: 24px; text-align: right; }
+
+
+.state-semantic.medium { color: var(--yellow-ink); }
+
+.grid-picker { display: flex; gap: var(--sp-2); flex: 1; }
+.grid-cell {
+  width: 22px; height: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  /* ★ 原来写死 #F0F0F0/#999 的中性灰：不跟配色主题（例如玫瑰松是暖米色系），
+     深色下还得靠另一条 dark 规则单独兜。改用表面令牌后，明暗与主题都自动跟随
+*/
+  background: var(--surface-2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size:var(--fs-title);
+  font-weight: var(--fw-medium);   /* 日历格里的日期数字：是可选区里的重复字符，不是标题 */
+  color: var(--text-light);
+  transition: background .12s, transform .12s;
+  flex-shrink: 0;
+}
+.grid-cell:hover { background: var(--surface-hover, var(--surface-3)); }
+.grid-cell.active { background: var(--fill-primary); border-color: var(--primary-dark); color: var(--on-fill); }
+.grid-cell.active.green { background: var(--green); border-color: var(--green-dark); color: var(--white); }
+.grid-cell.active.yellow { background: var(--yellow); border-color: var(--yellow-dark); color: var(--white); }
+.grid-cell.active.blue { background: var(--blue); border-color: var(--blue-dark); color: var(--white); }
+.state-readonly .grid-cell { cursor: default; opacity: 0.4; }
+.state-readonly .grid-cell.active { opacity: 1; }
+
+/* M3 <360px 小屏专项：状态打分行（打分量表 + 标签）在 ≤340px 会横向挤出，
+   此处收紧格子/间距/字号，保证 320px 及更窄不溢出、不打挤 */
+@media (max-width: 340px) {
+  .state-row { gap: 4px; }
+  .state-icon { font-size: calc(24px * var(--fs-boost)); width: 22px; }
+  .grid-picker { gap: 2px; }
+  .grid-cell { width: 19px; height: 26px; font-size: calc(15px * var(--fs-boost)); border-radius: 4px; }
+  .state-label { font-size: calc(14px * var(--fs-boost)); min-width: 20px; }
+}
+
+
+/* ===== 分段控件（segmented control）=====
+   这套控件此前只定义了**选中态**与按压反馈，没写基础态 ——
+   未选中的按钮于是落回浏览器默认样式（灰底 #EFEFEF / outset 凸起边框 / 直角），
+   结果是"选中的那个是主色胶囊、其余几个是灰色方块"，同一组控件里出现两种语言。
+   这里补齐基础态：容器做胶囊底，按钮透明底、圆角对齐容器。
+   选中态仍由后续加载的 .seg-btn.active 覆盖（它带 !important）。 */
+.seg-group {
+  display: flex; align-items: stretch; gap: var(--sp-4);
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--radius-full); padding: var(--sp-2);
+}
+.seg-btn {
+  flex: 1; border: none; background: transparent; color: var(--text-light);
+  font-family: inherit; font-size: var(--fs-note); font-weight: 600; line-height: 1.25;
+  padding: var(--sp-6) var(--sp-10); border-radius: var(--radius-full);
+  cursor: pointer; word-break: keep-all;
+}
+.seg-btn:hover { color: var(--text); }
+/* 来源筛选这类「带条数」的按钮：数字与文字不能各自换行。
+   文案再短也可能在 320px 上挤 —— 允许容器换行到第二排，但按钮内部不许断。 */
+.seg-group { flex-wrap: wrap; }
+.seg-btn { white-space: nowrap; }
+/* 320px 窄屏：四个来源按钮各带条数后一行放不下（4×91 > 282），
+   会折成 3+1 的难看排法。这里只收窄字号与左右内边距，仍保持一排。 */
+@media (max-width: 360px) {
+  .seg-btn { font-size: var(--fs-caption); padding: var(--sp-6) var(--sp-4); }
+}
+
+/* 新增计划弹窗：预计🍅 左边输入、右边「＋其他排期」，各占一半。
+   「?」点一下展开说明、再点收起 —— 不用 toast，不会被自动收走。 */
+.add-pomo-row { display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; gap: var(--sp-8); }
+.add-pomo-row > input { width: 100%; min-width: 0; }
+.add-pomo-actions { display: flex; align-items: stretch; gap: var(--sp-6); min-width: 0; }
+.add-pomo-actions .tf-chip--action { flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
+.add-help {
+  width: 22px; height: 22px; flex: 0 0 22px; align-self: center; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: var(--radius-full);
+  color: var(--text-light); font-size: var(--fs-note); font-weight: 600;
+  user-select: none;
+}
+.add-help:hover, .add-help.is-on { background: var(--surface-3); color: var(--text); }
+.add-extra-help { margin-top: var(--sp-6); font-size: var(--fs-caption); color: var(--text-light); line-height: 1.6; }
+/* 草稿里还没有段 = 整块不存在，不占高度 */
+.add-extra-chips:empty { display: none; }
+.add-extra-chips { margin-top: var(--sp-6); }
+/* 排期「开始 → 结束」两个框：竖排 + 每格左边带标签。
+   ★ datetime-local 没有 placeholder，空着就是两个一模一样的空白框，
+   用户根本不知道哪格填什么（截图实测就是这样）。标签必须画出来。 */
+.add-block-row { display: flex; flex-direction: column; gap: var(--sp-6); margin-top: var(--sp-4); }
+/* ★ 选择器必须带 .modal-form-group：那边有 `.modal-form-group label { display:block }`（0,1,1），
+   比单个类 `.add-block-field`（0,1,0）更具体 —— 不加这一层，flex 根本不生效，
+   两个 datetime-local 被压成 50px 的空壳（只剩一个下拉箭头）。 */
+.modal-form-group .add-block-field {
+  display: flex; align-items: center; gap: var(--sp-8);
+  margin-bottom: 0; font-size: var(--fs-body); font-weight: 400;
+}
+.add-block-tag {
+  flex: 0 0 auto; min-width: 2.6em; font-size: var(--fs-caption);
+  color: var(--text-light); text-align: right;
+}
+/* 空值时框里什么字都没有（datetime-local 不吃 placeholder）→ 铺一层提示，
+   有值就撤。pointer-events:none 保证点哪儿都还是点到框本身。 */
+.add-block-wrap { position: relative; display: flex; flex: 1 1 auto; min-width: 0; }
+.add-block-wrap > input { flex: 1 1 auto; width: auto; min-width: 0; }
+.add-block-ghost {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  font-size: var(--fs-body); color: var(--text-light); pointer-events: none;
+}
+.add-block-wrap.has-value .add-block-ghost { display: none; }
+.modal-form-group .add-block-field > input { flex: 1 1 auto; width: auto; min-width: 0; }
+.add-block-arrow { display: none; }
+/* 新增弹窗「预计🍅」快捷档：一行可换行的小胶囊，选中填实色（与编辑面板 .tf-chip.on 同色） */
+.add-pomo-quick { display: flex; flex-wrap: wrap; gap: var(--sp-6); margin-top: var(--sp-8); }
+.add-pomo-quick:empty { display: none; }
+.add-pomo-quick .tf-chip { flex: 0 0 auto; cursor: pointer; }
+.add-pomo-quick-clear { color: var(--text-light); }
+.add-pomo-quick-clear.on { color: var(--on-primary); }
