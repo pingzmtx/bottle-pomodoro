@@ -2117,7 +2117,7 @@ bioRangeLabel()+' ▾</button>';const sortBtn='<button class="btn-small" onclick
 (_bioSortAsc?'↑ 最早在前':'↓ 最新在前')+'</button>';const filterRow='<div style="display:flex;gap:var(--sp-8);align-items:center;flex-wrap:wrap;margin-bottom:var(--sp-10);">'+
 dateBtn+
 sortBtn+
-(_fActive?'<button class="btn-small" onclick="clearBioFilters()" title="清空关键词/时间/顺序/来源" style="padding:var(--sp-6) var(--sp-10);font-size:var(--fs-note);color:var(--danger);">✕ 清除</button>':'')+'</div>';const _sumBits=[];if(_bioRange)_sumBits.push(bioRangeLabel());if(_tokens.length)_sumBits.push('关键词「'+_bioSearchKey.trim()+'」');if(_bioSortAsc)_sumBits.push('最早在前');if(_bioSourceFilter!=='all'){const _srcName={bio:'传记',progress:'每日进步',gratitude:'感恩日记'}[_bioSourceFilter]||_bioSourceFilter;_sumBits.push('只看'+_srcName);}
+(_fActive?'<button class="btn-small" onclick="clearBioFilters()" title="清空关键词/时间/顺序/来源" style="padding:var(--sp-6) var(--sp-10);font-size:var(--fs-note);color:var(--danger);">✕ 清除</button>':'')+'</div>';const _sumBits=[];if(_bioRange)_sumBits.push(bioRangeLabel());if(_tokens.length)_sumBits.push('关键词「'+_bioSearchKey.trim()+'」');if(_bioSortAsc)_sumBits.push('最早在前');if(_bioSourceFilter!=='all'){const _srcName={diary:'日记',bio:'传记',progress:'每日进步',gratitude:'感恩日记'}[_bioSourceFilter]||_bioSourceFilter;_sumBits.push('只看'+_srcName);}
 const countLine=_sumBits.length?'<div style="font-size:var(--fs-caption);color:var(--text-light);margin:0 0 var(--sp-8);">🔎 '+
 escapeHtml(_sumBits.join(' · '))+' —— 找到 <b style="color:var(--text);">'+
 filtered.length+'</b> 条</div>':'';const emptyHtml=filtered.length||!(_sumBits.length||pool.length)?'':'<div style="text-align:center;padding:var(--sp-20) var(--sp-10);color:var(--text-light);font-size:var(--fs-note);line-height:1.8;">'+

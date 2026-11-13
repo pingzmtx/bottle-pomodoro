@@ -1561,7 +1561,7 @@ function renderBioSection() {
     if (_tokens.length) _sumBits.push('关键词「' + _bioSearchKey.trim() + '」');
     if (_bioSortAsc) _sumBits.push('最早在前');
     if (_bioSourceFilter !== 'all') {
-      const _srcName = { bio: '传记', progress: '每日进步', gratitude: '感恩日记' }[_bioSourceFilter] || _bioSourceFilter;
+      const _srcName = { diary: '日记', bio: '传记', progress: '每日进步', gratitude: '感恩日记' }[_bioSourceFilter] || _bioSourceFilter;
       _sumBits.push('只看' + _srcName);
     }
     const countLine = _sumBits.length
