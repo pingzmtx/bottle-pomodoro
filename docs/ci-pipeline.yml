@@ -1,0 +1,92 @@
+name: 构建 · 校验 · 上线
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pipeline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: 构建与门禁
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: ① 由 src/ 重建 public/
+        run: python3 tools/build.py
+
+      - name: ② 产物与 src 逐字节一致
+        run: python3 tools/build.py --check
+
+      - name: ③ 纯函数单测
+        run: node tools/tests/unit_pure.js | tail -3
+
+      - name: ④ 上膛 git 门禁钩子（gate 项要查它）
+        run: POMO_HOOKDIR=/tmp/hooks python3 tools/install_hooks.py
+
+      - name: ⑤ 静态门禁（28 项）
+        run: POMO_HOOKDIR=/tmp/hooks python3 tools/verify.py --fast
+
+      - name: ⑥ 推送构建产物到根目录（仅 main，site 走 legacy Pages）
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          set -e
+          git config --unset core.hooksPath || true
+          # 根目录 = 站点文件（只覆盖站点路径，src/ tools/ 一律不碰）
+          for p in index.html config.js sw.js manifest.webmanifest assets icons fonts; do
+            rm -rf "./$p"
+            if [ -e "public/$p" ]; then cp -a "public/$p" "./$p"; fi
+          done
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo "根目录已同步，无需提交"
+          else
+            git commit -m "build: 由 src/ 自动重建站点 [skip ci]"
+            git push
+          fi
+
+  gate:
+    name: 敏感改动必须走 PR
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && !startsWith(github.event.head_commit.message, 'Merge pull request')
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 检查改动的文件
+        run: |
+          set -e
+          BEFORE='${{ github.event.before }}'
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "首次推送，跳过"; exit 0
+          fi
+          git diff --name-only "$BEFORE" '${{ github.sha }}' > /tmp/changed.txt || exit 0
+          echo "改动文件："; cat /tmp/changed.txt
+          HIT=$(grep -E '^(tools/build\.py|tools/verify\.py|src/manifest\.json|src/scripts/01b_engine_data\.js|\.github/workflows/)' /tmp/changed.txt || true)
+          if [ -n "$HIT" ] && ! echo '${{ github.event.head_commit.message }}' | grep -q '\[skip-gate\]'; then
+            echo "::error::以下敏感文件被直接推到了 main："; echo "$HIT"
+            echo "请改走 wb/* 分支开 PR（或在提交信息里写 [skip-gate]，仅限人工确认过的情况）。"
+            exit 1
+          fi
+          echo "✓ 无需 PR 的改动"
