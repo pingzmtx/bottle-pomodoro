@@ -24,7 +24,7 @@
     { id: 'tree', at: 1, emoji: '🌳', name: '番茄树', intro: '🍅 会成为树的养分——亲手种下你的第 1 棵树吧' },
     { id: 'rank', at: 3, emoji: '🏆', name: '段位·战标', intro: '完成任务升段位，跟 8 个 BOT 抢榜首' },
     { id: 'coin', at: 5, emoji: '🪙', name: '金币经济', intro: '专注换金币：商店、扭蛋、每日任务都开了' },
-    { id: 'achieve', at: 7, emoji: '🏅', name: '成就·传记', intro: '你的旅程开始被铭记' },
+    { id: 'achieve', at: 7, emoji: '🏅', name: '成就·日记', intro: '你的旅程开始被铭记' },
     { id: 'immerse', at: 10, emoji: '🎮', name: '沉浸冒险', intro: '抽一张角色卡，番茄变成一场冒险' }
   ];
   let STEP_MAP = {};
