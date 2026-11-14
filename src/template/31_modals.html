@@ -569,76 +569,93 @@
 </div>
 
 <!--pnid:2nsmGZF8stzvXPLWQ4SSGW--><!-- 新增计划 -->
-<div data-page-node-id="0YRB0oJelm2f6wAhiOG8Nd" class="modal-overlay" id="addTodoModal">
-  <div data-page-node-id="6aRvzK75YZ44l0AnUQipq0" class="modal">
-    <h3 data-page-node-id="4cPFPnVDMyEGrON7C0kjH7"><!--pnid:PPoUqNMKIR9ADHCLZq2SjP-->➕ 新增计划</h3>
-    <div class="add-card-head">做什么</div>
-    <div data-page-node-id="N4JnNHtPhrR9nQTfBg5K2Y" class="modal-form-group">
-      <label data-page-node-id="oDdWxZ7BZjndPQtlcla1JS"><!--pnid:zviGiddhIGrvI0CmXyurah-->任务标题</label>
-      <input data-page-node-id="fUba8KUkbi9A1tPzmtRQRI" id="addTodoTitle" placeholder="输入任务名称" type="text">
+<div class="modal-overlay" id="addTodoModal">
+  <div class="modal ats-sheet" role="dialog" aria-modal="true" aria-label="新建计划">
+    <div class="ats-nav modal-buttons">
+      <button type="button" class="ats-nav-cancel" data-act="closeModal" data-act-args='["addTodoModal"]'>取消</button>
+      <h3 class="ats-nav-title">新建计划</h3>
+      <button type="button" class="ats-nav-done" data-act="confirmAddTodo">确定</button>
     </div>
-    <div data-page-node-id="y7S5dNRl1qrUPnBUkP8Rgj" class="modal-form-group">
-      <label data-page-node-id="XWGOTRZr6wnd5drPF9zztQ"><!--pnid:KSV8RH1Mky2xqQfmqE15Jm-->详情备注</label>
-      <textarea data-page-node-id="OwJYnN6h6mGX1FmCcbNSWa" id="addTodoDetail" placeholder="具体要做什么…" style="min-height:60px"></textarea>
-    </div>
-    <div class="add-card-head">怎么归类</div>
-    <div data-page-node-id="RVckOS0jvNl55lIPyMJKtE" class="modal-form-group">
-      <label data-page-node-id="HbqbykAzQxCW7O03YgOzb4" style="display:flex; align-items:center; justify-content:space-between; width:100%"><!--pnid:PejotTXuwOC0sRIE8La8we-->标签<span data-page-node-id="GAl5lrFd7ZaxGegBpQam7R" data-act="openTagManagerModal" style="cursor:pointer; font-size:var(--fs-caption); font-weight:700; color:var(--blue-dark); background:rgba(var(--blue-rgb),0.12); border:1px solid rgba(var(--blue-rgb),0.35); padding:var(--sp-2) var(--sp-10); border-radius:var(--radius-full)"><!--pnid:AwHy0OxKf5a0AhjwTUGnT9-->⚙ 管理标签</span></label>
-      <input data-page-node-id="iCg4Z3JQUcCPBIaQe6ERMB" id="addTodoTag" maxlength="8" placeholder="如：学习" type="text">
-      <div data-page-node-id="QJcvhZhoRrQ3ZNVzqLyPnq" class="used-tags-row" id="addTodoUsedTags" style="display:flex; flex-wrap:wrap; gap:var(--sp-4); margin-top:var(--sp-6)"></div>
-    </div>
-    <div class="modal-form-group">
-      <label>四象限</label>
-      <div id="addTodoQuadBox"></div>
-    </div>
-    <div class="add-card-head">什么时候</div>
-    <div data-page-node-id="ewijSCxsVAK2Kl84GOOEOE" class="modal-form-group">
-      <label data-page-node-id="36Zyf3vifXKZTgTCTOPv77"><!--pnid:ShOIdI9oH0gd92DJqrPQ83-->最晚完成日</label>
-      <input data-page-node-id="GiIgqI4zLIumLOXUCVZaKv" id="addTodoDeadline" type="date">
-    </div>
-    <div class="modal-form-group">
-      <label style="display:flex; align-items:center; justify-content:space-between; width:100%">排期<span class="add-help" id="addTodoExtraHelpBtn" role="button" tabindex="0" aria-expanded="false" aria-controls="addTodoExtraHelp" aria-label="排期怎么填" title="排期怎么填" data-stop="1" data-act="tbToggleAddExtraHelp" data-act-args='["@this"]' data-keys="Enter Space" data-keydown="tbToggleAddExtraHelp" data-keydown-args='["@this"]'>?</span></label>
-      <div class="add-block-row">
-        <label class="add-block-field">
-          <span class="add-block-tag">开始</span>
-          <span class="add-block-wrap"><input id="addTodoBlockStart" type="datetime-local" title="这段排期从几点开始；不填就是没排期"><span class="add-block-ghost" aria-hidden="true">选择年月日 时:分</span></span>
+    <div class="ats-body">
+
+      <!-- 1 · 做什么：标题是唯一主输入，备注紧随其后 -->
+      <div class="ats-card">
+        <div class="ats-title-row">
+          <input id="addTodoTitle" class="ats-title-in" placeholder="要做什么？" type="text" autocomplete="off" enterkeyhint="done">
+        </div>
+        <div class="ats-note-row">
+          <textarea id="addTodoDetail" class="ats-note-in" placeholder="详情备注：具体要做什么…" rows="2"></textarea>
+        </div>
+      </div>
+
+      <!-- 2 · 拆开做：子任务 -->
+      <div class="ats-sec">子任务<span class="ats-sec-act" data-act="addNewTodoSubRow">＋ 添加</span></div>
+      <div class="ats-card">
+        <div id="addTodoSubsBox" class="ats-subs"></div>
+        <div class="ats-add-row" data-act="addNewTodoSubRow" role="button" tabindex="0"><span class="ats-plus">＋</span><span>添加子任务</span></div>
+        <div class="ats-tip">回车可快速加下一行 · 子任务在计划列表和计时页都能勾选</div>
+      </div>
+
+      <!-- 3 · 什么时候：排期 -->
+      <div class="ats-sec">排期<span class="ats-help" id="addTodoExtraHelpBtn" role="button" tabindex="0" aria-expanded="false" aria-controls="addTodoExtraHelp" aria-label="排期怎么填" title="排期怎么填" data-stop="1" data-act="tbToggleAddExtraHelp" data-act-args='["@this"]' data-keys="Enter Space" data-keydown="tbToggleAddExtraHelp" data-keydown-args='["@this"]'>?</span></div>
+      <div class="ats-card">
+        <label class="ats-row">
+          <span class="ats-k">开始</span>
+          <input id="addTodoBlockStart" class="ats-dt" type="datetime-local" title="这段排期从几点开始；不填就是没排期">
         </label>
-        <label class="add-block-field">
-          <span class="add-block-tag">结束</span>
-          <span class="add-block-wrap"><input id="addTodoBlockEnd" type="datetime-local" title="这段排期到几点结束；留空按预计🍅自动算（每个 25 分）"><span class="add-block-ghost" aria-hidden="true">选择年月日 时:分</span></span>
+        <label class="ats-row">
+          <span class="ats-k">结束</span>
+          <input id="addTodoBlockEnd" class="ats-dt" type="datetime-local" title="这段排期到几点结束；留空按预计🍅自动算（每个 25 分）">
         </label>
+        <div id="addTodoExtraChips" class="ats-chips"></div>
+        <div class="ats-go" id="addTodoExtraBtn" data-stop="1" data-act="todoExtraArmFromModal" title="收起弹窗，在日程表上点两格选一段时间" role="button" tabindex="0">
+          <span class="ats-go-ico">＋</span>
+          <span class="ats-go-txt"><b>在日程表上再加一段</b><i>收起弹窗 → 点两格选时段 → 回来继续</i></span>
+          <span class="ats-chev"></span>
+        </div>
+        <div id="addTodoExtraHelp" class="ats-helpbox" style="display:none;">上面「开始 → 结束」就是这条计划的第一段排期，两个框都能选到<b>年月日 + 时分</b>；不想排就都留空。<br>一段可以从今天排到明天，跨天也行 —— 每段各归各天。<br>一天里要占好几段时间，就点「＋ 再加一段排期」：弹窗收起 → 在日程表上点两格 → 点完自动回到这里，已排的段会列在下面。</div>
       </div>
-      <div id="addTodoExtraChips" class="tf-chips add-extra-chips"></div>
-      <div class="add-pomo-actions" style="margin-top:var(--sp-6)">
-        <span class="tf-chip tf-chip--action" id="addTodoExtraBtn" data-stop="1" data-act="todoExtraArmFromModal" title="收起弹窗，在日程表上点两格选一段时间">＋ 再加一段排期</span>
+
+      <!-- 4 · 提醒与重复 -->
+      <div class="ats-sec">提醒与重复</div>
+      <div class="ats-card">
+        <label class="ats-row">
+          <span class="ats-k">最晚完成</span>
+          <input id="addTodoDeadline" class="ats-dt" type="date">
+        </label>
+        <label class="ats-row">
+          <span class="ats-k">提醒</span>
+          <input id="addTodoRemind" class="ats-dt" type="datetime-local" title="到点响一声；和排期没有关系，不填就不响">
+        </label>
+        <div class="ats-row ats-row--block">
+          <span class="ats-k">重复</span>
+          <div id="addTodoRepeatBox" class="ats-repeat"></div>
+        </div>
       </div>
-      <div id="addTodoExtraHelp" class="add-extra-help" style="display:none;">上面「开始 → 结束」就是这条计划的第一段排期，两个框都能选到<b>年月日 + 时分</b>；不想排就都留空。<br>一段可以从今天排到明天，跨天也行 —— 每段各归各天。<br>一天里要占好几段时间，就点「＋ 再加一段排期」：弹窗收起 → 在日程表上点两格 → 点完自动回到这里，已排的段会列在下面。</div>
-    </div>
-    <div data-page-node-id="flmVv7HyfP5NLXTf7ImSu7" class="modal-form-group">
-      <label data-page-node-id="4PWQZJnGXCZcJEtSZBiqir"><!--pnid:vP3RnIx9olgNIHrtQJXNPu-->提醒</label>
-      <input data-page-node-id="kUixEAHgpIwyyhshvjB0bE" id="addTodoRemind" type="datetime-local" title="到点响一声；和排期没有关系，不填就不响">
-    </div>
-    <div class="add-card-head">做多少</div>
-    <div data-page-node-id="RMzKxSCUjhutlJQa67OQKU" class="modal-form-group">
-      <label data-page-node-id="fLzc7rCXmWCq3m027XZtPP"><!--pnid:FQ8FAKFoWpXUhJn9nPVNVF-->预计🍅</label>
-      <div class="add-pomo-row">
-        <input data-page-node-id="rVmKZY1A5K4scI0V0f5I6b" id="addTodoPomodoros" min="0" max="999" placeholder="可空" step="0.5" type="number" data-input="syncAddTodoPomoQuick">
+
+      <!-- 5 · 怎么归类 + 做多少：属性 -->
+      <div class="ats-sec">属性</div>
+      <div class="ats-card">
+        <div class="ats-row ats-row--block">
+          <span class="ats-k">四象限</span>
+          <div id="addTodoQuadBox" class="ats-quad"></div>
+        </div>
+        <div class="ats-row ats-row--block">
+          <span class="ats-k">标签</span>
+          <input id="addTodoTag" class="ats-tag-in" maxlength="8" placeholder="如：学习" type="text">
+          <div id="addTodoUsedTags" class="ats-tags"></div>
+          <span class="ats-link" data-act="openTagManagerModal" role="button" tabindex="0">⚙ 管理标签</span>
+        </div>
+        <div class="ats-row ats-row--block">
+          <span class="ats-k">预计🍅</span>
+          <div class="ats-pomo">
+            <input id="addTodoPomodoros" class="ats-pomo-in" min="0" max="999" placeholder="可空" step="0.5" type="number" inputmode="decimal" data-input="syncAddTodoPomoQuick">
+            <span class="ats-pomo-u">个</span>
+          </div>
+          <div id="addTodoPomoQuick" class="ats-pomo-chips"></div>
+        </div>
       </div>
-      <div class="tf-chips add-pomo-quick" id="addTodoPomoQuick"></div>
-    </div>
-    <div class="modal-form-group">
-      <label>重复周期</label>
-      <div id="addTodoRepeatBox"></div>
-    </div>
-    <div class="add-card-head">拆开做</div>
-    <div data-page-node-id="SZD3Tn6jUlcCzs2X1hudoB" class="modal-form-group">
-      <label data-page-node-id="Ao5GCbt9PbkO4pUWBJ1u0r" style="display:flex; align-items:center; justify-content:space-between; width:100%"><!--pnid:DHJMkSLTnEX5GdWf1i8qSs-->子任务<span data-page-node-id="cEQLX9ltWqEQgOJh2InliT" data-act="addNewTodoSubRow" style="cursor:pointer; font-size:var(--fs-caption); font-weight:700; color:var(--blue-dark); background:rgba(var(--blue-rgb),0.12); border:1px solid rgba(var(--blue-rgb),0.35); padding:var(--sp-2) var(--sp-10); border-radius:var(--radius-full)"><!--pnid:155NsABZr18vTuWYkeDdcW-->＋ 添加子任务</span></label>
-      <div data-page-node-id="Tg0rBTcCptiGgvu69Tnmhi" id="addTodoSubsBox" style="display:flex; flex-direction:column; gap:var(--sp-6)"></div>
-      <div data-page-node-id="lflQvdGaZfPyYc4ZQzpK6c" style="font-size:var(--fs-caption); color:var(--text-light); margin-top:var(--sp-6); line-height:1.5"><!--pnid:y7QeMNPcv89F5ntnVwX1zr-->回车可快速加下一行 · 子任务在计划列表和计时页都能勾选</div>
-    </div>
-    <div data-page-node-id="dbHPAfU1wzehOq99Fvj9A0" class="modal-buttons">
-      <button data-page-node-id="T2ZMfVtYPJN52hAi8am2he" class="modal-btn secondary" data-act="closeModal" data-act-args='["addTodoModal"]'><!--pnid:CC4UDEitZYjwgCho0A6KzM-->取消</button>
-      <button data-page-node-id="BGS1jX4EdK0wJH2uL8h01D" class="modal-btn primary" data-act="confirmAddTodo"><!--pnid:0kpaz5Vmf02a9oanuOXDDB-->确定</button>
+
     </div>
   </div>
 </div>

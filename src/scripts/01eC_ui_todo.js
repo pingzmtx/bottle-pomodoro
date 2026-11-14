@@ -2376,7 +2376,7 @@ function renderAddTodoPomoQuick() {
   box.innerHTML =
     ADD_TODO_POMO_STEPS.map(function (n) {
       return '<span class="tf-chip add-pomo-quick-chip" data-v="' + n + '" role="button" tabindex="0" ' +
-        'onclick="setAddTodoPomo(' + n + ')" title="预计 ' + n + ' 个番茄">' + n + '🍅</span>';
+        'onclick="setAddTodoPomo(' + n + ')" title="预计 ' + n + ' 个番茄">' + n + '</span>';
     }).join('') +
     '<span class="tf-chip add-pomo-quick-chip add-pomo-quick-clear" data-v="clear" role="button" tabindex="0" ' +
     'onclick="setAddTodoPomo(null)" title="不设预计番茄">清空</span>';

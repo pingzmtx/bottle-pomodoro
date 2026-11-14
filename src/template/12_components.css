@@ -583,35 +583,435 @@ body.kb-open .bottom-nav { display: none; }
 .add-pomo-quick-clear { color: var(--text-light); }
 .add-pomo-quick-clear.on { color: var(--on-primary); }
 
-/* ===== 新增计划弹窗改版（2026-11-14）=====
-   只作用于 #addTodoModal，不碰其它弹窗。
-   做法：加 5 个分组标题（做什么 / 怎么归类 / 什么时候 / 做多少 / 拆开做）
-   + 收紧行高与字号，让 20+ 个控件在一屏内可扫。
-   ★ 不折叠任何一组：详情备注、子任务、排期都是高频，一折就要多点一次。 */
-#addTodoModal .modal { max-height: 88vh; overflow-y: auto; padding: var(--sp-16); }
-#addTodoModal h3 { font-size: var(--fs-h1); margin: 0 0 var(--sp-10); }
-#addTodoModal .add-card-head {
-  display: flex; align-items: center; gap: var(--sp-6);
-  margin: var(--sp-14) 0 var(--sp-8);
-  font-size: var(--fs-caption); font-weight: 800; letter-spacing: 0.04em;
+/* ===== 新增计划弹窗（2026-11-14 重做：按「品牌版 v2」预览 1:1 落地）=====
+   预览：/workspace/新增计划-品牌版.html（浅色 + 深色两态）
+   结构：① 顶部导航（取消 / 新建计划 / 确定）② 可滚动卡片体
+   分区：标题+备注 → 子任务 → 排期 → 提醒与重复 → 属性（四象限/标签/番茄）
+   ★ 字段一个不删、一组不折；只改「谁先被看到」和「怎么摆」。
+   ★ 预览里的硬编码色全部映射到令牌：暖米=--bg、纸白=--card、橘红=--primary、
+     描边=--border、正文=--text、灰字=--text-light —— 深色主题自动跟随。
+   ★ 只作用于 #addTodoModal，不碰其它弹窗。 */
+#addTodoModal .ats-sheet {
+  max-width: 368px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+/* 导航条：网格三格，标题绝对居中（两侧按钮宽度不等也不会偏） */
+#addTodoModal .ats-nav {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--sp-8);
+  height: 52px;
+  padding: 0 var(--sp-12);
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+}
+#addTodoModal .ats-nav-cancel {
+  justify-self: start;
+  border: none;
+  background: none;
+  padding: var(--sp-6) var(--sp-4);
+  font-family: inherit;
+  font-size: var(--fs-note);
+  color: var(--text-light);
+  cursor: pointer;
+}
+#addTodoModal .ats-nav-title {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--fs-title);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  white-space: nowrap;
+}
+#addTodoModal .ats-nav-done {
+  justify-self: end;
+  border: none;
+  cursor: pointer;
+  background: var(--fill-primary);
+  color: var(--on-fill);
+  font-family: inherit;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: var(--sp-6) var(--sp-14);
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 6px rgba(var(--primary-rgb), 0.26);
+}
+/* 滚动体：背景比卡片深一档，卡片才浮得起来 */
+#addTodoModal .ats-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  background: var(--bg);
+  padding: var(--sp-12) 0 var(--sp-20);
+}
+#addTodoModal .ats-card {
+  margin: 0 var(--sp-12);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+/* 分组标题：楷体宽字距 + 橘短横（预览 .sec） */
+#addTodoModal .ats-sec {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  padding: var(--sp-16) var(--sp-16) var(--sp-6);
+  font-size: var(--fs-micro);
+  color: var(--text-light);
+  letter-spacing: 0.14em;
+}
+#addTodoModal .ats-sec::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 13px;
+  height: 2px;
+  border-radius: var(--radius-xs);
+  background: var(--primary);
+  opacity: 0.55;
+}
+#addTodoModal .ats-sec-act {
+  margin-left: auto;
+  letter-spacing: 0;
+  font-size: var(--fs-micro);
+  font-weight: 600;
   color: var(--primary-ink);
+  cursor: pointer;
+  padding: var(--sp-2) var(--sp-6);
+  border-radius: var(--radius-full);
 }
-#addTodoModal .add-card-head::before {
-  content: ''; width: var(--sp-2); height: var(--sp-12); border-radius: var(--radius-xs); background: var(--primary);
+#addTodoModal .ats-help {
+  margin-left: auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  display: grid;
+  place-items: center;
+  font-family: -apple-system, 'PingFang SC', sans-serif;
+  font-size: var(--fs-micro);
+  color: var(--text-light);
+  cursor: pointer;
+  letter-spacing: 0;
 }
-#addTodoModal .modal-form-group { margin-bottom: var(--sp-8); }
-#addTodoModal .modal-form-group label {
-  font-size: var(--fs-caption); font-weight: 700; color: var(--text-light); margin-bottom: var(--sp-2);
+#addTodoModal .ats-help.is-on {
+  background: rgba(var(--primary-rgb), 0.12);
+  color: var(--primary-ink);
+  border-color: rgba(var(--primary-rgb), 0.35);
 }
-#addTodoModal .modal-form-group input,
-#addTodoModal .modal-form-group select,
-#addTodoModal .modal-form-group textarea {
-  padding: var(--sp-8) var(--sp-10); font-size: var(--fs-body); border-radius: var(--radius-sm); min-height: 2.25em;
+/* 行：值行（左标签 / 右值）与块行（标签在上 / 控件在下） */
+#addTodoModal .ats-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-10);
+  min-height: 46px;
+  padding: var(--sp-10) var(--sp-14);
+  position: relative;
 }
-#addTodoModal #addTodoDetail { min-height: 3.4em; }
-#addTodoModal .add-pomo-row { max-width: 6.5em; }
-#addTodoModal .tf-chips { gap: var(--sp-4); }
-#addTodoModal .add-block-row { gap: var(--sp-6); }
-/* 原生 datetime-local 自带「年/月/日 时:分」占位，再叠一层 ghost 就是两行字糊在一起。
-   这里统一交给原生控件，ghost 只留给不支持原生控件的浏览器（display:none 即可）。 */
-#addTodoModal .add-block-ghost { display: none; }
+#addTodoModal .ats-row + .ats-row::before {
+  content: '';
+  position: absolute;
+  left: var(--sp-14);
+  right: var(--sp-14);
+  top: 0;
+  height: 1px;
+  background: var(--hairline);
+}
+#addTodoModal .ats-row--block {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--sp-8);
+  padding: var(--sp-12) var(--sp-14);
+}
+#addTodoModal .ats-k {
+  flex: 0 0 auto;
+  font-size: var(--fs-note);
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+/* 标题：唯一主输入，21px、无框、打开即可打字 */
+#addTodoModal .ats-title-row { padding: var(--sp-14); }
+#addTodoModal .ats-title-in {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: var(--fs-sub);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  color: var(--text);
+}
+#addTodoModal .ats-title-in::placeholder {
+  color: var(--text-light);
+  opacity: 0.55;
+  font-weight: 400;
+}
+/* 全站 focus 环是 3px 实心橘（1A_dark_misc 里 !important）——套在「无框大标题」上
+   就是一只橘色描边输入框，把预览里「一张白纸 + 一行字」的观感直接毁掉。
+   这里换成「贴字的下划线」：焦点仍然看得见（键盘用户不丢），但不画框。
+   ★ 不能用 outline / ring 的其它写法：只要围着输入框一圈，就又变回框。 */
+#addTodoModal .ats-title-in,
+#addTodoModal .ats-note-in { border-bottom: 1px solid transparent; }
+#addTodoModal .ats-title-in:focus,
+#addTodoModal .ats-note-in:focus {
+  box-shadow: none !important;
+  border-bottom-color: rgba(var(--primary-rgb), 0.55);
+}
+#addTodoModal .ats-dt:focus { box-shadow: none !important; }
+#addTodoModal .ats-note-row { padding: 0 var(--sp-14) var(--sp-14); }
+#addTodoModal .ats-note-in {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  background: none;
+  padding: 0;
+  min-height: 44px;
+  font-family: inherit;
+  font-size: var(--fs-note);
+  line-height: 1.7;
+  color: var(--text);
+}
+#addTodoModal .ats-note-in::placeholder {
+  color: var(--text-light);
+  opacity: 0.55;
+}
+/* 子任务 */
+#addTodoModal .ats-subs { display: flex; flex-direction: column; padding: var(--sp-6) 0; }
+#addTodoModal .ats-subs:empty { display: none; }
+/* 行宽由 JS 内联（display/flex/gap），内边距归样式表：
+   没有这 14px，输入框和 ✕ 会顶到卡片描边上，看着像溢出 */
+#addTodoModal .ats-subs .newsub-row { padding: var(--sp-4) var(--sp-14); }
+/* 行内输入底色是页面米（--bg），落在白卡上偏深；抬到 --surface-2，与标签框同层 */
+#addTodoModal .ats-subs .newsub-inp { background: var(--surface-2); }
+#addTodoModal .ats-add-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  min-height: 44px;
+  padding: var(--sp-10) var(--sp-14);
+  font-size: var(--fs-note);
+  color: var(--primary-ink);
+  cursor: pointer;
+}
+#addTodoModal .ats-subs:not(:empty) + .ats-add-row { border-top: 1px solid var(--hairline); }
+#addTodoModal .ats-plus {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  color: var(--primary);
+  font-size: var(--fs-note);
+  line-height: 1;
+}
+#addTodoModal .ats-tip {
+  padding: var(--sp-6) var(--sp-14) var(--sp-10);
+  border-top: 1px solid var(--hairline);
+  font-size: var(--fs-micro);
+  line-height: 1.6;
+  color: var(--text-light);
+  opacity: 0.85;
+}
+/* 排期：值行里的原生日期控件，去掉框、右对齐 */
+#addTodoModal .ats-dt {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  border: none;
+  outline: none;
+  background: none;
+  padding: 0;
+  text-align: right;
+  font-family: var(--font-num);
+  font-size: var(--fs-tiny);
+  color: var(--text);
+}
+#addTodoModal .ats-dt::-webkit-calendar-picker-indicator {
+  opacity: 0.45;
+  cursor: pointer;
+  margin-left: var(--sp-4);
+}
+#addTodoModal .ats-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-6);
+  padding: 0 var(--sp-14) var(--sp-10);
+}
+#addTodoModal .ats-chips:empty { display: none; padding: 0; }
+/* 「去日程表加一段」：明确是跳转，不是就地输入 */
+#addTodoModal .ats-go {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  padding: var(--sp-10) var(--sp-14);
+  border-top: 1px solid var(--hairline);
+  background: rgba(var(--primary-rgb), 0.045);
+  cursor: pointer;
+}
+#addTodoModal .ats-go-ico {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  background: rgba(var(--primary-rgb), 0.14);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-micro);
+  line-height: 1;
+}
+#addTodoModal .ats-go-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+#addTodoModal .ats-go-txt b {
+  font-size: var(--fs-note);
+  font-weight: 500;
+  color: var(--primary-ink);
+  letter-spacing: 0.02em;
+}
+#addTodoModal .ats-go-txt i {
+  font-style: normal;
+  font-size: var(--fs-micro);
+  color: var(--text-light);
+  opacity: 0.85;
+}
+#addTodoModal .ats-chev {
+  flex: 0 0 auto;
+  margin-left: auto;
+  width: 7px;
+  height: 7px;
+  border-right: 1.6px solid var(--border-strong);
+  border-bottom: 1.6px solid var(--border-strong);
+  transform: rotate(-45deg);
+  border-radius: var(--radius-xs);
+}
+#addTodoModal .ats-helpbox {
+  padding: var(--sp-10) var(--sp-14) var(--sp-12);
+  border-top: 1px solid var(--hairline);
+  background: var(--surface-2);
+  font-size: var(--fs-micro);
+  line-height: 1.9;
+  color: var(--text-light);
+}
+#addTodoModal .ats-helpbox b { color: var(--primary-ink); font-weight: 600; }
+/* 四象限：2×2 网格，「不限」跨整行（原来 5 颗挤一行会折成 4+1，看着像漏了一颗） */
+#addTodoModal .ats-quad .quad-chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-6);
+}
+#addTodoModal .ats-quad .quad-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: var(--sp-8) var(--sp-4);
+  text-align: center;
+  white-space: normal;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-tiny);
+}
+#addTodoModal .ats-quad .quad-chip--none {
+  grid-column: 1 / -1;
+  min-height: 36px;
+  border-style: dashed;
+}
+#addTodoModal .ats-quad .quad-chip--none.on { border-style: solid; }
+/* 标签 */
+#addTodoModal .ats-tag-in {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-8) var(--sp-10);
+  font-family: inherit;
+  font-size: var(--fs-note);
+  color: var(--text);
+  outline: none;
+}
+#addTodoModal .ats-tag-in:focus { border-color: var(--border-strong); box-shadow: var(--focus-ring); }
+#addTodoModal .ats-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-6);
+}
+#addTodoModal .ats-link {
+  align-self: flex-start;
+  font-size: var(--fs-micro);
+  color: var(--text-light);
+  cursor: pointer;
+  padding: var(--sp-2) 0;
+}
+/* 预计番茄：可手输 + 快捷档位 */
+#addTodoModal .ats-pomo {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+}
+#addTodoModal .ats-pomo-in {
+  flex: 0 0 auto;
+  width: 68px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-6) var(--sp-8);
+  text-align: center;
+  font-family: var(--font-num);
+  font-size: var(--fs-note);
+  font-weight: 600;
+  color: var(--text);
+  outline: none;
+}
+#addTodoModal .ats-pomo-in:focus { border-color: var(--border-strong); box-shadow: var(--focus-ring); }
+#addTodoModal .ats-pomo-u {
+  font-size: var(--fs-micro);
+  color: var(--text-light);
+}
+#addTodoModal .ats-pomo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+}
+/* 档位是「顺手一点」的辅助，不是主控件：压到一行能放下的密度 */
+#addTodoModal .ats-pomo-chips .tf-chip {
+  padding: var(--sp-4) var(--sp-8);
+  font-size: var(--fs-micro);
+  font-weight: 500;
+}
+/* 15_tree.css 里有一条无作用域的 `.tf-chip.on{绿色}`（种树弹窗的皮），源序在 13_plan 之后，
+   把全站 chip 选中态都刷成绿。本弹窗里「预计🍅」选中必须读作主操作色，故就地扳回。
+   ★ 不动 15_tree 那条：它影响行内编辑面板，属另一件事。 */
+#addTodoModal .ats-pomo-chips .tf-chip.on {
+  background: var(--fill-primary);
+  color: var(--on-fill);
+  border-color: var(--primary-dark);
+  font-weight: 600;
+}
+/* 重复：下拉与展开面板占满整行 */
+#addTodoModal .ats-repeat { width: 100%; min-width: 0; }
+#addTodoModal .ats-repeat .tf-input { width: 100%; }
+/* 窄屏：卡片贴边更省宽度 */
+@media (max-width: 360px) {
+  #addTodoModal .ats-card { margin: 0 var(--sp-8); }
+  #addTodoModal .ats-sec { padding-left: var(--sp-12); padding-right: var(--sp-12); }
+}
