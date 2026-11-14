@@ -345,13 +345,13 @@
      为什么补：中性色此前只有 --text / --text-light 两档，于是「更弱的说明字」
      只能临时写字面量 —— 实测 172 处中性色里 31 处是文字色，
      用到的灰阶有 #eee/#999/#666/#ccc/#ddd/#f0f0f0 六种以上，属「缺词汇」。
-     ★ 值一律**派生**，不写第二份常量：皮肤块覆盖 --text / --text-light / --ink-mute 时，
-       这三档在用到的地方解析，自动跟随 —— 所以 10 个皮肤块不用各写一遍。
+     ★ 值一律**派生**，不写第二份常量 —— 12 个外观（6 主题 × 明暗）不用各写一遍。
+     ★ 但派生必须写在 body（见下方 body 块），不能写在这里：
+       自定义属性在**声明所在的那个元素**上完成替换，再作为已解析值往下继承。
+       写在 :root 时 --text 取的是 html 上的值（浅色），body.dark-mode 再改 --text
+       html 追不上 —— 2026-11-14 深色标题不可见（对比度 1.3:1）就是这个原因。
      ★ 只在「文字（color）」上用。边框请用 --border / --border-strong（已存在，不另造
        --line-1/2：同语义再造一套就是制造第二份词汇表）。 */
-  --text-1: var(--text);        /* 主文本：标题、正文 */
-  --text-2: var(--text-light);  /* 次要：说明、辅助信息 */
-  --text-3: var(--ink-mute, #7B88A1); /* 更弱：时间戳、占位、单位后缀 */
 
   /* ===== 遮罩（P1）=====
      语义是「压暗底下的一切」，深浅色下都成立，所以固定黑 + 透明度档位
@@ -479,7 +479,6 @@
   --shadow-md: 0 2px 6px rgba(var(--shadow-rgb),0.08), 0 1px 2px rgba(var(--shadow-rgb),0.05);
   --shadow-lg: 0 12px 32px rgba(var(--shadow-rgb),0.18);
   --shadow-xl: 0 20px 48px rgba(var(--shadow-rgb),0.28);
-  --focus-ring: 0 0 0 3px rgba(var(--primary-rgb),0.28);
   /* ========== 圆角层级 ========== */
   --radius-xs: 4px;   /* 圆角收口：19 种 → 7 档，详见 tools/w6_scale.py 头部 */
   --radius-sm: 6px;
@@ -521,6 +520,15 @@ body {
   /* 实心填充块上的字。浅色 / 深色都用白：填充块本身始终是"深一档的主色"，
      需要白字才够对比（深色下若沿用 --on-primary 的深棕，那块红就看不见了）。 */
   --on-fill: #FFFFFF;
+  /* 文本三级派生：必须写在 body —— 依赖项 --text / --text-light / --ink-mute 都在
+     body 这一层被深色块与 10 个皮肤块覆盖。写在 :root 会在 html 上定型成浅色值，
+     深色下标题变成 rgb(30,42,56)/深底 → 对比度 1.01:1（2026-11-14 实测回归）。 */
+  --text-1: var(--text);              /* 主文本：标题、正文 */
+  --text-2: var(--text-light);        /* 次要：说明、辅助信息 */
+  --text-3: var(--ink-mute, #7B88A1); /* 更弱：时间戳、占位、单位后缀 */
+  /* 焦点环同理：--primary-rgb 在 10 个主题块里按主题改分量，写在 :root 会让 6 个主题
+     全用默认橙的焦点环（nord 实测 rgba(232,93,58,.28)，本应 rgba(94,129,172,.28)）。 */
+  --focus-ring: 0 0 0 3px rgba(var(--primary-rgb),0.28);
   --border:        rgba(var(--line-rgb, 31, 42, 55), var(--alpha-line, .10));
   --border-strong: rgba(var(--line-rgb, 31, 42, 55), var(--alpha-line-strong, .22));
   --hairline:      rgba(var(--line-rgb, 31, 42, 55), var(--alpha-hairline, .07));
