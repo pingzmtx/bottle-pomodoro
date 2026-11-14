@@ -2374,13 +2374,13 @@ g+' 系列 <span style="font-size:var(--fs-body);color:var(--text-light);font-we
 lit+'/'+
 items.length+'</span></div>';achHtml+='<div style="display:flex;flex-wrap:wrap;gap:var(--sp-8);justify-content:center;width:100%;">'+
 items.map(function(a){const ok=a.unlocked;const pend=ok&&(appData.pendingAchRewards||[]).indexOf(a.id)>=0;return('<div style="text-align:center;padding:var(--sp-6) var(--sp-2);width:88px;border-radius:var(--radius);border:2px solid '+
-(ok?a.color:'#ddd')+';background:'+
-(ok?a.bg||'#fff':'#f5f5f5')+';opacity:'+
+(ok?a.color:'var(--border)')+';background:'+
+(ok?a.bg||'#fff':'var(--surface-2)')+';opacity:'+
 (ok?'1':'0.45')+';filter:'+
 (ok?'none':'grayscale(1)')+';'+
 (ok?'box-shadow:0 0 8px '+a.color:'')+';position:relative;"><div style="font-size:26px;line-height:1;">'+
 a.icon+'</div><div style="font-size:var(--fs-body);font-weight:700;margin-top:var(--sp-2);color:'+
-(ok?a.color:'#999')+';">'+
+(ok?a.color:'var(--text-3)')+';">'+
 a.name+'</div><div style="font-size:var(--fs-caption);color:var(--text-light);line-height:1.3;margin-top:var(--sp-2);">'+
 a.desc+'</div>'+
 (pend?'<div style="position:absolute;top:-6px;right:-6px;font-size:var(--fs-tiny);background:var(--yellow);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.2);" onclick="claimAchievementReward(\''+

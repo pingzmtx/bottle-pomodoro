@@ -86,9 +86,9 @@ function renderAchListOnly() {
           const pend = ok && (appData.pendingAchRewards || []).indexOf(a.id) >= 0;
           return (
             '<div style="text-align:center;padding:var(--sp-6) var(--sp-2);width:88px;border-radius:var(--radius);border:2px solid ' +
-            (ok ? a.color : '#ddd') +
+            (ok ? a.color : 'var(--border)') +
             ';background:' +
-            (ok ? a.bg || '#fff' : '#f5f5f5') +
+            (ok ? a.bg || '#fff' : 'var(--surface-2)') +
             ';opacity:' +
             (ok ? '1' : '0.45') +
             ';filter:' +
@@ -98,7 +98,7 @@ function renderAchListOnly() {
             ';position:relative;"><div style="font-size:26px;line-height:1;">' +
             a.icon +
             '</div><div style="font-size:var(--fs-body);font-weight:700;margin-top:var(--sp-2);color:' +
-            (ok ? a.color : '#999') +
+            (ok ? a.color : 'var(--text-3)') +
             ';">' +
             a.name +
             '</div><div style="font-size:var(--fs-caption);color:var(--text-light);line-height:1.3;margin-top:var(--sp-2);">' +
