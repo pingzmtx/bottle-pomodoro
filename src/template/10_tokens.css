@@ -104,6 +104,23 @@
   --im-win-mid: #43A047;
   --im-lose-1: #37474F;  --im-lose-2: #546E7A;  --im-win-rgb: 46, 125, 50;  --im-lose-rgb: 55, 71, 79;
   --im-gold: #D4A017;
+  /* ===== 材质色板（P3，2026-11-14）=====
+     `--mat-` = material：商店稀有度、引导页、成长光芒这类「材质/装饰」色。
+     和 --dk-* 的区别：这些在浅色下也用（难度推荐绿、启动页深蓝），不只是深色补丁。
+     和 --sc-*/--im-* 的区别：那两个是整块场景，这些是散落在普通组件里的点缀。 */
+  --mat-ok-strong: #4CAF50;
+  --mat-ok-wash: rgba(102,187,106,.1);
+  --mat-ok-line: #9CCC9C;
+  --mat-gold-strong: #F5B301;
+  --mat-gold-line: #F1C76A;
+  --mat-gold-ray: rgba(232,185,58,.25);
+  --mat-navy: #1A2440;
+  --mat-bad-wash: rgba(239,83,80,.1);
+  --mat-hint-wash: rgba(255,202,40,.08);
+  --mat-hint-edge: rgba(255,202,40,.3);
+  --mat-legend-bg: #FFFCEC;
+  --mat-legend-bg-2: #FFF1C9;
+  --mat-premium: #7B1FA2;
 
   /* ===== 字重令牌 =====
      层级由「字重 + 字号 + 行高」三者共同构成，只靠字号不够：全场同一字重会让
