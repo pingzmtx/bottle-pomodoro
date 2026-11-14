@@ -34,14 +34,14 @@
       "owner": "01b_engine_data.js",
       "writers": [
         "01b_engine_data.js",
-        "01e7_ui_stats.js"
+        "01eT_ui_stats_month.js"
       ],
       "note": "传记历史回填完成标记"
     },
     "bioInitDone": {
-      "owner": "01e7_ui_stats.js",
+      "owner": "01eT_ui_stats_month.js",
       "writers": [
-        "01e7_ui_stats.js"
+        "01eT_ui_stats_month.js"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
@@ -49,7 +49,7 @@
       "owner": "01b_engine_data.js",
       "writers": [
         "01b_engine_data.js",
-        "01e7_ui_stats.js"
+        "01eT_ui_stats_month.js"
       ],
       "note": "传记触发记录（防重复触发）"
     },
@@ -79,10 +79,10 @@
       "note": "倒计时（计划页）"
     },
     "diaries": {
-      "owner": "01e7_ui_stats.js",
+      "owner": "01eS_ui_addrecord.js",
       "writers": [
-        "01e7_ui_stats.js",
-        "01eS_ui_addrecord.js"
+        "01eS_ui_addrecord.js",
+        "01eU_ui_biography.js"
       ],
       "note": "日记"
     },
@@ -110,23 +110,23 @@
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "ghostBeat": {
-      "owner": "01e7_ui_stats.js",
+      "owner": "01eV_ui_biocal_map.js",
       "writers": [
-        "01e7_ui_stats.js"
+        "01eV_ui_biocal_map.js"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "ghostBeatDate": {
-      "owner": "01e7_ui_stats.js",
+      "owner": "01eV_ui_biocal_map.js",
       "writers": [
-        "01e7_ui_stats.js"
+        "01eV_ui_biocal_map.js"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "ghostHalf": {
-      "owner": "01e7_ui_stats.js",
+      "owner": "01eV_ui_biocal_map.js",
       "writers": [
-        "01e7_ui_stats.js"
+        "01eV_ui_biocal_map.js"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
@@ -191,9 +191,9 @@
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "lastCareModalDate": {
-      "owner": "01e7_ui_stats.js",
+      "owner": "01eV_ui_biocal_map.js",
       "writers": [
-        "01e7_ui_stats.js"
+        "01eV_ui_biocal_map.js"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
@@ -341,8 +341,8 @@
         "01dB_engine_day_rollover.js",
         "01dC_engine_task_exchange.js",
         "01e6_ui_rank.js",
-        "01e7_ui_stats.js",
-        "01e8_ui_misc.js"
+        "01e8_ui_misc.js",
+        "01eV_ui_biocal_map.js"
       ],
       "note": "段位系统（星、下注、晋级、周番茄兑换口径）"
     },
@@ -393,13 +393,13 @@
         "01b_engine_data.js",
         "01c_engine_timer.js",
         "01e4_ui_ux.js",
-        "01e7_ui_stats.js",
         "01e9_ui_memo.js",
         "01eA_ui_timeblock.js",
         "01eB_ui_habit.js",
         "01eD_ui_log.js",
         "01eH_ui_fx.js",
         "01eP_ui_view.js",
+        "01eV_ui_biocal_map.js",
         "01g_engine_init.js",
         "0E_theme_主题引擎.js"
       ],
