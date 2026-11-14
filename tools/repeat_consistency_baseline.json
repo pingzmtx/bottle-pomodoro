@@ -1,0 +1,6 @@
+{
+  "_note": "slow= habitDueOn / fast= _habitDueFast 的已知差异。只准缩小，不准新增。",
+  "wrapperMismatch": 0,
+  "cases": 572,
+  "diffs": []
+}

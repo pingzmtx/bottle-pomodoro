@@ -782,6 +782,10 @@ ok('habitDueOn 每周一三五：周三命中', P.habitDueOn(_hWk, '2026-10-14')
 ok('habitDueOn 每周一三五：周二不命中', P.habitDueOn(_hWk, '2026-10-13') === false);
 ok('habitDueOn 工作日：周五命中', P.habitDueOn({ repeat: { mode: 'weekdays' } }, '2026-10-16') === true);
 ok('habitDueOn 工作日：周六不命中', P.habitDueOn({ repeat: { mode: 'weekdays' } }, '2026-10-17') === false);
+/* 非法日期（平年 2/29）：完整版与循环内版必须同判 false。
+   2026-11-14 对拍前 fast 缺这句校验 → 判 true，两套统计各算各的。 */
+ok('habitDueOn 非法日期 2026-02-29 = false', P.habitDueOn({ repeat: { mode: 'daily' } }, '2026-02-29') === false);
+ok('_habitDueFast 非法日期 2026-02-29 = false', P._habitDueFast('2026-02-29', P.habitRepeatOf({ repeat: { mode: 'daily' } }), {}, '') === false);
 ok('habitDueOn 每月 31 号遇 2 月落到当月最后一天', P.habitDueOn({ repeat: { mode: 'monthly', dom: 31 } }, '2026-02-28') === true);
 ok('habitDueOn 每月 31 号：2 月 27 号不命中', P.habitDueOn({ repeat: { mode: 'monthly', dom: 31 } }, '2026-02-27') === false);
 ok('habitDueOn 有截止日：过了不再命中',

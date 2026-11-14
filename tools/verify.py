@@ -193,6 +193,12 @@ def main():
         # "逐处判断"这一环不存在，豁免等于无防线（一次弹窗改版就能悄悄新增几十处）。
         # 与 theme 段的区别：theme 守"12 个外观的令牌是否一致"，本段守"有没有绕过令牌"。
         ("csstok", "python3 tools/check_css_tokens.py"),
+        # 重复判定一致性（D1，2026-11-14）：「某天该不该做」有两份实现 ——
+        # habitDueOn（完整版）与 _habitDueFast（循环内版，注释自称"语义完全一致"）。
+        # 这句话此前没有任何东西在守；本段用 25 条规则 × 22 个日期逐日对拍，
+        # 首次运行就抓到一处真分歧：非法日期 "2026-02-29" 下 fast 判「该做」而 slow 判「不该做」。
+        # 同时校验 todoRepeatMatches 恒等于 todoRepeatMatchesNorm(norm(r))（纯包装关系）。
+        ("repeat", "node tools/check_repeat_consistency.js"),
         # 人生目标的进度算法（2026-10）：纯函数单测，不启浏览器。
         # 这些用例每一条都对应一次真实算错（清空输入框算出 100%、
         # 跨年度目标被 366 天截断成 0.3%、null 当 0 显示"未测量 0%"）。

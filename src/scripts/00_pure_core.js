@@ -1033,12 +1033,10 @@ function habitIntervalPlan(logDates, interval, skipDates, upto) {
   }
   return { due: due, miss: miss };
 }
-/* habitDueOn 的"循环内"版本：rr / created / skips 由调用方在循环外算好传进来。
- * 语义与 habitDueOn 完全一致，只省掉每天三次重复归一化（habitRepeatOf → normTodoRepeat）。
- * 只给 habitExpectedIn / habitCurrentStreak / habitBestStreak 用 ——
- * 那三处是「一天一天往前数」，一次统计能调上千次（实测 50 个习惯 47→83ms）。
- * 配额型不进这里：调用方已在外层按 habitIsQuota 分流掉了。 */
+/* habitDueOn 的"循环内"版本（语义由 tools/check_repeat_consistency.js 逐日对拍守住）：
+ * rr/created/skips 在循环外算好传进来，省掉每天三次重复归一化。配额型不进这里。 */
 function _habitDueFast(s, rr, skips, created) {
+  if (!isDateStrOk(s)) return false; /* 与 habitDueOn 对齐：非法日（如平年 2/29）两边都判 false */
   if (skips && skips[s]) return false;
   if (created && s < created) return false;
   if (!rr) return true;
@@ -3459,6 +3457,7 @@ function outboxMerge(list, uid, kind, op, at, cap) {
     isoWeekday: isoWeekday,
     normTodoRepeat: normTodoRepeat,
     todoRepeatMatches: todoRepeatMatches,
+    todoRepeatMatchesNorm: todoRepeatMatchesNorm,
     todoOccursOn: todoOccursOn,
     nextTodoRepeatDate: nextTodoRepeatDate,
     todoRepeatExpired: todoRepeatExpired,
@@ -3548,6 +3547,7 @@ function outboxMerge(list, uid, kind, op, at, cap) {
     habitFreqPerWeek: habitFreqPerWeek,
     habitRepeatOf: habitRepeatOf,
     habitDueOn: habitDueOn,
+    _habitDueFast: _habitDueFast, /* 仅供 check_repeat_consistency 对拍，业务勿调 */
     habitIntervalPlan: habitIntervalPlan,
     habitIsQuota: habitIsQuota,
     habitQuotaDueOn: habitQuotaDueOn,
