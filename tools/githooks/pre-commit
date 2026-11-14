@@ -11,16 +11,15 @@
 cd "$(git rev-parse --show-toplevel)" || exit 1
 
 # --diff-filter=ACMR：只看新增/修改/重命名，**排除删除(D)**。
-# 为什么：闸门 0 要拦的是"把单文件又加回仓库"，不是"把单文件删掉"。
-# 不带过滤器时，一次 git rm index.html 会被误判成违规入库，反而删不掉。
+# 为什么：闸门 1 判的是"产物过期、且这次没提交 public/"，一次 git rm 不该被当成"没提交"。
 staged=$(git diff --cached --name-only --diff-filter=ACMR)
 
-# 闸门 0：单文件产物不许入库（已停用；本地预览用 build.py --single 生成，别提交）。
-if echo "$staged" | grep -q '^index\.html$'; then
-  echo "[pre-commit] ❌ index.html 是单文件预览产物，已停用、不再入库。"
-  echo "             发布物是 public/。撤出暂存：git restore --staged index.html"
-  exit 1
-fi
+# 2026-11-14 删除「闸门 0：单文件 index.html 不许入库」。
+# 原判据是"发布物是 public/，根目录 index.html 只是单文件预览"——错的是判据本身：
+# GitHub Pages legacy 只从仓库根目录或 /docs 发布，本仓库 /docs 已放工程文档，
+# 所以站点**就是**根目录那份 index.html（线上一直如此）。判据错 → 拦的是正确操作，
+# 每次发版都得绕钩子（--no-verify 连闸门 1/2 一起关掉，风险更大）。
+# 删掉闸门 0 不降低保护：产物新鲜度由闸门 1、闸门 2 逐字节比对守住。
 
 # 闸门 1：产物必须与 src 一致（改法见闸门 2）。
 # 曾经这里判的是「staged 里有 src/ 就必须有 public/」，但那只在"每次改 src 都会改变产物"
