@@ -3,7 +3,7 @@
 """一键全绿链：gate → lint → build → check → pubsync → callgraph → layer → toc → docchain → size → ids → unit → catch → promise → [e2e · perf · viewport] → smoke（tomato=番茄计数单一口径门禁）
 用法:
   python3 tools/verify.py             # 全量（含 smoke ~1-2min）
-  python3 tools/verify.py --fast      # 快档（lint+check+unit，跳过 smoke，供 pre-commit/快速自检）
+  python3 tools/verify.py --fast      # 快档：**只跳过 smoke**，全部静态段照跑（含 pubsync/csstok/derived）
   python3 tools/verify.py --e2e       # 全量 + E2E 5 动线（e2e 先于 smoke 拆 01e 的每批基线）
   python3 tools/verify.py --strict    # 任一段没跑就判非零退出（发布前卡口）
   python3 tools/verify.py --json      # 结构化输出，AI 可直接解析后决定是否提交
@@ -260,6 +260,20 @@ def main():
         # 而它还额外挡住了每一次发版。真正在守数据与算法的两层（unit 1017 条 +
         # core 冒烟）从来没给过假红。要跑全量随时 `verify.py --full`。
         steps.append(("smoke", "python3 tools/run_smoke.py --tier core"))
+
+    # 快档不许悄悄瘦身（2026-11-14）。docstring 当时写的是「--fast（lint+check+unit，
+    # 跳过 smoke）」，有人据此判断"快档不含 pubsync"，于是认定发版路径没有产物一致性门禁。
+    # 代码没这么写（fast 只影响 smoke 一行），但一句错文档就能让人理直气壮地绕过检查。
+    # 这里把"快档必须有哪些段"写成可执行断言：以后谁把某段挪到 only-full 分支，立刻红，
+    # 而不是等下一次漏提交再回头查文档。
+    FAST_MUST = ("lint", "build", "check", "pubsync", "unit", "csstok", "derived")
+    if fast:
+        _have = {n for n, _c in steps}
+        _miss = [n for n in FAST_MUST if n not in _have]
+        if _miss:
+            print("✗ 快档缺段：%s —— --fast 只该跳过 smoke，不该跳过任何静态段"
+                  % "、".join(_miss))
+            return 1
 
     results = []
     for name, cmd in steps:
