@@ -80,6 +80,14 @@ if ! node tools/callgraph_ast.js --selfcheck >/dev/null 2>&1; then
   echo "             排查：node tools/callgraph_ast.js --selfcheck"
   exit 1
 fi
+# 顶层加载顺序：69 个脚本拼成一个 <script>，函数体调用与顺序无关，
+# 但顶层语句在加载期求值 —— 引用后面才定义的东西 = ReferenceError/TDZ。
+# 拆文件时最容易踩：把「被前面文件在顶层引用」的符号搬进新文件，产物字节不变、check 全绿。
+if ! python3 tools/check_toplevel_order.py >/dev/null 2>&1; then
+  echo "[pre-commit] ❌ 顶层加载顺序违例（引用了排在更后面的文件里的符号）。"
+  echo "             排查：python3 tools/check_toplevel_order.py -v"
+  exit 1
+fi
 # 文档「已挂链」清单必须与 tools/verify.py 一致（名单由脚本生成，人改不了）。
 if ! python3 tools/gen_verify_chain.py --check >/dev/null 2>&1; then
   echo "[pre-commit] ❌ AGENTS.md 的「已挂链」列表与 verify.py 不一致。"

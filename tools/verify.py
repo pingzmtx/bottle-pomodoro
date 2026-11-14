@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""一键全绿链：gate → lint → build → check → pubsync → callgraph → layer → toc → docchain → size → ids → unit → catch → promise → [e2e · perf · viewport] → smoke（tomato=番茄计数单一口径门禁）
+"""一键全绿链：gate → lint → build → check → pubsync → callgraph → tlorder → layer → toc → docchain → size → ids → unit → catch → promise → [e2e · perf · viewport] → smoke（tomato=番茄计数单一口径门禁）
 用法:
   python3 tools/verify.py             # 全量（含 smoke ~1-2min）
   python3 tools/verify.py --fast      # 快档：**只跳过 smoke**，全部静态段照跑（含 pubsync/csstok/derived）
@@ -97,6 +97,11 @@ def main():
         # 失败可定位：解析错误打「解析失败 <文件>: <行:列 原因>」，漏登记会列出文件名；
         # 两者都指到具体文件，不需要再手工二分。
         ("callgraph", "node tools/callgraph_ast.js --selfcheck"),
+        # 顶层加载顺序（2026-11-15）：69 个脚本拼成同一个 <script>，函数体互相调用
+        # 与顺序无关，但**顶层语句**在加载期就求值 —— 引用后面才定义的东西会直接
+        # ReferenceError/TDZ，而 --check 只比对字节、smoke 未必点到那条路径。
+        # 判据走 acorn AST（正则看不见跨行初始化表达式，实测正是它漏了第 4 条边）。
+        ("tlorder", "python3 tools/check_toplevel_order.py"),
         # 层依赖方向检查：硬违例（下层反向依赖上层）会 FAIL，挂门禁防架构腐化
         ("layer", "python3 tools/w6_layer.py"),
         # TOC 一致性：函数增删后索引必须同步，否则文档与代码脱节
@@ -266,7 +271,7 @@ def main():
     # 代码没这么写（fast 只影响 smoke 一行），但一句错文档就能让人理直气壮地绕过检查。
     # 这里把"快档必须有哪些段"写成可执行断言：以后谁把某段挪到 only-full 分支，立刻红，
     # 而不是等下一次漏提交再回头查文档。
-    FAST_MUST = ("lint", "build", "check", "pubsync", "unit", "csstok", "derived")
+    FAST_MUST = ("lint", "build", "check", "pubsync", "tlorder", "unit", "csstok", "derived")
     if fast:
         _have = {n for n, _c in steps}
         _miss = [n for n in FAST_MUST if n not in _have]
