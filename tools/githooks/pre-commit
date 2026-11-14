@@ -43,6 +43,20 @@ if ! python3 tools/build.py --check >/dev/null 2>&1; then
   exit 1
 fi
 
+# 闸门 3：发布物落地 —— public/ 与**仓库根目录**的同名产物逐字节比对。
+# 闸门 2 只证明「public/ 能由 src/ 精确重建」，它管不到「根目录那份线上站点更新了没」。
+# 这是两件事：build.py 只写 public/，而 Pages 发的是根目录。2026-11-14 实测两者
+# 漂了一整代（根目录 sw.js BUILD_ID=423fad73c0d3，public/ 是 2bfbe006368f），
+# 后果完全静默：CACHE 名不变 → 老用户永远命中旧缓存，P1 之后所有修复对他们没发出去；
+# PRECACHE 还指着已删除的 style.cb9ccd30ce86.css → 离线打开缺样式。
+# 判据双向：漏同步（public 有根目录没有/不同）与残骸（根目录有 public 不产）都拦。
+if ! python3 tools/check_public_sync.py >/dev/null 2>&1; then
+  echo "[pre-commit] ❌ 根目录产物与 public/ 不一致（发布物没落地，线上会发旧的）。"
+  echo "             排查：python3 tools/check_public_sync.py"
+  echo "             修法：python3 tools/promote.py && git add -A"
+  exit 1
+fi
+
 echo "[pre-commit] 跑快档全绿链（lint + check + unit + callgraph）..."
 if ! python3 tools/build.py --lint >/dev/null 2>&1; then
   echo "[pre-commit] ❌ lint 失败，提交被拦。"

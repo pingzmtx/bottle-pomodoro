@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""一键全绿链：gate → lint → build → check → callgraph → layer → toc → docchain → size → ids → unit → catch → promise → [e2e · perf · viewport] → smoke（tomato=番茄计数单一口径门禁）
+"""一键全绿链：gate → lint → build → check → pubsync → callgraph → layer → toc → docchain → size → ids → unit → catch → promise → [e2e · perf · viewport] → smoke（tomato=番茄计数单一口径门禁）
 用法:
   python3 tools/verify.py             # 全量（含 smoke ~1-2min）
   python3 tools/verify.py --fast      # 快档（lint+check+unit，跳过 smoke，供 pre-commit/快速自检）
@@ -78,6 +78,16 @@ def main():
         ("lint", "python3 tools/build.py --lint"),
         ("build", "python3 tools/build.py"),          # 2026-10-22：默认多产物 → public/
         ("check", "python3 tools/build.py --check"),   # 逐文件比对 public/ 与 src 重建结果
+        # 发布物落地（2026-11-14）：`check` 只证明 public/ 能由 src/ 精确重建，
+        # 它管不到「根目录那份线上站点是不是也更新了」。这两件事必须分开守：
+        # 实测漂了一整代 —— 根目录 sw.js 的 BUILD_ID 是 423fad73c0d3，public/ 是
+        # 2bfbe006368f，PRECACHE 还指着已删除的 style.cb9ccd30ce86.css。
+        # 后果是静默的：CACHE 名不变 → 老用户永远命中旧缓存，新版本等于没发；
+        # 预缓存清单指向不存在的文件 → 离线打开缺样式。23 个产物少同步一个，
+        # 页面看起来完全正常，没人会发现。所以判据要机器化，且必须双向：
+        #   ① public/ 有的，根目录必须逐字节相同（漏同步）；
+        #   ② 根目录有的，public/ 也必须产出（上次构建的残骸，会原样发上线）。
+        ("pubsync", "python3 tools/check_public_sync.py"),
         # 调用图自检（2026-11-14 从 pre-commit 提进链）：两条"不变量"——
         # ① 每个源文件必须能被 acorn 解析（拼进同一 <script> 前先证各自合法）
         # ② 每个模块必须在 LAYER 里登记层级（漏登记 = 依赖方向从此没人守）
