@@ -207,7 +207,7 @@ select.ios-chip { appearance: none; -webkit-appearance: none; }
 .ios-switch { position: relative; display: inline-block; width: 46px; height: 28px; flex: 0 0 auto; }
 .ios-switch input { opacity: 0; width: 0; height: 0; }
 .ios-switch-slider { position: absolute; inset: 0; background: var(--border); border-radius: var(--radius-full); transition: background .18s; }
-.ios-switch-slider:before { content: ""; position: absolute; width: 22px; height: 22px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform .18s; box-shadow: 0 1px 3px rgba(0, 0, 0, .25); }
+.ios-switch-slider:before { content: ""; position: absolute; width: 22px; height: 22px; left: 3px; top: 3px; background: var(--white); border-radius: 50%; transition: transform .18s; box-shadow: 0 1px 3px rgba(var(--black-rgb), .25); }
 .ios-switch input:checked + .ios-switch-slider { background: var(--primary); }
 .ios-switch input:checked + .ios-switch-slider:before { transform: translateX(18px); }
 .ios-row-del { border: none; background: transparent; color: var(--text-light); font-size: var(--fs-title); cursor: pointer; padding: 0 var(--sp-2); line-height: 1; }
@@ -367,7 +367,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
 .calendar-day.hm.lv1 { background: var(--hm1); color: #2b2118; }
 .calendar-day.hm.lv2 { background: var(--hm2); color: #2b2118; }
 .calendar-day.hm.lv3 { background: var(--hm3); color: #2b2118; }
-.calendar-day.hm.lv4 { background: var(--hm4); color: #fff; }
+.calendar-day.hm.lv4 { background: var(--hm4); color: var(--white); }
 /* 有记录但 0 番茄（纯补记）：空心描边，别看起来像空白 */
 .calendar-day.hm.lv0.hasrec { box-shadow: inset 0 0 0 1.5px var(--hm1); }
 /* 这天有**一次性**计划的排期：右上角一个点。循环计划不点（天天都在，点了没信息） */
@@ -375,7 +375,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
   content: ''; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px;
   border-radius: 50%; background: var(--primary);
 }
-.calendar-day.hm.lv4.has-plan::after { background: #fff; }
+.calendar-day.hm.lv4.has-plan::after { background: var(--white); }
 .calendar-search { width: 100%; padding: var(--sp-8); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size:var(--fs-title); margin-bottom: var(--sp-10); }
 .calendar-search-results { max-height: 120px; overflow-y: auto; margin-bottom: var(--sp-10); }
 .calendar-search-item { padding: var(--sp-8) var(--sp-10); border-bottom: 1px solid #eee; font-size:var(--fs-title); cursor: pointer; }
@@ -487,7 +487,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
   position: fixed; right: 14px; bottom: 88px; z-index: 50;
   width: 46px; height: 46px; border-radius: 50%;
   background: var(--fill-primary); color: var(--on-fill); font-size:var(--fs-h1); font-weight: 900;
-  border: none; box-shadow: 0 3px 12px rgba(0,0,0,.28);
+  border: none; box-shadow: 0 3px 12px rgba(var(--black-rgb),.28);
   align-items: center; justify-content: center;
   cursor: pointer; transition: transform .15s;
 }
@@ -552,7 +552,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
 .logcal-day.lv1{background:var(--hm1);color:#2b2118;font-weight:700}
 .logcal-day.lv2{background:var(--hm2);color:#2b2118;font-weight:700}
 .logcal-day.lv3{background:var(--hm3);color:#2b2118;font-weight:700}
-.logcal-day.lv4{background:var(--hm4);color:#fff;font-weight:700}
+.logcal-day.lv4{background:var(--hm4);color:var(--white);font-weight:700}
 .logcal-day.sel{box-shadow:inset 0 0 0 2px var(--text)}
 .logcal-day .logcal-d{display:block;font-size:var(--fs-title)}
 .logcal-day .logcal-n{display:block;font-size:var(--fs-micro);opacity:.9;font-weight: 500}

@@ -811,7 +811,7 @@ body.dark-mode .tf-actions, body.dark-mode .tf-subs { border-color: var(--border
   border-radius: var(--radius-md);
   overflow: hidden;
   /* 只有一层几乎看不见的投影托住"这是浮在页面上的"，不叠描边 */
-  box-shadow: 0 1px 2px rgba(20,26,48,.05);
+  box-shadow: 0 1px 2px rgba(var(--shadow-rgb),.05);
 }
 .lg-card {
   padding: var(--sp-14);
@@ -1130,7 +1130,7 @@ body.dark-mode .tf-actions, body.dark-mode .tf-subs { border-color: var(--border
 .lg-ms-ok {
   flex: 0 0 auto; height: 40px; padding: 0 var(--sp-12);
   border: 0; border-radius: var(--radius-sm);
-  background: var(--primary); color: #fff;
+  background: var(--primary); color: var(--on-primary);
   font-size: var(--fs-note); font-weight: var(--fw-semibold);
   -webkit-tap-highlight-color: transparent;
 }
@@ -1228,7 +1228,7 @@ body.dark-mode .tf-actions, body.dark-mode .tf-subs { border-color: var(--border
   background: var(--card);
   color: var(--text);
   font-weight: 600;
-  box-shadow: 0 1px 2px rgba(20,26,48,.12);
+  box-shadow: 0 1px 2px rgba(var(--shadow-rgb),.12);
 }
 body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 
@@ -1377,7 +1377,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 .lw-tick.on::after {
   content: ''; position: absolute; left: 6px; top: 2.5px;
   width: 5px; height: 10px;
-  border: solid var(--on-primary, #fff); border-width: 0 1.6px 1.6px 0;
+  border: solid var(--on-primary); border-width: 0 1.6px 1.6px 0;
   transform: rotate(45deg);
 }
 .lw-t {
@@ -1516,7 +1516,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
   width: 32px; height: 32px;
   display: flex; align-items: center; justify-content: center;
   border: 1px solid var(--hairline); border-radius: 50%;
-  background: transparent; color: var(--on-primary, #fff);
+  background: transparent; color: var(--on-primary);
   font-size: var(--fs-caption); line-height: 1; cursor: pointer;
 }
 .lg-cp-done.on { background: var(--green); border-color: var(--green); }
@@ -1797,7 +1797,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 .lg-card.lg-dragging {
   opacity: .92;
   background: var(--card);
-  box-shadow: var(--shadow-lg, 0 8px 20px rgba(0, 0, 0, .14));
+  box-shadow: var(--shadow-lg, 0 8px 20px rgba(var(--black-rgb), .14));
   border-radius: var(--radius);
 }
 
@@ -2077,7 +2077,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
   font-variant-numeric: tabular-nums;
   -webkit-tap-highlight-color: transparent;
 }
-.lgrid-ys.on { background: var(--primary); color: #fff; }
+.lgrid-ys.on { background: var(--primary); color: var(--on-primary); }
 
 /* 展厅里的两行小字：快照（那年冻结的数字）和「那年没安排」。
    它们都是旁注，和进度百分比同量级，不做成徽章。 */
@@ -2620,7 +2620,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
   background: linear-gradient(180deg, var(--surface-2), var(--card));
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+  box-shadow: 0 1px 2px rgba(var(--black-rgb), .04);
 }
 .ppc-eq {
   display: grid;

@@ -163,7 +163,7 @@
 .timer-wallpaper { z-index: -1; }
 #view-timer { position: relative; isolation: isolate; }
 /* 开启壁纸时：把计时页的卡片/按钮变半透明，让壁纸从底下透出来，才是真正的壁纸效果 */
-#view-timer.has-wallpaper .timer-circle { background: rgba(255,255,255,.62); }
+#view-timer.has-wallpaper .timer-circle { background: rgba(var(--white-rgb),.62); }
 #view-timer.has-wallpaper .btn-start { background: rgba(212,237,218,.62); }
 #view-timer.has-wallpaper .btn-finish { background: rgba(209,236,241,.62); }
 #view-timer.has-wallpaper .btn-interrupt { background: rgba(255,243,205,.62); }
@@ -172,8 +172,8 @@
 #view-timer.has-wallpaper .current-todo-section,
 #view-timer.has-wallpaper .today-stats,
 #view-timer.has-wallpaper .timer-rank-strip,
-#view-timer.has-wallpaper .timer-badge.show { background: rgba(255,255,255,.62); }
-#view-timer.has-wallpaper .current-todo-select { background: rgba(255,255,255,.7); }
+#view-timer.has-wallpaper .timer-badge.show { background: rgba(var(--white-rgb),.62); }
+#view-timer.has-wallpaper .current-todo-select { background: rgba(var(--white-rgb),.7); }
 /* 商店皮肤滑杆 */
 .skin-slider { display: flex; align-items: center; gap: var(--sp-8); margin-top: var(--sp-6); }
 .skin-slider .ss-label { font-size:var(--fs-caption); color: var(--text-light); font-weight: 500; white-space: nowrap; min-width: 52px; }
@@ -193,7 +193,7 @@
   display: none;
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   z-index: 300;
-  background: rgba(0,0,0,0.28);
+  background: rgba(var(--black-rgb),0.28);
   cursor: grab;
   touch-action: none;
   overflow: hidden;
@@ -201,9 +201,9 @@
 #skinDragModal.show { display: block; }
 #skinDragRing {
   position: absolute;
-  border: 2px dashed rgba(255,255,255,0.95);
+  border: 2px dashed rgba(var(--white-rgb),0.95);
   border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(0,0,0,0.35), 0 0 18px rgba(255,255,255,0.35) inset;
+  box-shadow: 0 0 0 4px rgba(var(--black-rgb),0.35), 0 0 18px rgba(var(--white-rgb),0.35) inset;
   pointer-events: none;
   display: none;
   animation: dragRingPulse 1.2s ease-in-out infinite;
@@ -213,11 +213,11 @@
   /* 父级 #skinDragModal 是 touch-action:none，会让滑杆/按钮的原生触摸行为失效，这里单独放开 */
   touch-action: auto;
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 301;
-  background: rgba(255,255,255,0.96);
+  background: rgba(var(--white-rgb),0.96);
   border-top: 1px solid var(--border);
   border-radius: var(--radius-md) var(--radius-md) 0 0;
   padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-  box-shadow: 0 -4px 14px rgba(0,0,0,0.18);
+  box-shadow: 0 -4px 14px rgba(var(--black-rgb),0.18);
 }
 #skinDragBar .sdb-title { font-size:var(--fs-body); font-weight: 600; color: var(--text); margin-bottom: var(--sp-4); }
 #skinDragBar .sdb-tip { font-size:var(--fs-caption); color: var(--text-light); line-height: 1.5; margin-bottom: var(--sp-8); }
@@ -247,14 +247,14 @@
   background:
     radial-gradient(circle at 80% 16%, rgba(255,236,150,.9) 0%, transparent 22%),
     linear-gradient(180deg,#7EC8F0 0%,#B3E5FC 32%,transparent 50%),
-    repeating-linear-gradient(108deg, rgba(255,255,255,.35) 0 6px, transparent 6px 16px),
+    repeating-linear-gradient(108deg, rgba(var(--white-rgb),.35) 0 6px, transparent 6px 16px),
     linear-gradient(180deg,#FBE38B 46%,#F5D56B 78%,#EEC94F 100%);
 }
 /* 海边（平价）：碧海蓝天 + 沙滩 */
 .tree-scene.scene-sea {
   background:
-    radial-gradient(circle at 22% 10%, rgba(255,255,255,.95) 0 14px, rgba(255,255,255,.55) 15px 20px, transparent 21px),
-    radial-gradient(circle at 55% 13%, rgba(255,255,255,.7) 0 10px, transparent 11px),
+    radial-gradient(circle at 22% 10%, rgba(var(--white-rgb),.95) 0 14px, rgba(var(--white-rgb),.55) 15px 20px, transparent 21px),
+    radial-gradient(circle at 55% 13%, rgba(var(--white-rgb),.7) 0 10px, transparent 11px),
     linear-gradient(180deg,#5FB6E0 0%,#8FD0EE 34%,#BFE9F5 56%,#FFF0C9 84%,#F7DCA8 100%);
 }
 /* 星空（热门）：深空星点阵 + 月夜（星星闪烁由 deco 的 twinkle 承担，避免整背景 filter 动画卡顿） */
@@ -271,7 +271,7 @@
 /* 雪原（高级）：冷白雪景 + 远山 */
 .tree-scene.scene-snow {
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.9), transparent 55%),
+    radial-gradient(ellipse at 50% 0%, rgba(var(--white-rgb),.9), transparent 55%),
     linear-gradient(180deg,#C9D8F0 0%,#E8EEFA 40%,#D6E4F8 100%);
 }
 .scene-snow .tree-visual-wrap { filter: drop-shadow(0 2px 4px rgba(120,140,180,.35)); }
@@ -421,8 +421,8 @@
   pointer-events: none;
   white-space: nowrap;
 }
-.tree-decor { font-size:var(--fs-sub); filter: drop-shadow(0 2px 2px rgba(0,0,0,.25)); }
-.tree-mood { position: absolute; top: -14px; right: -6px; font-size:var(--fs-h1); animation: pulse 2s infinite; filter: drop-shadow(0 1px 2px rgba(0,0,0,.2)); }
+.tree-decor { font-size:var(--fs-sub); filter: drop-shadow(0 2px 2px rgba(var(--black-rgb),.25)); }
+.tree-mood { position: absolute; top: -14px; right: -6px; font-size:var(--fs-h1); animation: pulse 2s infinite; filter: drop-shadow(0 1px 2px rgba(var(--black-rgb),.2)); }
 .tree-bubble {
   position: absolute;
   top: -34px;

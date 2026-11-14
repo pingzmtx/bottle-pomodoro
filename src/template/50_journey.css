@@ -4,20 +4,20 @@
 
 /* ① 段位条降噪：半透明融入背景、细边框、去硬阴影 → 视觉重心回表盘 */
 .timer-rank-strip {
-  background: rgba(255,255,255,.42);
-  border: 1px solid rgba(0,0,0,.08);
-  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  background: rgba(var(--white-rgb),.42);
+  border: 1px solid rgba(var(--black-rgb),.08);
+  box-shadow: 0 1px 4px rgba(var(--black-rgb),.04);
   padding: var(--sp-6) var(--sp-10);
   border-radius: var(--radius-md);
 }
 body.dark-mode .timer-rank-strip {
-  background: rgba(255,255,255,.045);
-  border-color: rgba(255,255,255,.09);
+  background: rgba(var(--white-rgb),.045);
+  border-color: rgba(var(--white-rgb),.09);
   box-shadow: none;
 }
 
 /* ② 深色模式阴影软化：硬边阴影 → 柔和纵深（只影响深色，浅色保留品牌硬边） */
-body.dark-mode { --shadow: 0 5px 16px rgba(0,0,0,.35); }
+body.dark-mode { --shadow: 0 5px 16px rgba(var(--black-rgb),.35); }
 
 /* ③ 深色弹层毛玻璃：仅支持 backdrop-filter 的环境生效；弹层低频出现，性能可忽略 */
 @supports (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px)) {
@@ -26,7 +26,7 @@ body.dark-mode { --shadow: 0 5px 16px rgba(0,0,0,.35); }
     background: rgba(30,34,62,.74);
     -webkit-backdrop-filter: blur(16px) saturate(1.1);
     backdrop-filter: blur(16px) saturate(1.1);
-    box-shadow: 0 10px 34px rgba(0,0,0,.4);
+    box-shadow: 0 10px 34px rgba(var(--black-rgb),.4);
   }
 }
 
@@ -39,8 +39,8 @@ body.dark-mode { --shadow: 0 5px 16px rgba(0,0,0,.35); }
   animation: cdPop 1s var(--ease-out) both, cdBreath 1.4s ease-in-out infinite;
 }
 @keyframes cdBreath {
-  0%,100% { text-shadow: 0 0 3px rgba(255,255,255,.10); }
-  50%     { text-shadow: 0 0 10px rgba(255,255,255,.38), 0 0 20px rgba(255,255,255,.12); }
+  0%,100% { text-shadow: 0 0 3px rgba(var(--white-rgb),.10); }
+  50%     { text-shadow: 0 0 10px rgba(var(--white-rgb),.38), 0 0 20px rgba(var(--white-rgb),.12); }
 }
 
 /* ⑥ 深色模式：树场景/抽奖不再“亮瞎眼”——换暗色渐变，去掉浅黄补丁感 */
@@ -75,7 +75,7 @@ body.dark-mode .tree-lottery-count { background:#241f10; border-color:#66531f; }
 .timer-rank-strip .trs-bar .trs-fill::after{
   content:''; position:absolute; top:0; bottom:0; left:-45%;
   width:34%;
-  background: linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.6) 50%, rgba(255,255,255,0) 100%);
+  background: linear-gradient(100deg, rgba(var(--white-rgb),0) 0%, rgba(var(--white-rgb),.6) 50%, rgba(var(--white-rgb),0) 100%);
   animation: f6-sheen 2.6s ease-in-out infinite;
   pointer-events:none;
 }
@@ -718,7 +718,7 @@ body.dark-mode[data-theme="catppuccin"] {
   border: 1px solid transparent; background: none;
 }
 .habit-cal-cell.blank { border-color: transparent; background: none; }
-.habit-cal-cell.on { background: var(--primary); border-color: var(--primary-dark); color: var(--on-fill, #fff); font-weight: 600; }
+.habit-cal-cell.on { background: var(--primary); border-color: var(--primary-dark); color: var(--on-fill); font-weight: 600; }
 /* 该做没做：靠"有框"而不是"有底色"—— 深色下 --surface-2 与卡片底几乎同色，
    只有 1px 边框是两种主题都看得见的信号 */
 .habit-cal-cell.miss { border-color: var(--border-strong); color: var(--text); font-weight: 600; }

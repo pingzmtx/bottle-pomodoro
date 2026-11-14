@@ -49,7 +49,7 @@
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(255,255,255,0.28);
+  background: rgba(var(--white-rgb),0.28);
   border: 1px solid var(--white);
   color: var(--white);
   padding: var(--sp-4) var(--sp-10);
@@ -62,13 +62,13 @@
   min-height: 30px;
   min-width: 46px;
   /* 硬偏移投影（0 Npx 0）是贴纸风语汇，全站已收口成柔影 */
-  box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+  box-shadow: 0 1px 2px rgba(var(--black-rgb),0.18);
   transition: transform .1s, background .1s;
 }
 .header .header-btn::after { content: ''; position: absolute; top:-10px;right:-8px;bottom:-10px;left:-8px }
 .header .header-btn:active {
   transform: translateY(-50%) scale(0.93);
-  background: rgba(255,255,255,0.45);
+  background: rgba(var(--white-rgb),0.45);
 }
 /* 快捷功能面板：白噪音 / 沉浸 / 极简 三合一入口 */
 .header .quick-panel {
@@ -95,15 +95,15 @@
   color: var(--text); font-size:var(--fs-body); font-weight: 600;
   border: 1px solid transparent;
 }
-.quick-panel .qp-item:active { background: rgba(0,0,0,.06); }
+.quick-panel .qp-item:active { background: rgba(var(--black-rgb),.06); }
 .quick-panel .qp-item .qp-ico { font-size:var(--fs-title); width: 26px; text-align: center; flex-shrink: 0; }
 .quick-panel .qp-item .qp-name { flex: 1; }
 .quick-panel .qp-item .qp-go { color: var(--text-light); font-size:var(--fs-sub); line-height: 1; }
 .quick-panel .qp-item .qp-state { font-size:var(--fs-caption); font-weight: 500; color: var(--text-light); padding: var(--sp-2) var(--sp-8); border-radius: var(--radius-full); background: var(--bg); border: 1px solid var(--border); flex-shrink: 0; }
 .quick-panel .qp-item.on { background: rgba(var(--primary-rgb),.08); border-color: rgba(var(--primary-rgb),.35); }
 .quick-panel .qp-item.on .qp-state { background: var(--fill-primary); border-color: var(--fill-primary); color: var(--on-fill); }
-body.dark-mode .quick-panel { background: #232640; border-color: #33355e; box-shadow: 0 6px 24px rgba(0,0,0,.45); }
-body.dark-mode .quick-panel .qp-item:active { background: rgba(255,255,255,.08); }
+body.dark-mode .quick-panel { background: #232640; border-color: #33355e; box-shadow: 0 6px 24px rgba(var(--black-rgb),.45); }
+body.dark-mode .quick-panel .qp-item:active { background: rgba(var(--white-rgb),.08); }
 .header .header-touch {
   position: absolute;
   right: 0; top: 0;
@@ -165,7 +165,7 @@ body.dark-mode .flow-dur-switch .fds-hint { color: #9aa5c0; }
 .timer-tree-companion { position: absolute; bottom: -6px; right: -6px; z-index: 5; cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; }
 .timer-tree-companion:active { cursor: grabbing; }
 .timer-tree-companion .timer-tree-inner { display: inline-block; cursor: pointer; padding: var(--sp-2) var(--sp-4); background: transparent; border: none; border-radius: 0; position: relative; text-align: center; line-height: 1.15; box-shadow: none; }
-.timer-tree-companion .timer-tree-close { position: absolute; top: -7px; right: -9px; width: 18px; height: 18px; line-height: 16px; text-align: center; font-size:var(--fs-caption); font-weight: 500; color: var(--white); background: rgba(0,0,0,0.45); border-radius: 50%; cursor: pointer; z-index: 12; user-select: none; opacity: 0; transition: opacity .2s; }
+.timer-tree-companion .timer-tree-close { position: absolute; top: -7px; right: -9px; width: 18px; height: 18px; line-height: 16px; text-align: center; font-size:var(--fs-caption); font-weight: 500; color: var(--white); background: rgba(var(--black-rgb),0.45); border-radius: 50%; cursor: pointer; z-index: 12; user-select: none; opacity: 0; transition: opacity .2s; }
 .timer-tree-companion:hover .timer-tree-close, .timer-tree-companion.show-close .timer-tree-close { opacity: 1; }
 .timer-tree-companion.dragging { opacity: 0.85; }
 .timer-circle {
@@ -444,9 +444,9 @@ body.dark-mode .badge-card[style*="#FFD5D5"], body.dark-mode .badge-card[style*=
    （弹窗收编后危险按钮改用 .modal-btn.danger 类，这里同步补类选择器） */
 body.dark-mode [style*="background:#FFD5D5"],
 body.dark-mode .modal-btn.danger,
-body.dark-mode .btn-danger { background:#6b1f1f !important; color:#ffc9bd !important; border-color:#a24a40 !important; }
-body.dark-mode [style*="background:#FFF3CD"] { background:#4a3c16 !important; }
-body.dark-mode [style*="background:var(--ok-bg)"] { background:#17331c !important; }
+body.dark-mode .btn-danger { background:var(--danger-bg) !important; color:#ffc9bd !important; border-color:#a24a40 !important; }
+body.dark-mode [style*="background:#FFF3CD"] { background:var(--warn-bg) !important; }
+body.dark-mode [style*="background:var(--ok-bg)"] { background:var(--ok-bg) !important; }
 body.dark-mode [style*="background:#FDF0EF"] { background:#351b19 !important; }
 /* 完成打勾微动效：轻 pop，完成瞬间有反馈感 */
 .todo-checkbox.checked svg,
@@ -486,8 +486,8 @@ body.dark-mode [style*="background:#FDF0EF"] { background:#351b19 !important; }
 .timer-badge .tb-name { font-size:var(--fs-note); font-weight: 600; line-height: 1.2; text-align: center; }
 .timer-badge .tb-state { font-size:var(--fs-tiny); font-weight: 500; border-radius: var(--radius-full); padding: var(--sp-2) var(--sp-8); background: var(--bg); border: 1px solid var(--border); white-space: nowrap; }
 /* 深色模式：徽章底压暗 + 柔和投影，浅色战标底不再刺眼 */
-body.dark-mode .timer-badge.show { background: rgba(24,28,50,.92) !important; box-shadow: 0 2px 12px rgba(0,0,0,.35); }
-body.dark-mode .timer-badge .tb-icon { filter: drop-shadow(0 0 5px rgba(255,255,255,.22)); }
+body.dark-mode .timer-badge.show { background: rgba(24,28,50,.92) !important; box-shadow: 0 2px 12px rgba(var(--black-rgb),.35); }
+body.dark-mode .timer-badge .tb-icon { filter: drop-shadow(0 0 5px rgba(var(--white-rgb),.22)); }
 @keyframes badgePop { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
 
 /* 独孤求败（原荣耀标）流光动画 */
@@ -497,7 +497,7 @@ body.dark-mode .timer-badge .tb-icon { filter: drop-shadow(0 0 5px rgba(255,255,
   position: absolute;
   top: 0; left: -100%;
   width: 60%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(var(--white-rgb),0.5), transparent);
   animation: gloryFlow 2.5s ease-in-out 3;
   animation-fill-mode: forwards;
 }
@@ -565,7 +565,7 @@ body.dark-mode .timer-badge .tb-icon { filter: drop-shadow(0 0 5px rgba(255,255,
 .bd-science b { color: var(--yellow-ink); }
 .bd-tabs { display: inline-flex; background: var(--bg); border-radius: var(--radius-full); padding: var(--sp-2); margin-bottom: var(--sp-12); }
 .bd-tab-btn { font-size:var(--fs-body); font-weight: 600; padding: var(--sp-6) var(--sp-14); border-radius: var(--radius-full); border: none; background: transparent; color: var(--text-light); cursor: pointer; transition: all 0.25s; }
-.bd-tab-btn.active { background: var(--card); color: var(--primary-ink); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+.bd-tab-btn.active { background: var(--card); color: var(--primary-ink); box-shadow: 0 2px 6px rgba(var(--black-rgb),0.08); }
 .bd-card {
   background: var(--bg);
   border: 1px solid var(--border);

@@ -1,62 +1,77 @@
 {
   "01_fonts.css": {
     "hex": 0,
-    "rgb": 0
+    "rgb": 0,
+    "func": 0
   },
   "01b_font_title.css": {
     "hex": 0,
-    "rgb": 0
+    "rgb": 0,
+    "func": 0
   },
   "01b_font_wenkai.css": {
     "hex": 0,
-    "rgb": 0
+    "rgb": 0,
+    "func": 0
   },
   "10_tokens.css": {
     "hex": 0,
-    "rgb": 0
+    "rgb": 0,
+    "func": 0
   },
   "11_layout_timer.css": {
-    "hex": 23,
-    "rgb": 36
+    "hex": 20,
+    "rgb": 25,
+    "func": 0
   },
   "12_components.css": {
     "hex": 0,
-    "rgb": 10
+    "rgb": 2,
+    "func": 0
   },
   "13_plan.css": {
-    "hex": 4,
-    "rgb": 8
+    "hex": 0,
+    "rgb": 4,
+    "func": 0
   },
   "14_log_stats.css": {
-    "hex": 25,
-    "rgb": 8
+    "hex": 21,
+    "rgb": 6,
+    "func": 0
   },
   "15_tree.css": {
     "hex": 49,
-    "rgb": 26
+    "rgb": 10,
+    "func": 0
   },
   "16_timeblock.css": {
     "hex": 13,
-    "rgb": 2
+    "rgb": 0,
+    "func": 0
   },
   "17_rank_team.css": {
     "hex": 14,
-    "rgb": 3
+    "rgb": 0,
+    "func": 0
   },
   "18_settings.css": {
     "hex": 9,
-    "rgb": 2
+    "rgb": 0,
+    "func": 0
   },
   "19_immersive.css": {
     "hex": 20,
-    "rgb": 40
+    "rgb": 18,
+    "func": 0
   },
   "1A_dark_misc.css": {
     "hex": 133,
-    "rgb": 103
+    "rgb": 59,
+    "func": 0
   },
   "50_journey.css": {
-    "hex": 23,
-    "rgb": 14
+    "hex": 22,
+    "rgb": 2,
+    "func": 0
   }
 }

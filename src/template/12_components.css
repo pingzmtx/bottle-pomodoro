@@ -80,7 +80,7 @@
   display: none;
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(var(--black-rgb),0.5);
   z-index: 200;
   padding: var(--sp-20);
   overflow-y: auto;
@@ -287,7 +287,7 @@ textarea.rs-input { resize: vertical; }
   font-size:var(--fs-body);
   font-weight: 600;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(var(--black-rgb),0.2);
   opacity: 0;
   transform: translateY(-12px);
   transition: opacity 0.3s, transform 0.3s;
@@ -303,7 +303,7 @@ textarea.rs-input { resize: vertical; }
   font-size:var(--fs-title);
   font-weight: 800;
   border-radius: var(--radius);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 16px rgba(var(--black-rgb),0.25);
 }
 .toast-item.show { opacity: 1; transform: translateY(0); }
 
@@ -322,7 +322,7 @@ textarea.rs-input { resize: vertical; }
   border: 1px solid var(--primary);
   border-radius: var(--radius-lg);
   padding: var(--sp-16) var(--sp-16) var(--sp-14);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  box-shadow: 0 12px 40px rgba(var(--black-rgb),0.35);
   transform: scale(0.92) translateY(12px);
   transition: transform 0.28s var(--ease-spring);
   max-height: 74vh; overflow-y: auto;
@@ -343,10 +343,10 @@ textarea.rs-input { resize: vertical; }
 
 /* ===== 转盘抽奖 ===== */
 .wheel-wrap { position: relative; width: 240px; height: 240px; margin: 6px auto; }
-.wheel { width: 240px; height: 240px; border-radius: 50%; border: 4px solid var(--primary); box-shadow: 0 0 14px rgba(0,0,0,.2), inset 0 0 0 2px var(--white); background: var(--white); overflow: hidden; transform: rotate(0deg); }
+.wheel { width: 240px; height: 240px; border-radius: 50%; border: 4px solid var(--primary); box-shadow: 0 0 14px rgba(var(--black-rgb),.2), inset 0 0 0 2px var(--white); background: var(--white); overflow: hidden; transform: rotate(0deg); }
 .wheel.spinning { transition: transform 3.2s cubic-bezier(.18,.82,.2,1); }
 .wheel svg { display: block; }
-.wheel-pointer { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: calc(26px * var(--fs-boost)); color: var(--primary-ink); z-index: 2; text-shadow: 0 0 4px var(--white), 0 2px 4px rgba(0,0,0,.25); line-height: 1; }
+.wheel-pointer { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: calc(26px * var(--fs-boost)); color: var(--primary-ink); z-index: 2; text-shadow: 0 0 4px var(--white), 0 2px 4px rgba(var(--black-rgb),.25); line-height: 1; }
 
 /* 自动保存提示 */
 .auto-save-hint {
@@ -354,7 +354,7 @@ textarea.rs-input { resize: vertical; }
   top: 70px; right: 16px;
   font-size:var(--fs-title);
   color: var(--text-light);
-  background: rgba(255,255,255,0.9);
+  background: rgba(var(--white-rgb),0.9);
   padding: var(--sp-4) var(--sp-10);
   border-radius: var(--radius-xs);
   z-index: 150;
@@ -393,7 +393,7 @@ body.kb-open .bottom-nav { display: none; }
   background: var(--card);
   border: 1px solid var(--primary);
   border-radius: var(--radius-md);
-  box-shadow: 0 8px 28px rgba(0,0,0,.18);
+  box-shadow: 0 8px 28px rgba(var(--black-rgb),.18);
   padding: var(--sp-10) var(--sp-12) var(--sp-8);
   z-index: 150;   /* 低于弹窗层(200)，引导条显示时打开弹窗不会被它盖住 */
   flex-direction: column;

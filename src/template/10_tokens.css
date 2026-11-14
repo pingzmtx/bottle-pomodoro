@@ -63,6 +63,24 @@
   --text-light: #47576A; /* 辅助小字同步加深（白底 5.4:1 → 7.2:1），
                             原先卡在 AA 的 4.7~5.3 边缘，楷体一细就接近看不清 */
 
+  /* ===== 文本三级（P1，2026-11-14）=====
+     为什么补：中性色此前只有 --text / --text-light 两档，于是「更弱的说明字」
+     只能临时写字面量 —— 实测 172 处中性色里 31 处是文字色，
+     用到的灰阶有 #eee/#999/#666/#ccc/#ddd/#f0f0f0 六种以上，属「缺词汇」。
+     ★ 值一律**派生**，不写第二份常量：皮肤块覆盖 --text / --text-light / --ink-mute 时，
+       这三档在用到的地方解析，自动跟随 —— 所以 10 个皮肤块不用各写一遍。
+     ★ 只在「文字（color）」上用。边框请用 --border / --border-strong（已存在，不另造
+       --line-1/2：同语义再造一套就是制造第二份词汇表）。 */
+  --text-1: var(--text);        /* 主文本：标题、正文 */
+  --text-2: var(--text-light);  /* 次要：说明、辅助信息 */
+  --text-3: var(--ink-mute, #7B88A1); /* 更弱：时间戳、占位、单位后缀 */
+
+  /* ===== 遮罩（P1）=====
+     语义是「压暗底下的一切」，深浅色下都成立，所以固定黑 + 透明度档位
+     （不随主题翻转；--black 也是 E0 固定黑，同理）。 */
+  --overlay: rgba(var(--black-rgb), .5);       /* 弹窗遮罩：原来写死 rgba(var(--black-rgb),0.5) */
+  --overlay-soft: rgba(var(--black-rgb), .32); /* 轻遮罩：抽屉/浮层的次级压暗 */
+
   /* ===== 字重令牌 =====
      层级由「字重 + 字号 + 行高」三者共同构成，只靠字号不够：全场同一字重会让
      界面失去主次，读起来像一张加粗海报。正文用常规字重，粗体只留给真正的强调。
@@ -93,7 +111,7 @@
   --alpha-hairline: .07;   /* 卡片内分割线，比 --border 轻一档 */
   /* 投影模拟光源而非纸张：带模糊、低透明度、垂直向下的偏移才像"浮起"；
      无模糊的纯色偏移投影（`Npx Npx 0`）会把元素画成一张贴纸，抢注意力。 */
-  --shadow: 0 1px 2px rgba(20,26,48,0.06), 0 2px 8px rgba(20,26,48,0.06);
+  --shadow: 0 1px 2px rgba(var(--shadow-rgb),0.06), 0 2px 8px rgba(var(--shadow-rgb),0.06);
   --radius: 8px;
   --work: #E85D3A;
   --short-break: #5CB85C;
@@ -128,10 +146,20 @@
   --transition-spring: all var(--dur-s) var(--ease-spring);
   /* ========== 阴影层级 ==========
      层级由「模糊半径 + 透明度」区分，不由偏移像素数区分。 */
-  --shadow-sm: 0 1px 2px rgba(20,26,48,0.07);
-  --shadow-md: 0 2px 6px rgba(20,26,48,0.08), 0 1px 2px rgba(20,26,48,0.05);
-  --shadow-lg: 0 12px 32px rgba(20,26,48,0.18);
-  --shadow-xl: 0 20px 48px rgba(20,26,48,0.28);
+  /* 阴影基色的 RGB 分量：--shadow / -sm / -md / -lg / -xl 全用 rgba(var(--shadow-rgb),a)，
+     组件里另有 32 处零散写了同色阴影 —— 补分量令牌，让它们能写成
+     rgba(var(--shadow-rgb), a) 而不是再写一遍 20,26,48。 */
+  --shadow-rgb: 20, 26, 48;
+  /* 白/黑的分量：组件里有 69 处 rgba(var(--white-rgb),a)、45 处 rgba(var(--black-rgb),a)。
+     它们和 --white/--black 同性质（E0 固定，不随主题翻转），只是被写成了数字。
+     换成 rgba(var(--white-rgb), a) 后渲染值一模一样，但下次要调整白/黑倾向时
+     只改一处。 */
+  --white-rgb: 255, 255, 255;
+  --black-rgb: 0, 0, 0;
+  --shadow-sm: 0 1px 2px rgba(var(--shadow-rgb),0.07);
+  --shadow-md: 0 2px 6px rgba(var(--shadow-rgb),0.08), 0 1px 2px rgba(var(--shadow-rgb),0.05);
+  --shadow-lg: 0 12px 32px rgba(var(--shadow-rgb),0.18);
+  --shadow-xl: 0 20px 48px rgba(var(--shadow-rgb),0.28);
   --focus-ring: 0 0 0 3px rgba(var(--primary-rgb),0.28);
   /* ========== 圆角层级 ========== */
   --radius-xs: 4px;   /* 圆角收口：19 种 → 7 档，详见 tools/w6_scale.py 头部 */
