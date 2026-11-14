@@ -1462,7 +1462,7 @@
       '<button class="btn-small" type="button" id="enhCompanionTest" style="font-size:var(--fs-note);padding:var(--sp-2) var(--sp-10);flex-shrink:0">▶ 试听</button></div>' +
       '<div id="enhCompanionHint" style="font-size:var(--fs-caption);line-height:1.5;color:var(--text-light);padding:0 var(--sp-4) var(--sp-8);border-bottom:1px solid var(--border)"></div>' +
       '<div style="display:flex;align-items:center;gap:var(--sp-10);padding:var(--sp-8) var(--sp-4) var(--sp-2)"><span style="font-size:var(--fs-note);color:var(--text-light);flex-shrink:0">嗓音</span>' +
-      '<select id="enhVoicePick" class="input-inline" style="flex:1;min-width:0;font-size:var(--fs-note);padding:var(--sp-3) var(--sp-6)"><option value="">系统默认</option></select></div>' +
+      '<select id="enhVoicePick" class="input-inline" style="flex:1;min-width:0;font-size:var(--fs-note);padding:var(--sp-4) var(--sp-6)"><option value="">系统默认</option></select></div>' +
       '<div style="font-size:var(--fs-caption);line-height:1.5;color:var(--text-light);padding:0 var(--sp-4) var(--sp-8)">手机里装了几个中文语音引擎时，默认挑哪个由浏览器决定，听着会忽好忽坏。挑一个固定的就不会变。</div>' +
       '<div class="setting-row"><div class="setting-label">🕐 滴答声<div class="setting-desc">每秒轻响营造沉浸节奏（页面在前台时发声）</div></div>' +
       '<div style="display:flex;gap:var(--sp-12);align-items:center"><label style="display:flex;align-items:center;gap:var(--sp-4);font-size:var(--fs-body);color:var(--text)"><input type="checkbox" id="enhTickWork" style="accent-color:var(--primary)">专注中</label><label style="display:flex;align-items:center;gap:var(--sp-4);font-size:var(--fs-body);color:var(--text)"><input type="checkbox" id="enhTickBreak" style="accent-color:var(--primary)">休息中</label></div></div>' +

@@ -43,7 +43,7 @@ body.dark-mode .add-todo-bar .btn-small.btn-solid--green {
   flex: 0 1 auto;
   max-width: 50%;
   min-width: 0;
-  padding: var(--sp-4) var(--sp-18) var(--sp-4) var(--sp-4);
+  padding: var(--sp-4) var(--sp-16) var(--sp-4) var(--sp-4);
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   font-size:var(--fs-title);
@@ -129,7 +129,7 @@ body.dark-mode .add-todo-bar .btn-small.btn-solid--green {
    用虚线框 + 淡色，读起来像脚注而不是一条任务。 */
 .todo-eye-hint {
   margin: var(--sp-10) 0 var(--sp-4); padding: var(--sp-8) var(--sp-10);
-  border:1px solid var(--hairline); border-radius: var(--r-sm);
+  border:1px solid var(--hairline); border-radius: var(--radius-sm);
   font-size: var(--fs-tiny); color: var(--text-light); line-height: 1.5;
   cursor: pointer; user-select: none; -webkit-user-select: none;
 }
@@ -1685,7 +1685,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 .rv-sum-k { margin-top: var(--sp-6); color: var(--text-light); font-size: var(--fs-caption); }
 .rv-sum-v { margin-top: var(--sp-2); color: var(--text); font-size: var(--fs-caption); line-height: 1.65; white-space: pre-wrap; }
 .rv-dim { color: var(--text-light); }
-.rv-actions { margin-top: var(--sp-18); display: flex; justify-content: flex-end; }
+.rv-actions { margin-top: var(--sp-16); display: flex; justify-content: flex-end; }
 
 .rv-btn {
   min-height: 40px;

@@ -2947,7 +2947,7 @@ body.dark-mode .add-todo-bar .btn-small.btn-solid--green {
   flex: 0 1 auto;
   max-width: 50%;
   min-width: 0;
-  padding: var(--sp-4) var(--sp-18) var(--sp-4) var(--sp-4);
+  padding: var(--sp-4) var(--sp-16) var(--sp-4) var(--sp-4);
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   font-size:var(--fs-title);
@@ -3033,7 +3033,7 @@ body.dark-mode .add-todo-bar .btn-small.btn-solid--green {
    用虚线框 + 淡色，读起来像脚注而不是一条任务。 */
 .todo-eye-hint {
   margin: var(--sp-10) 0 var(--sp-4); padding: var(--sp-8) var(--sp-10);
-  border:1px solid var(--hairline); border-radius: var(--r-sm);
+  border:1px solid var(--hairline); border-radius: var(--radius-sm);
   font-size: var(--fs-tiny); color: var(--text-light); line-height: 1.5;
   cursor: pointer; user-select: none; -webkit-user-select: none;
 }
@@ -4589,7 +4589,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 .rv-sum-k { margin-top: var(--sp-6); color: var(--text-light); font-size: var(--fs-caption); }
 .rv-sum-v { margin-top: var(--sp-2); color: var(--text); font-size: var(--fs-caption); line-height: 1.65; white-space: pre-wrap; }
 .rv-dim { color: var(--text-light); }
-.rv-actions { margin-top: var(--sp-18); display: flex; justify-content: flex-end; }
+.rv-actions { margin-top: var(--sp-16); display: flex; justify-content: flex-end; }
 
 .rv-btn {
   min-height: 40px;
@@ -7770,9 +7770,9 @@ body.dark-mode .tb-paper-blk.is-habit {
 .setting-label .setting-desc { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-2); line-height: 1.4; }
 /* 设置页里的外链：说明下方单独一行，点击区域独立，别和旁边输入框挤在一起 */
 .setting-row--link { align-items: flex-start; }
-.setting-label .setting-link { display: inline-flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-3);
+.setting-label .setting-link { display: inline-flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-4);
   font-size: var(--fs-note); color: var(--accent); text-decoration: none;
-  border-bottom: 1px solid currentColor; padding-bottom: var(--sp-1); opacity: .9; }
+  border-bottom: 1px solid currentColor; padding-bottom: var(--sp-2); opacity: .9; }
 .setting-label .setting-link:active { opacity: .5; }
 .setting-input { width: 60px; padding: var(--sp-6) var(--sp-8); border: 1px solid var(--border-strong); border-radius: var(--radius-xs); font-size:var(--fs-title); text-align: center; flex-shrink: 0; }
 .setting-select { padding: var(--sp-6) var(--sp-8); border: 1px solid var(--border-strong); border-radius: var(--radius-xs); font-size:var(--fs-title); background: var(--white); flex-shrink: 0; max-width: 62%; min-width: 0; }
@@ -10209,13 +10209,13 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
       <!-- 本周重点 + 周期提示（检查点 / 收尾窗口）。★ 排在人生目标之上：
            「这周做什么」比「今年做什么」近，打开目标页第一眼该看到的是它。
            由 01eF_ui_lifecycle.js 渲染；为空时不占高度（innerHTML 是空串）。 -->
-      <div id="lifeWeekFocus" style="margin-top:var(--sp-18)"></div>
+      <div id="lifeWeekFocus" style="margin-top:var(--sp-16)"></div>
       <!-- 人生目标（年 / 月 / 愿望）。★ 容器名是 lifeGoalsList，不是 planGoalList：
            planGoal* 是既有 ID 家族（View/MustDo/Main），由 switchPlanTab 与
            renderGoalPage 统一管理，往里插新成员会让「这 ID 归谁渲染」变含混；
            更实际的风险是照抄旧名 → 模板写 planGoalList、JS 查 lifeGoalsList，
            页面上就是一块空白，而且不报错。 -->
-      <div id="lifeGoalsList" style="margin-top:var(--sp-18)"></div>
+      <div id="lifeGoalsList" style="margin-top:var(--sp-16)"></div>
     </div>
 
     <!-- 计划页二级导航：⏰ 定点休息（由设置页移入；每日最多 4 个时刻，到点提醒休息） -->

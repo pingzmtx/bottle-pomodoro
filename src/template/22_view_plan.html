@@ -107,13 +107,13 @@
       <!-- 本周重点 + 周期提示（检查点 / 收尾窗口）。★ 排在人生目标之上：
            「这周做什么」比「今年做什么」近，打开目标页第一眼该看到的是它。
            由 01eF_ui_lifecycle.js 渲染；为空时不占高度（innerHTML 是空串）。 -->
-      <div id="lifeWeekFocus" style="margin-top:var(--sp-18)"></div>
+      <div id="lifeWeekFocus" style="margin-top:var(--sp-16)"></div>
       <!-- 人生目标（年 / 月 / 愿望）。★ 容器名是 lifeGoalsList，不是 planGoalList：
            planGoal* 是既有 ID 家族（View/MustDo/Main），由 switchPlanTab 与
            renderGoalPage 统一管理，往里插新成员会让「这 ID 归谁渲染」变含混；
            更实际的风险是照抄旧名 → 模板写 planGoalList、JS 查 lifeGoalsList，
            页面上就是一块空白，而且不报错。 -->
-      <div id="lifeGoalsList" style="margin-top:var(--sp-18)"></div>
+      <div id="lifeGoalsList" style="margin-top:var(--sp-16)"></div>
     </div>
 
     <!-- 计划页二级导航：⏰ 定点休息（由设置页移入；每日最多 4 个时刻，到点提醒休息） -->

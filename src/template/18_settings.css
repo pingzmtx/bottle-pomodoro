@@ -25,9 +25,9 @@
 .setting-label .setting-desc { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-2); line-height: 1.4; }
 /* 设置页里的外链：说明下方单独一行，点击区域独立，别和旁边输入框挤在一起 */
 .setting-row--link { align-items: flex-start; }
-.setting-label .setting-link { display: inline-flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-3);
+.setting-label .setting-link { display: inline-flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-4);
   font-size: var(--fs-note); color: var(--accent); text-decoration: none;
-  border-bottom: 1px solid currentColor; padding-bottom: var(--sp-1); opacity: .9; }
+  border-bottom: 1px solid currentColor; padding-bottom: var(--sp-2); opacity: .9; }
 .setting-label .setting-link:active { opacity: .5; }
 .setting-input { width: 60px; padding: var(--sp-6) var(--sp-8); border: 1px solid var(--border-strong); border-radius: var(--radius-xs); font-size:var(--fs-title); text-align: center; flex-shrink: 0; }
 .setting-select { padding: var(--sp-6) var(--sp-8); border: 1px solid var(--border-strong); border-radius: var(--radius-xs); font-size:var(--fs-title); background: var(--white); flex-shrink: 0; max-width: 62%; min-width: 0; }
