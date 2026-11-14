@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""一键全绿链：gate → lint → build → check → layer → toc → size → ids → unit → catch → promise → [e2e · perf · viewport] → smoke（tomato=番茄计数单一口径门禁）
+"""一键全绿链：gate → lint → build → check → callgraph → layer → toc → size → ids → unit → catch → promise → [e2e · perf · viewport] → smoke（tomato=番茄计数单一口径门禁）
 用法:
   python3 tools/verify.py             # 全量（含 smoke ~1-2min）
   python3 tools/verify.py --fast      # 快档（lint+check+unit，跳过 smoke，供 pre-commit/快速自检）
@@ -78,6 +78,15 @@ def main():
         ("lint", "python3 tools/build.py --lint"),
         ("build", "python3 tools/build.py"),          # 2026-10-22：默认多产物 → public/
         ("check", "python3 tools/build.py --check"),   # 逐文件比对 public/ 与 src 重建结果
+        # 调用图自检（2026-11-14 从 pre-commit 提进链）：两条"不变量"——
+        # ① 每个源文件必须能被 acorn 解析（拼进同一 <script> 前先证各自合法）
+        # ② 每个模块必须在 LAYER 里登记层级（漏登记 = 依赖方向从此没人守）
+        # 为什么必须进链：这段原先只挂在 pre-commit 上（钩子独有），任何不走钩子的
+        # 路径都永远漏掉它——--no-verify、新 clone 没 install_hooks、CI 直跑 verify、
+        # 或者钩子被删。所以它不是"顺手多一道"，而是结构上必须有两个入口。
+        # 失败可定位：解析错误打「解析失败 <文件>: <行:列 原因>」，漏登记会列出文件名；
+        # 两者都指到具体文件，不需要再手工二分。
+        ("callgraph", "node tools/callgraph_ast.js --selfcheck"),
         # 层依赖方向检查：硬违例（下层反向依赖上层）会 FAIL，挂门禁防架构腐化
         ("layer", "python3 tools/w6_layer.py"),
         # TOC 一致性：函数增删后索引必须同步，否则文档与代码脱节
