@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""一键全绿链：gate → lint → build → check → callgraph → layer → toc → size → ids → unit → catch → promise → [e2e · perf · viewport] → smoke（tomato=番茄计数单一口径门禁）
+"""一键全绿链：gate → lint → build → check → callgraph → layer → toc → docchain → size → ids → unit → catch → promise → [e2e · perf · viewport] → smoke（tomato=番茄计数单一口径门禁）
 用法:
   python3 tools/verify.py             # 全量（含 smoke ~1-2min）
   python3 tools/verify.py --fast      # 快档（lint+check+unit，跳过 smoke，供 pre-commit/快速自检）
@@ -91,6 +91,12 @@ def main():
         ("layer", "python3 tools/w6_layer.py"),
         # TOC 一致性：函数增删后索引必须同步，否则文档与代码脱节
         ("toc", "python3 tools/w6_toc.py --check"),
+        # 文档里的「已挂链」清单必须等于本文件的段清单（2026-11-14）。
+        # 手写清单必然过期，不是记性问题而是机制问题：同一天就查出 AGENTS 第 154 行
+        # 漏了 callgraph 与 csstok 两段，同一份文档还留着复现不出来的「359 处硬编码」。
+        # 所以这段不比"文档写得对不对"，只比"文档是否由代码生成"——名单由
+        # gen_verify_chain.py 的 AST 读取产生，人改不了、也忘不了。
+        ("docchain", "python3 tools/gen_verify_chain.py --check"),
         # 单文件规模红线：文档写了「无 >6000 行文件」，此前无工具守
         # （01d 已 5,959 行，余量 41 行）→ 挂门禁，防止悄悄越线
         ("size", "python3 tools/w6_size.py"),

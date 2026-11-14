@@ -151,7 +151,15 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
     - **接手/换机器第一件事**：`python3 tools/install_hooks.py`（幂等）；`--check` 可查膛；全绿链的 `gate` 段会盯着它，没上膛就在链里显形，不会静默变绿。
     - 钩子拦两条：①**改了 `src/` 却没提交 `public/`**（没重建 / 重建了忘 add）②**产物陈旧**（按 src 重合成 ≠ 盘上 `public/`）——外加原有 lint/unit/callgraph 快档。
     - ★ 通用规矩：**"下次记得要做 X" 写成教训 = 迟早再犯一次。**缺的那一步要么做成机器门禁，要么别指望。
-11. **「改 X 后记得跑」的工具 = 没守**：凡**纯静态、确定性、够快（<2s）**的检查，一律挂进 `verify.py` 链，不要只写在本文档当提醒。已挂链：`gate`/`lint`/`build`/`check`/`layer`/`toc`/`size`/`ids`/`unit`/`catch`/`promise`/`e2e`/`smoke`。
+11. **「改 X 后记得跑」的工具 = 没守**：凡**纯静态、确定性、够快（<2s）**的检查，一律挂进 `verify.py` 链，不要只写在本文档当提醒。
+
+    下面这段列表**由脚本从 `tools/verify.py` 现场生成**，不要手改（手写必过期：2026-11-14 查出这里漏了 `callgraph` 与 `csstok` 两段，同日同一份文档还留着复现不出的「359 处硬编码」）。改完链就跑 `python3 tools/gen_verify_chain.py --write`；它同时是 `docchain` 段，文档与代码不一致会红灯。
+
+<!-- verify-chain:begin 由 tools/gen_verify_chain.py 从 verify.py 生成，勿手改 -->
+已挂链 31 段（`python3 tools/verify.py --fast` 依次跑）：`gate` / `lint` / `build` / `check` / `callgraph` / `layer` / `toc` / `docchain` / `size` / `ids` / `tomato` / `coin` / `domain` / `bundle` / `implicit` / `actargs` / `act` / `calcspace` / `dup` / `a11y` / `cov` / `casemeta` / `contract` / `casefix` / `unit` / `catch` / `promise` / `modals` / `theme` / `csstok` / `lifeGoal`
+
+`--e2e` 再追加 3 段：`e2e` / `perf` / `viewport`
+<!-- verify-chain:end -->
     - 本轮据此把 **`id_audit.py`（DOM id 对账）**从"改 id 后跑"升为链上 `ids` 段——它抓的正是"改完 id 忘了同步 → 一跑就 null"这类手滑。
 12. **注释只写代码本身，不写"谁要求的、什么时候改的"**：讲清「这段做什么 / 为什么这么做（技术原因）」就够了。
     - **不写**：用户反馈原话（"用户说…""需求：…"）、日期、变更史（"原为 X，现改为 Y""拆分第 N 刀"）、任务编号、署名、情绪化评价。

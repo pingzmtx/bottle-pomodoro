@@ -66,6 +66,12 @@ if ! node tools/callgraph_ast.js --selfcheck >/dev/null 2>&1; then
   echo "             排查：node tools/callgraph_ast.js --selfcheck"
   exit 1
 fi
+# 文档「已挂链」清单必须与 tools/verify.py 一致（名单由脚本生成，人改不了）。
+if ! python3 tools/gen_verify_chain.py --check >/dev/null 2>&1; then
+  echo "[pre-commit] ❌ AGENTS.md 的「已挂链」列表与 verify.py 不一致。"
+  echo "             修法：python3 tools/gen_verify_chain.py --write"
+  exit 1
+fi
 # 颜色令牌棘轮：组件规则里的裸色值只准降不准升（基线 src/css_token_baseline.json）。
 # 与 verify.py 的 csstok 段同源——两边都挂，是因为钩子会被绕过/未安装，
 # 而链也会被"只提交不跑 verify"绕过；两条入口都要有。
