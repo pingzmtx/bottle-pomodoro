@@ -66,6 +66,15 @@ if ! node tools/callgraph_ast.js --selfcheck >/dev/null 2>&1; then
   echo "             排查：node tools/callgraph_ast.js --selfcheck"
   exit 1
 fi
+# 颜色令牌棘轮：组件规则里的裸色值只准降不准升（基线 src/css_token_baseline.json）。
+# 与 verify.py 的 csstok 段同源——两边都挂，是因为钩子会被绕过/未安装，
+# 而链也会被"只提交不跑 verify"绕过；两条入口都要有。
+if ! python3 tools/check_css_tokens.py >/dev/null 2>&1; then
+  echo "[pre-commit] ❌ 颜色令牌超基线（新增了裸色值）。"
+  echo "             排查：python3 tools/check_css_tokens.py"
+  echo "             修法：换成令牌；确属新词汇 → 先补令牌，或调基线并在改动说明写明理由。"
+  exit 1
+fi
 # 弹窗结构收编：应用内弹窗必须同构（h3 标题 + .modal-buttons 容器 + .modal-btn 变体）。
 # 37 个弹窗各写各的样式时，暗色模式补丁只能一处一处数着打 —— 靠记性必然漏。
 if ! python3 tools/check_modal_unify.py >/dev/null 2>&1; then

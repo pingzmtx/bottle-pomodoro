@@ -3575,8 +3575,8 @@ body.dark-mode .tf-actions, body.dark-mode .tf-subs { border-color: var(--border
   padding-right: var(--sp-16);
   /* 右侧渐隐：让裁断读起来是「还能往右滑」，而不是「控件被切坏了」。
      留 16px 空白做缓冲，没溢出时最后一个 chip 也不会被淡到。 */
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent);
-  mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent);
+  -webkit-mask-image: linear-gradient(to right, var(--black) calc(100% - 16px), transparent);
+  mask-image: linear-gradient(to right, var(--black) calc(100% - 16px), transparent);
 }
 .lg-chips::-webkit-scrollbar { display: none; }
 .lg-chip {
@@ -4345,7 +4345,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
   background: transparent; color: var(--on-primary, #fff);
   font-size: var(--fs-caption); line-height: 1; cursor: pointer;
 }
-.lg-cp-done.on { background: var(--green, #57A862); border-color: var(--green, #57A862); }
+.lg-cp-done.on { background: var(--green); border-color: var(--green); }
 .lg-cp-line { display: flex; gap: var(--sp-6); margin-top: var(--sp-6); }
 .lg-cp-target { flex: 0 0 84px; }
 .lg-cp-note { flex: 1 1 auto; min-width: 0; }

@@ -1,0 +1,62 @@
+{
+  "01_fonts.css": {
+    "hex": 0,
+    "rgb": 0
+  },
+  "01b_font_title.css": {
+    "hex": 0,
+    "rgb": 0
+  },
+  "01b_font_wenkai.css": {
+    "hex": 0,
+    "rgb": 0
+  },
+  "10_tokens.css": {
+    "hex": 0,
+    "rgb": 0
+  },
+  "11_layout_timer.css": {
+    "hex": 23,
+    "rgb": 36
+  },
+  "12_components.css": {
+    "hex": 0,
+    "rgb": 10
+  },
+  "13_plan.css": {
+    "hex": 4,
+    "rgb": 8
+  },
+  "14_log_stats.css": {
+    "hex": 25,
+    "rgb": 8
+  },
+  "15_tree.css": {
+    "hex": 49,
+    "rgb": 26
+  },
+  "16_timeblock.css": {
+    "hex": 13,
+    "rgb": 2
+  },
+  "17_rank_team.css": {
+    "hex": 14,
+    "rgb": 3
+  },
+  "18_settings.css": {
+    "hex": 9,
+    "rgb": 2
+  },
+  "19_immersive.css": {
+    "hex": 20,
+    "rgb": 40
+  },
+  "1A_dark_misc.css": {
+    "hex": 133,
+    "rgb": 103
+  },
+  "50_journey.css": {
+    "hex": 23,
+    "rgb": 14
+  }
+}

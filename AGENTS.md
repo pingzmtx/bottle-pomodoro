@@ -144,7 +144,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 7. **禁止新增 localStorage 键**（散键已全部收编）：设备 UI 态（折叠/引导/歌单/剧情/角标/公告等）一律进 `appData.uiPrefs.*`，持久化走 saveData 单通道；`localStorage` 仅保留 01b 数据层四个键（主键/自动备份/归档/导入剧本）。新增功能落地见 `docs/current/AI_SCAFFOLD.md`。
 8. **耦合契约（降耦不牵一发动全身）**：改 src 前先读该文件头「E3 耦合契约」注释与 README「模块耦合契约」节；加/改跨模块调用后跑 `python3 tools/dep_report.py` 对比基线（`--md` 按需生成 `模块依赖报告.generated.md`，看过即弃），「被依赖 Top / 总调用边」显著推高须在改动说明注明理由；禁止复制第二份同名实现。层依赖方向由 `tools/w6_layer.py` 硬门禁强制。
 9. **设计尺度只走变量**：字号 `--fs-*`、圆角 `--radius-*`、间距 `--sp-*` 三套档位定义在 `src/template/10_tokens.css` 的 `:root`；**CSS 与 JS 内联样式一律引用变量，写死字面量会被 `lint()` 拦下**。档位表与豁免规则见 `docs/references/设计令牌.md`；确实需要新值 = 先加档位变量，不准就地写数。
-   **颜色是例外且刻意为之**：字面量 649 种 vs 变量 30 个，属"缺词汇"而非"漂移"，机器区分不了同色差下的不同性质（见设计令牌.md §5）→ 颜色**不设硬门禁**，只由 `tools/w6_color.py` 报数，改动由人逐处判断。**改配色前先跑它**。
+   **颜色：历史上刻意不收，2026-11-14 起改为分阶段收**。旧理由（字面量 649 种 vs 变量 30 个，属"缺词汇"而非"漂移"，机器区分不了同色差下的不同性质）在人工编写阶段成立；写 CSS 的换成 agent 之后，"人逐处判断"这一环不存在，豁免等于无防线。新口径：**棘轮门禁已上线**（`tools/check_css_tokens.py` + `src/css_token_baseline.json`，按文件冻结 hex 与数字型 rgba，只准降不准升），新增裸色值一律红灯，例外须写进改动说明并给出令牌候选。词汇补齐（P1 中性令牌 / P2 场景色板）按批推进，每批替换后同步下调基线。**改配色前仍先跑 `tools/w6_color.py`**（它是报告工具，看语义漂移）。
    **字重/阴影同样走令牌**：`--fw-regular|medium|semibold|bold`、`--shadow-sm|md|lg|xl`。字重不再写字面量；阴影禁用 `Npx Npx 0` 硬偏移形式（模拟纸而非光），深色模式必须另给一套黑色高透明度值。
    五条可量判据（字重直方图 / 边框宽度统一 / 无硬投影 / 行高具体值 / 一屏一个填充按钮）与核对命令见 `docs/references/视觉质感.md`。**"看起来很简陋"不是审美问题，是这五个量的问题**——先量再改，别去调颜色。
 10. **门禁上膛，不靠记性**：本环境 `Documents` 挂载点**剥执行位**（`chmod +x` 无效、`./脚本.sh` 报 Permission denied），所以 `.git/hooks/` 里的钩子会被 git **静默忽略**。钩子正本在 `tools/githooks/`，由 `tools/install_hooks.py` 装到 `/var/minis/shared/pomo-hooks` 并把 `core.hooksPath` 指过去。
