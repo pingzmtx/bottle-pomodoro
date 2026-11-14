@@ -307,9 +307,21 @@ def main():
             head = "✅ 通过，可以发"
         print(f"\n结果: {head}　{' · '.join(bits)}")
         if not verified and not failed and not jsonout:
-            # 只解释一句，不吓人：跑不了浏览器的段（本机没 Chrome）不算失败，
-            # 该功能在发版前用「发版前点这10下.md」人工过一遍即可。
-            print("      （本机没有 Chrome，冒烟那一段跳过；发版前按《发版前点这10下.md》手点一遍）")
+            # 只解释一句，不吓人：没跑的段不算失败。但**不能说谎**——
+            # 2026-11-14 修：原来这里无条件印「本机没有 Chrome，冒烟那一段跳过」，
+            # 而实跑全量时 smoke 明明跑了且是绿的（25.4s），只是 e2e 没请求；
+            # --fast 时 smoke 也根本没被请求（不是环境缺浏览器）。两句话都不成立，
+            # 等于门禁自己在输出里写假话 —— 和"注释写 64 条实测 71 条"同一类问题。
+            sk = {r["step"] for r in skipped}
+            nr = {s2 for s2, _ in not_run}
+            if "smoke" in sk:
+                print(f"      （smoke 跳过：{next(r.get('skip_reason', '环境不具备') for r in skipped if r['step'] == 'smoke')}；"
+                      f"发版前按《发版前点这10下.md》手点一遍）")
+            elif "smoke" in nr:
+                print("      （快档不跑浏览器段（smoke / e2e / perf / viewport）；"
+                      "发版前跑 python3 tools/verify.py 全量，或按《发版前点这10下.md》手点一遍）")
+            elif "e2e" in nr:
+                print("      （e2e 未请求（要加 --e2e）；smoke 已跑过）")
     if "--strict" in sys.argv and not verified:
         return 2  # --strict = 有任意一段没跑就判非零，供发布前卡口使用
     return 0 if ok else 1
