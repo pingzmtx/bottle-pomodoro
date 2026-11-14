@@ -9,16 +9,16 @@
     python3 build.py --check      # 校验：public/ 能否由 src/ 精确重建（逐文件逐字节）
     python3 build.py --single     # 可选：生成自包含单文件 index.html（仅本地预览 / 需要内联的工具）
     python3 build.py --check --single  # 校验单文件产物
-    python3 build.py split        # 一次性：把单文件产物切回 src/（历史迁移用）
+    python3 build.py split        # 已废弃：只打印说明并退出（2026-11-15 起）
 
 产物口径（2026-10-22 起）:
     public/index.html + assets/*.js + assets/*.css + config.js + sw.js
     单文件 index.html 不再是发布物，也不进仓库；需要时用 --single 现场生成。
 
 原理:
-    开发态 src/ 由 template 片段 + 47 个脚本组成（顺序见 src/manifest.json）。
-    旧单文件产物是"模板 + N 个 <script> 内联槽"，split() 用状态机精确切分；
-    assemble() 反向合并 —— 无改动时逐字节一致（sha256 相等）。
+    开发态 src/ 由 template 片段（src/template/）+ 69 个脚本组成，槽顺序见 src/manifest.json。
+    assemble() 单向合并 src/ → index.html；无改动时与盘上产物逐字节一致（sha256 相等）。
+    ★ 没有反方向：index.html 自 2026-10-22 起不含内联 JS，切不回去（split 已废弃）。
 
 目录:
     src/template.html    —— 除脚本槽外的全部 HTML/CSS/注释（含占位标记）
@@ -65,157 +65,27 @@ def find_ci(s, sub, start):
     return s.lower().find(sub.lower(), start)
 
 
-def scan_slots(text):
-    """状态机扫描：返回 [(start, end, open_tag, close_tag, body)]；start/end 为整槽区间。"""
-    slots = []
-    n = len(text)
-    i = 0
-    state = "normal"  # normal | comment | style | script
-    while i < n:
-        if state == "normal":
-            if text.startswith("<!--", i):
-                state = "comment"; i += 4; continue
-            if text.startswith("<style", i) and (i + 6 >= n or not (text[i+6].isalpha() or text[i+6] in "/")):
-                # 进入 style 原文本
-                state = "style"; i += 6; continue
-            if text.startswith("<script", i) and (i + 7 >= n or not (text[i+7].isalpha() or text[i+7] in "/")):
-                te = tag_end(text, i)
-                if te < 0:
-                    break
-                open_tag = text[i:te]
-                ce = find_ci(text, "</script>", te)
-                if ce < 0:
-                    break
-                close_tag = text[ce:ce + 9]
-                body = text[te:ce]
-                slots.append([i, ce + 9, open_tag, close_tag, body])
-                i = ce + 9
-                continue
-            i += 1
-        elif state == "comment":
-            e = text.find("-->", i)
-            i = n if e < 0 else e + 3
-            if e >= 0:
-                state = "normal"
-        elif state == "style":
-            e = find_ci(text, "</style>", i)
-            i = n if e < 0 else e + 8
-            if e >= 0:
-                state = "normal"
-        else:
-            break
-    return slots
-
-
-def sha(p):
-    return hashlib.sha256(open(p, "rb").read()).hexdigest()
-
-
 def split():
-    """首次迁移：把 index.html 切成 src/。注意：若 src 已与 index 不一致（有人在 src 里改过），需 --force 才会覆盖。"""
-    if os.path.exists(MANI):
-        try:
-            if assemble() != open(INDEX, encoding="utf-8").read():
-                if "--force" not in sys.argv:
-                    print("✗ src/ 与 index.html 不一致（看起来有人在 src 里改过）。")
-                    print("  若确认要“以 index.html 为准”重新切分，请加 --force 运行：python3 build.py split --force")
-                    sys.exit(1)
-        except Exception as e:
-            print("✗ 检查 src 一致性失败:", e); sys.exit(1)
-    os.makedirs(SCRIPTS, exist_ok=True)
-    text = open(INDEX, encoding="utf-8").read()
-    slots = scan_slots(text)
-    if not slots:
-        print("✗ 未找到任何 script 槽"); sys.exit(1)
-    # 用开标签行号/文件角色命名
-    names = slot_names(slots)
-    manifest = []
-    # 自后向前替换，保持位置正确
-    out = text
-    for idx, (st, en, ot, ct, body) in enumerate(reversed(slots)):
-        real = len(slots) - idx - 1
-        out = out[:st] + MARK.format(n=real + 1) + out[en:]
-    open(TPL, "w", encoding="utf-8").write(out)
-    for i, (st, en, ot, ct, body) in enumerate(slots):
-        is_engine = ("模块: 01-data.js" in body) and len(body) > 300000
-        if is_engine:
-            # 主引擎槽：按内部「模块: 0X-xx.js」横幅切成多分片（拼接后逐字节还原）
-            segs = seg_engine(body)
-            files = []
-            for j, (seg_name, seg_body) in enumerate(segs):
-                p = os.path.join(SCRIPTS, seg_name)
-                open(p, "w", encoding="utf-8").write(seg_body)
-                files.append(seg_name)
-            manifest.append({
-                "slot": 1, "files": files, "open": ot, "close": ct,
-                "len": len(body), "parts": len(files),
-                "sha256": hashlib.sha256(body.encode("utf-8")).hexdigest()
-            })
-        else:
-            fn = names[i]
-            path = os.path.join(SCRIPTS, fn)
-            open(path, "w", encoding="utf-8").write(body)
-            manifest.append({
-                "slot": i + 1, "file": fn, "open": ot, "close": ct,
-                "len": len(body), "sha256": hashlib.sha256(body.encode("utf-8")).hexdigest()
-            })
-    open(MANI, "w", encoding="utf-8").write(json.dumps({
-        "generated_from": "index.html",
-        "template": "template.html",
-        "script_dir": "scripts",
-        "marker": MARK,
-        "slots": manifest,
-    }, ensure_ascii=False, indent=2))
-    print(f"✓ 已切分 {len(slots)} 个脚本槽 → src/scripts/")
-    for i, m in enumerate(manifest):
-        disp = " + ".join(m.get("files") or [m["file"]])
-        print(f"   槽{i+1:>2} {disp}  ({m['len']:,} 字符)")
-    print(f"✓ 模板: src/template.html  清单: src/manifest.json")
+    """已废弃（2026-11-15）。保留入口只为给出明确报错，不做任何写盘动作。
 
-
-def seg_engine(body):
-    """把主引擎正文按 '模块: 0X-xx.js' 横幅切成若干连续分片（含横幅行），拼接 === 原正文。"""
-    import re as _re
-    lines = body.splitlines(keepends=True)
-    marks = []
-    for i, ln in enumerate(lines):
-        s = ln.lstrip()
-        if s.startswith("/*") and "模块: " in s and ".js |" in s:
-            m = _re.search(r"模块: ([\w.-]+)", s)
-            code = m.group(1) if m else f"m{i}"
-            marks.append((i, code))
-    if not marks:
-        return [("01a_engine_prelude.js", body)]
-    out = []
-    starts = [0] + [mi for mi, _ in marks]
-    segno = 0
-    for k in range(len(marks) + 1):
-        a = starts[k]
-        b = starts[k + 1] if k + 1 < len(starts) else len(lines)
-        chunk = "".join(lines[a:b])
-        if k == 0:
-            nm = "01a_engine_prelude.js"
-        else:
-            code = marks[k - 1][1]
-            segno += 1
-            token = code.split("-")[1].split(".")[0] if "-" in code and "." in code else code
-            nm = f"01{chr(ord('b') + segno - 1)}_engine_{token}.js"
-        out.append((nm, chunk))
-    return out
-
-
-def slot_names(slots):
-    hints = [
-        ("01_main_engine.js", "主引擎(预置__ivGov/__dataMig+核心JS)"),
-        ("02_enh571_自律增强.js", "07-enh v5.7 自律·提醒·统计"),
-        ("03_enh572_性能打磨.js", "v5.7.1 性能与打磨"),
-        ("04_enh573_统计缓存.js", "v5.7.2 统计热路径缓存"),
-        ("05_journey_渐进解锁.js", "08-journey 成长之旅+归档"),
-        ("06_errRep_错误监控.js", "M1 __errRep"),
-        ("07_uiFold_折叠记忆.js", "M3 __uiFold"),
-    ]
-    n = len(slots)
-    return [hints[i][0] if i < len(hints) else f"{i+1:02d}_slot.js" for i in range(n)]
+    为什么废：split 的前提是「index.html 里内联着 JS，反切能还原 src/」。
+    这个前提 2026-10-22 之后就不成立了 —— index.html 现在是外部引用
+    （<script type="module" src="assets/app.js">），实测扫到 2 个槽、内联体 0 字符。
+    而且它原有的守卫本身是坏的：比较 assemble()（3,005,857 字符，未压缩）
+    与 index.html（261,283 字符，已压缩），永远不等 → 永远要求 --force；
+    一旦 --force，就用压缩产物覆盖 src/template.html、把 manifest 写成 2 个空槽。
+    详见 docs/项目现状交底.md。
+    """
+    sys.exit(
+        "✗ build.py split 已废弃，且不做任何写盘动作。\n"
+        "\n"
+        "  src/ 才是真源：src/manifest.json（槽顺序）+ src/scripts/（原文）+ src/template/（片段）。\n"
+        "  index.html 是 build 的**产物**，且已不含内联 JS（实测 2 个槽 / 内联体 0 字符），\n"
+        "  反切一行源码都还原不回来。\n"
+        "\n"
+        "  要重建产物：python3 tools/build.py && python3 tools/promote.py --apply\n"
+        "  要校验产物：python3 tools/build.py --check"
+    )
 
 
 def load_template():
