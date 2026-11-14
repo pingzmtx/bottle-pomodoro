@@ -175,7 +175,11 @@ body.dark-mode .theme-card { background: var(--surface-1); }
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: var(--surface-3);
+  /* 原 #ccc。2026-11-14 截图对拍发现：P1 把它换成 --surface-3 后，
+     浅色下轨道变成 #F0EADF，与白卡片几乎同色，只剩圆点在飘（gruvbox 最严重）。
+     --line-rgb 浅色=主题深色、深色=#fff，.22 叠出来浅色 ≈ #CCC 与改前几乎一致；
+     深色由 1A 的 body.dark-mode 覆盖为 rgba(--white-rgb,.16)。 */
+  background: rgba(var(--line-rgb), .22);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   transition: 0.3s;
