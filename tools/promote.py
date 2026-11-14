@@ -18,11 +18,22 @@
 命名空间外的 README、src/、tools/、文档一律不碰、不删 —— 这是与裸 rsync 的唯一区别，
 也是它敢直接跑在仓库根目录的原因。
 
+为什么默认只读
+--------------
+2026-11-14 23:30 实测踩坑：照惯例执行 `promote.py --check` 想看差异，
+脚本把 `--check` 当位置参数**静默忽略**、而默认动作就是刷盘，
+于是用本地 public/ 覆盖了根目录，BUILD_ID 被改回旧值，还得从镜像恢复。
+
+一个「我只想看看」的动作改了盘，这是脚枪，不是用法问题。所以现在：
+  · 默认**不动任何文件**，写盘必须显式 `--apply`；
+  · 不认识的参数直接报错退出 2，**不许静默忽略**（忽略参数 = 让 --check 去干 --apply 的事）。
+
 用法
 ----
-    python3 tools/promote.py             # 同步 + 删除残骸 + 自检
-    python3 tools/promote.py --dry-run   # 只报告将要发生什么，不动盘
-退出码：0 同步后一致；1 同步后仍不一致（理论不可达，除非磁盘异常）；3 public/ 不存在
+    python3 tools/promote.py            # 只读：报告待同步 / 待删除，不动盘
+    python3 tools/promote.py --apply    # 真的写盘，写完自检
+    python3 tools/promote.py --dry-run  # 与默认等价（保留，防旧习惯踩空）
+退出码：0 一致（或 apply 后一致）；1 有差异（只读）/ apply 后仍不一致；2 参数错；3 public/ 不存在
 """
 import filecmp
 import os
@@ -36,6 +47,8 @@ CHECK = os.path.join(ROOT, "tools", "check_public_sync.py")
 
 TOP_FILES = ("index.html", "config.js", "manifest.webmanifest", "sw.js")
 TOP_DIRS = ("assets", "icons", "fonts")
+
+KNOWN_ARGS = {"--apply", "--dry-run", "-h", "--help"}
 
 
 def scope_files(base):
@@ -56,7 +69,18 @@ def scope_files(base):
 
 
 def main():
-    dry = "--dry-run" in sys.argv
+    args = sys.argv[1:]
+    unknown = [a for a in args if a not in KNOWN_ARGS]
+    if unknown:
+        print("✗ 不认识的参数：%s" % " ".join(unknown))
+        print("  用法：python3 tools/promote.py [--apply]")
+        print("        默认只读、不动盘；写盘要显式 --apply。")
+        return 2
+    if "-h" in args or "--help" in args:
+        print(__doc__)
+        return 0
+
+    apply = "--apply" in args
 
     if not os.path.isdir(PUB) or not scope_files(PUB):
         print("○ public/ 还没构建（先跑 python3 tools/build.py）")
@@ -75,7 +99,7 @@ def main():
         if os.path.isfile(dst) and filecmp.cmp(src, dst, shallow=False):
             same.append(rel)
             continue
-        if not dry:
+        if apply:
             shutil.copy2(src, dst)
         copied.append(rel)
 
@@ -83,24 +107,26 @@ def main():
     for rel, p in sorted(root.items()):
         if rel in pub:
             continue
-        if not dry:
+        if apply:
             os.remove(p)
         removed.append(rel)
 
-    if dry:
-        print("（--dry-run，未动盘）")
-    print("同步 %d 个  ·  未变 %d 个  ·  删除残骸 %d 个" % (len(copied), len(same), len(removed)))
-    for rel in copied:
-        print("  ↑ %s" % rel)
-    for rel in removed:
-        print("  ✗ %s（旧产物，已从根目录删除）" % rel)
     if not copied and not removed:
-        print("  根目录已经是最新的，什么都没做")
-
-    if dry:
+        print("✅ %d 个产物逐字节一致（根目录 = public/）" % len(same))
         return 0
 
-    # 同步完立刻自检：不靠"我觉得拷对了"。这也是门禁段的同一份判据，不会两套标准。
+    print("%s %d 个 · 待删除残骸 %d 个 · 已一致 %d 个"
+          % ("已同步" if apply else "待同步", len(copied), len(removed), len(same)))
+    for rel in copied:
+        print("  %s %s" % ("↑" if apply else "·", rel))
+    for rel in removed:
+        print("  %s %s（旧产物，%s）" % ("✗" if apply else "·", rel, "已删除" if apply else "待删除"))
+
+    if not apply:
+        print("\n（只读模式，未动盘；确认无误后加 --apply 执行）")
+        return 1
+
+    # 写完立刻自检：不靠"我觉得拷对了"。与门禁段同一份判据，不会两套标准。
     r = subprocess.run([sys.executable, CHECK], cwd=ROOT)
     return 0 if r.returncode == 0 else 1
 

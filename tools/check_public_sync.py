@@ -98,6 +98,17 @@ def size(path):
 
 
 def main():
+    # 不认识的参数一律报错（2026-11-14）：与 promote.py 同一条规矩 ——
+    # 静默忽略参数会让 `--fix` / `--check` 这类"我以为它会做点什么"的调用
+    # 变成"什么都没做还返回 0"，比报错更难查。
+    known = {"-v", "--verbose", "-h", "--help"}
+    unknown = [a for a in sys.argv[1:] if a not in known]
+    if unknown:
+        print("✗ 不认识的参数：%s（本工具只读，支持 -v/--verbose）" % " ".join(unknown))
+        return 2
+    if "-h" in sys.argv or "--help" in sys.argv:
+        print(__doc__)
+        return 0
     verbose = "-v" in sys.argv or "--verbose" in sys.argv
 
     if not os.path.isdir(PUB) or not scope_files(PUB):
