@@ -323,7 +323,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
   font-size:var(--fs-title); font-weight: 800;
   cursor: pointer;
 }
-.calendar-header button.cal-title-btn:active { background: var(--primary-soft, rgba(255,87,34,.1)); }
+.calendar-header button.cal-title-btn:active { background: var(--primary-soft); }
 .cal-title-btn .ct-arrow { font-size:var(--fs-caption); color: var(--primary-ink); }
 /* 标题按钮的外壳（.calendar-header 里用 h3 承载，满足弹窗统一结构要求）：
    撑开剩余宽度并居中，不参与 32×32 的箭头尺寸规则。 */
@@ -335,12 +335,12 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
 .cal-jump-lbl { font-size:var(--fs-note); color: var(--text-light); font-weight: 600; }
 .cal-jump-val { font-size:var(--fs-body); font-weight: 600; color: var(--primary-ink); min-width: 46px; text-align: center; }
 .cal-jump-btn { font-size:var(--fs-note); padding: var(--sp-2) var(--sp-8); border-radius: var(--radius-sm); border: 1px solid var(--border-strong); background: var(--card); color: var(--text); cursor: pointer; }
-.cal-jump-btn:active { background: var(--primary-soft, rgba(255,87,34,.1)); }
+.cal-jump-btn:active { background: var(--primary-soft); }
 /* 月份格：必须 flex:0 0 auto + nowrap，否则 12 格挤在一行时被压窄，
    「10」会折成「1/0」、「9」的条数会跟数字挤成两行。 */
 .cal-jump-m { font-size:var(--fs-note); min-width: 34px; flex:0 0 auto; white-space:nowrap; padding: var(--sp-2) 0; text-align: center; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--card); cursor: pointer; }
 .cal-jump-m.on { border-color: var(--primary); color: var(--primary-ink); font-weight: 800; }
-.cal-jump-m:active { background: var(--primary-soft, rgba(255,87,34,.1)); }
+.cal-jump-m:active { background: var(--primary-soft); }
 .calendar-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: var(--sp-4); margin-bottom: var(--sp-12); }
 .calendar-weekday { text-align: center; font-size:var(--fs-title); font-weight: 700; color: var(--text-light); padding: var(--sp-4) 0; }
 .calendar-day {

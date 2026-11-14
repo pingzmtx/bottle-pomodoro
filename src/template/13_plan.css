@@ -1645,7 +1645,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 .rv-sec-when {
   margin-left: auto; flex: 0 0 auto;
   font-size: var(--fs-micro); font-weight: var(--fw-regular); color: var(--text-light);
-  padding: 1px var(--sp-6); border-radius: var(--radius-pill, 999px); background: var(--surface-2);
+  padding: 1px var(--sp-6); border-radius: var(--radius-full); background: var(--surface-2);
 }
 .rv-sec-tip { margin-top: var(--sp-4); font-size: var(--fs-micro); color: var(--text-light); line-height: 1.5; }
 .rv-select, .rv-input {

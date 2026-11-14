@@ -292,7 +292,7 @@ body.dark-mode #backupReminderBar { opacity: 0.9; }
   background: var(--surface-2);
 }
 .current-todo-section .difficulty-option.active {
-  background: var(--primary-soft, rgba(255,87,34,.10));
+  background: var(--primary-soft);
   box-shadow: none;
 }
 .current-todo-section .difficulty-option.easy-halved {
@@ -301,7 +301,7 @@ body.dark-mode #backupReminderBar { opacity: 0.9; }
 .difficulty-option .difficulty-icon { font-size:var(--fs-sub); line-height: 1.1; }
 .difficulty-option .difficulty-name { font-size:var(--fs-body); font-weight: var(--fw-semibold); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .difficulty-option .difficulty-duration { font-size:var(--fs-body); font-weight: var(--fw-medium); color: var(--primary-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-.difficulty-option.active { border-color: var(--primary); background: var(--primary-soft, rgba(255,87,34,.08)); box-shadow: 0 0 0 1px var(--primary); }
+.difficulty-option.active { border-color: var(--primary); background: rgba(255,87,34,.08); box-shadow: 0 0 0 1px var(--primary); }
 .difficulty-option.active .difficulty-duration { color: var(--primary-ink); }
 /* 轻松模式生效时，档位卡显示「原时长删除线 + 实际时长」，消除显示与实际不符的歧义 */
 .difficulty-option .difficulty-duration .dur-orig { color: var(--text-light); font-weight: var(--fw-regular); text-decoration: line-through; margin-right: var(--sp-2); }
@@ -373,7 +373,7 @@ body.dark-mode .duration-suggestion.down { background: rgba(var(--primary-rgb),.
 #gachaBtn.gacha-btn-done{animation:gachaPop .45s ease;}
 /* 新增样式：段位晋升弹窗 + 幽灵提示 */
 .rankup-overlay{background:rgba(var(--black-rgb),.55);display:flex;align-items:center;justify-content:center;z-index:9990;}
-.rankup-box{position:relative;text-align:center;background:linear-gradient(160deg,#FFF8E1,var(--white) 60%);border:1px solid #E8B93A;border-radius:var(--radius-xl);padding:34px 40px;width:320px;max-width:86vw;box-shadow:0 12px 50px rgba(var(--black-rgb),.35);overflow:hidden;animation:rankupPop .45s cubic-bezier(.2,1.6,.4,1);}
+.rankup-box{position:relative;text-align:center;background:linear-gradient(160deg,var(--mat-warm-bg),var(--white) 60%);border:1px solid #E8B93A;border-radius:var(--radius-xl);padding:34px 40px;width:320px;max-width:86vw;box-shadow:0 12px 50px rgba(var(--black-rgb),.35);overflow:hidden;animation:rankupPop .45s cubic-bezier(.2,1.6,.4,1);}
 @keyframes rankupPop{0%{transform:scale(.5);opacity:0;}100%{transform:scale(1);opacity:1;}}
 .rankup-rays{position:absolute;top:-60%;left:-60%;width:220%;height:220%;background:conic-gradient(from 0deg,var(--mat-gold-ray),transparent 15%,var(--mat-gold-ray) 30%,transparent 45%,var(--mat-gold-ray) 60%,transparent 75%,var(--mat-gold-ray) 90%,transparent);animation:rankupSpin 6s linear infinite;pointer-events:none;}
 @keyframes rankupSpin{to{transform:rotate(360deg);}}
@@ -1110,7 +1110,7 @@ body.dark-mode .shop-item .price-tag.week { background:#3a221c; color:var(--dk-w
 /* 按钮视觉强化：购买按钮加更深的色与轻投影 */
 .shop-item .shop-btn { transition: transform .15s var(--ease-spring, ease), box-shadow .15s ease; }
 .shop-item .shop-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(var(--shadow-rgb),0.12); }
-.shop-item .shop-btn.used { background: linear-gradient(135deg,var(--ok-bg),#C8E6C9) !important; color: var(--ok) !important; border-color:var(--mat-ok-line) !important; font-weight: 800; }
+.shop-item .shop-btn.used { background: linear-gradient(135deg,var(--ok-bg),var(--mat-ok-bg)) !important; color: var(--ok) !important; border-color:var(--mat-ok-line) !important; font-weight: 800; }
 .shop-item .shop-btn.renew { background: linear-gradient(135deg,var(--info-bg),#BBDEFB) !important; color:var(--info-ink) !important; border-color:#64B5F6 !important; }
 /* 道具（ITEM_DEFS）特殊：显眼标题 */
 .shop-item .item-name-row { display:flex; align-items:center; flex-wrap:wrap; gap:var(--sp-6); margin-bottom:var(--sp-2); }
@@ -1413,15 +1413,15 @@ body.dark-mode .timer-circle{
     box-shadow: 0 0 0 1px rgba(var(--blue-rgb),.11), 0 0 22px 6px rgba(var(--blue-rgb),.17);
   }
   body.dark-mode .timer-circle-wrap:has(.timer-circle.mode-free.is-running)::before{
-    box-shadow: 0 0 0 1px rgba(139,122,189,.12), 0 0 22px 6px rgba(139,122,189,.18);
+    box-shadow: 0 0 0 1px rgba(var(--fx-free-rgb),.12), 0 0 22px 6px rgba(var(--fx-free-rgb),.18);
   }
   /* 公转小圆点：60 秒平滑走完一圈（linear），提示"时间在流逝"。
      动画常驻、仅 running 时显现（opacity 控制）。 */
   .timer-circle-wrap::after{
     content:''; position:absolute; top:5px; left:50%;
     width:8px; height:8px; margin-left:-4px; border-radius:50%;
-    background:rgba(255,138,80,.66);
-    box-shadow:0 0 6px 1px rgba(255,138,80,.22);
+    background:rgba(var(--fx-glow-rgb),.66);
+    box-shadow:0 0 6px 1px rgba(var(--fx-glow-rgb),.22);
     opacity:0; transition:opacity .6s var(--fx-ease), transform var(--dot-dur,.95s) linear;
     pointer-events:none;
     transform-origin:50% calc(var(--dial-d, 240px) * .5 - 5px); /* 贴圆盘外缘的轨道半径：圆心 - 圆点自身 5px 上边距 */
@@ -1434,7 +1434,7 @@ body.dark-mode .timer-circle{
     transform: rotate(var(--dot-rot, 0deg));
   }
   .timer-circle-wrap:has(.timer-circle.is-running)::after{ opacity:.9; }
-  body.dark-mode .timer-circle-wrap::after{ background:rgba(255,166,110,.72); box-shadow:0 0 6px 1px rgba(255,138,80,.24); }
+  body.dark-mode .timer-circle-wrap::after{ background:rgba(var(--fx-glow-hi-rgb),.72); box-shadow:0 0 6px 1px rgba(var(--fx-glow-rgb),.24); }
 }
 
 /* ---------- 桌面 hover 抬升（只对真·悬停设备生效，触屏点按不受干扰） ---------- */
@@ -1455,7 +1455,7 @@ body.dark-mode .timer-circle{
   body.dark-mode .ach-card:hover:not(:active),
   body.dark-mode .history-season-card:hover:not(:active),
   body.dark-mode .shop-item:hover:not(:active){
-    box-shadow: 0 8px 20px rgba(var(--black-rgb),.45), 0 0 0 1px rgba(255,138,80,.18);
+    box-shadow: 0 8px 20px rgba(var(--black-rgb),.45), 0 0 0 1px rgba(var(--fx-glow-rgb),.18);
   }
 }
 

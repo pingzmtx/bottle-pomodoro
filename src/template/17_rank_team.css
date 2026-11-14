@@ -145,7 +145,7 @@
 .star-path .sp-got b { color: var(--green-ink); font-size:var(--fs-title); }
 .star-path .sp-more { font-size:var(--fs-body); color: var(--text-light); margin: var(--sp-2) 0 var(--sp-6); }
 /* 强调色靠文字色与浅底表达，不描边（描边色的黄太亮，会跳出来自成一层） */
-.star-path .sp-streak { font-size:var(--fs-body); color: var(--yellow-ink); background: #FFF8E1; border: 0; border-radius: var(--radius); padding: var(--sp-4) var(--sp-8); margin-bottom: var(--sp-6); }
+.star-path .sp-streak { font-size:var(--fs-body); color: var(--yellow-ink); background: var(--mat-warm-bg); border: 0; border-radius: var(--radius); padding: var(--sp-4) var(--sp-8); margin-bottom: var(--sp-6); }
 .sp-wc { margin-top: var(--sp-4); }
 /* 这些是「进度条目」，不是卡片：零描边，靠行间距与下方 hairline 分条。
    父级 .star-path 已经是 surface-2 底，条目再描一道边就是圈套圈。 */
@@ -295,7 +295,7 @@
 .team-status-val.fail { color: var(--danger); }
 .team-status-val.pending { color: var(--yellow-ink); }
 .team-settlement {
-  background: linear-gradient(135deg, var(--ok-bg), #C8E6C9);
+  background: linear-gradient(135deg, var(--ok-bg), var(--mat-ok-bg));
   border: 1px solid var(--green);
   border-radius: var(--radius);
   padding: var(--sp-10);

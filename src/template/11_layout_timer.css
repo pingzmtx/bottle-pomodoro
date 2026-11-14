@@ -331,7 +331,7 @@ body.dark-mode .flow-dur-switch .fds-hint { color: #9aa5c0; }
   gap: var(--sp-6);
   width: fit-content;
   padding: var(--sp-4) var(--sp-10);
-  border-radius: var(--radius-pill, 999px);
+  border-radius: var(--radius-full);
   background: var(--surface-2);
   cursor: pointer;
   z-index: 1;

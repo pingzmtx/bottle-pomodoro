@@ -324,6 +324,15 @@
      值不手挑，由 tools/palette_contrast.py 的 fit() 反推（单参数轴、二分到刚好达标，目标 4.6）。
      ★ 分工：--on-primary = 主色**底上**的字；--primary-ink = 主色**当字**写在中性底上。 */
   --primary-ink: #B7492E;   /* 对底 4.62 / 对白卡 5.24 */
+  /* 主色的「浅底」：按压态、提示条这类只需要一点主色痕迹的地方。
+     ★ 2026-11-15 补定义：此前全仓 5 处都是 `var(--primary-soft, rgba(255,87,34,.1))`，
+       令牌从没定义过 —— 等于每处都把同一个常量写进 fallback。定义后 fallback 才能删。 */
+  --primary-soft: rgba(255,87,34,.10);
+  /* 计时圆盘公转点 / 自由计时紫晕：只存分量，alpha 留在使用点（各处透明度不同）。
+     原为 7 处 rgba(255,138,80,x) / rgba(139,122,189,x) 的字面量。 */
+  --fx-glow-rgb: 255,138,80;
+  --fx-glow-hi-rgb: 255,166,110;   /* 深色下提亮一档的圆点 */
+  --fx-free-rgb: 139,122,189;
   --green-ink:   #3D793D;   /* 4.63 / 5.25 */
   --yellow-ink:  #8C652E;   /* 4.61 / 5.23 */
   --blue-ink:    #42709B;   /* 4.60 / 5.22 */
@@ -389,6 +398,8 @@
   --mat-ok-strong: #4CAF50;
   --mat-ok-wash: rgba(102,187,106,.1);
   --mat-ok-line: #9CCC9C;
+  --mat-ok-bg: #C8E6C9;      /* 浅色实底绿：商店「已使用」按钮渐变末端、星轨连续天数徽章 */
+  --mat-warm-bg: #FFF8E1;    /* 暖奶油底：晋升弹窗、秋徽章、抽奖箱、连续天数徽章 */
   --mat-gold-strong: #F5B301;
   --mat-gold-line: #F1C76A;
   --mat-gold-ray: rgba(232,185,58,.25);
@@ -1523,7 +1534,7 @@ body.dark-mode .flow-dur-switch .fds-hint { color: #9aa5c0; }
   gap: var(--sp-6);
   width: fit-content;
   padding: var(--sp-4) var(--sp-10);
-  border-radius: var(--radius-pill, 999px);
+  border-radius: var(--radius-full);
   background: var(--surface-2);
   cursor: pointer;
   z-index: 1;
@@ -4549,7 +4560,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 .rv-sec-when {
   margin-left: auto; flex: 0 0 auto;
   font-size: var(--fs-micro); font-weight: var(--fw-regular); color: var(--text-light);
-  padding: 1px var(--sp-6); border-radius: var(--radius-pill, 999px); background: var(--surface-2);
+  padding: 1px var(--sp-6); border-radius: var(--radius-full); background: var(--surface-2);
 }
 .rv-sec-tip { margin-top: var(--sp-4); font-size: var(--fs-micro); color: var(--text-light); line-height: 1.5; }
 .rv-select, .rv-input {
@@ -5920,7 +5931,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
   font-size:var(--fs-title); font-weight: 800;
   cursor: pointer;
 }
-.calendar-header button.cal-title-btn:active { background: var(--primary-soft, rgba(255,87,34,.1)); }
+.calendar-header button.cal-title-btn:active { background: var(--primary-soft); }
 .cal-title-btn .ct-arrow { font-size:var(--fs-caption); color: var(--primary-ink); }
 /* 标题按钮的外壳（.calendar-header 里用 h3 承载，满足弹窗统一结构要求）：
    撑开剩余宽度并居中，不参与 32×32 的箭头尺寸规则。 */
@@ -5932,12 +5943,12 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
 .cal-jump-lbl { font-size:var(--fs-note); color: var(--text-light); font-weight: 600; }
 .cal-jump-val { font-size:var(--fs-body); font-weight: 600; color: var(--primary-ink); min-width: 46px; text-align: center; }
 .cal-jump-btn { font-size:var(--fs-note); padding: var(--sp-2) var(--sp-8); border-radius: var(--radius-sm); border: 1px solid var(--border-strong); background: var(--card); color: var(--text); cursor: pointer; }
-.cal-jump-btn:active { background: var(--primary-soft, rgba(255,87,34,.1)); }
+.cal-jump-btn:active { background: var(--primary-soft); }
 /* 月份格：必须 flex:0 0 auto + nowrap，否则 12 格挤在一行时被压窄，
    「10」会折成「1/0」、「9」的条数会跟数字挤成两行。 */
 .cal-jump-m { font-size:var(--fs-note); min-width: 34px; flex:0 0 auto; white-space:nowrap; padding: var(--sp-2) 0; text-align: center; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--card); cursor: pointer; }
 .cal-jump-m.on { border-color: var(--primary); color: var(--primary-ink); font-weight: 800; }
-.cal-jump-m:active { background: var(--primary-soft, rgba(255,87,34,.1)); }
+.cal-jump-m:active { background: var(--primary-soft); }
 .calendar-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: var(--sp-4); margin-bottom: var(--sp-12); }
 .calendar-weekday { text-align: center; font-size:var(--fs-title); font-weight: 700; color: var(--text-light); padding: var(--sp-4) 0; }
 .calendar-day {
@@ -6339,7 +6350,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
 }
 .tree-season-badge.spring { background: #FFF0F5; color: #E91E63; border-color: #F8BBD0; }
 .tree-season-badge.summer { background: var(--ok-bg); color: var(--ok); border-color: var(--ok-line); }
-.tree-season-badge.autumn { background: #FFF8E1; color: var(--accent-ink); border-color: #FFCC80; }
+.tree-season-badge.autumn { background: var(--mat-warm-bg); color: var(--accent-ink); border-color: #FFCC80; }
 .tree-season-badge.winter { background: var(--info-bg); color: var(--info-ink); border-color: var(--info-line); }
 .tree-season-hint { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-2); margin-bottom: var(--sp-6); line-height: 1.5; }
 .tree-season-hint b { color: var(--text); }
@@ -6360,7 +6371,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
 /* 称号 / 浇水 / 图鉴 */
 .tree-top-row { display: flex; align-items: center; justify-content: center; gap: var(--sp-10); margin-bottom: var(--sp-8); flex-wrap: wrap; }
 /* 金币抽奖 */
-.tree-lottery { margin-top: var(--sp-10); padding: var(--sp-8) var(--sp-10); background: linear-gradient(135deg,#FFF8E1,#FFEFD2); border: 2px dashed #FFD98A; border-radius: var(--radius); }
+.tree-lottery { margin-top: var(--sp-10); padding: var(--sp-8) var(--sp-10); background: linear-gradient(135deg,var(--mat-warm-bg),#FFEFD2); border: 2px dashed #FFD98A; border-radius: var(--radius); }
 .tree-lottery-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-4); }
 .tree-lottery-title { font-size:var(--fs-title); font-weight: 800; color: #8D6E63; }
 .tree-lottery-count { font-size:var(--fs-body); font-weight: 600; color: var(--text); background: var(--white); border: 1px solid #FFD98A; border-radius: var(--radius-full); padding: var(--sp-2) var(--sp-10); }
@@ -6390,7 +6401,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
   padding: var(--sp-4) var(--sp-12);
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  background: linear-gradient(135deg, #FFF8E1, #FFE0B2);
+  background: linear-gradient(135deg, var(--mat-warm-bg), #FFE0B2);
   color: #B36A00;
   box-shadow: var(--shadow-sm);
 }
@@ -7561,7 +7572,7 @@ body.dark-mode .tb-paper-blk.is-habit {
 .star-path .sp-got b { color: var(--green-ink); font-size:var(--fs-title); }
 .star-path .sp-more { font-size:var(--fs-body); color: var(--text-light); margin: var(--sp-2) 0 var(--sp-6); }
 /* 强调色靠文字色与浅底表达，不描边（描边色的黄太亮，会跳出来自成一层） */
-.star-path .sp-streak { font-size:var(--fs-body); color: var(--yellow-ink); background: #FFF8E1; border: 0; border-radius: var(--radius); padding: var(--sp-4) var(--sp-8); margin-bottom: var(--sp-6); }
+.star-path .sp-streak { font-size:var(--fs-body); color: var(--yellow-ink); background: var(--mat-warm-bg); border: 0; border-radius: var(--radius); padding: var(--sp-4) var(--sp-8); margin-bottom: var(--sp-6); }
 .sp-wc { margin-top: var(--sp-4); }
 /* 这些是「进度条目」，不是卡片：零描边，靠行间距与下方 hairline 分条。
    父级 .star-path 已经是 surface-2 底，条目再描一道边就是圈套圈。 */
@@ -7711,7 +7722,7 @@ body.dark-mode .tb-paper-blk.is-habit {
 .team-status-val.fail { color: var(--danger); }
 .team-status-val.pending { color: var(--yellow-ink); }
 .team-settlement {
-  background: linear-gradient(135deg, var(--ok-bg), #C8E6C9);
+  background: linear-gradient(135deg, var(--ok-bg), var(--mat-ok-bg));
   border: 1px solid var(--green);
   border-radius: var(--radius);
   padding: var(--sp-10);
@@ -8565,7 +8576,7 @@ body.dark-mode #backupReminderBar { opacity: 0.9; }
   background: var(--surface-2);
 }
 .current-todo-section .difficulty-option.active {
-  background: var(--primary-soft, rgba(255,87,34,.10));
+  background: var(--primary-soft);
   box-shadow: none;
 }
 .current-todo-section .difficulty-option.easy-halved {
@@ -8574,7 +8585,7 @@ body.dark-mode #backupReminderBar { opacity: 0.9; }
 .difficulty-option .difficulty-icon { font-size:var(--fs-sub); line-height: 1.1; }
 .difficulty-option .difficulty-name { font-size:var(--fs-body); font-weight: var(--fw-semibold); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .difficulty-option .difficulty-duration { font-size:var(--fs-body); font-weight: var(--fw-medium); color: var(--primary-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-.difficulty-option.active { border-color: var(--primary); background: var(--primary-soft, rgba(255,87,34,.08)); box-shadow: 0 0 0 1px var(--primary); }
+.difficulty-option.active { border-color: var(--primary); background: rgba(255,87,34,.08); box-shadow: 0 0 0 1px var(--primary); }
 .difficulty-option.active .difficulty-duration { color: var(--primary-ink); }
 /* 轻松模式生效时，档位卡显示「原时长删除线 + 实际时长」，消除显示与实际不符的歧义 */
 .difficulty-option .difficulty-duration .dur-orig { color: var(--text-light); font-weight: var(--fw-regular); text-decoration: line-through; margin-right: var(--sp-2); }
@@ -8646,7 +8657,7 @@ body.dark-mode .duration-suggestion.down { background: rgba(var(--primary-rgb),.
 #gachaBtn.gacha-btn-done{animation:gachaPop .45s ease;}
 /* 新增样式：段位晋升弹窗 + 幽灵提示 */
 .rankup-overlay{background:rgba(var(--black-rgb),.55);display:flex;align-items:center;justify-content:center;z-index:9990;}
-.rankup-box{position:relative;text-align:center;background:linear-gradient(160deg,#FFF8E1,var(--white) 60%);border:1px solid #E8B93A;border-radius:var(--radius-xl);padding:34px 40px;width:320px;max-width:86vw;box-shadow:0 12px 50px rgba(var(--black-rgb),.35);overflow:hidden;animation:rankupPop .45s cubic-bezier(.2,1.6,.4,1);}
+.rankup-box{position:relative;text-align:center;background:linear-gradient(160deg,var(--mat-warm-bg),var(--white) 60%);border:1px solid #E8B93A;border-radius:var(--radius-xl);padding:34px 40px;width:320px;max-width:86vw;box-shadow:0 12px 50px rgba(var(--black-rgb),.35);overflow:hidden;animation:rankupPop .45s cubic-bezier(.2,1.6,.4,1);}
 @keyframes rankupPop{0%{transform:scale(.5);opacity:0;}100%{transform:scale(1);opacity:1;}}
 .rankup-rays{position:absolute;top:-60%;left:-60%;width:220%;height:220%;background:conic-gradient(from 0deg,var(--mat-gold-ray),transparent 15%,var(--mat-gold-ray) 30%,transparent 45%,var(--mat-gold-ray) 60%,transparent 75%,var(--mat-gold-ray) 90%,transparent);animation:rankupSpin 6s linear infinite;pointer-events:none;}
 @keyframes rankupSpin{to{transform:rotate(360deg);}}
@@ -9383,7 +9394,7 @@ body.dark-mode .shop-item .price-tag.week { background:#3a221c; color:var(--dk-w
 /* 按钮视觉强化：购买按钮加更深的色与轻投影 */
 .shop-item .shop-btn { transition: transform .15s var(--ease-spring, ease), box-shadow .15s ease; }
 .shop-item .shop-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(var(--shadow-rgb),0.12); }
-.shop-item .shop-btn.used { background: linear-gradient(135deg,var(--ok-bg),#C8E6C9) !important; color: var(--ok) !important; border-color:var(--mat-ok-line) !important; font-weight: 800; }
+.shop-item .shop-btn.used { background: linear-gradient(135deg,var(--ok-bg),var(--mat-ok-bg)) !important; color: var(--ok) !important; border-color:var(--mat-ok-line) !important; font-weight: 800; }
 .shop-item .shop-btn.renew { background: linear-gradient(135deg,var(--info-bg),#BBDEFB) !important; color:var(--info-ink) !important; border-color:#64B5F6 !important; }
 /* 道具（ITEM_DEFS）特殊：显眼标题 */
 .shop-item .item-name-row { display:flex; align-items:center; flex-wrap:wrap; gap:var(--sp-6); margin-bottom:var(--sp-2); }
@@ -9686,15 +9697,15 @@ body.dark-mode .timer-circle{
     box-shadow: 0 0 0 1px rgba(var(--blue-rgb),.11), 0 0 22px 6px rgba(var(--blue-rgb),.17);
   }
   body.dark-mode .timer-circle-wrap:has(.timer-circle.mode-free.is-running)::before{
-    box-shadow: 0 0 0 1px rgba(139,122,189,.12), 0 0 22px 6px rgba(139,122,189,.18);
+    box-shadow: 0 0 0 1px rgba(var(--fx-free-rgb),.12), 0 0 22px 6px rgba(var(--fx-free-rgb),.18);
   }
   /* 公转小圆点：60 秒平滑走完一圈（linear），提示"时间在流逝"。
      动画常驻、仅 running 时显现（opacity 控制）。 */
   .timer-circle-wrap::after{
     content:''; position:absolute; top:5px; left:50%;
     width:8px; height:8px; margin-left:-4px; border-radius:50%;
-    background:rgba(255,138,80,.66);
-    box-shadow:0 0 6px 1px rgba(255,138,80,.22);
+    background:rgba(var(--fx-glow-rgb),.66);
+    box-shadow:0 0 6px 1px rgba(var(--fx-glow-rgb),.22);
     opacity:0; transition:opacity .6s var(--fx-ease), transform var(--dot-dur,.95s) linear;
     pointer-events:none;
     transform-origin:50% calc(var(--dial-d, 240px) * .5 - 5px); /* 贴圆盘外缘的轨道半径：圆心 - 圆点自身 5px 上边距 */
@@ -9707,7 +9718,7 @@ body.dark-mode .timer-circle{
     transform: rotate(var(--dot-rot, 0deg));
   }
   .timer-circle-wrap:has(.timer-circle.is-running)::after{ opacity:.9; }
-  body.dark-mode .timer-circle-wrap::after{ background:rgba(255,166,110,.72); box-shadow:0 0 6px 1px rgba(255,138,80,.24); }
+  body.dark-mode .timer-circle-wrap::after{ background:rgba(var(--fx-glow-hi-rgb),.72); box-shadow:0 0 6px 1px rgba(var(--fx-glow-rgb),.24); }
 }
 
 /* ---------- 桌面 hover 抬升（只对真·悬停设备生效，触屏点按不受干扰） ---------- */
@@ -9728,7 +9739,7 @@ body.dark-mode .timer-circle{
   body.dark-mode .ach-card:hover:not(:active),
   body.dark-mode .history-season-card:hover:not(:active),
   body.dark-mode .shop-item:hover:not(:active){
-    box-shadow: 0 8px 20px rgba(var(--black-rgb),.45), 0 0 0 1px rgba(255,138,80,.18);
+    box-shadow: 0 8px 20px rgba(var(--black-rgb),.45), 0 0 0 1px rgba(var(--fx-glow-rgb),.18);
   }
 }
 

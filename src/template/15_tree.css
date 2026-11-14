@@ -73,7 +73,7 @@
 }
 .tree-season-badge.spring { background: #FFF0F5; color: #E91E63; border-color: #F8BBD0; }
 .tree-season-badge.summer { background: var(--ok-bg); color: var(--ok); border-color: var(--ok-line); }
-.tree-season-badge.autumn { background: #FFF8E1; color: var(--accent-ink); border-color: #FFCC80; }
+.tree-season-badge.autumn { background: var(--mat-warm-bg); color: var(--accent-ink); border-color: #FFCC80; }
 .tree-season-badge.winter { background: var(--info-bg); color: var(--info-ink); border-color: var(--info-line); }
 .tree-season-hint { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-2); margin-bottom: var(--sp-6); line-height: 1.5; }
 .tree-season-hint b { color: var(--text); }
@@ -94,7 +94,7 @@
 /* 称号 / 浇水 / 图鉴 */
 .tree-top-row { display: flex; align-items: center; justify-content: center; gap: var(--sp-10); margin-bottom: var(--sp-8); flex-wrap: wrap; }
 /* 金币抽奖 */
-.tree-lottery { margin-top: var(--sp-10); padding: var(--sp-8) var(--sp-10); background: linear-gradient(135deg,#FFF8E1,#FFEFD2); border: 2px dashed #FFD98A; border-radius: var(--radius); }
+.tree-lottery { margin-top: var(--sp-10); padding: var(--sp-8) var(--sp-10); background: linear-gradient(135deg,var(--mat-warm-bg),#FFEFD2); border: 2px dashed #FFD98A; border-radius: var(--radius); }
 .tree-lottery-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-4); }
 .tree-lottery-title { font-size:var(--fs-title); font-weight: 800; color: #8D6E63; }
 .tree-lottery-count { font-size:var(--fs-body); font-weight: 600; color: var(--text); background: var(--white); border: 1px solid #FFD98A; border-radius: var(--radius-full); padding: var(--sp-2) var(--sp-10); }
@@ -124,7 +124,7 @@
   padding: var(--sp-4) var(--sp-12);
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  background: linear-gradient(135deg, #FFF8E1, #FFE0B2);
+  background: linear-gradient(135deg, var(--mat-warm-bg), #FFE0B2);
   color: #B36A00;
   box-shadow: var(--shadow-sm);
 }

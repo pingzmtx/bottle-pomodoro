@@ -36,11 +36,11 @@
   },
   "14_log_stats.css": {
     "hex": 14,
-    "rgb": 6,
+    "rgb": 3,
     "func": 0
   },
   "15_tree.css": {
-    "hex": 21,
+    "hex": 18,
     "rgb": 7,
     "func": 0
   },
@@ -50,7 +50,7 @@
     "func": 0
   },
   "17_rank_team.css": {
-    "hex": 13,
+    "hex": 11,
     "rgb": 0,
     "func": 0
   },
@@ -65,8 +65,8 @@
     "func": 0
   },
   "1A_dark_misc.css": {
-    "hex": 70,
-    "rgb": 36,
+    "hex": 68,
+    "rgb": 28,
     "func": 0
   },
   "50_journey.css": {

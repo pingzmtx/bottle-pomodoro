@@ -46,6 +46,15 @@
      值不手挑，由 tools/palette_contrast.py 的 fit() 反推（单参数轴、二分到刚好达标，目标 4.6）。
      ★ 分工：--on-primary = 主色**底上**的字；--primary-ink = 主色**当字**写在中性底上。 */
   --primary-ink: #B7492E;   /* 对底 4.62 / 对白卡 5.24 */
+  /* 主色的「浅底」：按压态、提示条这类只需要一点主色痕迹的地方。
+     ★ 2026-11-15 补定义：此前全仓 5 处都是 `var(--primary-soft, rgba(255,87,34,.1))`，
+       令牌从没定义过 —— 等于每处都把同一个常量写进 fallback。定义后 fallback 才能删。 */
+  --primary-soft: rgba(255,87,34,.10);
+  /* 计时圆盘公转点 / 自由计时紫晕：只存分量，alpha 留在使用点（各处透明度不同）。
+     原为 7 处 rgba(255,138,80,x) / rgba(139,122,189,x) 的字面量。 */
+  --fx-glow-rgb: 255,138,80;
+  --fx-glow-hi-rgb: 255,166,110;   /* 深色下提亮一档的圆点 */
+  --fx-free-rgb: 139,122,189;
   --green-ink:   #3D793D;   /* 4.63 / 5.25 */
   --yellow-ink:  #8C652E;   /* 4.61 / 5.23 */
   --blue-ink:    #42709B;   /* 4.60 / 5.22 */
@@ -111,6 +120,8 @@
   --mat-ok-strong: #4CAF50;
   --mat-ok-wash: rgba(102,187,106,.1);
   --mat-ok-line: #9CCC9C;
+  --mat-ok-bg: #C8E6C9;      /* 浅色实底绿：商店「已使用」按钮渐变末端、星轨连续天数徽章 */
+  --mat-warm-bg: #FFF8E1;    /* 暖奶油底：晋升弹窗、秋徽章、抽奖箱、连续天数徽章 */
   --mat-gold-strong: #F5B301;
   --mat-gold-line: #F1C76A;
   --mat-gold-ray: rgba(232,185,58,.25);
