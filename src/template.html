@@ -394,6 +394,7 @@
   --mat-gold-ray: rgba(232,185,58,.25);
   --mat-navy: #1A2440;
   --mat-bad-wash: rgba(239,83,80,.1);
+  --mat-bad-edge: rgba(239,83,80,.28);
   --mat-hint-wash: rgba(255,202,40,.08);
   --mat-hint-edge: rgba(255,202,40,.3);
   --mat-legend-bg: #FFFCEC;
@@ -7919,7 +7920,11 @@ body.dark-mode .theme-card { background: var(--surface-1); }
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: var(--surface-3);
+  /* 原 #ccc。2026-11-14 截图对拍发现：P1 把它换成 --surface-3 后，
+     浅色下轨道变成 #F0EADF，与白卡片几乎同色，只剩圆点在飘（gruvbox 最严重）。
+     --line-rgb 浅色=主题深色、深色=#fff，.22 叠出来浅色 ≈ #CCC 与改前几乎一致；
+     深色由 1A 的 body.dark-mode 覆盖为 rgba(--white-rgb,.16)。 */
+  background: rgba(var(--line-rgb), .22);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   transition: 0.3s;
@@ -10619,7 +10624,7 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
       <!--pnid:3UdgF0rsSKPSgHVPBETvmL--><!-- 成长 Buff 显示：转盘今日成长 / 今日运势签 的倍率叠加 -->
       <div data-page-node-id="YqmUb3heyNytdIdocuiAty" id="treeGrowthBuffBar" style="display:none; flex-wrap:wrap; align-items:center; gap:var(--sp-4); margin-top:var(--sp-6); justify-content:center"></div>
       <!--pnid:MkyRdApjLdp37bISZJeouG--><!-- 枯死状态操作区：免费重种 / 花费金币复活 -->
-      <div data-page-node-id="rhHqCQfJ5WIJH3PujImf7g" id="treeDeadActions" style="display:none; margin-top:var(--sp-12); padding:var(--sp-12); background:#FDF0EF; border:2px solid #E6B8B3; border-radius:var(--radius); text-align:center">
+      <div data-page-node-id="rhHqCQfJ5WIJH3PujImf7g" id="treeDeadActions" style="display:none; margin-top:var(--sp-12); padding:var(--sp-12); background:var(--mat-bad-wash); border:2px solid var(--mat-bad-edge); border-radius:var(--radius); text-align:center">
         <div data-page-node-id="IZeduHK0IQAQOJbUFj4R65" style="font-size:var(--fs-title); color:var(--danger); font-weight:800; margin-bottom:var(--sp-4)"><!--pnid:uRFV1BiQQOmKFd8xbQhthf-->🥀 树木已枯死</div>
         <div data-page-node-id="z142WfyyA2subZ4MFQ6Tn3" style="font-size:var(--fs-body); color:var(--text-light); margin-bottom:var(--sp-10)"><!--pnid:fEs7LUAOXOIDN931EyCg1I-->长期闲置导致枯死，重新种一棵或用复活石复活吧</div>
         <button data-page-node-id="l0jX2aqgNgUzJxA1hGffWL" class="save-btn" data-act="replantTree" style="background:var(--green)"><!--pnid:mDWP2euK6qKvk5oetBPbi0-->🌱 免费重新种植</button>
@@ -10732,7 +10737,7 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
       <div data-page-node-id="AveGes9RiVQuA1OpvcFxnh" class="rank-desc-card">
         <b data-page-node-id="EXjcuvLgiLFQP0Je6K9o3H" class="rdc-title" data-act="toggleFold" data-act-args='["rerollDescBody","rerollDescArrow"]'><!--pnid:vYRRCHLDpUIZyJYzr1WO6I-->🔥 今日赌注·完整说明 <span data-page-node-id="Oj4fmUdTc4O0vjSNMWvV9n" id="rerollDescArrow"><!--pnid:zFPdsHSpXbfBEaUukMP8nT-->▸</span></b>
         <div data-page-node-id="f5iGARjiKXeiBJ7Q5u6vyA" id="rerollDescBody" style="display:none; font-size:var(--fs-title); color:var(--text-light); line-height:1.7">
-          <div data-page-node-id="yEs8JJfVZm02M5h7vz7j6A" style="background:#FFF8E1; border:1px solid #FFE082; border-radius:var(--radius); padding:var(--sp-8) var(--sp-10); margin-bottom:var(--sp-8); font-size:var(--fs-body)"><!--pnid:5HbNSrgwPRWBRePYYSmOcF-->
+          <div data-page-node-id="yEs8JJfVZm02M5h7vz7j6A" style="background:var(--mat-hint-wash); border:1px solid var(--mat-hint-edge); border-radius:var(--radius); padding:var(--sp-8) var(--sp-10); margin-bottom:var(--sp-8); font-size:var(--fs-body)"><!--pnid:5HbNSrgwPRWBRePYYSmOcF-->
             🎯 一句话：花 🍅 赌自己完成更难的任务——目标上浮、<b data-page-node-id="tJwH1VL3BSU9KXm1c26HsI"><!--pnid:kgp3x90pthijGV96zCHovB-->花的🍅 从今日进度扣除</b><!--pnid:CNY3cqhhOTIqefv9dtcP1a-->，完成按档位 <b data-page-node-id="2PM5xdqKyuK42PEbtTOTfy"><!--pnid:fynHxeJfRE9rC0TWQvaC2m-->+5~18⭐</b><!--pnid:b1C73SG0n52GoiALN4N7IH-->，没完成按新目标降星。每天一次。
           </div>
           <b data-page-node-id="8drHRxssIkHfh5TGulli7u" style="color:var(--text)"><!--pnid:2lTm4N795oRO9DAspThozO-->🎲 三档任选（投入越大 → 挑战越大 → 奖励越高）</b>
@@ -11936,7 +11941,7 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
         </select>
       </div>
     </div>
-    <div data-page-node-id="SJ1ELAXwPsz5cl6Mu8ylo4" style="margin-bottom:var(--sp-10); background:#F2FBF2; border:1px dashed var(--mat-ok-strong); border-radius:var(--radius-sm); padding:var(--sp-10) var(--sp-12); display:flex; justify-content:space-between; align-items:center">
+    <div data-page-node-id="SJ1ELAXwPsz5cl6Mu8ylo4" style="margin-bottom:var(--sp-10); background:var(--mat-ok-wash); border:1px dashed var(--mat-ok-strong); border-radius:var(--radius-sm); padding:var(--sp-10) var(--sp-12); display:flex; justify-content:space-between; align-items:center">
       <span data-page-node-id="eQDGkNJZnXGvn37d129xXT" style="font-size:var(--fs-title); color:var(--text-light)"><!--pnid:jS8hEyik7OI6FctTSxvHUC-->⏰ 结束时间（自动按专注分钟算）</span>
       <span data-page-node-id="YrLMZDwIo7q2kbMxidDMGY" id="addRecordEndShow" style="font-size:var(--fs-hero); font-weight:700; color:var(--ok)"><!--pnid:iZLTB18UpNEJlTawpdO5mo-->09:25</span>
     </div>
