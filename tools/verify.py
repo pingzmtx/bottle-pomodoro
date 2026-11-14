@@ -199,6 +199,15 @@ def main():
         # 首次运行就抓到一处真分歧：非法日期 "2026-02-29" 下 fast 判「该做」而 slow 判「不该做」。
         # 同时校验 todoRepeatMatches 恒等于 todoRepeatMatchesNorm(norm(r))（纯包装关系）。
         ("repeat", "node tools/check_repeat_consistency.js"),
+        # 作用域重名（S1，2026-11-14）：callgraph 的 duplicate_fns 曾报「13 组重名顶层函数，
+        # 后加载的静默覆盖」。逐个查证后 **13 组全是误报** —— 它把 depth=0（文件顶层）和
+        # depth=1（各自 IIFE 内私有）混进同一张表，`q`/isMinimal/patchObserver 不过是
+        # 07 与 08 各写了一份同名私有函数。反证不需跑代码：同一份 callgraph.json 的
+        # globals（245 个）里这 13 个名字一个都不在。
+        # 所以本段守的不是"名字重复"，而是**同一作用域同名声明**（真覆盖）：
+        # 跨文件 depth=0 并入同一张全局表（--classic 下 9 个 <script> 共享 window，按最严守），
+        # 块级 let/const 与函数提升分开算（否则 `for (const x of a){} for (const x of b){}` 误报）。
+        ("scopedup", "node tools/check_scoped_dups.js"),
         # 人生目标的进度算法（2026-10）：纯函数单测，不启浏览器。
         # 这些用例每一条都对应一次真实算错（清空输入框算出 100%、
         # 跨年度目标被 366 天截断成 0.3%、null 当 0 显示"未测量 0%"）。

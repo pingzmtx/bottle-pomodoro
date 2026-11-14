@@ -156,7 +156,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
     下面这段列表**由脚本从 `tools/verify.py` 现场生成**，不要手改（手写必过期：2026-11-14 查出这里漏了 `callgraph` 与 `csstok` 两段，同日同一份文档还留着复现不出的「359 处硬编码」）。改完链就跑 `python3 tools/gen_verify_chain.py --write`；它同时是 `docchain` 段，文档与代码不一致会红灯。
 
 <!-- verify-chain:begin 由 tools/gen_verify_chain.py 从 verify.py 生成，勿手改 -->
-已挂链 32 段（`python3 tools/verify.py --fast` 依次跑）：`gate` / `lint` / `build` / `check` / `callgraph` / `layer` / `toc` / `docchain` / `size` / `ids` / `tomato` / `coin` / `domain` / `bundle` / `implicit` / `actargs` / `act` / `calcspace` / `dup` / `a11y` / `cov` / `casemeta` / `contract` / `casefix` / `unit` / `catch` / `promise` / `modals` / `theme` / `csstok` / `repeat` / `lifeGoal`
+已挂链 33 段（`python3 tools/verify.py --fast` 依次跑）：`gate` / `lint` / `build` / `check` / `callgraph` / `layer` / `toc` / `docchain` / `size` / `ids` / `tomato` / `coin` / `domain` / `bundle` / `implicit` / `actargs` / `act` / `calcspace` / `dup` / `a11y` / `cov` / `casemeta` / `contract` / `casefix` / `unit` / `catch` / `promise` / `modals` / `theme` / `csstok` / `repeat` / `scopedup` / `lifeGoal`
 
 `--e2e` 再追加 3 段：`e2e` / `perf` / `viewport`
 <!-- verify-chain:end -->

@@ -178,13 +178,38 @@ function collectTopFns(f) {
 }
 files.forEach(collectTopFns);
 
-/* 2.2 函数名 → 归属文件（重名时全保留，显式记录冲突） */
+/* 2.2 函数名 → 归属文件（重名时全保留，显式记录冲突）
+ * ⚠ 口径（2026-11-14 修正）：**只有 depth=0 才可能互相覆盖**。
+ *   depth=0 是文件顶层声明 —— 拼接后它们共享同一个脚本作用域，后写的覆盖前面的；
+ *   depth=1 是各文件自己 IIFE 里的私有函数 —— 作用域不相交，同名纯属巧合同名。
+ *   旧代码把两者并进同一张表，于是 07_uiFold 与 08_component_registry 里各一份
+ *   `q`/isMinimal/patchObserver` 被报成「13 组静默覆盖」。逐个查证：13 组全是误报，
+ *   且同一份输出的 globals（245 个 window.xxx）里这 13 个名字一个都不在 ——
+ *   工具不可能同时说「它不是全局」和「它被后加载的覆盖」。
+ *   fnOwner 仍保留全部（--impact / 调用归属需要能查到私有函数），
+ *   冲突判定单独用 fnOwnerShared（只含 depth=0）。 */
 const fnOwner = new Map();
-for (const f of files) for (const name of mods[f].topFns.keys()) {
+const fnOwnerShared = new Map();
+const fnDepthIdx = new Map();   // name -> { d0:[files], d1:[files] }
+for (const f of files) for (const [name, info] of mods[f].topFns) {
   if (!fnOwner.has(name)) fnOwner.set(name, []);
   fnOwner.get(name).push(f);
+  if (!fnDepthIdx.has(name)) fnDepthIdx.set(name, { d0: [], d1: [] });
+  fnDepthIdx.get(name)[info.depth === 0 ? 'd0' : 'd1'].push(f);
+  if (info.depth === 0) {
+    if (!fnOwnerShared.has(name)) fnOwnerShared.set(name, []);
+    fnOwnerShared.get(name).push(f);
+  }
 }
-const dupNames = [...fnOwner].filter(([, v]) => v.length > 1).map(([k, v]) => [k, v]);
+/* 真覆盖：同一共享作用域内同名（后者静默生效） */
+const dupNames = [...fnOwnerShared].filter(([, v]) => v.length > 1).map(([k, v]) => [k, v]);
+/* 同名但不同作用域：不构成覆盖，仅备查。两类——
+ * ① 各自私有（两个 IIFE 各写一份，纯巧合同名）
+ * ② 同名遮蔽（文件内私有那份遮住别处的全局同名，改全局时这份不会跟着变 → 漂移风险） */
+const dupPrivate = [...fnDepthIdx]
+  .filter(([k, v]) => !fnOwnerShared.has(k) ? v.d0.length + v.d1.length > 1 : v.d1.length > 0)
+  .map(([k, v]) => [k, v]);
+const dupShadow = dupPrivate.filter(([, v]) => v.d0.length && v.d1.length).map(([k]) => k);
 
 /* 2.3 全局挂载名 → 归属文件（window.xxx = ... 与 window.NS = (function(){...})()） */
 const globalOwner = new Map();
@@ -605,11 +630,13 @@ if (HAS('--evidence')) {
   console.log('  ── 软依赖（防御式，逐条标出判据）──');
   for (const e of softDep) console.log(upEdgeRow(e));
 
-  console.log(`\n【② 重名顶层函数】共 ${dupNames.length} 组`
-    + `（旧工具 owner.setdefault 会静默丢定义）`);
+  console.log(`\n【② 重名顶层函数】真覆盖 ${dupNames.length} 组`
+    + `（只算 depth=0：拼接后共享脚本作用域）`);
   for (const [n, fs2] of dupNames.slice().sort()) {
     console.log(`  ${n}  →  ${fs2.join(', ')}`);
   }
+  console.log(`  另有同名私有 ${dupPrivate.length} 组（作用域不相交，不算覆盖；`
+    + `其中同名遮蔽 ${dupShadow.length} 组，如 ${dupShadow.slice(0, 3).sort().join('/') || '无'}）`);
 
   console.log('\n【③ 软依赖判据分布】');
   const critCount = {};
@@ -669,6 +696,7 @@ if (HAS('--selfcheck')) {
     edges: edges.length,
     by_kind: byKind,
     dup_groups: dupNames.length,
+    dup_private_groups: dupPrivate.length,
     hard_up: hardViol.length,
     soft_up: softDep.length,
     /* 判据分布——漏报面就在这：context-240 条目越少越可信 */
@@ -679,7 +707,8 @@ if (HAS('--selfcheck')) {
   console.log('=== callgraph_ast 自检 ===');
   console.log('acorn 版本      :', acorn.version, '(不变量)');
   console.log('模块数          :', files.length, unreg.length ? `(未登记层: ${unreg})` : '(全部已登记层)');
-  console.log('顶层函数(去重)  :', fnOwner.size, '| 重名冲突:', dupNames.length, '组');
+  console.log('顶层函数(去重)  :', fnOwner.size, '| 真覆盖:', dupNames.length, '组',
+    `| 同名私有(不覆盖): ${dupPrivate.length} 组`);
   console.log('边总数          :', edges.length, `(call=${byKind.call} state=${byKind.state} dom=${byKind.dom})`);
   console.log('appData 归属    :', appDataOwner);
   console.log('全局挂载名      :', globalOwner.size);
@@ -760,6 +789,7 @@ const out = {
   layers: LAYER,
   globals: Object.fromEntries(globalOwner),
   duplicate_fns: dupNames.map(([n, fs2]) => ({ name: n, files: fs2 })),
+  private_same_name_fns: dupPrivate.map(([n, fs2]) => ({ name: n, files: fs2 })),
   edges: edges.map((e) => ({
     kind: e.kind, from: e.from, to: e.toFile,
     to_fn: e.toFn || null, sym: e.toSym || null,
@@ -777,7 +807,8 @@ fs.writeFileSync(OUT_JSON, JSON.stringify(out), 'utf8');
 console.log('=== AST 调用图（D 方案） ===');
 console.log(`acorn ${acorn.version} · 模块 ${files.length} · 顶层函数 ${fnOwner.size} · 边 ${edges.length}`);
 console.log(`  call=${byKind.call}  state=${byKind.state}  dom=${byKind.dom}`);
-console.log(`  appData 归属 ${appDataOwner} · 全局挂载名 ${globalOwner.size} · 重名函数 ${dupNames.length} 组`);
+console.log(`  appData 归属 ${appDataOwner} · 全局挂载名 ${globalOwner.size}`
+  + ` · 真覆盖 ${dupNames.length} 组 · 同名私有 ${dupPrivate.length} 组`);
 console.log(`已写 ${path.relative(ROOT, OUT_JSON)}`);
 
 console.log('\n【被依赖 Top12】（入度，三类边合计）');
@@ -805,6 +836,9 @@ for (const [k, v] of Object.entries(byPair).sort((a, b) => b[1].n - a[1].n)) {
 }
 
 if (dupNames.length) {
-  console.log(`\n⚠️ 重名顶层函数 ${dupNames.length} 组（旧正则工具的 owner 表 setdefault 会静默丢定义）`);
+  console.log(`\n⚠️ 真覆盖 ${dupNames.length} 组（depth=0 同名，后加载的静默生效）`);
   for (const [n, fs2] of dupNames) console.log(`  ${n}: ${fs2.join(', ')}`);
+}
+if (dupPrivate.length) {
+  console.log(`\nℹ️ 同名私有 ${dupPrivate.length} 组（各自 IIFE 内，不构成覆盖；仅供检索时留意）`);
 }
