@@ -1,127 +1,133 @@
 {
- "generated_from": "index.html",
- "template": "template.html",
- "script_dir": "scripts",
- "marker": "<!--@@__JSS_{n}__@@-->",
- "slots": [
-  {
-   "slot": 1,
-   "open": "<script data-page-node-id=\"RPiSmVnAWjcdXFnPsji9He\" data-pnid-children=\"HnAB3wi6KCyMsYiZkvTjWL\">",
-   "close": "</script>",
-   "files": [
-    "01z_ui_facade.js",
-    "00_delegate.js",
-    "01a_engine_prelude.js",
-    "01b1_storage.js",
-    "00b_goal_progress.js",
-    "01b_engine_data.js",
-    "01b2_achievements.js",
-    "01b3_sync.js",
-    "01c_engine_timer.js",
-    "01d_engine_features.js",
-    "01d3_engine_tree_shop.js",
-    "01d5_engine_stats.js",
-    "01d6_engine_util.js",
-    "01d4_engine_team.js",
-    "01d2_engine_rank_bot.js",
-    "01e_engine_ui.js",
-    "01eK_ui_remind.js",
-    "01eL_ui_audio.js",
-    "01eC_ui_todo.js",
-    "01eD_ui_log.js",
-    "01eE_ui_lifegoal.js",
-    "01eF_ui_lifecycle.js",
-    "01eG_ui_lifereview.js",
-    "01eO_ui_lifewish.js",
-    "01eH_ui_fx.js",
-    "01eB_ui_habit.js",
-    "01e7_ui_stats.js",
-    "01e8_ui_misc.js",
-    "01eJ_ui_skin.js",
-    "01e9_ui_memo.js",
-    "01eA_ui_timeblock.js",
-    "01eM_ui_tbcreate.js",
-    "01e5_ui_tree.js",
-    "01eN_ui_forest.js",
-    "01e6_ui_rank.js",
-    "01e2_ui_poster.js",
-    "01e3_ui_team.js",
-    "01e4_ui_ux.js",
-    "01f_engine_immersive.js",
-    "01f2_ui_script_import.js",
-    "01g_engine_init.js"
-   ],
-   "parts": 32
-  },
-  {
-   "slot": 2,
-   "file": "02_enh571_自律增强.js",
-   "open": "<script>",
-   "close": "</script>",
-   "len": 36945,
-   "sha256": "06475af0fd79a690bb409c9cac95c3376947eed3f0f9f794f0b3e20ac2c3336f"
-  },
-  {
-   "slot": 3,
-   "file": "03_enh572_性能打磨.js",
-   "open": "<script>",
-   "close": "</script>",
-   "len": 21749,
-   "sha256": "814f7a8c624d1a6980b16eee2306dafb4e678b0e480be919e5d05bd3ea9ee40a"
-  },
-  {
-   "slot": 4,
-   "file": "04_enh573_统计缓存.js",
-   "open": "<script>",
-   "close": "</script>",
-   "len": 4342,
-   "sha256": "7c8e32e3e6d309746d841a3980daaa454f1e98ed0eed68f5199730e3652e57c0"
-  },
-  {
-   "slot": 5,
-   "file": "05_journey_渐进解锁.js",
-   "open": "<script>",
-   "close": "</script>",
-   "len": 58636,
-   "sha256": "aaf7f011ab3cf6627d360d9ddebe853cc34d73e9fea1659ae8177ac9ccef7ead"
-  },
-  {
-   "slot": 6,
-   "file": "06_errRep_错误监控.js",
-   "open": "<script>",
-   "close": "</script>",
-   "len": 7886,
-   "sha256": "a20d028ccfdcbf859615794c172f9a0dd32a64a92ae14ebf82c399b9be03413c"
-  },
-  {
-   "slot": 7,
-   "file": "07_uiFold_折叠记忆.js",
-   "open": "<script>",
-   "close": "</script>",
-   "len": 5709,
-   "sha256": "060a442be1364e7cce03d2e817dec602eea3ec2552252677743f0e5a3072ccba"
-  },
-  {
-   "slot": 8,
-   "open": "<script>",
-   "close": "</script>",
-   "files": [
-    "08_component_registry.js",
-    "09_a11y_无障碍.js",
-    "0A_默认态收敛.js",
-    "0B_hash路由.js",
-    "0C_确认弹窗.js",
-    "0D_store通知.js",
-    "0E_theme_主题引擎.js"
-   ]
-  },
-  {
-   "slot": 9,
-   "file": "00_pure_core.js",
-   "open": "<script>",
-   "close": "</script>",
-   "len": 1927,
-   "sha256": "227fb228a9f650167ed13cb01a48b89c111cb85a0d344fa0120bb68baaa79360"
-  }
- ]
+  "generated_from": "index.html",
+  "template": "template.html",
+  "script_dir": "scripts",
+  "marker": "<!--@@__JSS_{n}__@@-->",
+  "slots": [
+    {
+      "slot": 1,
+      "open": "<script data-page-node-id=\"RPiSmVnAWjcdXFnPsji9He\" data-pnid-children=\"HnAB3wi6KCyMsYiZkvTjWL\">",
+      "close": "</script>",
+      "files": [
+        "01z_ui_facade.js",
+        "00_delegate.js",
+        "01a_engine_prelude.js",
+        "01b1_storage.js",
+        "00b_goal_progress.js",
+        "01b_engine_data.js",
+        "01b2_achievements.js",
+        "01b3_sync.js",
+        "01c_engine_timer.js",
+        "01d_engine_features.js",
+        "01d7_engine_record_link.js",
+        "01d8_engine_plan_analysis.js",
+        "01d9_engine_tree_rank.js",
+        "01dA_engine_rank_schedule.js",
+        "01dB_engine_day_rollover.js",
+        "01dC_engine_task_exchange.js",
+        "01d3_engine_tree_shop.js",
+        "01d5_engine_stats.js",
+        "01d6_engine_util.js",
+        "01d4_engine_team.js",
+        "01d2_engine_rank_bot.js",
+        "01e_engine_ui.js",
+        "01eK_ui_remind.js",
+        "01eL_ui_audio.js",
+        "01eC_ui_todo.js",
+        "01eD_ui_log.js",
+        "01eE_ui_lifegoal.js",
+        "01eF_ui_lifecycle.js",
+        "01eG_ui_lifereview.js",
+        "01eO_ui_lifewish.js",
+        "01eH_ui_fx.js",
+        "01eB_ui_habit.js",
+        "01e7_ui_stats.js",
+        "01e8_ui_misc.js",
+        "01eJ_ui_skin.js",
+        "01e9_ui_memo.js",
+        "01eA_ui_timeblock.js",
+        "01eM_ui_tbcreate.js",
+        "01e5_ui_tree.js",
+        "01eN_ui_forest.js",
+        "01e6_ui_rank.js",
+        "01e2_ui_poster.js",
+        "01e3_ui_team.js",
+        "01e4_ui_ux.js",
+        "01f_engine_immersive.js",
+        "01f2_ui_script_import.js",
+        "01g_engine_init.js"
+      ],
+      "parts": 32
+    },
+    {
+      "slot": 2,
+      "file": "02_enh571_自律增强.js",
+      "open": "<script>",
+      "close": "</script>",
+      "len": 36945,
+      "sha256": "06475af0fd79a690bb409c9cac95c3376947eed3f0f9f794f0b3e20ac2c3336f"
+    },
+    {
+      "slot": 3,
+      "file": "03_enh572_性能打磨.js",
+      "open": "<script>",
+      "close": "</script>",
+      "len": 21749,
+      "sha256": "814f7a8c624d1a6980b16eee2306dafb4e678b0e480be919e5d05bd3ea9ee40a"
+    },
+    {
+      "slot": 4,
+      "file": "04_enh573_统计缓存.js",
+      "open": "<script>",
+      "close": "</script>",
+      "len": 4342,
+      "sha256": "7c8e32e3e6d309746d841a3980daaa454f1e98ed0eed68f5199730e3652e57c0"
+    },
+    {
+      "slot": 5,
+      "file": "05_journey_渐进解锁.js",
+      "open": "<script>",
+      "close": "</script>",
+      "len": 58636,
+      "sha256": "aaf7f011ab3cf6627d360d9ddebe853cc34d73e9fea1659ae8177ac9ccef7ead"
+    },
+    {
+      "slot": 6,
+      "file": "06_errRep_错误监控.js",
+      "open": "<script>",
+      "close": "</script>",
+      "len": 7886,
+      "sha256": "a20d028ccfdcbf859615794c172f9a0dd32a64a92ae14ebf82c399b9be03413c"
+    },
+    {
+      "slot": 7,
+      "file": "07_uiFold_折叠记忆.js",
+      "open": "<script>",
+      "close": "</script>",
+      "len": 5709,
+      "sha256": "060a442be1364e7cce03d2e817dec602eea3ec2552252677743f0e5a3072ccba"
+    },
+    {
+      "slot": 8,
+      "open": "<script>",
+      "close": "</script>",
+      "files": [
+        "08_component_registry.js",
+        "09_a11y_无障碍.js",
+        "0A_默认态收敛.js",
+        "0B_hash路由.js",
+        "0C_确认弹窗.js",
+        "0D_store通知.js",
+        "0E_theme_主题引擎.js"
+      ]
+    },
+    {
+      "slot": 9,
+      "file": "00_pure_core.js",
+      "open": "<script>",
+      "close": "</script>",
+      "len": 1927,
+      "sha256": "227fb228a9f650167ed13cb01a48b89c111cb85a0d344fa0120bb68baaa79360"
+    }
+  ]
 }

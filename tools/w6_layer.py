@@ -61,6 +61,13 @@ LAYER = {
     "01b3_sync.js": 2,            # 同步层：只读数据结构 + 适配器，不碰 UI
     "01a_engine_prelude.js": 1, "01b1_storage.js": 1, "01b_engine_data.js": 1, "01b2_achievements.js": 1, "01c_engine_timer.js": 1,
     "01d_engine_features.js": 1, "01d2_engine_rank_bot.js": 1,
+    # 2026-11-14 · S2：01d 按域拆成 7 个文件，全部留在 L1（纯移动，未改依赖方向）
+    "01d7_engine_record_link.js": 1,
+    "01d8_engine_plan_analysis.js": 1,
+    "01d9_engine_tree_rank.js": 1,
+    "01dA_engine_rank_schedule.js": 1,
+    "01dB_engine_day_rollover.js": 1,
+    "01dC_engine_task_exchange.js": 1,
     "01d3_engine_tree_shop.js": 1,
     "01d5_engine_stats.js": 1,
     "01d6_engine_util.js": 1,

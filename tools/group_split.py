@@ -37,6 +37,9 @@ GROUPS = [
     ("base", ["00_delegate.js", "01z_ui_facade.js"]),
     ("engine", ["01a_engine_prelude.js", "01b1_storage.js", "01b_engine_data.js",
                 "01b2_achievements.js", "01c_engine_timer.js", "01d_engine_features.js",
+                "01d7_engine_record_link.js", "01d8_engine_plan_analysis.js",
+                "01d9_engine_tree_rank.js", "01dA_engine_rank_schedule.js",
+                "01dB_engine_day_rollover.js", "01dC_engine_task_exchange.js",
                 "01d2_engine_rank_bot.js", "01d3_engine_tree_shop.js", "01d4_engine_team.js",
                 "01d5_engine_stats.js", "01d6_engine_util.js"]),
 ]
