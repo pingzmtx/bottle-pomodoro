@@ -70,26 +70,26 @@
       "note": "机器人榜单数据"
     },
     "countdowns": {
-      "owner": "01e_engine_ui.js",
+      "owner": "01eR_ui_diary.js",
       "writers": [
         "01b3_sync.js",
         "01b_engine_data.js",
-        "01e_engine_ui.js"
+        "01eR_ui_diary.js"
       ],
       "note": "倒计时（计划页）"
     },
     "diaries": {
-      "owner": "01e_engine_ui.js",
+      "owner": "01e7_ui_stats.js",
       "writers": [
         "01e7_ui_stats.js",
-        "01e_engine_ui.js"
+        "01eS_ui_addrecord.js"
       ],
       "note": "日记"
     },
     "enhSettings": {
-      "owner": "01e_engine_ui.js",
+      "owner": "01eQ_ui_timerpanel.js",
       "writers": [
-        "01e_engine_ui.js",
+        "01eQ_ui_timerpanel.js",
         "03_enh572_性能打磨.js"
       ],
       "note": "增强模块（02/03）自己的设置"
@@ -169,7 +169,7 @@
       "owner": "01f_engine_immersive.js",
       "writers": [
         "01b_engine_data.js",
-        "01e_engine_ui.js",
+        "01eP_ui_view.js",
         "01f_engine_immersive.js",
         "05_journey_渐进解锁.js"
       ],
@@ -286,10 +286,10 @@
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "mustDoUI": {
-      "owner": "01e_engine_ui.js",
+      "owner": "01eQ_ui_timerpanel.js",
       "writers": [
         "01b_engine_data.js",
-        "01e_engine_ui.js"
+        "01eQ_ui_timerpanel.js"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
@@ -347,11 +347,11 @@
       "note": "段位系统（星、下注、晋级、周番茄兑换口径）"
     },
     "records": {
-      "owner": "01e_engine_ui.js",
+      "owner": "01eR_ui_diary.js",
       "writers": [
         "01b3_sync.js",
         "01eD_ui_log.js",
-        "01e_engine_ui.js"
+        "01eR_ui_diary.js"
       ],
       "note": "★ 核心事实表：专注记录。统计/日历/海报/CSV 全部由它**现算**，不存派生计数（ADR #3）"
     },
@@ -399,7 +399,7 @@
         "01eB_ui_habit.js",
         "01eD_ui_log.js",
         "01eH_ui_fx.js",
-        "01e_engine_ui.js",
+        "01eP_ui_view.js",
         "01g_engine_init.js",
         "0E_theme_主题引擎.js"
       ],
@@ -492,7 +492,7 @@
         "01e6_ui_rank.js",
         "01eL_ui_audio.js",
         "01eN_ui_forest.js",
-        "01e_engine_ui.js",
+        "01eP_ui_view.js",
         "01f_engine_immersive.js",
         "01g_engine_init.js",
         "05_journey_渐进解锁.js",

@@ -35,7 +35,7 @@ CONCEPTS = [
      {'getTodayStr': '00_pure_core.js'}),
     ('时间戳→日期', r'^[ \t]*function\s+(getDateStr|_dstr)\s*\(', {'getDateStr': '00_pure_core.js'}),
     ('HTML 转义', r'^[ \t]*function\s+(escapeHtml|esc)\s*\(',
-     {'escapeHtml': '01e_engine_ui.js'}),
+     {'escapeHtml': '01eQ_ui_timerpanel.js'}),   # 2026-11-14 S3：01e 拆分后随域迁到计时面板
 ]
 
 # 有意保留的例外：(概念, 名字) → 理由

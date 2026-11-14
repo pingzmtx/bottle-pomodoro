@@ -73,6 +73,8 @@ LAYER = {
     "01d6_engine_util.js": 1,
     "01d4_engine_team.js": 1,
     "01e_engine_ui.js": 1, "01e2_ui_poster.js": 1, "01e3_ui_team.js": 1,
+    # 2026-11-14 · S3：01e_engine_ui 按域拆成 5 个文件，同在 L1（纯移动）
+    "01eP_ui_view.js": 1, "01eQ_ui_timerpanel.js": 1, "01eR_ui_diary.js": 1, "01eS_ui_addrecord.js": 1,
     "01e4_ui_ux.js": 1, "01e5_ui_tree.js": 1, "01eN_ui_forest.js": 1, "01e6_ui_rank.js": 1,
     "01e7_ui_stats.js": 1, "01e8_ui_misc.js": 1, "01e9_ui_memo.js": 1, "01eA_ui_timeblock.js": 1,
     "01eM_ui_tbcreate.js": 1,   # 日程网格的「两次点击新建计划」入口（依赖 01eA 渲染的 DOM）
