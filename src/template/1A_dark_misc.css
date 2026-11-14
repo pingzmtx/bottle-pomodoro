@@ -139,7 +139,7 @@ body.dark-mode .timer-circle { background: var(--surface-2); border-color: var(-
 body.dark-mode .nav-bar, body.dark-mode .bottom-nav { background: var(--card); border-color: var(--border); }
 /* 顶栏渐变改用令牌，默认主题下与原 #3a1a10 相同 */
 body.dark-mode .header { background: linear-gradient(135deg, var(--header-dark-hi, #3a1a10), #1a0f0a); color: var(--text); }
-body.dark-mode .header h1 { color: #e0e0e0; }
+body.dark-mode .header h1 { color: var(--text-1); }
 body.dark-mode .header .tomato-icon path, body.dark-mode .header .tomato-icon ellipse { stroke: #8892b0; }
 body.dark-mode .header span { color: #8892b0; }
 body.dark-mode .end-session-btn { background: var(--surface-hover); color: var(--ink-mute); border-color: var(--border-strong); }
@@ -177,7 +177,7 @@ body.dark-mode .diary-field textarea, body.dark-mode .diary-field input { backgr
 body.dark-mode .todo-detail-expanded textarea { background: var(--surface-2); color: var(--text); }
 body.dark-mode .feedback-hint { background: rgba(255,202,40,0.08); color: var(--text-light); border-color: rgba(255,202,40,0.3); }
 body.dark-mode .type-hint { background: rgba(255,202,40,0.08); color: var(--text-light); border-color: rgba(255,202,40,0.3); }
-body.dark-mode .log-day-header { background: linear-gradient(135deg, #3a1a10, #1a0f0a); color: #e0e0e0; }
+body.dark-mode .log-day-header { background: linear-gradient(135deg, #3a1a10, #1a0f0a); color: var(--text-1); }
 body.dark-mode .timeline-content { background: var(--card); border-color: var(--border); }
 body.dark-mode .snapshot-notice { background: rgba(var(--white-rgb),0.04); color: var(--text-light); border-color: rgba(var(--white-rgb),0.1); }
 body.dark-mode .rank-task-card { background: rgba(var(--white-rgb),0.04); }
@@ -189,7 +189,7 @@ body.dark-mode .calendar-search-item:hover { background: rgba(var(--white-rgb),0
 body.dark-mode .calendar-day.disabled { color: #3a3a4a; }
 body.dark-mode .auto-save-hint { background: rgba(22,33,62,0.9); color: var(--ink-mute); }
 body.dark-mode .harvest-item { background: var(--card); border-color: var(--border); }
-body.dark-mode .diary-overview-header { background: linear-gradient(135deg, #3a1a10, #1a0f0a); color: #e0e0e0; }
+body.dark-mode .diary-overview-header { background: linear-gradient(135deg, #3a1a10, #1a0f0a); color: var(--text-1); }
 body.dark-mode .team-countdown { background: linear-gradient(135deg, #1a1a2e, var(--card)); color: var(--yellow-ink); }
 body.dark-mode .team-countdown .cd-time { color: var(--yellow-ink); }
 body.dark-mode .team-module { background: var(--surface-2); }
@@ -380,7 +380,7 @@ body.dark-mode .duration-suggestion.down { background: rgba(var(--primary-rgb),.
 .btn-pop{animation:microPop .42s cubic-bezier(.34,1.56,.64,1) both;will-change:transform,opacity;}
 /* 计时器引言：从底部居中滑入，3 秒淡出 */
 .focus-quote{position:fixed;left:50%;top:48%;transform:translate(-50%,0);z-index:980;pointer-events:none;font-size:var(--fs-title);font-weight:700;color:var(--text);background:rgba(var(--white-rgb),.92);padding:var(--sp-8) var(--sp-20);border-radius:var(--radius-lg);box-shadow:0 4px 16px rgba(var(--black-rgb),.12);opacity:0;animation:quoteSlideIn 3.6s ease both;text-align:center;line-height:1.5;max-width:80%;}
-body.dark-mode .focus-quote{background:rgba(30,30,40,.92);color:#f5f5f5;}
+body.dark-mode .focus-quote{background:rgba(30,30,40,.92);color:var(--text-1);}
 @media (prefers-reduced-motion: reduce){.boot-logo,.boot-bar-inner,.boot-quote{animation:none;}}
 /* ============================================================
     现代化升级覆盖层（通用设计系统打磨）

@@ -261,7 +261,7 @@ body.dark-mode .tb-paper-blk.is-unplanned {
 .tree-milestone-list .tml-header { font-size:var(--fs-title); font-weight: 700; color: var(--text); cursor: pointer; padding: var(--sp-6) 0; }
 .tree-milestone-list .tml-body { display: none; font-size:var(--fs-title); color: var(--text-light); }
 .tree-milestone-list .tml-body.show { display: block; }
-.tree-milestone-entry { display: flex; justify-content: space-between; padding: var(--sp-4) 0; border-bottom: 1px solid #eee; }
+.tree-milestone-entry { display: flex; justify-content: space-between; padding: var(--sp-4) 0; border-bottom: 1px solid var(--hairline); }
 .tree-milestone-entry:last-child { border-bottom: none; }
 .tree-unlock-notice {
   font-size:var(--fs-title);

@@ -2,6 +2,6 @@
 window.TF_CONFIG = window.TF_CONFIG || {
   apiBase: '',
   analytics: { provider: '', id: '' },
-  version: 'df5c4937be43',
+  version: '7a2dfbd112c8',
   features: { sync: false, community: false }
 };

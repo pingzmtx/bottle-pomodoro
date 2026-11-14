@@ -61,14 +61,14 @@
 
 
 
-.log-record { padding: var(--sp-10) var(--sp-14); border-bottom: 1px solid #eee; font-size:var(--fs-title); }
+.log-record { padding: var(--sp-10) var(--sp-14); border-bottom: 1px solid var(--hairline); font-size:var(--fs-title); }
 .log-record:last-child { border-bottom: none; }
 
 
 
 
 
-.log-record-note { font-size:var(--fs-title); color: var(--text); background: #F9F6F0; padding: var(--sp-6) var(--sp-8); border-radius: var(--radius-xs); margin-top: var(--sp-4); line-height: 1.5; }
+.log-record-note { font-size:var(--fs-title); color: var(--text); background: var(--surface-2); padding: var(--sp-6) var(--sp-8); border-radius: var(--radius-xs); margin-top: var(--sp-4); line-height: 1.5; }
 
 
 /* ===== 日志 › 专注记录：按日分组卡片 =====
@@ -162,7 +162,7 @@
 
 
 
-.tag-pending { background: #F0F0F0; color: #666; }
+.tag-pending { background: var(--surface-3); color: var(--text-2); }
 .timeline-tag.tag-merge { background: #EEF3F8; color: #4A6E93; }
 /* 专注记录里的「计划关联」行：四象限徽标 + 标签 + 正在做的子任务 */
 .log-row-meta3 { display: flex; flex-wrap: wrap; gap: var(--sp-4); align-items: center; margin-top: var(--sp-4); }
@@ -235,7 +235,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
   min-width: 120px;
   box-shadow: var(--shadow-soft);
 }
-.more-menu-item { padding: var(--sp-8) var(--sp-12); font-size:var(--fs-title); cursor: pointer; border-bottom: 1px solid #eee; }
+.more-menu-item { padding: var(--sp-8) var(--sp-12); font-size:var(--fs-title); cursor: pointer; border-bottom: 1px solid var(--hairline); }
 .more-menu-item:last-child { border-bottom: none; }
 .more-menu-item.danger { color: var(--danger); }
 
@@ -356,7 +356,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
 }
 .calendar-day.has-diary { background: var(--fill-primary); color: var(--on-fill); border-color: var(--primary-dark); font-weight: 700; }
 .calendar-day.today { border-color: var(--yellow); border-width: 1px; }
-.calendar-day.disabled { color: #ccc; cursor: not-allowed; }
+.calendar-day.disabled { color: var(--text-3); cursor: not-allowed; }
 .calendar-day.empty { cursor: default; }
 /* ── 日程表月历（.hm）：颜色深浅 = 当天折算番茄数 ──
    色阶只共用 --hm1~--hm4（与日志页「专注记录日历」同一套档位），不另配色；
@@ -378,7 +378,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
 .calendar-day.hm.lv4.has-plan::after { background: var(--white); }
 .calendar-search { width: 100%; padding: var(--sp-8); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size:var(--fs-title); margin-bottom: var(--sp-10); }
 .calendar-search-results { max-height: 120px; overflow-y: auto; margin-bottom: var(--sp-10); }
-.calendar-search-item { padding: var(--sp-8) var(--sp-10); border-bottom: 1px solid #eee; font-size:var(--fs-title); cursor: pointer; }
+.calendar-search-item { padding: var(--sp-8) var(--sp-10); border-bottom: 1px solid var(--hairline); font-size:var(--fs-title); cursor: pointer; }
 .calendar-search-item:hover { background: var(--warn-bg); }   /* 不写死浅黄：深色下 hover 不再亮成一块 */
 .calendar-search-item .sr-date { font-weight: 700; color: var(--primary-ink); }
 .calendar-search-item .sr-snippet { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-2); }

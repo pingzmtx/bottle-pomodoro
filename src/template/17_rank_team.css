@@ -154,7 +154,7 @@
 .sp-wc-item .wc-icon { font-size:var(--fs-title); width: 22px; text-align: center; }
 .sp-wc-item .wc-info { flex: 1; min-width: 0; }
 .sp-wc-item .wc-name { font-size:var(--fs-body); font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sp-wc-item .wc-bar { height: 5px; background: #E5E5E5; border-radius: var(--radius-xs); overflow: hidden; margin-top: var(--sp-2); }
+.sp-wc-item .wc-bar { height: 5px; background: var(--surface-3); border-radius: var(--radius-xs); overflow: hidden; margin-top: var(--sp-2); }
 .sp-wc-item .wc-fill { height: 100%; background: linear-gradient(90deg, #5B9BD5, #E91E63); border-radius: var(--radius-xs); transition: width .3s; }
 .sp-wc-item .wc-reward { font-size:var(--fs-note); font-weight: 600; color: var(--primary-ink); white-space: nowrap; }
 .sp-wc-item.done { background: transparent; }

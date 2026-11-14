@@ -10,9 +10,9 @@
 }
 .tree-visual { font-size: calc(64px * var(--fs-boost)); line-height: 1; margin: var(--sp-8) 0; }
 .tree-progress { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-4); font-weight: 700; }
-.tree-progress-bar { height: 10px; background: #eee; border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); }
+.tree-progress-bar { height: 10px; background: var(--surface-3); border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); }
 .tree-progress-fill { height: 100%; background: var(--green); border-radius: var(--radius-xs); transition: width 0.3s; }
-.harvest-item { font-size:var(--fs-title); color: var(--text-light); padding: var(--sp-6) 0; border-bottom: 1px solid #eee; }
+.harvest-item { font-size:var(--fs-title); color: var(--text-light); padding: var(--sp-6) 0; border-bottom: 1px solid var(--hairline); }
 
 /* 树种选择器 */
 .tree-species-bar { display: flex; gap: var(--sp-6); justify-content: center; flex-wrap: wrap; margin-bottom: var(--sp-10); }
@@ -473,7 +473,7 @@
   box-shadow: var(--shadow-sm);
 }
 .tree-water-btn:active { transform: translate(1px,1px); box-shadow: 0 0 0 var(--border-strong); }
-.tree-water-btn.done { background: #eee; color: #999; box-shadow: none; cursor: default; }
+.tree-water-btn.done { background: var(--surface-3); color: var(--text-3); box-shadow: none; cursor: default; }
 .tree-dew-count { font-size:var(--fs-body); color: var(--text-light); }
 .tree-dew-count b { color: #1E88E5; }
 .tree-eternal-stars { font-size:var(--fs-title); font-weight: 700; color: var(--warn); margin-top: var(--sp-4); letter-spacing: 1px; }
@@ -530,7 +530,7 @@
 /* 进度条里程碑刻度 */
 .tree-progress-wrap { position: relative; }
 .tree-tick { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--border); opacity: .35; z-index: 1; }
-.tree-progress-bar { height: 10px; background: #eee; border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); position: relative; }
+.tree-progress-bar { height: 10px; background: var(--surface-3); border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); position: relative; }
 
 /* 树名 */
 .tree-name-row { display: flex; align-items: center; justify-content: center; gap: var(--sp-4); margin: var(--sp-2) 0 var(--sp-8); cursor: pointer; user-select: none; }
@@ -546,13 +546,13 @@
 .species-card-head { display: flex; align-items: center; gap: var(--sp-6); font-size:var(--fs-title); font-weight: 800; color: var(--text); margin-bottom: var(--sp-6); flex-wrap: wrap; }
 .species-card-head .sc-icon { font-size:var(--fs-hero); }
 .species-card-head .sc-state { font-size:var(--fs-note); font-weight: 600; margin-left: auto; padding: var(--sp-2) var(--sp-8); border-radius: var(--radius-full); white-space: nowrap; }
-.sc-state.locked { background: #F0F0F0; color: #999; }
+.sc-state.locked { background: var(--surface-3); color: var(--text-3); }
 .sc-state.part { background: var(--ok-bg); color: var(--green-ink); }
 .sc-state.done { background: var(--accent-bg); color: var(--yellow-ink); }
 .species-stages { display: grid; grid-template-columns: repeat(9, minmax(0,1fr)); gap: var(--sp-2); }
 .species-stages .ss-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size:var(--fs-title); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); filter: grayscale(1); opacity: .35; min-width: 0; }
-.species-stages .ss-cell.lit { filter: none; opacity: 1; background: var(--card); border-color: #ddd; }
-.species-stages .ss-cell.lock { font-size:var(--fs-tiny); color: #bbb; }
+.species-stages .ss-cell.lit { filter: none; opacity: 1; background: var(--card); border-color: var(--border); }
+.species-stages .ss-cell.lock { font-size:var(--fs-tiny); color: var(--text-3); }
 /* 成长图鉴 */
 .tree-album { margin-top: var(--sp-10); padding: var(--sp-8); background: var(--bg); border: 2px dashed var(--border); border-radius: var(--radius); min-width: 0; }
 .tree-album-title { font-size:var(--fs-title); font-weight: 700; color: var(--text); margin-bottom: var(--sp-6); display: flex; align-items: center; justify-content: space-between; }
@@ -573,7 +573,7 @@
   overflow: hidden;
 }
 .tree-album-cell.lit { filter: none; opacity: 1; border-color: var(--primary); background: var(--accent-bg); box-shadow: 0 0 4px rgba(var(--primary-rgb),.35); animation: tmNewPop .5s ease; }
-.tree-album-bar { height: 8px; background: #eee; border-radius: var(--radius-xs); margin-top: var(--sp-6); overflow: hidden; border: 1px solid var(--border); }
+.tree-album-bar { height: 8px; background: var(--surface-3); border-radius: var(--radius-xs); margin-top: var(--sp-6); overflow: hidden; border: 1px solid var(--border); }
 /* 原写死 #E85D3A→#F0AD4E 线性渐变，换主题时不跟随。改用主色→黄令牌；
    默认主题下两色与原硬编码完全相同（--primary=#E85D3A / --yellow=#F0AD4E），故逐像素不变。 */
 .tree-album-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--yellow)); border-radius: var(--radius-xs); transition: width .4s ease; }
