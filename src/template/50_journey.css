@@ -44,10 +44,10 @@ body.dark-mode { --shadow: 0 5px 16px rgba(var(--black-rgb),.35); }
 }
 
 /* ⑥ 深色模式：树场景/抽奖不再“亮瞎眼”——换暗色渐变，去掉浅黄补丁感 */
-body.dark-mode .tree-scene.scene-garden { background: linear-gradient(180deg,#2c5236 0%,#1e3a27 45%,#142a1b 100%); }
-body.dark-mode .tree-scene.scene-field  { background: linear-gradient(180deg,#1d3a5e 0%,#25476e 42%,transparent 50%), linear-gradient(180deg,#6b5a2c 0%,#4a3e1f 55%,#322a15 100%); }
-body.dark-mode .tree-scene.scene-sea    { background: linear-gradient(180deg,#16364c 0%,#0f2f45 30%,#0d2a3e 55%,#1a3f55 82%,#2e4a5c 100%); }
-body.dark-mode .tree-scene.scene-snow   { background: radial-gradient(ellipse at 50% 0%, rgba(120,150,200,.22), transparent 60%), linear-gradient(180deg,#26364f 0%,#31455f 40%,#283c55 100%); }
+body.dark-mode .tree-scene.scene-garden { background: linear-gradient(180deg,var(--sc-garden-d1) 0%,var(--sc-garden-d2) 45%,var(--sc-garden-d3) 100%); }
+body.dark-mode .tree-scene.scene-field  { background: linear-gradient(180deg,var(--sc-field-d1) 0%,var(--sc-field-d2) 42%,transparent 50%), linear-gradient(180deg,var(--sc-field-d3) 0%,var(--sc-field-d4) 55%,var(--sc-field-d5) 100%); }
+body.dark-mode .tree-scene.scene-sea    { background: linear-gradient(180deg,var(--sc-sea-d1) 0%,var(--sc-sea-d2) 30%,var(--sc-sea-d3) 55%,var(--sc-sea-d4) 82%,var(--sc-sea-d5) 100%); }
+body.dark-mode .tree-scene.scene-snow   { background: radial-gradient(ellipse at 50% 0%, rgba(var(--sc-snow-d-shadow-rgb),.22), transparent 60%), linear-gradient(180deg,var(--sc-snow-d1) 0%,var(--sc-snow-d2) 40%,var(--sc-snow-d3) 100%); }
 body.dark-mode .tree-lottery { background: linear-gradient(135deg,#37301a,#43381f); border-color:#66531f; }
 body.dark-mode .tree-lottery-title { color:#e2c98f; }
 body.dark-mode .tree-lottery-count { background:#241f10; border-color:#66531f; }

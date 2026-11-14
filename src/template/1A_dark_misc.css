@@ -105,8 +105,14 @@ body.dark-mode {
   --hm1: #FFD54F;   /* 1~2 个：黄 */
   --hm2: #FFA726;   /* 2~4 个：橙 */
   --hm3: #FF7043;   /* 4~7 个：橙红 */
-  --hm4: #E53935;   /* 7+ 个：红 */
+  --hm4: var(--im-live-mid);   /* 7+ 个：红 */
   --hm-cell-border: #3A3E4C;
+
+  /* 场景色板 · 深色（P2）：与 10_tokens 的 --sc-* 一一对应 */
+  --sc-garden-d1: #2c5236; --sc-garden-d2: #1e3a27; --sc-garden-d3: #142a1b;
+  --sc-field-d1: #1d3a5e; --sc-field-d2: #25476e; --sc-field-d3: #6b5a2c; --sc-field-d4: #4a3e1f; --sc-field-d5: #322a15;
+  --sc-sea-d1: #16364c; --sc-sea-d2: #0f2f45; --sc-sea-d3: #0d2a3e; --sc-sea-d4: #1a3f55; --sc-sea-d5: #2e4a5c;
+  --sc-snow-d1: #26364f; --sc-snow-d2: #31455f; --sc-snow-d3: #283c55; --sc-snow-d-shadow-rgb: 120, 150, 200;
 }
 body.dark-mode .card, body.dark-mode .settings-group, body.dark-mode .modal,
 body.dark-mode .week-chart, body.dark-mode .habit-item, body.dark-mode .timeline-content,
@@ -152,7 +158,7 @@ body.dark-mode .grid-cell.active.green { background: var(--green) !important; bo
 body.dark-mode .grid-cell.active.yellow { background: var(--yellow) !important; border-color: var(--yellow-dark) !important; color: var(--white) !important; }
 body.dark-mode .grid-cell.active.blue { background: var(--blue) !important; border-color: var(--blue-dark) !important; color: var(--white) !important; }
 body.dark-mode .log-record-note { background: none; color: var(--text-light); border-color: transparent; }
-body.dark-mode .tag-full { background: rgba(79,195,247,0.15); color: var(--primary-ink); }
+body.dark-mode .tag-full { background: rgba(var(--im-cyan-rgb),0.15); color: var(--primary-ink); }
 body.dark-mode .tag-half { background: rgba(255,202,40,0.15); color: var(--yellow-ink); }
 body.dark-mode .tag-incomplete { background: rgba(var(--white-rgb),0.08); color: #8892b0; }
 /* 暗色同理：#6a7280 在极深底上只有约 3.2:1，提到 #8a93a0 才到 5.0:1 */
@@ -317,7 +323,7 @@ body.dark-mode .duration-suggestion.down { background: rgba(var(--primary-rgb),.
 .lb-row .lb-name { flex: 1; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lb-row .lb-tier { font-size:var(--fs-body); font-weight: 600; }
 .lb-row .lb-stars { font-size:var(--fs-body); font-weight: 600; color: var(--yellow-ink); min-width: 56px; text-align: right; }
-.lb-row.me { background: linear-gradient(90deg, rgba(79,195,247,.12), transparent); border-radius: var(--radius); box-shadow: inset 3px 0 0 var(--primary); }
+.lb-row.me { background: linear-gradient(90deg, rgba(var(--im-cyan-rgb),.12), transparent); border-radius: var(--radius); box-shadow: inset 3px 0 0 var(--primary); }
 
 /* 新增样式：年度热力图 + 完成庆祝 */
 .hm-cell{width:12px;height:12px;border-radius:var(--radius-xs);background:var(--hm0);flex-shrink:0;border:1px solid var(--hm-cell-border);}/* 加边框确保无数据日也在浅/深色卡片上可见 */
@@ -859,8 +865,8 @@ body.dark-mode .ft-done-card .ft-done-btn.primary { background: var(--fill-prima
   border: 1px solid rgba(var(--blue-rgb),0.35);
 }
 .todo-deadline.overdue {
-  color: var(--danger); background: rgba(192,57,43,0.1);
-  border-color: rgba(192,57,43,0.4);
+  color: var(--danger); background: rgba(var(--danger-rgb),0.1);
+  border-color: rgba(var(--danger-rgb),0.4);
   animation: overduePulse 1.6s var(--ease-in-out) infinite;
 }
 @keyframes overduePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
@@ -996,11 +1002,11 @@ label { margin-bottom: var(--sp-2); }
   padding: var(--sp-12) var(--sp-16) var(--sp-12) var(--sp-20) !important;
   z-index: 9990 !important;
   border: 1px solid rgba(var(--white-rgb),.9) !important;
-  box-shadow: 0 8px 30px rgba(183,28,28,.5), 0 0 0 4px rgba(183,28,28,.25) !important;
+  box-shadow: 0 8px 30px rgba(var(--im-red-rgb),.5), 0 0 0 4px rgba(var(--im-red-rgb),.25) !important;
   animation: imSiren 1.1s linear infinite, imLiveIn .3s ease both !important;
 }
-#imLiveEvent.win { border-color: rgba(var(--white-rgb),.9) !important; box-shadow: 0 8px 26px rgba(46,125,50,.45) !important; }
-#imLiveEvent.lose { border-color: rgba(var(--white-rgb),.85) !important; box-shadow: 0 8px 26px rgba(55,71,79,.45) !important; }
+#imLiveEvent.win { border-color: rgba(var(--white-rgb),.9) !important; box-shadow: 0 8px 26px rgba(var(--im-win-rgb),.45) !important; }
+#imLiveEvent.lose { border-color: rgba(var(--white-rgb),.85) !important; box-shadow: 0 8px 26px rgba(var(--im-lose-rgb),.45) !important; }
 /* 原来这里还有 .im-live-title / .im-live-text 各一行 font-size !important，
    与上方 3-2-1 区块的同名规则**逐字重复**（连取值都一样），纯赘余，已删。 */
 /* 【5.4.6 商店视觉优化】把每个商品升级为有「品质感」的卡片：
@@ -1084,7 +1090,7 @@ body.dark-mode .shop-item .price-tag.week { background:#3a221c; color:#F5A48F; b
 .shop-item .item-name-row { display:flex; align-items:center; flex-wrap:wrap; gap:var(--sp-6); margin-bottom:var(--sp-2); }
 .shop-item .item-type-tag { font-size:var(--fs-micro); font-weight: 500; padding:var(--sp-2) var(--sp-6); border-radius:var(--radius-sm); background:var(--bg); color:var(--text-light); border:1px solid var(--border); }
 .shop-item .item-type-tag.t-protect { background:var(--info-bg); color:var(--info-ink); border-color:var(--info-line); }
-.shop-item .item-type-tag.t-recover { background:var(--accent-bg); color:var(--accent-ink); border-color:#FFB74D; }
+.shop-item .item-type-tag.t-recover { background:var(--accent-bg); color:var(--accent-ink); border-color:var(--im-amber); }
 .shop-item .item-type-tag.t-rename  { background:#F3E5F5; color:#7B1FA2; border-color:#CE93D8; }
 /* 字色 #00838F 在 #E0F7FA 上只有 4.06:1（擦边），压到 #00707A → 5.5:1 */
 .shop-item .item-type-tag.t-revive  { background:#E0F7FA; color:#00707A; border-color:#80DEEA; }
@@ -1286,7 +1292,7 @@ body.dark-mode .switch-slider { background: rgba(var(--white-rgb),.16); }
 body.dark-mode .quick-panel,
 body.dark-mode .settle-card,
 body.dark-mode .toast-item {
-  box-shadow: 0 6px 24px rgba(var(--black-rgb),.45), 0 0 0 1px rgba(79,195,247,.10), 0 0 22px rgba(79,195,247,.08);
+  box-shadow: 0 6px 24px rgba(var(--black-rgb),.45), 0 0 0 1px rgba(var(--im-cyan-rgb),.10), 0 0 22px rgba(var(--im-cyan-rgb),.08);
 }
 
 /* ============================================================

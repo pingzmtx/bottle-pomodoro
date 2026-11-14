@@ -239,23 +239,23 @@
 /* 花园（默认免费）：清爽草地，低饱和不抢戏 */
 .tree-scene.scene-garden {
   background:
-    radial-gradient(ellipse at 85% 18%, rgba(255,243,179,.5), transparent 46%),
-    linear-gradient(180deg,#C8E6C9 0%,var(--ok-bg) 42%,var(--ok-line) 88%,#81C784 100%);
+    radial-gradient(ellipse at 85% 18%, rgba(var(--sc-garden-sun-rgb),.5), transparent 46%),
+    linear-gradient(180deg,var(--sc-garden-1) 0%,var(--ok-bg) 42%,var(--ok-line) 88%,var(--sc-garden-2) 100%);
 }
 /* 田野（平价）：蓝天 + 金灿麦田 */
 .tree-scene.scene-field {
   background:
-    radial-gradient(circle at 80% 16%, rgba(255,236,150,.9) 0%, transparent 22%),
-    linear-gradient(180deg,#7EC8F0 0%,#B3E5FC 32%,transparent 50%),
+    radial-gradient(circle at 80% 16%, rgba(var(--sc-field-sun-rgb),.9) 0%, transparent 22%),
+    linear-gradient(180deg,var(--sc-field-1) 0%,var(--sc-field-2) 32%,transparent 50%),
     repeating-linear-gradient(108deg, rgba(var(--white-rgb),.35) 0 6px, transparent 6px 16px),
-    linear-gradient(180deg,#FBE38B 46%,#F5D56B 78%,#EEC94F 100%);
+    linear-gradient(180deg,var(--sc-field-3) 46%,var(--sc-field-4) 78%,var(--sc-field-5) 100%);
 }
 /* 海边（平价）：碧海蓝天 + 沙滩 */
 .tree-scene.scene-sea {
   background:
     radial-gradient(circle at 22% 10%, rgba(var(--white-rgb),.95) 0 14px, rgba(var(--white-rgb),.55) 15px 20px, transparent 21px),
     radial-gradient(circle at 55% 13%, rgba(var(--white-rgb),.7) 0 10px, transparent 11px),
-    linear-gradient(180deg,#5FB6E0 0%,#8FD0EE 34%,#BFE9F5 56%,#FFF0C9 84%,#F7DCA8 100%);
+    linear-gradient(180deg,var(--sc-sea-1) 0%,var(--sc-sea-2) 34%,var(--sc-sea-3) 56%,var(--sc-sea-4) 84%,var(--sc-sea-5) 100%);
 }
 /* 星空（热门）：深空星点阵 + 月夜（星星闪烁由 deco 的 twinkle 承担，避免整背景 filter 动画卡顿） */
 .tree-scene.scene-star {
@@ -266,15 +266,15 @@
     radial-gradient(1.2px 1.2px at 85% 45%,var(--white),transparent 60%),
     radial-gradient(1.5px 1.5px at 55% 70%,var(--white),transparent 60%),
     radial-gradient(1.2px 1.2px at 30% 78%,var(--white),transparent 60%),
-    linear-gradient(180deg,#0B1035 0%,#1A237E 55%,#311B92 100%);
+    linear-gradient(180deg,var(--sc-star-1) 0%,var(--sc-star-2) 55%,var(--sc-star-3) 100%);
 }
 /* 雪原（高级）：冷白雪景 + 远山 */
 .tree-scene.scene-snow {
   background:
     radial-gradient(ellipse at 50% 0%, rgba(var(--white-rgb),.9), transparent 55%),
-    linear-gradient(180deg,#C9D8F0 0%,#E8EEFA 40%,#D6E4F8 100%);
+    linear-gradient(180deg,var(--sc-snow-1) 0%,var(--sc-snow-2) 40%,var(--sc-snow-3) 100%);
 }
-.scene-snow .tree-visual-wrap { filter: drop-shadow(0 2px 4px rgba(120,140,180,.35)); }
+.scene-snow .tree-visual-wrap { filter: drop-shadow(0 2px 4px rgba(var(--sc-snow-shadow-rgb),.35)); }
 /* ===== 树光环特效：粒子环绕层 ===== */
 .tree-aura-layer { position: absolute; top:0;right:0;bottom:0;left:0;pointer-events: none; z-index: 0; }
 .tree-aura-layer .ap {

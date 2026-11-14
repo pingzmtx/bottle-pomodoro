@@ -366,7 +366,7 @@ body.dark-mode .flow-dur-switch .fds-hint { color: #9aa5c0; }
 
 /* ========== v5.7.6 设计收口：语义变量 / 深色补丁 / 动效 / 滚动提示 / 热区 ========== */
 :root{
-  --danger:#C0392B; --danger-bg:#FFD5D5; --danger-soft:rgba(192,57,43,.12); /* E0：soft 由实色修正为浅红底（原值系笔误，此前无引用，零观感影响） */
+  --danger:#C0392B; --danger-rgb:192,57,43; --danger-bg:#FFD5D5; --danger-soft:rgba(192,57,43,.12); /* E0：soft 由实色修正为浅红底（原值系笔误，此前无引用，零观感影响） */
   --ok:#2E7D32; --ok-soft:rgba(76,175,80,.14);
   --warn:#B8860B; --warn-soft:rgba(255,193,7,.18);
   --accent:#FF8A50; /* E0：主强调橙（品牌浅橙），供 JS 内联引用收编 */

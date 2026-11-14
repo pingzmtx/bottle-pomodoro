@@ -81,6 +81,30 @@
   --overlay: rgba(var(--black-rgb), .5);       /* 弹窗遮罩：原来写死 rgba(var(--black-rgb),0.5) */
   --overlay-soft: rgba(var(--black-rgb), .32); /* 轻遮罩：抽屉/浮层的次级压暗 */
 
+  /* ===== 场景色板（P2，2026-11-14）=====
+     树的 5 个场景是插画式渐变，色标不属 UI 语义色，单开 --sc-* 命名空间，
+     避免污染 --primary/--surface 体系。浅色在这里，深色在 1A 的 body.dark-mode。
+     改某个场景的观感只改这几行，不必去数渐变里第几个色标。 */
+  --sc-garden-1: #C8E6C9; --sc-garden-2: #81C784; --sc-garden-sun-rgb: 255, 243, 179;
+  --sc-field-1: #7EC8F0; --sc-field-2: #B3E5FC; --sc-field-3: #FBE38B; --sc-field-4: #F5D56B; --sc-field-5: #EEC94F; --sc-field-sun-rgb: 255, 236, 150;
+  --sc-sea-1: #5FB6E0; --sc-sea-2: #8FD0EE; --sc-sea-3: #BFE9F5; --sc-sea-4: #FFF0C9; --sc-sea-5: #F7DCA8;
+  --sc-star-1: #0B1035; --sc-star-2: #1A237E; --sc-star-3: #311B92;
+  --sc-snow-1: #C9D8F0; --sc-snow-2: #E8EEFA; --sc-snow-3: #D6E4F8; --sc-snow-shadow-rgb: 120, 140, 180;
+  /* ===== 沉浸式（P2，2026-11-14）=====
+     沉浸式是独立的"夜景"界面，配色与主 UI 不同族：青=进度、琥珀=数值、红=打断。
+     它只有深色形态，所以令牌只定义一份，不做明暗两套。
+     -rgb 分量供半透明光晕/描边用（原来散着写 rgba(79,195,247,.x) 二十余处）。 */
+  --im-cyan: #4FC3F7;   --im-cyan-rgb: 79, 195, 247;
+  --im-amber: #FFB74D;  --im-amber-rgb: 255, 183, 77;
+  --im-red: #B71C1C;    --im-red-rgb: 183, 28, 28;
+  --im-night-1: #232E52; --im-night-2: #0D1322; --im-night-3-rgb: 20, 26, 46;
+  --im-card-1: #1D2A4A;  --im-card-2: #131A30;
+  --im-trans-1: #1A2342; --im-trans-2: #080C18;
+  --im-live-mid: #E53935;
+  --im-win-mid: #43A047;
+  --im-lose-1: #37474F;  --im-lose-2: #546E7A;  --im-win-rgb: 46, 125, 50;  --im-lose-rgb: 55, 71, 79;
+  --im-gold: #D4A017;
+
   /* ===== 字重令牌 =====
      层级由「字重 + 字号 + 行高」三者共同构成，只靠字号不够：全场同一字重会让
      界面失去主次，读起来像一张加粗海报。正文用常规字重，粗体只留给真正的强调。
