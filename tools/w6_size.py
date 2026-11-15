@@ -56,9 +56,16 @@ FLOOR_LINES = 120      # 下限：低于它只提示，不 FAIL（避免碎片�
 HARD_CAP = 6000        # 绝对红线（历史规则，双保险）
 
 
+# 2026-11-15：`// @layer:` 是层级元数据，不是"这个文件装了多少东西"。
+# 不计入行数 —— 否则给 69 个文件各补一行层级声明，棘轮会把 69 个文件同时报
+# 「比基线多 1 行」，逼人跑 --bump，等于把声明本身的成本记进了代码规模里。
+# 排除之后 69 个文件的行数与基线逐项相等，不需要 bump 任何一项。
+LAYER_DECL = "// @layer:"
+
+
 def count_lines(path):
     with open(path, "r", encoding="utf-8", errors="replace") as f:
-        return sum(1 for _ in f)
+        return sum(1 for ln in f if not ln.lstrip().startswith(LAYER_DECL))
 
 
 def load_baseline():

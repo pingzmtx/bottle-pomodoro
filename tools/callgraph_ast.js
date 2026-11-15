@@ -52,17 +52,31 @@ const HAS = (f) => ARGS.includes(f);
 const VAL = (f) => { const i = ARGS.indexOf(f); return i >= 0 ? ARGS[i + 1] : null; };
 
 /* ============================================================
- * 0. 层级表：从 w6_layer.py 源码里读，保证单一事实源
+ * 0. 层级表：源文件头的 `// @layer: Lx` 优先，w6_layer.py 的 LAYER 表回落
+ *    2026-11-15 起层级的第一来源是文件自己 —— 新增文件不必再改任何中央表，
+ *    漏写会在这里变成「未登记层级」而 FAIL（selfcheck 检查），不会静默豁免。
  * ============================================================ */
+const HEAD_LINES = 12;
+function layersFromHeaders() {
+  const out = {};
+  for (const f of fs.readdirSync(SCRIPTS).filter((x) => x.endsWith('.js'))) {
+    const head = fs.readFileSync(path.join(SCRIPTS, f), 'utf8').split('\n').slice(0, HEAD_LINES).join('\n');
+    const m = head.match(/^\s*\/\/\s*@layer:\s*L([0-4])\s*$/m);
+    if (m) out[f] = Number(m[1]);
+  }
+  return out;
+}
+
 function loadLayers() {
+  const out = layersFromHeaders();
   const src = fs.readFileSync(path.join(HERE, 'w6_layer.py'), 'utf8');
   const m = src.match(/LAYER\s*=\s*\{([\s\S]*?)\n\}/);
-  if (!m) throw new Error('无法从 w6_layer.py 提取 LAYER 表');
-  const out = {};
-  const re = /"([^"]+\.js)"\s*:\s*(\d+)/g;
-  let g;
-  while ((g = re.exec(m[1]))) out[g[1]] = Number(g[2]);
-  if (!Object.keys(out).length) throw new Error('LAYER 表提取为空');
+  if (m) {
+    const re = /"([^"]+\.js)"\s*:\s*(\d+)/g;
+    let g;
+    while ((g = re.exec(m[1]))) if (!(g[1] in out)) out[g[1]] = Number(g[2]);  // 回落
+  }
+  if (!Object.keys(out).length) throw new Error('层级表为空：文件头没有 @layer，w6_layer.py 的 LAYER 也没提取到');
   return out;
 }
 

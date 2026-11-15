@@ -1,3 +1,4 @@
+// @layer: L1
 /* ============================================================
  * 01e6 · 段位/成就/签到/历史渲染域
  * 函数索引（TOC）：toggleImmersion/showSubRankUp/showRankUpCelebration/closeRankUpModal/showPomodoroCelebration/showRankFeedback/fmtMonthDay/fmtSeasonRange/renderRankSystem/renderStarRecords/renderSignIn/doSignIn（+10 更多）

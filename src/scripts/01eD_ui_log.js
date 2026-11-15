@@ -1,3 +1,4 @@
+// @layer: L1
 /* ===== 耦合契约（只读注释，不改运行逻辑）=====
  * 日志与回顾层：日志页渲染（renderLogs / 分组折叠 / 日历 / 筛选 / 翻页）、时长格式化辅助、
  * 艾宾浩斯「回顾」弹窗与自评（renderReviewModal / gradeReview / graduatedReviewDates）。

@@ -1,3 +1,4 @@
+// @layer: L1
 /* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
  * 游戏化/结算逻辑大户：被依赖≈378。对外白名单：
  * savePomodoroRecord / addTreePoints / onPomodoroCompleteRank / settlePreviousDay /

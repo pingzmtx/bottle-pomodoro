@@ -1,3 +1,4 @@
+// @layer: L1
 /* ============================================================
  * 01d3 · 树商店 / 金币经济 / 道具 / 皮肤 / 扭蛋 / 运势 / 树种
  * 函数索引（TOC）：skinPriceWithSurcharge/getSkinTier/getSkinPurchaseCount/bumpSkinPurchaseCount/getSkinDef/getSkin/skinIsActive/safeSkinUrl/skinRemainDays/addLotteryChance/syncLotteryCount/getWeekCoinExchanged（+62 更多）

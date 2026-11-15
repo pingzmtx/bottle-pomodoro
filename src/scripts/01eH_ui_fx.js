@@ -1,3 +1,4 @@
+// @layer: L1
 /* ===== 耦合契约（只读注释，不改运行逻辑）=====
  * 音效与动效层：对外 = playSound / updateSfxVolume / showFocusQuote / popEl / shakeEl / fxVal / fxNumPop / fxVibrate。
  * 被依赖多（01c 计时、01d 结算、01e 各处、01f 沉浸）：全部**顶层函数声明**，跨 script 全局可见。

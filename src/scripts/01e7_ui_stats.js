@@ -1,3 +1,4 @@
+// @layer: L1
 /* ============================================================
  * 01e7 · 统计页渲染域（导航/图表/传记/热力图/renderStats）
  * 函数索引（TOC）：toggleBlockAnalysis/ensureBlockAnalysis/jumpToBlock/renderStatsJumpNav/buildAreaChartSvg

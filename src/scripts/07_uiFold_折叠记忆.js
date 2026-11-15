@@ -1,3 +1,4 @@
+// @layer: L3
 /* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
  * 折叠记忆：对外仅 window.__uiFold 暴露的 toggle/sync/state。
  * 红线：勿绕过 __uiFold 手写折叠黑名单/自研折叠。 */

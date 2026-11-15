@@ -1,3 +1,4 @@
+// @layer: L1
 /* ===== 耦合契约（只读注释，不改运行逻辑）=====
  * 成就定义表：71 条静态字段（id / group / icon / name / desc / color / bg / tier）+ cond(ctx)。
  * 全部是**顶层 const（无 IIFE）** —— 必须与 01b_engine_data.js 待在**同一个 <script> 槽**

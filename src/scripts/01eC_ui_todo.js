@@ -1,3 +1,4 @@
+// @layer: L1
 /* ===== 耦合契约（只读注释，不改运行逻辑）=====
  * 计划 / 待办层：新增弹窗（重复周期 + 四象限 + 子步骤）、完成流水、勾选 / 展开 / 排序 /
  * 子任务、列表渲染（renderTodos / renderTodoRowHtml / renderTodosRows）与行级更新。

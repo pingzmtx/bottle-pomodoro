@@ -1,3 +1,4 @@
+// @layer: L1
 /* ============================================================
  * 01e2 · 分享打卡海报（Canvas）
  * 函数索引（TOC）：openSharePoster/closeSharePoster/setPosterType/renderTreePosterPicker/pickPosterTree/savePoster/_pFont/_pEmoji/_pBig/_pScore/_pC/_pL（+16 更多）

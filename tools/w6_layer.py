@@ -3,11 +3,16 @@
 """· 层依赖方向规则检查（架构耦合度核心）
 
 为什么需要它：
-    项目拆成 28 个文件后，"谁能依赖谁"全靠口头约定（文件头那些「红线」注释）。
+    项目拆成 69 个文件后，"谁能依赖谁"全靠口头约定（文件头那些「红线」注释）。
     约定没有强制执行 = 迟早被绕过，最后变成"所有文件都依赖所有文件"的大泥球。
     本工具把约定变成**可执行的规则**，新增违例立刻报出来。
 
-层级定义（依据 src/manifest.json 的加载顺序 + 各文件职责）：
+层级的**第一来源是源文件第一行的 `// @layer: Lx`**（2026-11-15 起）。
+下面的 LAYER 表只作回落：文件头读不到时才用它。所以新增文件不必再改这张表，
+漏写 `@layer` 会直接 FAIL —— 不会像以前那样"忘了登记 = 自动豁免方向检查"。
+两处都写且不一致 → FAIL（不是警告：两边都写着却不一致，任何一边都不可信）。
+
+层级定义：
 
     L0 纯函数层   00_pure_core.js
         —— 只放不碰 DOM/appData/存储的纯函数。**不许依赖任何东西**。
@@ -37,8 +42,8 @@
     单独归类为「软依赖」计数。
 
 用法：
-  python3 tools/w6_layer.py            # 报告 + 退出码（有硬违例=1）
-  python3 tools/w6_layer.py --json     # 结构化
+  python3 tools/w6_layer.py            # 报告 + 退出码（有硬违例/未登记/冲突 = 1）
+  python3 tools/w6_layer.py --json     # 结构化（含 layer_from_header / layer_conflicts）
 """
 import glob
 import json
@@ -105,6 +110,40 @@ LAYER = {
 }
 
 LAYER_NAME = {0: "L0 纯函数", 1: "L1 引擎", 2: "L2 增强", 3: "L3 横切", 4: "L4 胶水"}
+
+# ---- 层级的第一来源：文件头 `// @layer: Lx`（2026-11-15） ----
+# 为什么搬家：层级原来只存在于上面这张中央表里，于是「新增一个文件」的代价里有
+# 「记得去改另一处」，而漏改的表现是——新文件自动豁免方向检查。最省事的做法恰好最坏。
+# 现在每个源文件第一行自己声明层级；中央表退回成**回落**（文件头读不到时用），
+# 迁移完成后可以整表删掉。验收标准是「新增文件不必碰这张表」。
+LAYER_DECL_RE = re.compile(r"^\s*//\s*@layer:\s*L([0-4])\s*$", re.M)
+HEAD_SCAN_LINES = 12   # 只在前 12 行找：正文里偶然出现的同名注释不算声明
+
+
+def declared_layer(text):
+    """从文件头读 `// @layer: Lx`；没有则 None。"""
+    head = "\n".join(text.splitlines()[:HEAD_SCAN_LINES])
+    m = LAYER_DECL_RE.search(head)
+    return int(m.group(1)) if m else None
+
+
+def resolve_layers(names, texts):
+    """文件头优先、中央表回落。返回 (effective, conflicts, n_from_head)。
+
+    conflicts 非空 = 同一个文件两处说法不一致。**这不是警告是错误**：
+    两边都写着却不一致，说明有人改了一边，此时任何一边都不可信。
+    """
+    eff, conflicts, n_head = {}, [], 0
+    for n in names:
+        d = declared_layer(texts[n])
+        if d is not None:
+            n_head += 1
+            eff[n] = d
+            if n in LAYER and LAYER[n] != d:
+                conflicts.append((n, LAYER[n], d))
+        elif n in LAYER:
+            eff[n] = LAYER[n]
+    return eff, conflicts, n_head
 
 RE_FUNC = re.compile(r"^\s*function\s+([A-Za-z_$][\w$]*)\s*\(", re.M)
 
@@ -183,8 +222,11 @@ def main():
             fn = m.group(1)
             owner.setdefault(fn, n)
 
-    # 未登记层级的文件
-    unregistered = [n for n in names if n not in LAYER]
+    # 层级：文件头优先，中央表回落
+    eff, conflicts, n_head = resolve_layers(names, texts)
+
+    # 未登记层级的文件（两处都没有）
+    unregistered = [n for n in names if n not in eff]
 
     # 一次性提取每个文件里出现的"所有函数调用名"（形如 name(），避免下面
     # 对 (文件 × 函数) 做 O(N×M) 次全文正则——那是 18 秒的来源。
@@ -202,14 +244,14 @@ def main():
     hard, soft = [], []
     suppressed = []
     for n in names:
-        if n not in LAYER:
+        if n not in eff:
             continue
-        my_layer = LAYER[n]
+        my_layer = eff[n]
         text = texts[n]
         my_calls = calls_in[n]
         my_locals = locals_in[n]
         for fn, src_file in owner.items():
-            if src_file == n or src_file not in LAYER:
+            if src_file == n or src_file not in eff:
                 continue
             # 过滤通用短名噪音
             if fn in COMMON_NOISE or len(fn) <= 3:
@@ -222,7 +264,7 @@ def main():
             if fn in my_locals:
                 suppressed.append((n, fn, src_file, my_locals[fn]))
                 continue
-            their_layer = LAYER[src_file]
+            their_layer = eff[src_file]
             if their_layer <= my_layer:
                 continue  # 正常方向（依赖更下层或同层）
 
@@ -238,53 +280,60 @@ def main():
             rec = (n, LAYER_NAME[my_layer], fn, src_file, LAYER_NAME[their_layer])
             (soft if is_soft else hard).append(rec)
 
+    # ---- 输出与判定 ----
+    # 2026-11-15 修：这里原来把 `if unregistered: return 1` 和 `return 1 if hard else 0`
+    # 写在报告打印**之前**，于是非 --json 模式下本工具打印 0 行、只回退出码 ——
+    # docstring 承诺的「报告 + 退出码」只有一半是真的，而"没输出"看着像"没问题"。
     if AS_JSON:
         print(json.dumps({
             "unregistered": unregistered,
+            "layer_conflicts": [{"file": n, "table": t, "header": h} for n, t, h in conflicts],
+            "layer_from_header": n_head,
             "hard_violations": [{"from": a, "fn": c, "to": d} for a, _, c, d, _ in hard],
             "soft_deps": [{"from": a, "fn": c, "to": d} for a, _, c, d, _ in soft],
         }, ensure_ascii=False, indent=2))
-        # ★ 未登记层级 = FAIL（P2-20）：原来只打一行 ⚠️，新文件不补 LAYER 表就自动豁免
-    #   架构方向检查 —— "忘了登记"于是变成最省事的通过方式。当前 46 个文件全部已登记，
-    #   这条对现状零影响，只为堵住以后。
-    if unregistered:
-        print("\n未登记层级的文件必须补进 LAYER 表（否则永远绕过方向检查）")
-        return 1
-    return 1 if hard else 0
+    else:
+        n_fallback = len(names) - n_head - len(unregistered)
+        print(f"文件数 {len(names)}；层级来源：文件头 {n_head} · 中央表回落 {n_fallback}")
 
-    print(f"文件数 {len(names)}；已登记层级 {len(names) - len(unregistered)}")
-    if unregistered:
-        print(f"\n⚠️ 未登记层级的文件（请补进 LAYER 表）: {unregistered}")
+        print(f"\n【硬违例】{len(hard)} 条（下层反向依赖上层，且非防御式写法）")
+        for a, la, fn, d, ld in sorted(set(hard)):
+            print(f"  ✗ {a} [{la}]  调用了 {d} [{ld}] 的 {fn}")
 
-    print(f"\n【硬违例】{len(hard)} 条（下层反向依赖上层，且非防御式写法）")
-    for a, la, fn, d, ld in sorted(set(hard)):
-        print(f"  ✗ {a} [{la}]  调用了 {d} [{ld}] 的 {fn}")
-
-    print(f"\n【软依赖】{len(soft)} 条（防御式调用，设计允许，仅登记）")
-    seen = set()
-    for a, la, fn, d, ld in sorted(set(soft)):
-        k = (a, d)
-        if k in seen:
-            continue
-        seen.add(k)
-        print(f"  · {a} [{la}] → {d} [{ld}]")
-
-    if suppressed:
-        print(f"\n【已抑制】{len(suppressed)} 条（同名局部绑定，非跨模块依赖——正则法的固有误报）")
-        print("  ⚠️ 抑制是新引入的漏报面：请抽查行号，确认它真是局部声明而非跨模块依赖。")
-        seen_sup = set()
-        for a, fn, d, lns in sorted(suppressed, key=lambda r: (r[0], r[1], r[2])):
-            if (a, fn, d) in seen_sup:
+        print(f"\n【软依赖】{len(soft)} 条（防御式调用，设计允许，仅登记）")
+        seen = set()
+        for a, la, fn, d, ld in sorted(set(soft)):
+            k = (a, d)
+            if k in seen:
                 continue
-            seen_sup.add((a, fn, d))
-            where = ",".join("L" + str(x) for x in sorted(set(lns))[:4])
-            print(f"  ~ {a} 自有 `{fn}`（声明于 {where}） ≠ {d} 的 {fn}()")
+            seen.add(k)
+            print(f"  · {a} [{la}] → {d} [{ld}]")
 
-    # ★ 未登记层级 = FAIL（P2-20）：原来只打一行 ⚠️，新文件不补 LAYER 表就自动豁免
-    #   架构方向检查 —— "忘了登记"于是变成最省事的通过方式。当前 46 个文件全部已登记，
-    #   这条对现状零影响，只为堵住以后。
+        if suppressed:
+            print(f"\n【已抑制】{len(suppressed)} 条（同名局部绑定，非跨模块依赖——正则法的固有误报）")
+            print("  ⚠️ 抑制是新引入的漏报面：请抽查行号，确认它真是局部声明而非跨模块依赖。")
+            seen_sup = set()
+            for a, fn, d, lns in sorted(suppressed, key=lambda r: (r[0], r[1], r[2])):
+                if (a, fn, d) in seen_sup:
+                    continue
+                seen_sup.add((a, fn, d))
+                where = ",".join("L" + str(x) for x in sorted(set(lns))[:4])
+                print(f"  ~ {a} 自有 `{fn}`（声明于 {where}） ≠ {d} 的 {fn}()")
+
+    # 冲突 = 错误，不是警告：两处都写了却不一致，说明有人改了一边，此时任何一边都不可信。
+    if conflicts:
+        print("\n层级声明冲突（同一文件两处写法不同）：", file=sys.stderr)
+        for n, t, h in conflicts:
+            print(f"  ✗ {n}: 中央表 L{t} ≠ 文件头 L{h}", file=sys.stderr)
+        print("  修法：让两处一致；最终形态只保留文件头，中央表整表删除。", file=sys.stderr)
+        return 1
+
+    # 未登记 = FAIL：两处都没有 → 这个文件永远绕过方向检查（"忘了登记"是最省事的通过方式）
     if unregistered:
-        print("\n未登记层级的文件必须补进 LAYER 表（否则永远绕过方向检查）")
+        print(f"\n未登记层级的文件（文件头无 `// @layer: Lx`，中央表也没有）: {unregistered}",
+              file=sys.stderr)
+        print("  修法：在该文件第一行写 `// @layer: L0|L1|L2|L3|L4`（新文件不必再动中央表）",
+              file=sys.stderr)
         return 1
     return 1 if hard else 0
 
