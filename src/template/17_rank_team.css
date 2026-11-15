@@ -89,7 +89,7 @@
 .reroll-postpone-btn:active { opacity: .6; }
 /* 三档赌注做成贴片：靠底色差表达可点，不再叠一层黄色描边 + 硬编码 #FFF8E1
    （那两个颜色在深色模式下不会跟着换）。 */
-.bet-tier-btn { flex: 1; min-width: 56px; padding: var(--sp-6) var(--sp-6) !important; font-size:var(--fs-body) !important; background: var(--surface-3); color: var(--text); border: 0 !important; font-weight: var(--fw-semibold); white-space: nowrap; }
+.bet-tier-btn { flex: 1; min-width: 56px; padding: var(--sp-6) var(--sp-6) !important; font-size:var(--fs-body) !important; background: var(--surface-chip); color: var(--text); border: 0 !important; font-weight: var(--fw-semibold); white-space: nowrap; }
 .bet-tier-btn:active { background: rgba(var(--primary-rgb),.16); }
 .rank-task-progress { font-weight: 700; }
 .rank-task-status { font-size:var(--fs-title); padding: var(--sp-2) var(--sp-6); border-radius: var(--radius-xs); }
@@ -154,7 +154,7 @@
 .sp-wc-item .wc-icon { font-size:var(--fs-title); width: 22px; text-align: center; }
 .sp-wc-item .wc-info { flex: 1; min-width: 0; }
 .sp-wc-item .wc-name { font-size:var(--fs-body); font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sp-wc-item .wc-bar { height: 5px; background: var(--surface-3); border-radius: var(--radius-xs); overflow: hidden; margin-top: var(--sp-2); }
+.sp-wc-item .wc-bar { height: 5px; background: var(--surface-recess); border-radius: var(--radius-xs); overflow: hidden; margin-top: var(--sp-2); }
 .sp-wc-item .wc-fill { height: 100%; background: linear-gradient(90deg, #5B9BD5, #E91E63); border-radius: var(--radius-xs); transition: width .3s; }
 .sp-wc-item .wc-reward { font-size:var(--fs-note); font-weight: 600; color: var(--primary-ink); white-space: nowrap; }
 .sp-wc-item.done { background: transparent; }

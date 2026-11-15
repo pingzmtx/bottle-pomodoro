@@ -520,7 +520,9 @@
   --surface-0: #F5F0E8;   /* 最深：页面底色 */
   --surface-1: #FFFFFF;   /* 常规卡片 */
   --surface-2: #FBF7EF;   /* 浮起卡片/输入 */
-  --surface-3: #F0EADF;   /* 按压/嵌套 */
+  --surface-3: #F0EADF;   /* 暗沉：惰性态 / 嵌套容器（语义要"比卡片更沉"，与 recess 的可辨槽相反） */
+  --surface-recess: #E5E0D5;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.32:1 */
+  --surface-chip: #F0EADF;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.20:1 */
   --ink-strong: #1A2438;
 }
 
@@ -1543,7 +1545,7 @@ body.dark-mode .flow-dur-switch .fds-hint { color: #9aa5c0; }
   border: 0;
   font-size: var(--fs-micro);
 }
-.fuzzy-toggle:active { background: var(--surface-3); }
+.fuzzy-toggle:active { background: var(--surface-recess); }
 .fuzzy-checkbox {
   width: 15px; height: 15px;
   /* 描边用 --border-strong：在白胶囊 + 奶油表盘上，--border 的 1px 淡线
@@ -2383,7 +2385,7 @@ body.kb-open .bottom-nav { display: none; }
   transition: background .12s, transform .12s;
   flex-shrink: 0;
 }
-.grid-cell:hover { background: var(--surface-hover, var(--surface-3)); }
+.grid-cell:hover { background: var(--surface-hover, var(--surface-chip)); }
 .grid-cell.active { background: var(--fill-primary); border-color: var(--primary-dark); color: var(--on-fill); }
 .grid-cell.active.green { background: var(--green); border-color: var(--green-dark); color: var(--white); }
 .grid-cell.active.yellow { background: var(--yellow); border-color: var(--yellow-dark); color: var(--white); }
@@ -2443,7 +2445,7 @@ body.kb-open .bottom-nav { display: none; }
   color: var(--text-light); font-size: var(--fs-note); font-weight: 600;
   user-select: none;
 }
-.add-help:hover, .add-help.is-on { background: var(--surface-3); color: var(--text); }
+.add-help:hover, .add-help.is-on { background: var(--surface-chip); color: var(--text); }
 .add-extra-help { margin-top: var(--sp-6); font-size: var(--fs-caption); color: var(--text-light); line-height: 1.6; }
 /* 草稿里还没有段 = 整块不存在，不占高度 */
 .add-extra-chips:empty { display: none; }
@@ -3512,7 +3514,7 @@ body.dark-mode .tf-actions, body.dark-mode .tf-subs { border-color: var(--border
   cursor: pointer; font-weight: 700; line-height: 1; padding: 0 var(--sp-2);
   color: var(--text-light); border-radius: var(--radius-full);
 }
-.tf-chip-x:hover { background: var(--surface-3); color: var(--primary-dark); }
+.tf-chip-x:hover { background: var(--surface-chip); color: var(--primary-dark); }
 .tf-extra-note { font-size: var(--fs-note); color: var(--text-light); }
 
 /* 主段 chip：实线（额外段是虚线），并带一个「主」字标签 */
@@ -3596,7 +3598,7 @@ body.dark-mode .tf-actions, body.dark-mode .tf-subs { border-color: var(--border
 .tf-sub-prog { display: flex; align-items: center; gap: var(--sp-8); margin: var(--sp-8) 0 var(--sp-6); }
 .tf-sub-prog-txt { flex: 0 0 auto; font-size: var(--fs-note); color: var(--text-light); }
 .tf-sub-prog-bar {
-  flex: 1 1 auto; height: 4px; background: var(--surface-3);
+  flex: 1 1 auto; height: 4px; background: var(--surface-recess);
   border-radius: var(--radius-full); overflow: hidden;
 }
 .tf-sub-prog-bar > i { display: block; height: 100%; background: var(--primary); border-radius: inherit; }
@@ -3757,7 +3759,7 @@ body.dark-mode .tf-actions, body.dark-mode .tf-subs { border-color: var(--border
   flex: 0 0 auto;
   padding: 0 var(--sp-6);
   border-radius: var(--radius-full);
-  background: var(--surface-3);
+  background: var(--surface-chip);
   color: var(--text-light);
   font-size: var(--fs-caption);
   line-height: 1.7;
@@ -4662,7 +4664,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 .lgb-track {
   position: relative; height: 4px;
   margin: var(--sp-8) 0 0 28px;
-  background: var(--surface-3, var(--surface-2)); border-radius: var(--radius-full);
+  background: var(--surface-recess, var(--surface-2)); border-radius: var(--radius-full);
   overflow: hidden;
 }
 .lgb-fill { position: absolute; top: 0; bottom: 0; left: 0; background: var(--primary); border-radius: var(--radius-full); }
@@ -4767,7 +4769,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
   -webkit-tap-highlight-color: transparent;
 }
 .rv-cad:first-child { border-top: 0; }
-.rv-cad:active { background: var(--surface-3); }
+.rv-cad:active { background: var(--surface-recess); }
 .rv-cad-t {
   order: 1; flex: 0 0 auto;
   display: flex; align-items: baseline; gap: var(--sp-4);
@@ -4864,7 +4866,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
   border: 1px solid var(--hairline); background: var(--surface-1);
   color: var(--text); font-size: var(--fs-caption); white-space: nowrap;
 }
-.rv-jump-b:active { background: var(--surface-3); }
+.rv-jump-b:active { background: var(--surface-recess); }
 /* ---------- 日志页的复盘提醒条 ----------
    一条一行，说是哪一段、覆盖哪天到哪天、点进去就是那段的编辑态。
    ★ 只在「该写还没写」时出现：周复盘周日之前不催（提前写等于瞎猜），
@@ -4950,7 +4952,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 .lgrid-m {
   flex: 0 0 auto; align-self: center;
   padding: 0 var(--sp-4); border-radius: var(--radius-full);
-  background: var(--surface-3); color: var(--text-light);
+  background: var(--surface-chip); color: var(--text-light);
   font-size: var(--fs-micro); line-height: 1.6;
 }
 .lgrid-p {
@@ -4987,7 +4989,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 .lgrid-ys {
   flex: 0 0 auto; min-height: 32px; padding: 0 var(--sp-12);
   border: 0; border-radius: var(--radius-full);
-  background: var(--surface-3); color: var(--text-light);
+  background: var(--surface-chip); color: var(--text-light);
   font: inherit; font-size: var(--fs-caption);
   font-variant-numeric: tabular-nums;
   -webkit-tap-highlight-color: transparent;
@@ -5088,7 +5090,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
   background: var(--surface-2);
   cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
-.lg-hub-c:active { background: var(--surface-3); }
+.lg-hub-c:active { background: var(--surface-recess); }
 .lg-hub-ic { font-size: var(--fs-body); line-height: 1; }
 /* nowrap：320 宽下 1/4 是 67px，「愿望清单」四个字需要 52px，够；
    真放不下时宁可省略也不要折成两行把格子的等高打破 */
@@ -6287,7 +6289,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
 }
 .tree-visual { font-size: calc(64px * var(--fs-boost)); line-height: 1; margin: var(--sp-8) 0; }
 .tree-progress { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-4); font-weight: 700; }
-.tree-progress-bar { height: 10px; background: var(--surface-3); border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); }
+.tree-progress-bar { height: 10px; background: var(--surface-recess); border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); }
 .tree-progress-fill { height: 100%; background: var(--green); border-radius: var(--radius-xs); transition: width 0.3s; }
 .harvest-item { font-size:var(--fs-title); color: var(--text-light); padding: var(--sp-6) 0; border-bottom: 1px solid var(--hairline); }
 
@@ -6807,7 +6809,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
 /* 进度条里程碑刻度 */
 .tree-progress-wrap { position: relative; }
 .tree-tick { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--border); opacity: .35; z-index: 1; }
-.tree-progress-bar { height: 10px; background: var(--surface-3); border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); position: relative; }
+.tree-progress-bar { height: 10px; background: var(--surface-recess); border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); position: relative; }
 
 /* 树名 */
 .tree-name-row { display: flex; align-items: center; justify-content: center; gap: var(--sp-4); margin: var(--sp-2) 0 var(--sp-8); cursor: pointer; user-select: none; }
@@ -6850,7 +6852,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
   overflow: hidden;
 }
 .tree-album-cell.lit { filter: none; opacity: 1; border-color: var(--primary); background: var(--accent-bg); box-shadow: 0 0 4px rgba(var(--primary-rgb),.35); animation: tmNewPop .5s ease; }
-.tree-album-bar { height: 8px; background: var(--surface-3); border-radius: var(--radius-xs); margin-top: var(--sp-6); overflow: hidden; border: 1px solid var(--border); }
+.tree-album-bar { height: 8px; background: var(--surface-recess); border-radius: var(--radius-xs); margin-top: var(--sp-6); overflow: hidden; border: 1px solid var(--border); }
 /* 原写死 #E85D3A→#F0AD4E 线性渐变，换主题时不跟随。改用主色→黄令牌；
    默认主题下两色与原硬编码完全相同（--primary=#E85D3A / --yellow=#F0AD4E），故逐像素不变。 */
 .tree-album-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--yellow)); border-radius: var(--radius-xs); transition: width .4s ease; }
@@ -7516,7 +7518,7 @@ body.dark-mode .tb-paper-blk.is-habit {
 .reroll-postpone-btn:active { opacity: .6; }
 /* 三档赌注做成贴片：靠底色差表达可点，不再叠一层黄色描边 + 硬编码 #FFF8E1
    （那两个颜色在深色模式下不会跟着换）。 */
-.bet-tier-btn { flex: 1; min-width: 56px; padding: var(--sp-6) var(--sp-6) !important; font-size:var(--fs-body) !important; background: var(--surface-3); color: var(--text); border: 0 !important; font-weight: var(--fw-semibold); white-space: nowrap; }
+.bet-tier-btn { flex: 1; min-width: 56px; padding: var(--sp-6) var(--sp-6) !important; font-size:var(--fs-body) !important; background: var(--surface-chip); color: var(--text); border: 0 !important; font-weight: var(--fw-semibold); white-space: nowrap; }
 .bet-tier-btn:active { background: rgba(var(--primary-rgb),.16); }
 .rank-task-progress { font-weight: 700; }
 .rank-task-status { font-size:var(--fs-title); padding: var(--sp-2) var(--sp-6); border-radius: var(--radius-xs); }
@@ -7581,7 +7583,7 @@ body.dark-mode .tb-paper-blk.is-habit {
 .sp-wc-item .wc-icon { font-size:var(--fs-title); width: 22px; text-align: center; }
 .sp-wc-item .wc-info { flex: 1; min-width: 0; }
 .sp-wc-item .wc-name { font-size:var(--fs-body); font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sp-wc-item .wc-bar { height: 5px; background: var(--surface-3); border-radius: var(--radius-xs); overflow: hidden; margin-top: var(--sp-2); }
+.sp-wc-item .wc-bar { height: 5px; background: var(--surface-recess); border-radius: var(--radius-xs); overflow: hidden; margin-top: var(--sp-2); }
 .sp-wc-item .wc-fill { height: 100%; background: linear-gradient(90deg, #5B9BD5, #E91E63); border-radius: var(--radius-xs); transition: width .3s; }
 .sp-wc-item .wc-reward { font-size:var(--fs-note); font-weight: 600; color: var(--primary-ink); white-space: nowrap; }
 .sp-wc-item.done { background: transparent; }
@@ -8378,6 +8380,8 @@ body.dark-mode {
   --surface-1: #16213e;
   --surface-2: #0f0f23;
   --surface-3: #0a0a14;
+  --surface-recess: #303A53;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.40:1 */
+  --surface-chip: #232E49;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.18:1 */
   /* 补齐两处长期硬编码的深色调。
      --surface-hover = 悬停/次级按钮底（原散落 5 处硬编码 #1b263b）
      --ink-mute = 次级文字（原硬编码 #a0a0b0 / #c0c0d0） */
@@ -9727,7 +9731,7 @@ body.dark-mode .timer-circle{
   /* 用 filter/表面色提亮，不写死浅彩底：写死的底会在换主题时与实心主色串色。 */
   .btn-start:not(:disabled):hover:not(:active){ filter: brightness(1.06); }
   .btn-finish:not(:disabled):hover:not(:active){ background: var(--surface-2); }
-  .btn-interrupt:not(:disabled):hover:not(:active){ background: var(--surface-3); }
+  .btn-interrupt:not(:disabled):hover:not(:active){ background: var(--surface-chip); }
 /* 卡片组：抬升 + 品牌描边 + 投影加深（E1 已有按压 scale，互不打架） */
   .todo-item:hover:not(:active), .countdown-item:hover:not(:active), .badge-card:hover:not(:active), .history-season-card:hover:not(:active), .shop-item:hover:not(:active) {
     transform: translateY(-2px);
@@ -12529,6 +12533,8 @@ body[data-theme="nord"] {
   --bg: #E5E9F0;             --card: #FAFBFD;
   --surface-0: #ECEFF4;      --surface-1: #FFFFFF;
   --surface-2: #E5E9F0;      --surface-3: #D8DEE9;
+  --surface-recess: #D8DEE9;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.35:1 */
+  --surface-chip: #D8DEE9;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.35:1 */
   --surface-hover: #E5E9F0;
   --text: #2E3440;           --text-light: #4C566A;
   --ink-mute: #7B88A1;       --ink-strong: #2E3440;
@@ -12569,6 +12575,8 @@ body.dark-mode[data-theme="nord"] {
   --bg: #2E3440;             --card: #3B4252;
   --surface-0: #2E3440;      --surface-1: #3B4252;
   --surface-2: #343B4A;      --surface-3: #272C36;
+  --surface-recess: #515866;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.41:1 */
+  --surface-chip: #464D5C;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.19:1 */
   --surface-hover: #434C5E;
   --text: #ECEFF4;           --text-light: #D8DEE9;
   --ink-mute: #7B88A1;       --ink-strong: #ECEFF4;
@@ -12614,6 +12622,8 @@ body[data-theme="tokyo"] {
   --bg: #D8DEEB; --card: #F7F9FF;
   --surface-0: #E1E3EB; --surface-1: #FAFBFF;
   --surface-2: #D8DCE7; --surface-3: #C8CDDC;
+  --surface-recess: #C8CDDC;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.54:1 */
+  --surface-chip: #C8CDDC;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.54:1 */
   --surface-hover: #D8DCE7;
   --text: #2C3E6B; --text-light: #4A5680;
   --ink-mute: #8990B3; --ink-strong: #1A1B26;
@@ -12652,6 +12662,8 @@ body.dark-mode[data-theme="tokyo"] {
   --bg: #1A1B26; --card: #1F2335;
   --surface-0: #1A1B26; --surface-1: #1F2335;
   --surface-2: #24283B; --surface-3: #16161E;
+  --surface-recess: #373B4B;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.40:1 */
+  --surface-chip: #2C2F40;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.18:1 */
   --surface-hover: #292E42;
   --text: #C0CAF5; --text-light: #A9B1D6;
   --ink-mute: #565F89; --ink-strong: #C0CAF5;
@@ -12691,6 +12703,8 @@ body[data-theme="gruvbox"] {
   --bg: #EBDFA9; --card: #F8F2D4;
   --surface-0: #F2E8BE; --surface-1: #FBF7DC;
   --surface-2: #F2E5BC; --surface-3: #EBDBB2;
+  --surface-recess: #E7D7AF;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.32:1 */
+  --surface-chip: #EBDBB2;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.27:1 */
   --surface-hover: #F2E5BC;
   --text: #3C3836; --text-light: #665C54;
   --ink-mute: #928374; --ink-strong: #282828;
@@ -12729,6 +12743,8 @@ body.dark-mode[data-theme="gruvbox"] {
   --bg: #282828; --card: #3C3836;
   --surface-0: #282828; --surface-1: #3C3836;
   --surface-2: #32302F; --surface-3: #1D2021;
+  --surface-recess: #514E4C;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.40:1 */
+  --surface-chip: #464341;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.18:1 */
   --surface-hover: #504945;
   --text: #EBDBB2; --text-light: #D5C4A1;
   --ink-mute: #928374; --ink-strong: #EBDBB2;
@@ -12768,6 +12784,8 @@ body[data-theme="rosepine"] {
   --bg: #F5E9E4; --card: #FDF8F4;
   --surface-0: #FAF4ED; --surface-1: #FFFDF8;
   --surface-2: #F4EDE4; --surface-3: #EBE2D8;
+  --surface-recess: #E6DDD3;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.32:1 */
+  --surface-chip: #EBE2D8;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.26:1 */
   --surface-hover: #F4EDE4;
   --text: #575279; --text-light: #797593;
   --ink-mute: #9893A5; --ink-strong: #232136;
@@ -12806,6 +12824,8 @@ body.dark-mode[data-theme="rosepine"] {
   --bg: #191724; --card: #1F1D2E;
   --surface-0: #191724; --surface-1: #1F1D2E;
   --surface-2: #26233A; --surface-3: #14121E;
+  --surface-recess: #383645;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.40:1 */
+  --surface-chip: #2C2A3A;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.18:1 */
   --surface-hover: #2A2740;
   --text: #E0DEF4; --text-light: #C4C1DE;
   --ink-mute: #908CAA; --ink-strong: #E0DEF4;
@@ -12845,6 +12865,8 @@ body[data-theme="catppuccin"] {
   --bg: #E2E6F2; --card: #FBFCFE;
   --surface-0: #E9ECF3; --surface-1: #FDFDFF;
   --surface-2: #E0E4EC; --surface-3: #D5DAE4;
+  --surface-recess: #D5DAE4;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.38:1 */
+  --surface-chip: #D5DAE4;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.38:1 */
   --surface-hover: #E0E4EC;
   --text: #4C4F69; --text-light: #6C6F85;
   --ink-mute: #8C8FA1; --ink-strong: #1E1E2E;
@@ -12883,6 +12905,8 @@ body.dark-mode[data-theme="catppuccin"] {
   --bg: #1E1E2E; --card: #313244;
   --surface-0: #1E1E2E; --surface-1: #313244;
   --surface-2: #292A3C; --surface-3: #181825;
+  --surface-recess: #474858;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.40:1 */
+  --surface-chip: #3C3D4E;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.18:1 */
   --surface-hover: #45475A;
   --text: #CDD6F4; --text-light: #BAC2DE;
   --ink-mute: #7F849C; --ink-strong: #CDD6F4;

@@ -10,7 +10,7 @@
 }
 .tree-visual { font-size: calc(64px * var(--fs-boost)); line-height: 1; margin: var(--sp-8) 0; }
 .tree-progress { font-size:var(--fs-title); color: var(--text-light); margin-top: var(--sp-4); font-weight: 700; }
-.tree-progress-bar { height: 10px; background: var(--surface-3); border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); }
+.tree-progress-bar { height: 10px; background: var(--surface-recess); border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); }
 .tree-progress-fill { height: 100%; background: var(--green); border-radius: var(--radius-xs); transition: width 0.3s; }
 .harvest-item { font-size:var(--fs-title); color: var(--text-light); padding: var(--sp-6) 0; border-bottom: 1px solid var(--hairline); }
 
@@ -530,7 +530,7 @@
 /* 进度条里程碑刻度 */
 .tree-progress-wrap { position: relative; }
 .tree-tick { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--border); opacity: .35; z-index: 1; }
-.tree-progress-bar { height: 10px; background: var(--surface-3); border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); position: relative; }
+.tree-progress-bar { height: 10px; background: var(--surface-recess); border-radius: var(--radius-xs); margin-top: var(--sp-8); overflow: hidden; border: 1px solid var(--border); position: relative; }
 
 /* 树名 */
 .tree-name-row { display: flex; align-items: center; justify-content: center; gap: var(--sp-4); margin: var(--sp-2) 0 var(--sp-8); cursor: pointer; user-select: none; }
@@ -573,7 +573,7 @@
   overflow: hidden;
 }
 .tree-album-cell.lit { filter: none; opacity: 1; border-color: var(--primary); background: var(--accent-bg); box-shadow: 0 0 4px rgba(var(--primary-rgb),.35); animation: tmNewPop .5s ease; }
-.tree-album-bar { height: 8px; background: var(--surface-3); border-radius: var(--radius-xs); margin-top: var(--sp-6); overflow: hidden; border: 1px solid var(--border); }
+.tree-album-bar { height: 8px; background: var(--surface-recess); border-radius: var(--radius-xs); margin-top: var(--sp-6); overflow: hidden; border: 1px solid var(--border); }
 /* 原写死 #E85D3A→#F0AD4E 线性渐变，换主题时不跟随。改用主色→黄令牌；
    默认主题下两色与原硬编码完全相同（--primary=#E85D3A / --yellow=#F0AD4E），故逐像素不变。 */
 .tree-album-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--yellow)); border-radius: var(--radius-xs); transition: width .4s ease; }

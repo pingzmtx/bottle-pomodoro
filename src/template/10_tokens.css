@@ -242,7 +242,9 @@
   --surface-0: #F5F0E8;   /* 最深：页面底色 */
   --surface-1: #FFFFFF;   /* 常规卡片 */
   --surface-2: #FBF7EF;   /* 浮起卡片/输入 */
-  --surface-3: #F0EADF;   /* 按压/嵌套 */
+  --surface-3: #F0EADF;   /* 暗沉：惰性态 / 嵌套容器（语义要"比卡片更沉"，与 recess 的可辨槽相反） */
+  --surface-recess: #E5E0D5;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.32:1 */
+  --surface-chip: #F0EADF;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.20:1 */
   --ink-strong: #1A2438;
 }
 

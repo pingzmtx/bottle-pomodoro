@@ -94,6 +94,8 @@ body.dark-mode {
   --surface-1: #16213e;
   --surface-2: #0f0f23;
   --surface-3: #0a0a14;
+  --surface-recess: #303A53;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.40:1 */
+  --surface-chip: #232E49;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.18:1 */
   /* 补齐两处长期硬编码的深色调。
      --surface-hover = 悬停/次级按钮底（原散落 5 处硬编码 #1b263b）
      --ink-mute = 次级文字（原硬编码 #a0a0b0 / #c0c0d0） */
@@ -1443,7 +1445,7 @@ body.dark-mode .timer-circle{
   /* 用 filter/表面色提亮，不写死浅彩底：写死的底会在换主题时与实心主色串色。 */
   .btn-start:not(:disabled):hover:not(:active){ filter: brightness(1.06); }
   .btn-finish:not(:disabled):hover:not(:active){ background: var(--surface-2); }
-  .btn-interrupt:not(:disabled):hover:not(:active){ background: var(--surface-3); }
+  .btn-interrupt:not(:disabled):hover:not(:active){ background: var(--surface-chip); }
 /* 卡片组：抬升 + 品牌描边 + 投影加深（E1 已有按压 scale，互不打架） */
   .todo-item:hover:not(:active), .countdown-item:hover:not(:active), .badge-card:hover:not(:active), .history-season-card:hover:not(:active), .shop-item:hover:not(:active) {
     transform: translateY(-2px);

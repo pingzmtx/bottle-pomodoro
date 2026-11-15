@@ -194,6 +194,8 @@ body[data-theme="nord"] {
   --bg: #E5E9F0;             --card: #FAFBFD;
   --surface-0: #ECEFF4;      --surface-1: #FFFFFF;
   --surface-2: #E5E9F0;      --surface-3: #D8DEE9;
+  --surface-recess: #D8DEE9;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.35:1 */
+  --surface-chip: #D8DEE9;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.35:1 */
   --surface-hover: #E5E9F0;
   --text: #2E3440;           --text-light: #4C566A;
   --ink-mute: #7B88A1;       --ink-strong: #2E3440;
@@ -234,6 +236,8 @@ body.dark-mode[data-theme="nord"] {
   --bg: #2E3440;             --card: #3B4252;
   --surface-0: #2E3440;      --surface-1: #3B4252;
   --surface-2: #343B4A;      --surface-3: #272C36;
+  --surface-recess: #515866;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.41:1 */
+  --surface-chip: #464D5C;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.19:1 */
   --surface-hover: #434C5E;
   --text: #ECEFF4;           --text-light: #D8DEE9;
   --ink-mute: #7B88A1;       --ink-strong: #ECEFF4;
@@ -279,6 +283,8 @@ body[data-theme="tokyo"] {
   --bg: #D8DEEB; --card: #F7F9FF;
   --surface-0: #E1E3EB; --surface-1: #FAFBFF;
   --surface-2: #D8DCE7; --surface-3: #C8CDDC;
+  --surface-recess: #C8CDDC;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.54:1 */
+  --surface-chip: #C8CDDC;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.54:1 */
   --surface-hover: #D8DCE7;
   --text: #2C3E6B; --text-light: #4A5680;
   --ink-mute: #8990B3; --ink-strong: #1A1B26;
@@ -317,6 +323,8 @@ body.dark-mode[data-theme="tokyo"] {
   --bg: #1A1B26; --card: #1F2335;
   --surface-0: #1A1B26; --surface-1: #1F2335;
   --surface-2: #24283B; --surface-3: #16161E;
+  --surface-recess: #373B4B;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.40:1 */
+  --surface-chip: #2C2F40;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.18:1 */
   --surface-hover: #292E42;
   --text: #C0CAF5; --text-light: #A9B1D6;
   --ink-mute: #565F89; --ink-strong: #C0CAF5;
@@ -356,6 +364,8 @@ body[data-theme="gruvbox"] {
   --bg: #EBDFA9; --card: #F8F2D4;
   --surface-0: #F2E8BE; --surface-1: #FBF7DC;
   --surface-2: #F2E5BC; --surface-3: #EBDBB2;
+  --surface-recess: #E7D7AF;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.32:1 */
+  --surface-chip: #EBDBB2;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.27:1 */
   --surface-hover: #F2E5BC;
   --text: #3C3836; --text-light: #665C54;
   --ink-mute: #928374; --ink-strong: #282828;
@@ -394,6 +404,8 @@ body.dark-mode[data-theme="gruvbox"] {
   --bg: #282828; --card: #3C3836;
   --surface-0: #282828; --surface-1: #3C3836;
   --surface-2: #32302F; --surface-3: #1D2021;
+  --surface-recess: #514E4C;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.40:1 */
+  --surface-chip: #464341;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.18:1 */
   --surface-hover: #504945;
   --text: #EBDBB2; --text-light: #D5C4A1;
   --ink-mute: #928374; --ink-strong: #EBDBB2;
@@ -433,6 +445,8 @@ body[data-theme="rosepine"] {
   --bg: #F5E9E4; --card: #FDF8F4;
   --surface-0: #FAF4ED; --surface-1: #FFFDF8;
   --surface-2: #F4EDE4; --surface-3: #EBE2D8;
+  --surface-recess: #E6DDD3;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.32:1 */
+  --surface-chip: #EBE2D8;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.26:1 */
   --surface-hover: #F4EDE4;
   --text: #575279; --text-light: #797593;
   --ink-mute: #9893A5; --ink-strong: #232136;
@@ -471,6 +485,8 @@ body.dark-mode[data-theme="rosepine"] {
   --bg: #191724; --card: #1F1D2E;
   --surface-0: #191724; --surface-1: #1F1D2E;
   --surface-2: #26233A; --surface-3: #14121E;
+  --surface-recess: #383645;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.40:1 */
+  --surface-chip: #2C2A3A;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.18:1 */
   --surface-hover: #2A2740;
   --text: #E0DEF4; --text-light: #C4C1DE;
   --ink-mute: #908CAA; --ink-strong: #E0DEF4;
@@ -510,6 +526,8 @@ body[data-theme="catppuccin"] {
   --bg: #E2E6F2; --card: #FBFCFE;
   --surface-0: #E9ECF3; --surface-1: #FDFDFF;
   --surface-2: #E0E4EC; --surface-3: #D5DAE4;
+  --surface-recess: #D5DAE4;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.38:1 */
+  --surface-chip: #D5DAE4;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.38:1 */
   --surface-hover: #E0E4EC;
   --text: #4C4F69; --text-light: #6C6F85;
   --ink-mute: #8C8FA1; --ink-strong: #1E1E2E;
@@ -548,6 +566,8 @@ body.dark-mode[data-theme="catppuccin"] {
   --bg: #1E1E2E; --card: #313244;
   --surface-0: #1E1E2E; --surface-1: #313244;
   --surface-2: #292A3C; --surface-3: #181825;
+  --surface-recess: #474858;  /* 凹：轨道/按压/惰性/嵌套容器 · 对卡片 1.40:1 */
+  --surface-chip: #3C3D4E;    /* 凸：徽章/悬停底/控件默认底 · 对卡片 1.18:1 */
   --surface-hover: #45475A;
   --text: #CDD6F4; --text-light: #BAC2DE;
   --ink-mute: #7F849C; --ink-strong: #CDD6F4;

@@ -340,7 +340,7 @@ body.dark-mode .flow-dur-switch .fds-hint { color: #9aa5c0; }
   border: 0;
   font-size: var(--fs-micro);
 }
-.fuzzy-toggle:active { background: var(--surface-3); }
+.fuzzy-toggle:active { background: var(--surface-recess); }
 .fuzzy-checkbox {
   width: 15px; height: 15px;
   /* 描边用 --border-strong：在白胶囊 + 奶油表盘上，--border 的 1px 淡线

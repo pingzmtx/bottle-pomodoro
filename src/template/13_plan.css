@@ -597,7 +597,7 @@ body.dark-mode .tf-actions, body.dark-mode .tf-subs { border-color: var(--border
   cursor: pointer; font-weight: 700; line-height: 1; padding: 0 var(--sp-2);
   color: var(--text-light); border-radius: var(--radius-full);
 }
-.tf-chip-x:hover { background: var(--surface-3); color: var(--primary-dark); }
+.tf-chip-x:hover { background: var(--surface-chip); color: var(--primary-dark); }
 .tf-extra-note { font-size: var(--fs-note); color: var(--text-light); }
 
 /* 主段 chip：实线（额外段是虚线），并带一个「主」字标签 */
@@ -681,7 +681,7 @@ body.dark-mode .tf-actions, body.dark-mode .tf-subs { border-color: var(--border
 .tf-sub-prog { display: flex; align-items: center; gap: var(--sp-8); margin: var(--sp-8) 0 var(--sp-6); }
 .tf-sub-prog-txt { flex: 0 0 auto; font-size: var(--fs-note); color: var(--text-light); }
 .tf-sub-prog-bar {
-  flex: 1 1 auto; height: 4px; background: var(--surface-3);
+  flex: 1 1 auto; height: 4px; background: var(--surface-recess);
   border-radius: var(--radius-full); overflow: hidden;
 }
 .tf-sub-prog-bar > i { display: block; height: 100%; background: var(--primary); border-radius: inherit; }
@@ -842,7 +842,7 @@ body.dark-mode .tf-actions, body.dark-mode .tf-subs { border-color: var(--border
   flex: 0 0 auto;
   padding: 0 var(--sp-6);
   border-radius: var(--radius-full);
-  background: var(--surface-3);
+  background: var(--surface-chip);
   color: var(--text-light);
   font-size: var(--fs-caption);
   line-height: 1.7;
@@ -1747,7 +1747,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 .lgb-track {
   position: relative; height: 4px;
   margin: var(--sp-8) 0 0 28px;
-  background: var(--surface-3, var(--surface-2)); border-radius: var(--radius-full);
+  background: var(--surface-recess, var(--surface-2)); border-radius: var(--radius-full);
   overflow: hidden;
 }
 .lgb-fill { position: absolute; top: 0; bottom: 0; left: 0; background: var(--primary); border-radius: var(--radius-full); }
@@ -1852,7 +1852,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
   -webkit-tap-highlight-color: transparent;
 }
 .rv-cad:first-child { border-top: 0; }
-.rv-cad:active { background: var(--surface-3); }
+.rv-cad:active { background: var(--surface-recess); }
 .rv-cad-t {
   order: 1; flex: 0 0 auto;
   display: flex; align-items: baseline; gap: var(--sp-4);
@@ -1949,7 +1949,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
   border: 1px solid var(--hairline); background: var(--surface-1);
   color: var(--text); font-size: var(--fs-caption); white-space: nowrap;
 }
-.rv-jump-b:active { background: var(--surface-3); }
+.rv-jump-b:active { background: var(--surface-recess); }
 /* ---------- 日志页的复盘提醒条 ----------
    一条一行，说是哪一段、覆盖哪天到哪天、点进去就是那段的编辑态。
    ★ 只在「该写还没写」时出现：周复盘周日之前不催（提前写等于瞎猜），
@@ -2035,7 +2035,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 .lgrid-m {
   flex: 0 0 auto; align-self: center;
   padding: 0 var(--sp-4); border-radius: var(--radius-full);
-  background: var(--surface-3); color: var(--text-light);
+  background: var(--surface-chip); color: var(--text-light);
   font-size: var(--fs-micro); line-height: 1.6;
 }
 .lgrid-p {
@@ -2072,7 +2072,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 .lgrid-ys {
   flex: 0 0 auto; min-height: 32px; padding: 0 var(--sp-12);
   border: 0; border-radius: var(--radius-full);
-  background: var(--surface-3); color: var(--text-light);
+  background: var(--surface-chip); color: var(--text-light);
   font: inherit; font-size: var(--fs-caption);
   font-variant-numeric: tabular-nums;
   -webkit-tap-highlight-color: transparent;
@@ -2173,7 +2173,7 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
   background: var(--surface-2);
   cursor: pointer; -webkit-tap-highlight-color: transparent;
 }
-.lg-hub-c:active { background: var(--surface-3); }
+.lg-hub-c:active { background: var(--surface-recess); }
 .lg-hub-ic { font-size: var(--fs-body); line-height: 1; }
 /* nowrap：320 宽下 1/4 是 67px，「愿望清单」四个字需要 52px，够；
    真放不下时宁可省略也不要折成两行把格子的等高打破 */

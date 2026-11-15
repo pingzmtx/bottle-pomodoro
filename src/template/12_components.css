@@ -485,7 +485,7 @@ body.kb-open .bottom-nav { display: none; }
   transition: background .12s, transform .12s;
   flex-shrink: 0;
 }
-.grid-cell:hover { background: var(--surface-hover, var(--surface-3)); }
+.grid-cell:hover { background: var(--surface-hover, var(--surface-chip)); }
 .grid-cell.active { background: var(--fill-primary); border-color: var(--primary-dark); color: var(--on-fill); }
 .grid-cell.active.green { background: var(--green); border-color: var(--green-dark); color: var(--white); }
 .grid-cell.active.yellow { background: var(--yellow); border-color: var(--yellow-dark); color: var(--white); }
@@ -545,7 +545,7 @@ body.kb-open .bottom-nav { display: none; }
   color: var(--text-light); font-size: var(--fs-note); font-weight: 600;
   user-select: none;
 }
-.add-help:hover, .add-help.is-on { background: var(--surface-3); color: var(--text); }
+.add-help:hover, .add-help.is-on { background: var(--surface-chip); color: var(--text); }
 .add-extra-help { margin-top: var(--sp-6); font-size: var(--fs-caption); color: var(--text-light); line-height: 1.6; }
 /* 草稿里还没有段 = 整块不存在，不占高度 */
 .add-extra-chips:empty { display: none; }
