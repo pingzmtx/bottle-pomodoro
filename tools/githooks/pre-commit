@@ -11,40 +11,45 @@
 cd "$(git rev-parse --show-toplevel)" || exit 1
 
 # --diff-filter=ACMR：只看新增/修改/重命名，**排除删除(D)**。
-# 为什么：闸门 1 判的是"产物过期、且这次没提交 public/"，一次 git rm 不该被当成"没提交"。
+# 为什么：闸门 0 查「有没有把凭据/垃圾暂存进来」，删除一个旧的 .bak 是好事，不该拦。
 staged=$(git diff --cached --name-only --diff-filter=ACMR)
+
+# 闸门 0（2026-11-15）：暂存区不许出现凭据 / 备份 / 日志 / 系统垃圾。
+# 上线脚本原来用 `git add -A`，语义是「把工作区里没被忽略的东西全推进**公开**仓库」；
+# 现改成显式白名单（add -u + 受管目录）。这里是第二道锁：
+# 有人 `git add -f` 绕过 .gitignore、或 .gitignore 本身被改坏时，必须红在这里，而不是红在历史上。
+# 只查 ACMR：删除一个旧的 .bak 是好事，不该拦。
+leak=$(echo "$staged" | grep -Ei '(^|/)\.publish-token$|(^|/)\.ver_seq\.json$|\.(bak|log|pyc|pyo)$|(^|/)\.DS_Store$|(^|/)__pycache__/' || true)
+if [ -n "$leak" ]; then
+  echo "[pre-commit] ❌ 暂存区里有不该进公开仓库的文件："
+  echo "$leak" | sed 's/^/             /'
+  echo "             凭据/备份/日志/系统垃圾。已拦下，什么都没写进历史。"
+  echo "             修法：git restore --staged <文件>；并确认 .gitignore 没被改坏。"
+  exit 1
+fi
 
 # 2026-11-14 删除「闸门 0：单文件 index.html 不许入库」。
 # 原判据是"发布物是 public/，根目录 index.html 只是单文件预览"——错的是判据本身：
 # GitHub Pages legacy 只从仓库根目录或 /docs 发布，本仓库 /docs 已放工程文档，
 # 所以站点**就是**根目录那份 index.html（线上一直如此）。判据错 → 拦的是正确操作，
 # 每次发版都得绕钩子（--no-verify 连闸门 1/2 一起关掉，风险更大）。
-# 删掉闸门 0 不降低保护：产物新鲜度由闸门 1、闸门 2 逐字节比对守住。
+# 删掉闸门 0 不降低保护：产物新鲜度由闸门 1+2 的逐字节比对守住。
 
-# 闸门 1：产物必须与 src 一致（改法见闸门 2）。
-# 曾经这里判的是「staged 里有 src/ 就必须有 public/」，但那只在"每次改 src 都会改变产物"
-# 时成立：注释、格式化、文档化改动会被构建剥掉，产物逐字节不变，此时并没有 public/ 可提交，
-# 闸门就会拦下一次完全正确的提交。真正的约束是"产物不过期"，由闸门 2 的逐字节比对覆盖，
-# 所以本闸门只在产物确实过期时才拦（= 重建了但忘了 git add public）。
+# 闸门 1+2：产物新鲜度 —— 按 src 重新渲染到临时目录，与盘上 public/ 逐文件逐字节比对。
+# 这条连"public/ 已重建但内容还是旧的"也拦得住；文件名带内容哈希，名字不对也算不一致。
+#
+# 2026-11-15 删掉了原「闸门 1」：它判的是 `staged` 里有没有 `public/`，而 public/ 自
+# 2026-10-22 起就在 .gitignore 里 —— 那个 `if` 分支**永远不可达**，且它的提示
+# 「git add public」会直接撞 .gitignore 报错。判据与闸门 2 完全相同，没必要留两段。
 if ! python3 tools/build.py --check >/dev/null 2>&1; then
-  if ! echo "$staged" | grep -q '^public/'; then
-    echo "[pre-commit] ❌ 产物过期，且没提交 public/。"
-    echo "             修复：python3 tools/build.py && git add public"
-    exit 1
-  fi
-fi
-
-# 闸门 2：产物新鲜度 —— 按 src 重新渲染到临时目录，与盘上 public/ 逐文件逐字节比对。
-# 这条连"public/ 已 add 但内容是旧的"也拦得住；文件名带内容哈希，名字不对也算不一致。
-if ! python3 tools/build.py --check >/dev/null 2>&1; then
-  echo "[pre-commit] ❌ 产物陈旧：src 与 public/ 不一致（改了源码没重建）。"
-  echo "             修复：python3 tools/build.py && git add public"
+  echo "[pre-commit] ❌ 产物陈旧：src 与 public/ 不一致（改了源码没重建，或重建了没落地）。"
+  echo "             修法：python3 tools/build.py && python3 tools/promote.py --apply && git add -u"
   echo "             自查：python3 tools/build.py --check"
   exit 1
 fi
 
 # 闸门 3：发布物落地 —— public/ 与**仓库根目录**的同名产物逐字节比对。
-# 闸门 2 只证明「public/ 能由 src/ 精确重建」，它管不到「根目录那份线上站点更新了没」。
+# 闸门 1+2 只证明「public/ 能由 src/ 精确重建」，它管不到「根目录那份线上站点更新了没」。
 # 这是两件事：build.py 只写 public/，而 Pages 发的是根目录。2026-11-14 实测两者
 # 漂了一整代（根目录 sw.js BUILD_ID=423fad73c0d3，public/ 是 2bfbe006368f），
 # 后果完全静默：CACHE 名不变 → 老用户永远命中旧缓存，P1 之后所有修复对他们没发出去；
@@ -53,7 +58,7 @@ fi
 if ! python3 tools/check_public_sync.py >/dev/null 2>&1; then
   echo "[pre-commit] ❌ 根目录产物与 public/ 不一致（发布物没落地，线上会发旧的）。"
   echo "             排查：python3 tools/check_public_sync.py"
-  echo "             修法：python3 tools/promote.py && git add -A"
+  echo "             修法：python3 tools/promote.py --apply && git add -u"
   exit 1
 fi
 

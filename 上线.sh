@@ -44,7 +44,21 @@ fi
 
 echo "▶ 4/5  提交"
 git remote set-url origin "$REPO" 2>/dev/null || git remote add origin "$REPO"
-git add -A
+
+# 2026-11-15：不再 `git add -A`。
+# `add -A` 的语义是「把工作区里所有没被忽略的东西都推进**公开**仓库」——
+# 推错一次，公开仓库删了还有历史。`.publish-token` 现在是靠 .gitignore 挡住的
+# （git check-ignore 实测命中 .gitignore:30），但那是「规则正好写对了」，不是「结构上不可能」：
+# 一个 `git add -f`、一次 .gitignore 改动、一个新出现的私人文件（截图/草稿/导出/备份）
+# 都会让它进历史。改成两级：
+#   ① git add -u      已跟踪文件的修改与**删除**（删残骸/删旧产物靠它同步）
+#   ② 逐个目录 add    只收这几个受管命名空间里的**新文件**
+# 根目录新出现的文档、截图、导出、备份一律不进 —— 要进就显式 `git add <路径>`。
+# 第二道锁在 pre-commit（暂存区含凭据/备份/日志/系统垃圾 → FAIL），不只靠这一段。
+git add -u
+for p in src tools assets icons fonts index.html config.js sw.js manifest.webmanifest 上线.sh; do
+  [ -e "$p" ] && git add -- "$p"
+done
 if git diff --cached --quiet; then
   echo "  没有变化，无需上线"
   exit 0
