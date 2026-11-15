@@ -970,9 +970,66 @@ def check_multi():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def adopt():
+    """把 `src/scripts/` 里未登记的文件追加到槽 1 数组末尾，回写 manifest。
+
+    为什么追加到**末尾**：槽 1 是 55 个脚本拼成的同一个 `<script>`，顶层语句在加载期求值。
+    末尾是唯一「所有既有定义都在它前面」的位置 —— 插中间要先判断它依赖谁、谁依赖它，
+    而这在 58 个文件同处一个强连通分量时判不出来（见《模块化路线》5.2 的实测）。
+
+    两套 schema 都认：槽 1/8 是 `files: [...]`，槽 2-7/9 是 `file: "x.js"`（带 len/sha256）。
+    只往槽 1 加，不动单文件槽 —— 把一个新文件塞进单文件槽会顶掉原来那个。
+    """
+    mani = json.load(open(MANI, encoding="utf-8"))
+    on_disk = sorted(f for f in os.listdir(SCRIPTS) if f.endswith(".js"))
+    registered = set()
+    for s in mani["slots"]:
+        if "files" in s:
+            registered.update(s["files"])
+        elif "file" in s:
+            registered.add(s["file"])
+
+    gone = sorted(registered - set(on_disk))
+    if gone:
+        print("⚠️  登记在 manifest 里、但 src/scripts/ 下不存在（本命令不处理删除）：")
+        for f in gone:
+            print("   - " + f)
+
+    new = [f for f in on_disk if f not in registered]
+    if not new:
+        print("✓ 没有未登记文件，manifest 未改动")
+        return 0
+
+    slot1 = next((s for s in mani["slots"] if s.get("slot") == 1 and "files" in s), None)
+    if slot1 is None:
+        print("✗ 找不到槽 1 的 files 数组 —— 不敢猜位置，什么都没写")
+        return 1
+
+    slot1["files"].extend(new)
+    raw = open(MANI, encoding="utf-8").read()
+    out = json.dumps(mani, ensure_ascii=False, indent=2)
+    if raw.endswith("\n"):
+        out += "\n"
+    open(MANI, "w", encoding="utf-8").write(out)
+
+    print("✓ 追加 %d 个文件到槽 1 末尾：" % len(new))
+    for f in new:
+        print("   + " + f)
+    print("")
+    print("  必须接着做（不 build 就提交，check / pubsync 会红）：")
+    print("    python3 tools/w6_toc.py          # 补该文件头的「函数索引（TOC）」行")
+    print("    python3 tools/build.py && python3 tools/promote.py --apply")
+    print("  另外：新文件第一行要写 `// @layer: L0..L4`，否则 layer 段报「未登记层级」。")
+    print("  顺序的真源是 manifest，index.html 是产物 —— 别反过来对着产物改。")
+    print("  这三步都只改「该文件自己 + manifest 一行」，不碰任何中央表。")
+    return 0
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "split":
         split()
+    elif "--adopt" in sys.argv:
+        sys.exit(adopt())
     elif "--check" in sys.argv:
         # 默认校验多产物（唯一发布物）；--single 才校验历史单文件产物
         sys.exit(check() if "--single" in sys.argv else check_multi())
