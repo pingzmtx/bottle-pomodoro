@@ -102,6 +102,13 @@ def main():
         # ReferenceError/TDZ，而 --check 只比对字节、smoke 未必点到那条路径。
         # 判据走 acorn AST（正则看不见跨行初始化表达式，实测正是它漏了第 4 条边）。
         ("tlorder", "python3 tools/check_toplevel_order.py"),
+        # 引擎→UI 边界（E3 契约，2026-11-16）：01z_ui_facade.js 的文件头早就写着
+        # 「引擎层不许直接调 UI」，但在此之前这句话没有任何东西在守 —— 实测裸调 215 处
+        # （01g 一个文件 95 处）。tlorder 管的是「谁先加载」，本段管的是「谁许调用谁」，
+        # 两者互补：顺序对了但方向错，一样会把 62 个文件焊成不可拆的整体。
+        # 三道判据：裸调非 0 即 FAIL；UIFX.xxx 必须在白名单（Proxy 不报错、只静默 undefined）；
+        # window.<UI 函数>= … 改写数量只准降（当前 11 处，比调用更隐蔽）。
+        ("eubound", "python3 tools/check_engine_ui_boundary.py"),
         # 层依赖方向检查：硬违例（下层反向依赖上层）会 FAIL，挂门禁防架构腐化
         ("layer", "python3 tools/w6_layer.py"),
         # TOC 一致性：函数增删后索引必须同步，否则文档与代码脱节
@@ -271,7 +278,7 @@ def main():
     # 代码没这么写（fast 只影响 smoke 一行），但一句错文档就能让人理直气壮地绕过检查。
     # 这里把"快档必须有哪些段"写成可执行断言：以后谁把某段挪到 only-full 分支，立刻红，
     # 而不是等下一次漏提交再回头查文档。
-    FAST_MUST = ("lint", "build", "check", "pubsync", "tlorder", "unit", "csstok", "derived")
+    FAST_MUST = ("lint", "build", "check", "pubsync", "tlorder", "eubound", "unit", "csstok", "derived")
     if fast:
         _have = {n for n, _c in steps}
         _miss = [n for n in FAST_MUST if n not in _have]
