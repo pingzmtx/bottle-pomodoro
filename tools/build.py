@@ -514,6 +514,23 @@ def lint():
         _src = open(os.path.join(SCRIPTS, f), encoding="utf-8").read()
         for _line, _text in _find_dead_statements(_src):
             errs.append(f"空语句（疑似漏括号的调用）{f}:{_line}  {_text}")
+    # ===== 层级声明门禁（2026-11-16）=====
+    # 层级原来存两份：文件头 `// @layer:` + w6_layer.py 里 69 行手写中央表。
+    # 造一处冲突（表写 L3、头写 L0）时，w6_layer.py 自己报得出来，可 lint 完全不管
+    # 层级 —— 于是发版路径（pre-commit → 上线.sh）照绿，"两处不一致"根本进不了门。
+    # 判据放在只被 verify 调用的工具里 = 只要有人只跑 lint 就失灵。
+    # 现在表已删（层级只剩文件头一处），这一段保证那唯一一份是完整的：
+    # 每个文件必须有且只有一个 @layer，漏写/自相矛盾都 FAIL。
+    _w6 = os.path.join(_tdir, "w6_layer.py")
+    if os.path.isfile(_w6):
+        _w6r = _sp.run([sys.executable, _w6, "--brief"],
+                       capture_output=True, text=True, timeout=120)
+        if _w6r.returncode != 0:
+            for _ln in ((_w6r.stdout or "") + (_w6r.stderr or "")).strip().split("\n"):
+                if _ln.strip():
+                    errs.append("层级 " + _ln.strip())
+    else:
+        errs.append("层级声明门禁不可用（缺 tools/w6_layer.py）")
     # ===== 设计令牌门禁：字号只许走变量 =====
     # 为什么必须有这一段：全项目曾有 49 种字号（含 9.5/10.5/11.5 等半像素），
     # 而 --fs-* 变量早已定义、JS 里引用了 194 次，template.html 却硬编码 655 处 ——

@@ -28,7 +28,8 @@
  * 左端定位到**调用方模块**、右端定位到**创建方模块**，
  * 从而把"谁改了我依赖的元素"这条隐性耦合显式化。）
  * 设计约束（对齐 tools/w6_layer.py 的规则，不另立标准）:
- * - 模块归属: 文件名 → LAYER（直接读 w6_layer.py 的 LAYER 表，单一事实源）
+ * - 模块归属: 文件名 → LAYER（读文件头 `// @layer: Lx`，与 w6_layer.py 同一个真源；
+ *   2026-11-16 起 w6_layer.py 的中央表已删除，这里不再有第二份可读）
  * - 输出必须能回答: "这条边是不是下层依赖上层" → 与 w6_layer 同口径
  * - 不跑、不依赖 dep_report.py 的输出（那是"用近似工具定精确工具的边界"）
  * - 防御式调用（typeof foo === 'function' / window.store && ...）单独归类为
@@ -52,7 +53,7 @@ const HAS = (f) => ARGS.includes(f);
 const VAL = (f) => { const i = ARGS.indexOf(f); return i >= 0 ? ARGS[i + 1] : null; };
 
 /* ============================================================
- * 0. 层级表：源文件头的 `// @layer: Lx` 优先，w6_layer.py 的 LAYER 表回落
+ * 0. 层级：只认源文件头的 `// @layer: Lx`（中央表 2026-11-16 已删，没有第二份可回落）
  *    2026-11-15 起层级的第一来源是文件自己 —— 新增文件不必再改任何中央表，
  *    漏写会在这里变成「未登记层级」而 FAIL（selfcheck 检查），不会静默豁免。
  * ============================================================ */
@@ -68,15 +69,10 @@ function layersFromHeaders() {
 }
 
 function loadLayers() {
+  // 只读文件头。原来这里还去正则解析 w6_layer.py 的 LAYER 表做回落 —— 那张表
+  // 2026-11-16 已删（同一条事实存两份，两侧一致只是运气）。现在读不到就是没写。
   const out = layersFromHeaders();
-  const src = fs.readFileSync(path.join(HERE, 'w6_layer.py'), 'utf8');
-  const m = src.match(/LAYER\s*=\s*\{([\s\S]*?)\n\}/);
-  if (m) {
-    const re = /"([^"]+\.js)"\s*:\s*(\d+)/g;
-    let g;
-    while ((g = re.exec(m[1]))) if (!(g[1] in out)) out[g[1]] = Number(g[2]);  // 回落
-  }
-  if (!Object.keys(out).length) throw new Error('层级表为空：文件头没有 @layer，w6_layer.py 的 LAYER 也没提取到');
+  if (!Object.keys(out).length) throw new Error('层级表为空：没有任何文件在前 12 行写了 `// @layer: Lx`');
   return out;
 }
 

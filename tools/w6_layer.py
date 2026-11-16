@@ -7,10 +7,13 @@
     约定没有强制执行 = 迟早被绕过，最后变成"所有文件都依赖所有文件"的大泥球。
     本工具把约定变成**可执行的规则**，新增违例立刻报出来。
 
-层级的**第一来源是源文件第一行的 `// @layer: Lx`**（2026-11-15 起）。
-下面的 LAYER 表只作回落：文件头读不到时才用它。所以新增文件不必再改这张表，
-漏写 `@layer` 会直接 FAIL —— 不会像以前那样"忘了登记 = 自动豁免方向检查"。
-两处都写且不一致 → FAIL（不是警告：两边都写着却不一致，任何一边都不可信）。
+层级的**唯一来源是源文件第一行的 `// @layer: Lx`**（2026-11-16 起）。
+这里原来还有一张 69 行的 `LAYER = {文件: 层}` 中央表做回落，已整表删除：
+同一条事实存两份，两侧一致只是运气，不一致时任何一边都不可信 —— 删掉一份，
+「两侧不一致」这个失效模式就从构造上不存在了。当前哪个文件在哪一层，用
+`python3 tools/w6_layer.py --list` 看（由文件头生成，不会漂）。
+
+新增文件只写一处：文件头那行。漏写 = FAIL，不再有「忘了登记 = 自动豁免」。
 
 层级定义：
 
@@ -42,8 +45,16 @@
     单独归类为「软依赖」计数。
 
 用法：
-  python3 tools/w6_layer.py            # 报告 + 退出码（有硬违例/未登记/冲突 = 1）
-  python3 tools/w6_layer.py --json     # 结构化（含 layer_from_header / layer_conflicts）
+  python3 tools/w6_layer.py            # 报告 + 退出码（有硬违例/未登记/自相矛盾 = 1）
+  python3 tools/w6_layer.py --json     # 结构化（含 layer_from_header / layer_problems）
+  python3 tools/w6_layer.py --brief    # 只打印失败项（lint 用这个：声明问题 + 硬违例）
+  python3 tools/w6_layer.py --list     # 按层分组列出文件（人读的唯一入口，避免文档漂）
+
+lint 为什么必须跑它
+  2026-11-15 造过一处冲突（表里 L3、文件头 L0）：w6_layer.py 自己报得出来，
+  但 `build.py --lint` 完全不管层级 —— 发版路径（pre-commit → 上线.sh）照绿。
+  判据放在只被 verify 调用的工具里 = 只要有人只跑 lint 就失灵。现在 lint 直接调它，
+  而且跑完整判定（不只查语法式的声明完整性）：把某文件的层改错，方向违例立刻红。
 """
 import glob
 import json
@@ -56,58 +67,13 @@ _ROOT = os.path.dirname(_HERE)
 SCRIPTS = os.path.join(_ROOT, "src", "scripts")
 
 AS_JSON = "--json" in sys.argv
+BRIEF = "--brief" in sys.argv
+LIST = "--list" in sys.argv
 
-# ---- 层级归属 ----
-LAYER = {
-    "00_pure_core.js": 0,
-    "00b_goal_progress.js": 0,   # 人生目标的进度公式：纯函数，无 DOM 无副作用（可 Node 单测）
-    "00_delegate.js": 1,          # 事件委托运行时：只依赖 DOM，不依赖业务层
-    "01z_ui_facade.js": 1,        # UI 门面：引擎上行调用唯一出口，零业务依赖
-    "01b3_sync.js": 2,            # 同步层：只读数据结构 + 适配器，不碰 UI
-    "01a_engine_prelude.js": 1, "01b1_storage.js": 1, "01b_engine_data.js": 1, "01b2_achievements.js": 1, "01c_engine_timer.js": 1,
-    "01d_engine_features.js": 1, "01d2_engine_rank_bot.js": 1,
-    # 2026-11-14 · S2：01d 按域拆成 7 个文件，全部留在 L1（纯移动，未改依赖方向）
-    "01d7_engine_record_link.js": 1,
-    "01d8_engine_plan_analysis.js": 1,
-    "01d9_engine_tree_rank.js": 1,
-    "01dA_engine_rank_schedule.js": 1,
-    "01dB_engine_day_rollover.js": 1,
-    "01dC_engine_task_exchange.js": 1,
-    "01d3_engine_tree_shop.js": 1,
-    "01d5_engine_stats.js": 1,
-    "01d6_engine_util.js": 1,
-    "01d4_engine_team.js": 1,
-    "01e_engine_ui.js": 1, "01e2_ui_poster.js": 1, "01e3_ui_team.js": 1,
-    # 2026-11-14 · S3：01e_engine_ui 按域拆成 5 个文件，同在 L1（纯移动）
-    "01eP_ui_view.js": 1, "01eQ_ui_timerpanel.js": 1, "01eR_ui_diary.js": 1, "01eS_ui_addrecord.js": 1,
-    "01e4_ui_ux.js": 1, "01e5_ui_tree.js": 1, "01eN_ui_forest.js": 1, "01e6_ui_rank.js": 1,
-    "01e7_ui_stats.js": 1, "01e8_ui_misc.js": 1, "01e9_ui_memo.js": 1, "01eA_ui_timeblock.js": 1,
-    # 2026-11-14 · S3：01e7_ui_stats 按域拆成 5 个文件，同在 L1（纯移动）
-    "01eT_ui_stats_month.js": 1, "01eU_ui_biography.js": 1, "01eV_ui_biocal_map.js": 1, "01eW_ui_summary.js": 1,
-    "01eM_ui_tbcreate.js": 1,   # 日程网格的「两次点击新建计划」入口（依赖 01eA 渲染的 DOM）
-    "01eB_ui_habit.js": 1,
-    # 2026-10-13 从 01e_engine_ui.js 按域切出的两刀（同一层，前向依赖 01e）：
-    "01eC_ui_todo.js": 1,   # 第二刀：计划/待办 的增删改查与列表渲染
-    "01eD_ui_log.js": 1,    # 第三刀：日志页渲染 + 回顾弹窗与自评
-    "01eE_ui_lifegoal.js": 1,   # 人生目标页：年/月/愿望清单的列表、卡片与编辑弹窗
-    "01eF_ui_lifecycle.js": 1,  # 目标层的周期：本周重点 / 季度检查点 / 月末年末收尾
-    "01eG_ui_lifereview.js": 1,  # 复盘：分步引导 / 快照冻结 / 历史列表
-    "01eO_ui_lifewish.js": 1,    # 人生愿望清单：一份纯打勾清单，不参与任何进度计算
-    "01eH_ui_fx.js": 1,     # 第一刀：音效与动效（WebAudio 合成 + DOM 特效）
-    "01eJ_ui_skin.js": 1,   # 第四刀：自定义皮肤（树背景 / 计时器壁纸 / 皮肤商店），从 01e8 切出
-    "01eK_ui_remind.js": 1,  # 收口刀：定点提醒（含域末尾的顶层调用 startRemindWatcher）
-    "01eL_ui_audio.js": 1,   # 收口刀：白噪音 + 我的歌单（网易云直链播放）
-    "01f_engine_immersive.js": 1,
-    "01f2_ui_script_import.js": 1,   # 第五刀：沉浸式剧情副本·导入系统（从 01f 切出）
-    "01g_engine_init.js": 1,
-    "02_enh571_自律增强.js": 2, "03_enh572_性能打磨.js": 2,
-    "04_enh573_统计缓存.js": 2, "05_journey_渐进解锁.js": 2,
-    "0E_theme_主题引擎.js": 2,
-    "06_errRep_错误监控.js": 3, "07_uiFold_折叠记忆.js": 3,
-    "08_component_registry.js": 3, "09_a11y_无障碍.js": 3,
-    "0A_默认态收敛.js": 4, "0B_hash路由.js": 4,
-    "0C_确认弹窗.js": 4, "0D_store通知.js": 4,
-}
+# ---- 层级归属：没有表了（2026-11-16） ----
+# 原来这里是 69 行手写 `LAYER = {文件: 层}`，与文件头 `// @layer:` 同存一份事实。
+# 表里的注释（「同步层：只读数据结构 + 适配器」「事件委托：只依赖 DOM」等）不是新信息，
+# 各文件头第二段本来就在讲这件事，所以整表删除、零行迁移。理由见文件头。
 
 LAYER_NAME = {0: "L0 纯函数", 1: "L1 引擎", 2: "L2 增强", 3: "L3 横切", 4: "L4 胶水"}
 
@@ -127,23 +93,34 @@ def declared_layer(text):
     return int(m.group(1)) if m else None
 
 
-def resolve_layers(names, texts):
-    """文件头优先、中央表回落。返回 (effective, conflicts, n_from_head)。
+def declared_layers_all(text):
+    """文件头里出现的全部 `@layer` 值（按出现顺序）。用于查「同一个文件自己说自己两层」。"""
+    head = "\n".join(text.splitlines()[:HEAD_SCAN_LINES])
+    return [int(m.group(1)) for m in LAYER_DECL_RE.finditer(head)]
 
-    conflicts 非空 = 同一个文件两处说法不一致。**这不是警告是错误**：
-    两边都写着却不一致，说明有人改了一边，此时任何一边都不可信。
+
+def resolve_layers(names, texts):
+    """只读文件头。返回 (effective, problems, n_from_head)。
+
+    problems 每条是 (文件名, 类别, 明细)：
+      missing    —— 文件头没有 `// @layer: Lx`。这是 FAIL，不是"默认 L1"：
+                    漏写的后果是该文件永远绕过方向检查，而"忘了写"恰好是最省事的通过方式。
+      ambiguous  —— 前 12 行里写了两个不同的 @layer。同一份文件自相矛盾，
+                    取第一个是猜测，不是解析 —— 报错让人改，别替人做决定。
     """
-    eff, conflicts, n_head = {}, [], 0
+    eff, problems, n_head = {}, [], 0
     for n in names:
-        d = declared_layer(texts[n])
-        if d is not None:
+        vals = declared_layers_all(texts[n])
+        uniq = sorted(set(vals))
+        if not vals:
+            problems.append((n, "missing", "文件头前 %d 行没有 `// @layer: Lx`" % HEAD_SCAN_LINES))
+        elif len(uniq) > 1:
+            problems.append((n, "ambiguous", "前 %d 行出现 %d 个不同声明：%s"
+                             % (HEAD_SCAN_LINES, len(uniq), ", ".join("L%d" % v for v in vals))))
+        else:
+            eff[n] = uniq[0]
             n_head += 1
-            eff[n] = d
-            if n in LAYER and LAYER[n] != d:
-                conflicts.append((n, LAYER[n], d))
-        elif n in LAYER:
-            eff[n] = LAYER[n]
-    return eff, conflicts, n_head
+    return eff, problems, n_head
 
 RE_FUNC = re.compile(r"^\s*function\s+([A-Za-z_$][\w$]*)\s*\(", re.M)
 
@@ -210,10 +187,39 @@ def local_bindings(code):
     return names
 
 
+def report_decl(problems, names):
+    """只报层级声明问题（lint 用）。不扫依赖方向 —— 那是 0.5s 的全文扫描，lint 里没必要跑两遍。"""
+    if not problems:
+        print(f"✓ 层级声明：{len(names)} 个文件全部在前 12 行声明了合法 @layer")
+        return 0
+    print(f"✗ 层级声明有问题 {len(problems)} 处（层级唯一来源是文件头的 `// @layer: Lx`）：")
+    for n, kind, detail in problems:
+        print(f"    {n}  [{kind}]  {detail}")
+    print("  修法：每个 src/scripts/*.js 的文件头必须有且只有一个 `// @layer: L0|L1|L2|L3|L4`。")
+    print("        新增文件只写这一处，不需要改任何中央表（表已删除）。")
+    return 1
+
+
+def list_layers(eff):
+    """按层分组列文件 —— 文档里要提「某文件在几层」时看这里，别手写（会漂）。"""
+    for lv in sorted(set(eff.values())):
+        fs = sorted(n for n, v in eff.items() if v == lv)
+        print(f"\n{LAYER_NAME[lv]}（{len(fs)} 个）")
+        for n in fs:
+            print(f"  {n}")
+    return 0
+
+
 def main():
     files = sorted(glob.glob(os.path.join(SCRIPTS, "*.js")))
     names = [os.path.basename(p) for p in files]
     texts = {os.path.basename(p): open(p, encoding="utf-8").read() for p in files}
+
+    # 层级：只读文件头
+    eff, problems, n_head = resolve_layers(names, texts)
+
+    if LIST:
+        return list_layers(eff)
 
     # 每个文件导出的顶层函数名 → 归属文件
     owner = {}
@@ -222,10 +228,7 @@ def main():
             fn = m.group(1)
             owner.setdefault(fn, n)
 
-    # 层级：文件头优先，中央表回落
-    eff, conflicts, n_head = resolve_layers(names, texts)
-
-    # 未登记层级的文件（两处都没有）
+    # 没读到层级的文件不参与方向判定（它们在 report_decl 里已经判过一次 FAIL）
     unregistered = [n for n in names if n not in eff]
 
     # 一次性提取每个文件里出现的"所有函数调用名"（形如 name(），避免下面
@@ -286,30 +289,33 @@ def main():
     # docstring 承诺的「报告 + 退出码」只有一半是真的，而"没输出"看着像"没问题"。
     if AS_JSON:
         print(json.dumps({
-            "unregistered": unregistered,
-            "layer_conflicts": [{"file": n, "table": t, "header": h} for n, t, h in conflicts],
+            "layer_problems": [{"file": n, "kind": k, "detail": d} for n, k, d in problems],
             "layer_from_header": n_head,
             "hard_violations": [{"from": a, "fn": c, "to": d} for a, _, c, d, _ in hard],
             "soft_deps": [{"from": a, "fn": c, "to": d} for a, _, c, d, _ in soft],
         }, ensure_ascii=False, indent=2))
     else:
-        n_fallback = len(names) - n_head - len(unregistered)
-        print(f"文件数 {len(names)}；层级来源：文件头 {n_head} · 中央表回落 {n_fallback}")
+        if not BRIEF:
+            print(f"文件数 {len(names)}；层级来源：文件头 {n_head} · 无中央表（2026-11-16 删除）")
 
-        print(f"\n【硬违例】{len(hard)} 条（下层反向依赖上层，且非防御式写法）")
+        if hard or not BRIEF:
+            print(f"\n【硬违例】{len(hard)} 条（下层反向依赖上层，且非防御式写法）")
         for a, la, fn, d, ld in sorted(set(hard)):
             print(f"  ✗ {a} [{la}]  调用了 {d} [{ld}] 的 {fn}")
 
-        print(f"\n【软依赖】{len(soft)} 条（防御式调用，设计允许，仅登记）")
-        seen = set()
-        for a, la, fn, d, ld in sorted(set(soft)):
-            k = (a, d)
-            if k in seen:
-                continue
-            seen.add(k)
-            print(f"  · {a} [{la}] → {d} [{ld}]")
+        if BRIEF:
+            pass  # 软依赖/已抑制是登记用的，不进 lint 输出
+        else:
+            print(f"\n【软依赖】{len(soft)} 条（防御式调用，设计允许，仅登记）")
+            seen = set()
+            for a, la, fn, d, ld in sorted(set(soft)):
+                k = (a, d)
+                if k in seen:
+                    continue
+                seen.add(k)
+                print(f"  · {a} [{la}] → {d} [{ld}]")
 
-        if suppressed:
+        if suppressed and not BRIEF:
             print(f"\n【已抑制】{len(suppressed)} 条（同名局部绑定，非跨模块依赖——正则法的固有误报）")
             print("  ⚠️ 抑制是新引入的漏报面：请抽查行号，确认它真是局部声明而非跨模块依赖。")
             seen_sup = set()
@@ -320,20 +326,10 @@ def main():
                 where = ",".join("L" + str(x) for x in sorted(set(lns))[:4])
                 print(f"  ~ {a} 自有 `{fn}`（声明于 {where}） ≠ {d} 的 {fn}()")
 
-    # 冲突 = 错误，不是警告：两处都写了却不一致，说明有人改了一边，此时任何一边都不可信。
-    if conflicts:
-        print("\n层级声明冲突（同一文件两处写法不同）：", file=sys.stderr)
-        for n, t, h in conflicts:
-            print(f"  ✗ {n}: 中央表 L{t} ≠ 文件头 L{h}", file=sys.stderr)
-        print("  修法：让两处一致；最终形态只保留文件头，中央表整表删除。", file=sys.stderr)
-        return 1
-
-    # 未登记 = FAIL：两处都没有 → 这个文件永远绕过方向检查（"忘了登记"是最省事的通过方式）
-    if unregistered:
-        print(f"\n未登记层级的文件（文件头无 `// @layer: Lx`，中央表也没有）: {unregistered}",
-              file=sys.stderr)
-        print("  修法：在该文件第一行写 `// @layer: L0|L1|L2|L3|L4`（新文件不必再动中央表）",
-              file=sys.stderr)
+    # 层级声明问题 = FAIL：漏写 → 该文件绕过全部方向检查；自相矛盾 → 取第一个是猜测不是解析。
+    if problems:
+        print()
+        report_decl(problems, names)
         return 1
     return 1 if hard else 0
 
