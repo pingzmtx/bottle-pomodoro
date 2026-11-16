@@ -2892,7 +2892,8 @@ i+',2,this.value)" onchange="commitSkinCropSliderIdx('+
 i+',2,this.value)">'+'<span class="ss-val" id="skinCropYVal-'+
 k.key+'">'+
 Math.round(sk.posY!=null?sk.posY:50)+'%</span></div>';h+='<div class="skin-tip">滑杆可微调；要精确定位就点上方「✋ 拖拽定位」，直接拖图把人物放进计时器圆圈。</div>';}
-h+='</div>';});box.innerHTML=h;SKIN_KINDS.forEach(function(k){const pv=document.getElementById('skinPreview-'+k.key);if(pv){try{applySkinGeometry(pv,getSkin(k.key),pv,skinPreviewScale(k.key,pv));}catch(e){if(window.__silent)window.__silent(e,'01e8:renderSkinShop');}}});};(function(){'use strict';var _injected=false;function memoListOf(){if(!Array.isArray(appData.memos))appData.memos=[];return appData.memos;}
+h+='</div>';});box.innerHTML=h;SKIN_KINDS.forEach(function(k){const pv=document.getElementById('skinPreview-'+k.key);if(pv){try{applySkinGeometry(pv,getSkin(k.key),pv,skinPreviewScale(k.key,pv));}catch(e){if(window.__silent)window.__silent(e,'01e8:renderSkinShop');}}});}
+bindSkinDragEvents();;(function(){'use strict';var _injected=false;function memoListOf(){if(!Array.isArray(appData.memos))appData.memos=[];return appData.memos;}
 function memoRetentionKey(){var s=appData.settings||{};return memoRetentionMeta(s.memoRetention).key;}
 function memoAutoDeleteOn(){var s=appData.settings||{};return!!s.memoAutoDelete;}
 function memoSave(){appData.memos=normMemoList(memoListOf());saveData();}
@@ -4022,7 +4023,7 @@ try{renderMustDoSection();}catch(e){if(window.__silent)window.__silent(e,'01g:on
 try{renderHabits();}catch(e){if(window.__silent)window.__silent(e,'01g:onDayRolled');}
 return;}
 renderTodos();renderMustDoSection();renderHabits();renderPlanCountdowns();renderTimerSubs();try{showToast('📅 新的一天开始啦，必做目标已解锁');}catch(e){if(window.__silent)window.__silent(e,'01g:onDayRolled');}}catch(e){if(window.__silent)window.__silent(e,'01g:onDayRolled');}}
-bindSkinDragEvents();document.addEventListener('pointerdown',ensureSfxResumed,{once:true});document.addEventListener('visibilitychange',function(){if(document.hidden)return;onDayRolled();});if(window.__ivGov)__ivGov.add(onDayRolled,60000);else setInterval(onDayRolled,60000);document.addEventListener('keydown',function(e){if(e.key==='Escape'){const tr=document.getElementById('immersiveTransition');if(tr&&tr.classList.contains('show')){hideImmersiveTransition();return;}
+document.addEventListener('pointerdown',ensureSfxResumed,{once:true});document.addEventListener('visibilitychange',function(){if(document.hidden)return;onDayRolled();});if(window.__ivGov)__ivGov.add(onDayRolled,60000);else setInterval(onDayRolled,60000);document.addEventListener('keydown',function(e){if(e.key==='Escape'){const tr=document.getElementById('immersiveTransition');if(tr&&tr.classList.contains('show')){hideImmersiveTransition();return;}
 const im=document.getElementById('interruptModal');if(im&&im.classList.contains('show')){resumeFromInterrupt();return;}
 document.querySelectorAll('.modal-overlay.show').forEach(m=>m.classList.remove('show'));}});const GUIDE_STEPS=[{icon:'🍅',title:'开始第一个番茄',text:'点下方「开始」进入 25 分钟倒计时。完成一个番茄，小树会长大、段位会升星——这就是你的「专注货币」。'},{icon:'📝',title:'先立今日任务',text:'去「计划」页写下今天要做的事，每完成 1 个番茄任务进度 +1，段位任务与它联动，超额还有星星奖励。'},{icon:'📊',title:'去统计页看成长',text:'趋势图、热力图、年度专注地图记录你的每一天，点月份标签还能跳到月度统计。'},{icon:'🌱',title:'核心三步走',text:'先专注攒番茄 → 树长大解锁装扮 → 段位记录你的成长。按这个顺序玩，不会迷路。'}];let _guideStep=0;let _guideAnimT=0;function _guideVisibleView(){try{const a=document.querySelector('.view.active');return a?a.id.replace('view-',''):'';}catch(e){return'';}}
 function syncGuideVisibility(){const g=document.getElementById('firstGuide');if(!g)return;let done=false;try{done=!!(appData&&appData.uiPrefs&&appData.uiPrefs.guideDone);}catch(e){if(window.__silent)window.__silent(e,'01g:syncGuideVisibility');}

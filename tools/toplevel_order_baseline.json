@@ -1,6 +1,6 @@
 {
  "_note": "顶层加载期引用边（不含行号）。新增边必须显式 --update，diff 可见。",
- "count": 4,
+ "count": 3,
  "edges": [
   [
    "01b_engine_data.js",
@@ -16,11 +16,6 @@
    "01g_engine_init.js",
    "01eH_ui_fx.js",
    "ensureSfxResumed"
-  ],
-  [
-   "01g_engine_init.js",
-   "01eJ_ui_skin.js",
-   "bindSkinDragEvents"
   ]
  ]
 }

@@ -1024,3 +1024,4 @@ function renderSkinShop() {
     }
   });
 } /* 商店弹窗渲染 */
+bindSkinDragEvents(); /* 自注册：原在 01g 顶层调用，形成一条引擎→UI 加载期依赖 */

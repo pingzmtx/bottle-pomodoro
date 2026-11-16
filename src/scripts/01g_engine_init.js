@@ -75,7 +75,7 @@ function onDayRolled() {
     } catch (e) { if (window.__silent) window.__silent(e, '01g:onDayRolled'); }
   } catch (e) { if (window.__silent) window.__silent(e, '01g:onDayRolled'); }
 }
-bindSkinDragEvents();
+/* 拖拽绑定已移进 01eJ_ui_skin.js 末尾自注册（幂等；module 执行时 DOM 已就绪） */
 document.addEventListener('pointerdown', ensureSfxResumed, { once: true });
 document.addEventListener('visibilitychange', function () {
   if (document.hidden) return;
@@ -94,7 +94,7 @@ else setInterval(onDayRolled, 60000);
  * 功能：
  *   - 初始化：init()（加载数据 → 渲染全部界面 → 启动各系统 → 恢复未结算番茄弹窗，调用 02-timer.js 的 restorePendingFinish）
  *   - 模块顶部立即执行的语句（本文件是唯一含顶层副作用的模块，拆文件时须保持这些语句最后执行）：
- *     bindSkinDragEvents()、pointerdown 恢复音效 once 监听、visibilitychange + 每分钟心跳 跨天补强
+ *     pointerdown 恢复音效 once 监听、visibilitychange + 每分钟心跳 跨天补强
  *     （onDayRolled：作废统计缓存并重渲今日界面，同时重渲计划页/必做3件事/倒数日，避免页面常驻跨天后必做仍锁住）
  *   - 全局事件：Escape 键 / visibilitychange 回页校准 / beforeunload 落盘 / freeze / 弹窗遮罩点击
  *   - 启动：文件末尾自动调用 init()
