@@ -48,30 +48,30 @@ function onDayRolled() {
     }
     _lastActiveDay = _t;
     invalidateStatsCache();
-    updateTodayStats();
-    renderStats();
-    renderTimerRankStrip();
+    UIFX.updateTodayStats();
+    UIFX.renderStats();
+    UIFX.renderTimerRankStrip();
     if (!_adv) {
       /* 时间被回拨：只把今日相关视图刷回正确日期，不触发“新的一天”庆祝/清理 */
       try {
-        renderTodos();
+        UIFX.renderTodos();
       } catch (e) { if (window.__silent) window.__silent(e, '01g:onDayRolled'); }
       try {
-        renderMustDoSection();
+        UIFX.renderMustDoSection();
       } catch (e) { if (window.__silent) window.__silent(e, '01g:onDayRolled'); }
       try {
-        renderHabits();
+        UIFX.renderHabits();
       } catch (e) { if (window.__silent) window.__silent(e, '01g:onDayRolled'); }
       return;
     }
     /* 计划页：待办/习惯（renderTodos 内部会刷新必做区块） */
-    renderTodos();
-    renderMustDoSection();
-    renderHabits();
-    renderPlanCountdowns();
-    renderTimerSubs();
+    UIFX.renderTodos();
+    UIFX.renderMustDoSection();
+    UIFX.renderHabits();
+    UIFX.renderPlanCountdowns();
+    UIFX.renderTimerSubs();
     try {
-      showToast('📅 新的一天开始啦，必做目标已解锁');
+      UIFX.showToast('📅 新的一天开始啦，必做目标已解锁');
     } catch (e) { if (window.__silent) window.__silent(e, '01g:onDayRolled'); }
   } catch (e) { if (window.__silent) window.__silent(e, '01g:onDayRolled'); }
 }
@@ -364,7 +364,7 @@ function showDataErrorBanner(err) {
         exportData();
       } catch (e) {
         try {
-          showToast('导出失败：' + e.message);
+          UIFX.showToast('导出失败：' + e.message);
         } catch (_e) { if (window.__silent) window.__silent(_e, '01g:showDataErrorBanner'); }
       }
     };
@@ -398,15 +398,15 @@ async function init() {
   } catch (e) { if (window.__silent) window.__silent(e, '01g:init'); }
   /* 状态打分格子（精力/心情）先于数据加载渲染：容器是静态 HTML，不依赖数据，避免偶发时序导致首次打开显示不全 */
   try {
-    renderGridPicker('startEnergyPicker', null, 'green');
-    renderGridPicker('startMoodPicker', null, 'yellow');
+    UIFX.renderGridPicker('startEnergyPicker', null, 'green');
+    UIFX.renderGridPicker('startMoodPicker', null, 'yellow');
   } catch (e) { if (window.__silent) window.__silent(e, '01g:init'); }
   /* 【白屏降级】首屏关键链路（数据加载 + 首屏渲染 + 淡出启动画面）整体兜底：
    任何一步异常都不再让整个 App 白屏，改为显示「数据异常，请导出备份」提示条，
    并强制淡出启动画面（防止卡在启动页造成假白屏） */
   try {
     await loadData();
-    cleanupEmptyDiaries();
+    UIFX.cleanupEmptyDiaries();
     sanitizeTreeData();
     /* 旧数据把"一次计时"记在两处（计划身上的 actualSegs +
        记录），删除记录会留下孤儿段。这里一次性把段落归位到记录、删掉计划身上那份副本。
@@ -429,11 +429,11 @@ async function init() {
     } catch (e) { if (window.__silent) window.__silent(e, '01g:migrateSegClampV1'); }
     processWeeklyBadges();
     checkNewDay();
-    renderRankSystem();
-    updateHonorEffects();
-    applySettingsToUI();
-    updateChromeTheme();
-    applyGroupStates();
+    UIFX.renderRankSystem();
+    UIFX.updateHonorEffects();
+    UIFX.applySettingsToUI();
+    UIFX.updateChromeTheme();
+    UIFX.applyGroupStates();
     /* 【5.4.6 沉浸式剧情副本】启动加载缓存（IDB/LS），导入 UI 才有数据可显示；失败不阻塞首屏 */
     try {
       await loadImportedScripts();
@@ -444,10 +444,10 @@ async function init() {
     }
     /* 设置页「沉浸式专注」组若展开，立刻刷新一次副本角标与列表（默认折叠也先渲染折叠态） */
     try {
-      renderImportedScriptsBox();
+      UIFX.renderImportedScriptsBox();
     } catch (e) { if (window.__silent) window.__silent(e, '01g:init'); }
     try {
-      renderImmersiveSettingsNote();
+      UIFX.renderImmersiveSettingsNote();
     } catch (e) { if (window.__silent) window.__silent(e, '01g:init'); }
     /* —— 首屏（同步，0ms）：手机打开第一眼就能用计时器 ——
    updateTimerDisplay() 倒计时立刻出现
@@ -457,9 +457,9 @@ async function init() {
    applyMinimalMode() 极简模式样式（影响首屏布局，同步） */
     updateTimerDisplay();
     renderImmersiveProgress();
-    updateTodayStats();
-    updateRoundStats();
-    updateMicroModeUI();
+    UIFX.updateTodayStats();
+    UIFX.updateRoundStats();
+    UIFX.updateMicroModeUI();
     __set_currentDiaryDate(getTodayStr());
     const now = new Date();
     __set_calendarYear(now.getFullYear());
@@ -467,7 +467,7 @@ async function init() {
     if (appData.settings.notify && 'Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }
-    renderTimerBadge();
+    UIFX.renderTimerBadge();
     restoreTimerSnapshot();
     restorePendingFinish();
     /* ★ 顺序不能变：先恢复计时/待结算，再扫"没人认领的开口段"。
@@ -476,12 +476,12 @@ async function init() {
       closeStaleLiveSessions();
     } catch (e) { if (window.__silent) window.__silent(e, '01g:closeStaleLiveSessions'); }
     window.__timerSnapshotRestored = true; /* 提醒门闩放行（见 01e:remindFocusRunning） */
-    applyMinimalMode();
-    applySkinsToDOM();
+    UIFX.applyMinimalMode();
+    UIFX.applySkinsToDOM();
     /* 回到上次待的那一页（页面被系统回收后重载时，不至于从计划页突然变成计时器）。
        ★ 必须排在 restoreTimerSnapshot / closeStaleLiveSessions 之后：
          恢复流程要按视图画按钮和网格，先切页再恢复会互相覆盖。 */
-    try { restoreLastView(); } catch (_rv) { if (window.__silent) window.__silent(_rv, '01g:restoreLastView'); }
+    try { UIFX.restoreLastView(); } catch (_rv) { if (window.__silent) window.__silent(_rv, '01g:restoreLastView'); }
     /* 首屏就绪 → 淡出启动画面（用户看到计时器的同时画面切换完成） */
     hideBootSplash();
   } catch (e) {
@@ -501,31 +501,31 @@ async function init() {
       /* 计划 & 日志 & 统计（renderStats 内部还会触发 renderTreeSection 树渲染） */
       /* 成长点先重算再渲染：以前放在 renderHabits 之后，列表徽标要等下一次刷新才对 */
       degradeHabits();
-      renderTodos();
-      refreshTodoSelect();
-      renderHabits();
-      renderLogs();
-      renderStats();
-      renderTimerTree();
-      renderCountdowns();
-      renderPlanCountdowns();
-      updateSortBarUI();
+      UIFX.renderTodos();
+      UIFX.refreshTodoSelect();
+      UIFX.renderHabits();
+      UIFX.renderLogs();
+      UIFX.renderStats();
+      UIFX.renderTimerTree();
+      UIFX.renderCountdowns();
+      UIFX.renderPlanCountdowns();
+      UIFX.updateSortBarUI();
       /* 树系统日常结算 & 鼓励 */
       updateFuzzyToggleUI();
       degradeTree(true);
       checkTreeDeath();
       checkTreeSpeciesUnlock();
       checkTreeDailyTasks();
-      renderEncourage();
+      UIFX.renderEncourage();
       checkTreeExpiry();
-      applySkinsToDOM();
+      UIFX.applySkinsToDOM();
       /* 难度推荐 & 排行榜 & 关怀弹窗 */
-      syncDifficultyWithDuration();
-      renderDifficultyPicker();
-      renderDurationSuggestion();
+      UIFX.syncDifficultyWithDuration();
+      UIFX.renderDifficultyPicker();
+      UIFX.renderDurationSuggestion();
       initBotLeaderboard();
       dailyUpdateLeaderboard();
-      maybeShowCareModal();
+      UIFX.maybeShowCareModal();
       /* 新手指引：等首屏渲染稳定（800+1200ms）且避开关怀弹窗（900ms）再出现 */
       setTimeout(function () {
         try {
@@ -554,7 +554,7 @@ async function init() {
     }
     if (needToast) {
       setTimeout(() => {
-        showToast('💾 已有 ' + appData.records.length + ' 条记录，记得导出备份防止丢失！');
+        UIFX.showToast('💾 已有 ' + appData.records.length + ' 条记录，记得导出备份防止丢失！');
         appData.lastBackupReminder = today;
         saveData();
       }, 2000);
@@ -564,7 +564,7 @@ async function init() {
       try {
         updateBackupReminder();
         updateAutoBackupInfo();
-        renderTeamSystem();
+        UIFX.renderTeamSystem();
       } catch (e) { if (window.__silent) window.__silent(e, '01g:init'); }
     }, 800);
   } catch (e) {
@@ -623,7 +623,7 @@ function flushPendingEdits() {
       if (diaryAutoSaveTimers[d]) {
         clearTimeout(diaryAutoSaveTimers[d]);
         diaryAutoSaveTimers[d] = null;
-        forceSaveDiary(d);
+        UIFX.forceSaveDiary(d);
       }
     });
   } catch (e) { if (window.__silent) window.__silent(e, '01g:flushPendingEdits'); }
@@ -633,7 +633,7 @@ function flushPendingEdits() {
         clearTimeout(todoAutoSaveTimers[k]);
         todoAutoSaveTimers[k] = null;
         /* Object.keys 取出为字符串，而 todos[].id 为数字（Date.now()），须转回数字匹配。 */
-        forceSaveTodoDetail(Number(k) || k, true);
+        UIFX.forceSaveTodoDetail(Number(k) || k, true);
       }
     });
   } catch (e) { if (window.__silent) window.__silent(e, '01g:flushPendingEdits'); }
@@ -677,11 +677,11 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
         return;
       }
       if (this.id === 'noiseModal') {
-        closeNoiseModal();
+        UIFX.closeNoiseModal();
         return;
       }
       if (this.id === 'sharePosterModal') {
-        closeSharePoster();
+        UIFX.closeSharePoster();
         return;
       }
       if (this.id === 'immersiveCardModal') {
@@ -772,7 +772,7 @@ function adjustFreeTime(delta) {
   /* 正计时（秒表）从 0 累计向上走，不存在"剩余时长"概念，±5 调节无意义——直接拒绝（v5.7.6） */
   if (!strategyOfFreeType(timerState.freeType).supportsTimeAdjust) {
     try {
-      showToast('⏱ 正计时从 0 开始累计，不需要加减时长');
+      UIFX.showToast('⏱ 正计时从 0 开始累计，不需要加减时长');
     } catch (e) { if (window.__silent) window.__silent(e, '01g:adjustFreeTime'); }
     return;
   }
@@ -791,8 +791,8 @@ function adjustFreeTime(delta) {
   timerState.remaining = target;
   updateTimerDisplay();
   updateFreeInfo();
-  playSound('tap');
-  showToast(delta > 0 ? '⏱ +' + delta + ' 分钟' : '⏱ ' + delta + ' 分钟');
+  UIFX.playSound('tap');
+  UIFX.showToast(delta > 0 ? '⏱ +' + delta + ' 分钟' : '⏱ ' + delta + ' 分钟');
 }
 
 // ---------- 3. 键盘快捷键 ----------
@@ -816,7 +816,7 @@ document.addEventListener('keydown', function (e) {
   } else if (e.key === 'r' || e.key === 'R') {
     if (timerState.mode !== 'idle') {
       resetToIdle();
-      showToast('已重置');
+      UIFX.showToast('已重置');
     }
   } else if (e.key === 's' || e.key === 'S') {
     if ((timerState.mode === 'short' || timerState.mode === 'long') && timerState.running) {
@@ -824,7 +824,7 @@ document.addEventListener('keydown', function (e) {
     }
   } else if (e.key >= '1' && e.key <= '5') {
     const map = ['timer', 'plan', 'log', 'stats', 'settings'];
-    switchView(map[parseInt(e.key) - 1]);
+    UIFX.switchView(map[parseInt(e.key) - 1]);
   }
 });
 
@@ -898,8 +898,8 @@ function moveTodoBefore(id, targetId) {
   }
   appData.todos.splice(j, 0, t);
   saveData();
-  renderTodos();
-  refreshTodoSelect();
+  UIFX.renderTodos();
+  UIFX.refreshTodoSelect();
 }
 function initHabitDrag() {
   const list = document.getElementById('habitList');
@@ -983,7 +983,7 @@ function moveHabitBefore(id, targetId) {
   }
   appData.habits.splice(j, 0, t);
   saveData();
-  renderHabits();
+  UIFX.renderHabits();
 }
 
 // ---------- 5. 全局进度条 ----------
@@ -1044,7 +1044,7 @@ setTimeout(function () {
 window._freeType = 'stopwatch'; /* stopwatch 正计时 / flowtime 流式倒计时 */
 function setFreeType(ft) {
   if (timerState.mode === 'free') {
-    showToast('请先结束当前自由专注再切换类型');
+    UIFX.showToast('请先结束当前自由专注再切换类型');
     return;
   }
   window._freeType = ft === 'flowtime' ? 'flowtime' : 'stopwatch';
@@ -1053,7 +1053,7 @@ function setFreeType(ft) {
   if (a) a.classList.toggle('active', window._freeType === 'stopwatch');
   if (b) b.classList.toggle('active', window._freeType === 'flowtime');
   syncFlowDurUI();
-  playSound('tap');
+  UIFX.playSound('tap');
 }
 /* ===== 流式倒计时时长档位：沿用任务难度四档（10 / 25 / 50 / 90 分钟） =====
    不再硬编码 50 分钟：玩家点档位自选，选择存入 settings.flowDuration，刷新后依然生效。 */
@@ -1067,15 +1067,15 @@ function setFlowDuration(m) {
   if (m !== 10 && m !== 25 && m !== 50 && m !== 90) return;
   /* 计时进行中不允许改时长（改了会让 remaining/endAt 与显示对不上） */
   if (timerState && timerState.mode === 'free' && strategyOfFreeType(timerState.freeType).countsDown) {
-    showToast('⏳ 计时中不能改时长，先停止再选');
+    UIFX.showToast('⏳ 计时中不能改时长，先停止再选');
     return;
   }
   appData.settings.flowDuration = m;
   saveData();
   syncFlowDurUI();
-  playSound('tap');
+  UIFX.playSound('tap');
   const d = getDifficultyCfg(getDifficultyByDuration(m));
-  showToast('🌊 流式倒计时设为 ' + m + ' 分钟（' + d.icon + d.name + '档）');
+  UIFX.showToast('🌊 流式倒计时设为 ' + m + ' 分钟（' + d.icon + d.name + '档）');
 }
 function syncFlowDurUI() {
   const wrap = document.getElementById('flowDurSwitch');
@@ -1110,7 +1110,7 @@ function fillTodoTagChip(todoId, i) {
       el.value = v;
     }
     try {
-      forceSaveTodoDetail(todoId, true);
+      UIFX.forceSaveTodoDetail(todoId, true);
     } catch (e) { if (window.__silent) window.__silent(e, '01g:fillTodoTagChip'); }
   } catch (e) { if (window.__silent) window.__silent(e, '01g:fillTodoTagChip'); }
 }
@@ -1131,8 +1131,8 @@ function pickTagFromManagerIdx(i) {
     el.value = v;
     el.focus();
   }
-  closeModal('tagManagerModal');
-  if (el && v) showToast('已选标签：' + v);
+  UIFX.closeModal('tagManagerModal');
+  if (el && v) UIFX.showToast('已选标签：' + v);
 }
 function renderTodoDetailTagChips() {
   try {
@@ -1173,7 +1173,7 @@ function renderTodoDetailTagChips() {
 }
 /* 标签管理弹窗：打开并渲染全部已存标签（可点选/删除） */
 function openTagManagerModal() {
-  showModal('tagManagerModal');
+  UIFX.showModal('tagManagerModal');
   renderTagManagerModal();
 }
 function renderTagManagerModal() {
@@ -1264,7 +1264,7 @@ function deleteUsedTag(i) {
       renderTagManageList();
       if (document.getElementById('tagManagerList')) renderTagManagerModal();
       renderTodoDetailTagChips();
-      showToast('已删除标签「' + t + '」');
+      UIFX.showToast('已删除标签「' + t + '」');
     };
     var _delTagMsg = '删除标签「' + t + '」？\n只会从候选列表移除，已存在任务上的标签保留。';
     if (typeof window.rsAsk === 'function') window.rsAsk(_delTagMsg, { title: '删除标签', okText: '删除', danger: true }, _doDelTag);
@@ -1275,7 +1275,7 @@ function clearAllTags() {
   try {
     const list = appData.usedTags || [];
     if (!list.length) {
-      showToast('还没有标签');
+      UIFX.showToast('还没有标签');
       return;
     }
     var _doClear = function () {
@@ -1284,7 +1284,7 @@ function clearAllTags() {
       renderTagManageList();
       if (document.getElementById('tagManagerList')) renderTagManagerModal();
       renderTodoDetailTagChips();
-      showToast('已清空标签候选');
+      UIFX.showToast('已清空标签候选');
     };
     var _msg = '清空全部 ' + list.length + ' 个已存标签？\n只会清空候选列表，已存在任务上的标签保留。';
     if (typeof window.rsAsk === 'function') window.rsAsk(_msg, { title: '清空标签', okText: '清空', danger: true }, _doClear);
@@ -1321,7 +1321,7 @@ function showFlowtimeDone() {
     '<button class="ft-done-btn" id="ftFinishBtn">结束并结算</button>';
   ov.appendChild(card);
   document.body.appendChild(ov);
-  playSound('focusEnd');
+  UIFX.playSound('focusEnd');
   notify('流式计时到点', '已专注 ' + usedMin + ' 分钟，可继续或结束', { kind: 'flow-end' });
   document.getElementById('ftContinueBtn').onclick = function () {
     const addMin = 15;
@@ -1343,7 +1343,7 @@ function showFlowtimeDone() {
     startTimerLoop();
     updateTimerDisplay();
     requestWakeLock();
-    showToast('⏱ 已续时 +' + addMin + ' 分钟，继续加油！');
+    UIFX.showToast('⏱ 已续时 +' + addMin + ' 分钟，继续加油！');
   };
   document.getElementById('ftFinishBtn').onclick = function () {
     ov.remove();
@@ -1374,7 +1374,7 @@ function checkTodoReminders(nowArg) {
     if (!appData || !appData.todos || !appData.todos.length) return;
     /* 已勾掉 / 这一段已确认：从确认队列撤掉，别继续催。
        键形如 `<id>` 或 `<id>#<hhmm>`（每段一个），取 id 前先剥掉 '#' 尾巴。 */
-    remindPurge('todo:', function (k) {
+    UIFX.remindPurge('todo:', function (k) {
       const raw = k.slice(5);
       const tid = raw.split('#')[0];
       const t = appData.todos.find(function (tt) { return tt && String(tt.id) === tid; });
@@ -1403,7 +1403,7 @@ function checkTodoReminders(nowArg) {
       if (!slot) return;
       const last = typeof t.remindLast === 'number' ? t.remindLast : 0;
       if (last && nowMs - last < 60000) return; /* 距上次提醒不到 1 分钟，先不催 */
-      if (nowMs < remindSnoozeUntil('todo:' + slot.key)) return; /* 点过「稍后」，先放它一会儿 */
+      if (nowMs < UIFX.remindSnoozeUntil('todo:' + slot.key)) return; /* 点过「稍后」，先放它一会儿 */
       t.remindLast = nowMs;
       fired = true;
       const sub = t.deadline ? '最晚完成日 ' + String(t.deadline).slice(5) : '';
@@ -1412,14 +1412,14 @@ function checkTodoReminders(nowArg) {
       const warn = slot.at < nowStr ? '⚠️ 这段已经过点了' : '';
       /* 专注中不打扰：弹窗由 remindEnqueue 统一压住，这里也别再推系统通知/震一下
          （判定同样走 remindFocusRunning，不另写一份） */
-      const inFocus = remindFocusRunning();
+      const inFocus = UIFX.remindFocusRunning();
       if (!inFocus) {
         notify('⏰ 任务提醒', t.title + ' · ' + segTxt, { kind: 'task', sticky: true });
         if (navigator.vibrate) navigator.vibrate([100, 60, 100]);
       }
       const tid = t.id;
       const slotKey = slot.ack;
-      remindEnqueue({
+      UIFX.remindEnqueue({
         key: 'todo:' + slot.key,
         label: t.title || '',
         title: '⏰ 任务提醒到啦',
@@ -1443,7 +1443,7 @@ function checkTodoReminders(nowArg) {
     });
     if (fired) {
       saveDataNow();
-      renderTodos();
+      UIFX.renderTodos();
     }
   } catch (e) { if (window.__silent) window.__silent(e, '01g:checkTodoReminders'); }
 }
@@ -1465,7 +1465,7 @@ function remindAckTodo(id, slotKey) {
       }
     }
     saveDataNow();
-    renderTodos();
+    UIFX.renderTodos();
   } catch (e) { if (window.__silent) window.__silent(e, '01g:remindAckTodo'); }
 }
 /* 业务心跳 · 任务到点提醒 30s（showToast+notify，需保活） */
@@ -1602,7 +1602,7 @@ function initTouchDrag(listId, reorderFn, enabledFn) {
     try {
       reorderFn();
     } catch (err) { if (window.__silent) window.__silent(err, '01g:initTouchDrag'); }
-    if (id) playSound('tap');
+    if (id) UIFX.playSound('tap');
   };
   list.addEventListener('pointerup', endDrag);
   list.addEventListener('pointercancel', endDrag);
@@ -1632,13 +1632,13 @@ function syncTodoOrderFromDom() {
     return !map[id];
   });
   if (missing || ordered.length !== appData.todos.length) {
-    renderTodos();
+    UIFX.renderTodos();
     return;
   }
   appData.todos = ordered;
   saveData();
-  renderTodos();
-  refreshTodoSelect();
+  UIFX.renderTodos();
+  UIFX.refreshTodoSelect();
 }
 function syncHabitOrderFromDom() {
   const items = [];
@@ -1657,7 +1657,7 @@ function syncHabitOrderFromDom() {
     .filter(Boolean);
   /* DOM 里有认不出的行（渲染异常）：放弃本次排序，按数据重绘还原，绝不静默丢 */
   if (seq.length !== items.length) {
-    renderHabits();
+    UIFX.renderHabits();
     return;
   }
   /* 分类归属：行所在的容器带 data-cat 就认它 —— 拖进别的文件夹 = 换分类 */
@@ -1681,14 +1681,14 @@ function syncHabitOrderFromDom() {
     }
   });
   if (slots.length !== seq.length) {
-    renderHabits();
+    UIFX.renderHabits();
     return;
   }
   slots.forEach(function (pos, k) {
     appData.habits[pos] = seq[k];
   });
   saveData();
-  renderHabits();
+  UIFX.renderHabits();
 }
 setTimeout(function () {
   try {
@@ -1707,10 +1707,10 @@ function initSwipeActions() {
   if (todoList) {
     bindSwipe(todoList, '.todo-item', {
       right: function (id) {
-        toggleTodo(id);
+        UIFX.toggleTodo(id);
       },
       left: function (id) {
-        toggleTodoExpand(id);
+        UIFX.toggleTodoExpand(id);
       }
     });
   }
@@ -1718,7 +1718,7 @@ function initSwipeActions() {
   if (habitList) {
     bindSwipe(habitList, '.habit-item', {
       right: function (id) {
-        toggleHabit(id);
+        UIFX.toggleHabit(id);
       },
       left: null
     });
@@ -1876,8 +1876,8 @@ function navItem(view, icon, label, count, forceView, subTab) {
 }
 /* 事件委托（2026-10-23）：侧栏一项 = 切视图 + 子 tab + 同步高亮，原为内联三语句。 */
 window.switchViewFromSidebar = function (view, subTab) {
-  switchView(view);
-  if (subTab && typeof switchPlanTab === 'function') switchPlanTab(subTab);
+  UIFX.switchView(view);
+  if (subTab && typeof switchPlanTab === 'function') UIFX.switchPlanTab(subTab);
   syncDesktopSidebarActive();
 };
 function syncDesktopSidebarActive() {
@@ -1890,7 +1890,7 @@ function syncDesktopSidebarActive() {
 /* 监听视图切换同步侧边栏 —— 走视图切换钩子（原来靠包装 window.switchView）。
    时机与原来一致：切完之后 50ms（等新视图渲染完再算高亮）。 */
 (function () {
-  tbOnViewSwitch(function () {
+  UIFX.tbOnViewSwitch(function () {
     setTimeout(syncDesktopSidebarActive, 50);
   }, 'after');
 })();
@@ -1909,7 +1909,7 @@ function handleResize() {
   }
   /* 手动裁切的缩放是像素级计算，容器尺寸变化后需重算 */
   try {
-    applySkinsToDOM();
+    UIFX.applySkinsToDOM();
   } catch (e) { if (window.__silent) window.__silent(e, '01g:handleResize'); }
 }
 window.addEventListener('resize', handleResize);
@@ -2340,7 +2340,7 @@ function applyProgressStyle(v) {
   window.installApp = function () {
     var s = installState();
     if (s === 'standalone') {
-      showToast('已经装好了，直接在这儿用就行');
+      UIFX.showToast('已经装好了，直接在这儿用就行');
       return;
     }
     if (s === 'ready' && deferred) {
@@ -2354,7 +2354,7 @@ function applyProgressStyle(v) {
     renderInstallRow();
     var box = document.getElementById('installSteps');
     if (box && box.scrollIntoView) box.scrollIntoView({ block: 'center' });
-    showToast('这台设备要手动装，按下面的步骤来');
+    UIFX.showToast('这台设备要手动装，按下面的步骤来');
   };
 
   window.renderInstallRow = function (force) {
