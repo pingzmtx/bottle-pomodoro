@@ -23,15 +23,34 @@
 只在「产物命名空间」内比对（顶层 index.html / config.js / manifest.webmanifest / sw.js，
 以及 assets/ icons/ fonts/ 三个目录），源码、工具、文档、README 一律不参与，误报为 0。
 
+第三种失效（2026-11-16 实测，本文件原来完全看不见）
+--------------------------------------------------
+到 11-15 为止，这道门禁只比「**工作区**根目录」与 public/。而 promote.py 写的就是工作区，
+所以 promote 一跑完，两边必然相等 —— 判据永远为真，与「提交进历史的那份是新的还是旧的」无关。
+
+实测故障：a7d39db 提交时只 `git add assets/app.js config.js sw.js`，漏了 `assets/engine.js`。
+工作区根目录 478491 B（新），public/ 478491 B（新），git 里存的是 478481 B（旧，缺两个
+`UIFX.`）。三处门禁全绿，只有 `git status` 里一行 `M assets/engine.js` —— 于是线上跑着旧
+engine、本地一切正常。差 10 字节，谁都不会发现。
+
+根因还是「靠挑文件」：白名单写在 上线.sh 里，而 `git add <几个路径>` 可以完全绕开它。
+补法是让门禁自己看**暂存区**，也就是真正会被提交的那份：
+
+    --staged   比对 `git index`（暂存区）与 public/，而不是工作区与 public/。
+
+工作区口径证明「我 promote 了」；暂存区口径证明「我提交了 promote 的结果」。两句都要真。
+
 用法
 ----
-    python3 tools/check_public_sync.py          # 门禁：不一致 → 退出 1
+    python3 tools/check_public_sync.py          # 门禁：工作区根目录 vs public/
+    python3 tools/check_public_sync.py --staged # 门禁：暂存区 vs public/（提交前必跑）
     python3 tools/check_public_sync.py -v       # 同时列出全部一致项
-退出码：0 一致（或 public/ 还没构建）；1 有不一致；3 环境不具备（-h）
+退出码：0 一致（或 public/ 还没构建）；1 有不一致；3 环境不具备（-h / --staged 但不在 git 里）
 """
 import hashlib
 import os
 import re
+import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -83,6 +102,10 @@ def build_id(path):
             head = f.read(65536)
     except OSError:
         return "-"
+    return _id_from_text(head)
+
+
+def _id_from_text(head):
     for pat, label in _ID_PATTERNS:
         m = pat.search(head)
         if m:
@@ -97,19 +120,111 @@ def size(path):
         return -1
 
 
+# ---------------- 暂存区（git index）读取 ----------------
+def _git(args):
+    """跑 git，返回 (rc, stdout_bytes)。cwd 固定仓库根，避免从别处调用时找错仓库。"""
+    try:
+        p = subprocess.run(["git"] + args, cwd=ROOT,
+                           capture_output=True, timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return -1, b""
+    return p.returncode, p.stdout
+
+
+def index_scope():
+    """暂存区里本命名空间的 {相对路径: 内容 bytes}；不在 git 仓库里 → None"""
+    rc, _ = _git(["rev-parse", "--git-dir"])
+    if rc != 0:
+        return None
+    rc, out = _git(["ls-files", "-z", "--"] + list(TOP_FILES) + list(TOP_DIRS))
+    if rc != 0:
+        return None
+    rels = [x for x in out.decode("utf-8", "surrogateescape").split("\0") if x]
+    out_map = {}
+    for rel in rels:
+        rc, blob = _git(["cat-file", "-p", ":" + rel])
+        if rc == 0:
+            out_map[rel] = blob
+    return out_map
+
+
+def sha256_bytes(b):
+    return hashlib.sha256(b).hexdigest()
+
+
+def check_staged(verbose):
+    """暂存区 vs public/：证明「提交进历史的那份 = 构建产物」"""
+    if not os.path.isdir(PUB) or not scope_files(PUB):
+        print("○ public/ 还没构建（跑 python3 tools/build.py）")
+        return 3
+    idx = index_scope()
+    if idx is None:
+        print("✗ --staged 需要在 git 仓库里运行（找不到 .git）")
+        return 3
+
+    pub = scope_files(PUB)
+    diffs = []
+    same = []
+
+    for rel in sorted(pub):
+        want = open(pub[rel], "rb").read()
+        if rel not in idx:
+            diffs.append((rel, "未暂存", [
+                "public/%s  %d B  %s" % (rel, len(want), build_id(pub[rel])),
+                "暂存区      —— 没有这个文件（git add 漏了，或压根没加过）",
+            ]))
+            continue
+        got = idx[rel]
+        if sha256_bytes(got) != sha256_bytes(want):
+            diffs.append((rel, "暂存的是旧版", [
+                "public/%s  %d B  %s  sha=%s" % (rel, len(want), build_id(pub[rel]), sha256_bytes(want)[:12]),
+                "暂存区      %d B  %s  sha=%s" % (len(got), _id_from_text(got[:65536].decode("utf-8", "ignore")), sha256_bytes(got)[:12]),
+            ]))
+        else:
+            same.append(rel)
+
+    # 反向：暂存区还跟踪着 public/ 已经不产的文件 = 残骸进了历史
+    for rel in sorted(idx):
+        if rel not in pub:
+            diffs.append((rel, "残骸仍被跟踪", [
+                "暂存区      %d B  %s" % (len(idx[rel]), _id_from_text(idx[rel][:65536].decode("utf-8", "ignore"))),
+                "public/     —— 没有（本次构建不再产出这个文件）",
+            ]))
+
+    if verbose:
+        for rel in same:
+            print("  ✓ %s" % rel)
+
+    if not diffs:
+        print("✅ 暂存区 %d 个产物逐字节一致（将要提交的 = public/）" % len(same))
+        return 0
+
+    print("✗ %d 处不一致（**要把这些提交进去**的那份 ≠ 构建产物）：" % len(diffs))
+    for rel, kind, lines in diffs:
+        print("\n  %s  [%s]" % (rel, kind))
+        for ln in lines:
+            print("    %s" % ln)
+    print("\n为什么工作区检查是绿的却还是错：promote.py 写工作区，而 git 只提交你 git add 过的路径。")
+    print("修法：git add -u          （已跟踪文件的修改全部进暂存区，一条覆盖 assets/*.js）")
+    print("      或  git add -- assets icons fonts index.html config.js sw.js manifest.webmanifest")
+    return 1
+
+
 def main():
     # 不认识的参数一律报错（2026-11-14）：与 promote.py 同一条规矩 ——
     # 静默忽略参数会让 `--fix` / `--check` 这类"我以为它会做点什么"的调用
     # 变成"什么都没做还返回 0"，比报错更难查。
-    known = {"-v", "--verbose", "-h", "--help"}
+    known = {"-v", "--verbose", "-h", "--help", "--staged"}
     unknown = [a for a in sys.argv[1:] if a not in known]
     if unknown:
-        print("✗ 不认识的参数：%s（本工具只读，支持 -v/--verbose）" % " ".join(unknown))
+        print("✗ 不认识的参数：%s（本工具只读，支持 -v/--verbose/--staged）" % " ".join(unknown))
         return 2
     if "-h" in sys.argv or "--help" in sys.argv:
         print(__doc__)
         return 0
     verbose = "-v" in sys.argv or "--verbose" in sys.argv
+    if "--staged" in sys.argv:
+        return check_staged(verbose)
 
     if not os.path.isdir(PUB) or not scope_files(PUB):
         # 没构建：这不是"不一致"，是"还没生成"。build 段与 build --check 会先拦，

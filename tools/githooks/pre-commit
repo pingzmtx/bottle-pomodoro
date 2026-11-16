@@ -61,6 +61,18 @@ if ! python3 tools/check_public_sync.py >/dev/null 2>&1; then
   echo "             修法：python3 tools/promote.py --apply && git add -u"
   exit 1
 fi
+# 闸门 3b（2026-11-16）：暂存区 vs public/。
+# 上面那条比的是**工作区**根目录 —— 而 promote.py 写的就是工作区，所以它跑完必然相等，
+# 这条判据对「提交进历史的是新的还是旧的」完全无感。实测 a7d39db 就是这样漏的：
+# 提交时 git add 只列了 assets/app.js config.js sw.js，漏掉 assets/engine.js（差 10 字节），
+# 三处门禁全绿、git status 只多一行 M。线上因此跑着旧 engine。
+# 判据换成「将要提交的那份 = public/」，无论谁用什么 git add 路径提交都绕不过。
+if ! python3 tools/check_public_sync.py --staged >/dev/null 2>&1; then
+  echo "[pre-commit] ❌ 暂存区里的产物不是最新的（将要提交的那份 ≠ public/）。"
+  echo "             排查：python3 tools/check_public_sync.py --staged"
+  echo "             修法：git add -u   （已跟踪产物的修改一次全进暂存区）"
+  exit 1
+fi
 
 echo "[pre-commit] 跑快档全绿链（全部静态段，只跳过 smoke）..."
 if ! python3 tools/build.py --lint >/dev/null 2>&1; then
