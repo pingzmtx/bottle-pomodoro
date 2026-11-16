@@ -10,7 +10,7 @@
  * 职责：结算弹窗里的「这次做完的子计划」
  * 功能：
  *   - 结算弹窗里的「这次做完的子计划」
- * 函数索引（TOC）：updateTodayStats/timerLinkedTodo/renderTimerSubs/renderFinishSubs/toggleFinishSub/selectTimerSub/toggleTimerSub/escapeHtml/applyTodayTier/mustDoUI/toggleMustDoSection/toggleMustDoBlock（+8 更多）
+ * 函数索引（TOC）：updateTodayStats/timerLinkedTodo/renderTimerSubs/renderFinishSubs/toggleFinishSub/selectTimerSub/toggleTimerSub/applyTodayTier/mustDoUI/toggleMustDoSection/toggleMustDoBlock/toggleMustDoCard（+7 更多）
  * ============================================================ */
 
 function updateTodayStats() {
@@ -203,15 +203,7 @@ function toggleTimerSub(si) {
   renderTodos();
 }
 let _todoSig = '';
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str || '';
-  /* 补双引号转义：textNode→innerHTML 只转义 & < >，本函数返回值会被拼进
-     value="${...}" 等双引号属性上下文（habitDetailName/detailTaskName），不转 " 即属性注入。
-     textarea 为 RCDATA 上下文，&quot; 会被实体解码回 " 正常显示（已实机验证回读无损），
-     故一处补齐对全部调用点安全。 */
-  return div.innerHTML.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
-}
+/* escapeHtml 已上移到 01a1_dom_util.js（引擎与 UI 共用，见该文件头说明） */
 /* 今日番茄分级：0-5 正常（红橙）｜6-9 努力（绿）｜10+ 十分努力（金+发光） */
 function applyTodayTier(tc) {
   const _stEl = document.getElementById('statsTotal');

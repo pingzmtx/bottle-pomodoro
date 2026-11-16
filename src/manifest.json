@@ -12,6 +12,7 @@
         "01z_ui_facade.js",
         "00_delegate.js",
         "01a_engine_prelude.js",
+        "01a1_dom_util.js",
         "01b1_storage.js",
         "00b_goal_progress.js",
         "01b_engine_data.js",
