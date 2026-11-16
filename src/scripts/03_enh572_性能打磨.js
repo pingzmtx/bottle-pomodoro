@@ -244,16 +244,16 @@
       let s = _ensure2();
       let g = _num(s.dailyGoalTarget, 0);
       if (g <= 0) {
-        showToast('今天不限量，没有目标奖励可领');
+        UIFX.showToast('今天不限量，没有目标奖励可领');
         return;
       }
       if (todayPomos() < g) {
-        showToast('还差一点，达成今日目标后才能领取');
+        UIFX.showToast('还差一点，达成今日目标后才能领取');
         return;
       }
       let ds = getTodayStr();
       if (s.goalCoinClaimedDate === ds) {
-        showToast('今天的奖励已领取');
+        UIFX.showToast('今天的奖励已领取');
         return;
       }
       s.goalCoinClaimedDate = ds;
@@ -262,15 +262,15 @@
       renderGoalCard();
       refreshGoalChip();
       try {
-        renderTreeSection();
+        UIFX.renderTreeSection();
       } catch (e) { if (window.__silent) window.__silent(e, '03:claimGoalCoin'); }
       try {
-        renderTreeShop();
+        UIFX.renderTreeShop();
       } catch (e) { if (window.__silent) window.__silent(e, '03:claimGoalCoin'); }
       try {
-        renderTimerTree();
+        UIFX.renderTimerTree();
       } catch (e) { if (window.__silent) window.__silent(e, '03:claimGoalCoin'); }
-      showToast('🎉 今日专注目标达成！奖励 +10🪙');
+      UIFX.showToast('🎉 今日专注目标达成！奖励 +10🪙');
     } catch (e) { if (window.__silent) window.__silent(e, '03:claimGoalCoin'); }
   }
   function toggleGoalEdit() {
@@ -298,7 +298,7 @@
       if (inp.value.trim() === '' || isNaN(v)) {
         inp.value = _goal();
         try {
-          showToast('请输入 0–60 的数字');
+          UIFX.showToast('请输入 0–60 的数字');
         } catch (e) { if (window.__silent) window.__silent(e, '03:saveGoalFromInput'); }
         return;
       }
@@ -314,7 +314,7 @@
 /* 每日目标是长期设置：随时可改、不要钱，也不按「每天第一次」区分。
    让当天第二次修改收 10🪙 的话，一个「设一次就好」的设置会变成每天要面对的决策。 */
       try {
-        showToast(v > 0 ? '🎯 每日目标：' + v + ' 个番茄（长期有效）' : '🎯 每日目标：不限量（长期有效）');
+        UIFX.showToast(v > 0 ? '🎯 每日目标：' + v + ' 个番茄（长期有效）' : '🎯 每日目标：不限量（长期有效）');
       } catch (e) { if (window.__silent) window.__silent(e, '03:setGoal'); }
       s.dailyGoalTarget = v;
       if (v === 0) s.goalCelebratedDate = '';
@@ -322,13 +322,13 @@
       renderGoalCard();
       refreshGoalChip();
       try {
-        renderTreeSection();
+        UIFX.renderTreeSection();
       } catch (e) { if (window.__silent) window.__silent(e, '03:setGoal'); }
       try {
-        renderTreeShop();
+        UIFX.renderTreeShop();
       } catch (e) { if (window.__silent) window.__silent(e, '03:setGoal'); }
       try {
-        renderTimerTree();
+        UIFX.renderTimerTree();
       } catch (e) { if (window.__silent) window.__silent(e, '03:setGoal'); }
     } catch (e) { if (window.__silent) window.__silent(e, '03:setGoal'); }
   }
@@ -488,7 +488,7 @@
         let s = _ensure2();
         if (s && s.autoDark) {
           try {
-            showToast('🌓 正在跟随系统外观，如需手动切换请先关闭此开关');
+            UIFX.showToast('🌓 正在跟随系统外观，如需手动切换请先关闭此开关');
           } catch (e) { if (window.__silent) window.__silent(e, '03:hookDark'); }
           _applyAutoDark();
           return;
@@ -509,7 +509,7 @@
       let recs = _recs();
       if (!recs.length) {
         try {
-          showToast('还没有专注记录可导出');
+          UIFX.showToast('还没有专注记录可导出');
         } catch (e) { if (window.__silent) window.__silent(e, '03:exportRecordsCSV'); }
         return;
       }
@@ -530,11 +530,11 @@
         a.remove();
       }, 800);
       try {
-        showToast('📄 已导出 ' + recs.length + ' 条记录为 CSV');
+        UIFX.showToast('📄 已导出 ' + recs.length + ' 条记录为 CSV');
       } catch (e) { if (window.__silent) window.__silent(e, '03:exportRecordsCSV'); }
     } catch (e) {
       try {
-        showToast('⚠️ 导出失败：' + e.message);
+        UIFX.showToast('⚠️ 导出失败：' + e.message);
       } catch (e2) { if (window.__silent) window.__silent(e2, '03:exportRecordsCSV'); }
     }
   }
@@ -546,12 +546,12 @@
   function exportLifeCSV() {
     try {
       const TF = window.TFGoal;
-      if (!TF || typeof TF.lifeCsvTable !== 'function') { showToast('导出组件未就绪'); return; }
+      if (!TF || typeof TF.lifeCsvTable !== 'function') { UIFX.showToast('导出组件未就绪'); return; }
       const goals = appData.lifeGoals || [];
       const wf = appData.weekFocus || [];
       const rv = appData.reviews || [];
       if (!goals.length && !wf.length && !rv.length) {
-        showToast('还没有目标数据可导出');
+        UIFX.showToast('还没有目标数据可导出');
         return;
       }
       const t = TF.lifeCsvTable(goals, wf, rv, appData.lifeAreas || [], {
@@ -572,10 +572,10 @@
         try { URL.revokeObjectURL(a.href); } catch (e) { if (window.__silent) window.__silent(e, '03:exportLifeCSV'); }
         a.remove();
       }, 800);
-      showToast('🎯 已导出 ' + (t.lines.length - 1) + ' 行为 CSV');
+      UIFX.showToast('🎯 已导出 ' + (t.lines.length - 1) + ' 行为 CSV');
     } catch (e) {
       try {
-        showToast('⚠️ 导出失败：' + e.message);
+        UIFX.showToast('⚠️ 导出失败：' + e.message);
       } catch (e2) { if (window.__silent) window.__silent(e2, '03:exportLifeCSV'); }
     }
   }
@@ -662,7 +662,7 @@
           _ensure2().autoDark = false;
           _save();
           try {
-            showToast('⚠️ 当前浏览器不支持检测系统外观，“跟随系统”已保持关闭，以免误切');
+            UIFX.showToast('⚠️ 当前浏览器不支持检测系统外观，“跟随系统”已保持关闭，以免误切');
           } catch (e) { if (window.__silent) window.__silent(e, '03:bindUI'); }
           return;
         }
@@ -673,7 +673,7 @@
         _save();
         _applyAutoDark();
         try {
-          showToast(ad.checked ? '🌓 已开启跟随系统深浅色（原手动开关被接管）' : '已恢复手动深浅色模式');
+          UIFX.showToast(ad.checked ? '🌓 已开启跟随系统深浅色（原手动开关被接管）' : '已恢复手动深浅色模式');
         } catch (e) { if (window.__silent) window.__silent(e, '03:bindUI'); }
       });
     }
@@ -734,7 +734,7 @@
                   _save();
                   setTimeout(function () {
                     try {
-                      showToast('🎉 今日专注目标（' + g + ' 个🍅）达成！记得犒劳自己');
+                      UIFX.showToast('🎉 今日专注目标（' + g + ' 个🍅）达成！记得犒劳自己');
                     } catch (e) { if (window.__silent) window.__silent(e, '03:boot2'); }
                   }, 1200);
                 }

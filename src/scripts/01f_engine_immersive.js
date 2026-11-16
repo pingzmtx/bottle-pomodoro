@@ -2113,7 +2113,7 @@ function immersiveUnlockAchievement(id, name) {
   if (appData.unlockedAchievements.indexOf(id) < 0) appData.unlockedAchievements.push(id);
   saveData();
   setTimeout(function () {
-    showRankFeedback('🏅 成就解锁：' + name + '！');
+    UIFX.showRankFeedback('🏅 成就解锁：' + name + '！');
   }, 800);
 }
 /* 沉浸式冒险连续性约束：上一章完成后超过 bufferTime（默认 30 分钟）才开始下一章 →
@@ -2126,7 +2126,7 @@ function immersiveCheckStale() {
   const buf = appData.settings && Number(appData.settings.bufferTime) > 0 ? Number(appData.settings.bufferTime) : 30;
   const gap = (Date.now() - st.lastAdvanceAt) / 60000;
   if (gap > buf) {
-    showToast(
+    UIFX.showToast(
       '⏳ 距上一章已超过 ' + Math.round(gap) + ' 分钟（>' + buf + ' 分钟）\n冒险必须连续推进，已解锁坏结局',
       true
     );
@@ -2173,12 +2173,12 @@ function immersiveReset() {
  * ============================================================ */
 /* ---- 设置开关：沉浸式专注（开启时请求通知权限） ---- */
 function toggleImmersiveFocus() {
-  saveSettings();
+  UIFX.saveSettings();
   if (appData.settings.immersiveFocus) {
     if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
-    showToast('🎮 沉浸式专注已开启：开始番茄将随机抽取角色卡！', true);
+    UIFX.showToast('🎮 沉浸式专注已开启：开始番茄将随机抽取角色卡！', true);
   } else {
-    showToast('沉浸式专注已关闭');
+    UIFX.showToast('沉浸式专注已关闭');
   }
 }
 /* ---- 角色卡：开始专注时全屏展示（角色名/头衔/初始能力值/开场白） ---- */
@@ -2226,7 +2226,7 @@ function showImmersiveCard(script) {
   el.classList.add('show');
 }
 function confirmImmersiveStart() {
-  closeModal('immersiveCardModal');
+  UIFX.closeModal('immersiveCardModal');
   if (_pendingImmersiveScript) {
     immersiveBeginAdventure(_pendingImmersiveScript);
     _pendingImmersiveScript = null;
@@ -2234,9 +2234,9 @@ function confirmImmersiveStart() {
   startPomodoroCore();
 }
 function cancelImmersiveCard() {
-  closeModal('immersiveCardModal');
+  UIFX.closeModal('immersiveCardModal');
   _pendingImmersiveScript = null;
-  showToast('已取消冒险，随时可以再来');
+  UIFX.showToast('已取消冒险，随时可以再来');
 }
 /* ---- 章节进度锚点：倒计时界面显示「第一章→终章」+ 当前事件摘要 + 实时场景 ---- */
 let _lastImProgressKey = '';
@@ -2502,9 +2502,9 @@ function showImmersiveBadEnding(script) {
   el.classList.add('show');
 }
 function restartImmersiveAfterBadEnding() {
-  closeModal('immersiveBadEndingModal');
+  UIFX.closeModal('immersiveBadEndingModal');
   immersiveReset();
-  showToast('冒险进度已重置，重新开始！', true);
+  UIFX.showToast('冒险进度已重置，重新开始！', true);
   setTimeout(function () {
     startPomodoro();
   }, 400);
@@ -2569,7 +2569,7 @@ function immersiveComment(ending, mins) {
   return '冒险折戟不丢人，收拾心情再出发！';
 }
 function restartImmersiveAfterSummary() {
-  closeModal('immersiveSummaryModal');
+  UIFX.closeModal('immersiveSummaryModal');
   immersiveReset();
   setTimeout(function () {
     startPomodoro();

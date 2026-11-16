@@ -1801,7 +1801,7 @@ function showFinishModal(source) {
      （漏了就会让下一次记录的 planSubs 全部不截断，把更晚完成的步骤也算进去）。 */
   timerState.settleSubsEdited = false;
   try {
-    if (typeof renderFinishSubs === 'function') renderFinishSubs();
+    if (typeof renderFinishSubs === 'function') UIFX.renderFinishSubs();
   } catch (e) { if (window.__silent) window.__silent(e, '01c:renderFinishSubs'); }
   /* 把默认提示记下来：选「仅记录」时换成大白话，选回来要能还原 */
   if (hint) hint.dataset.base = hint.textContent;

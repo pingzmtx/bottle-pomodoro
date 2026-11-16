@@ -151,7 +151,7 @@
   /* 视图切换后同步 hash —— 走视图切换钩子（原来靠包装 window.switchView） */
   function patchSwitchView() {
     if (window.__hashViewPatched) return true;
-    tbOnViewSwitch(function (view) {
+    UIFX.tbOnViewSwitch(function (view) {
       try {
         if (!_fromHash && valid(view)) writeHash(view);
       } catch (e) { if (window.__silent) window.__silent(e, '0B:patchSwitchView'); }

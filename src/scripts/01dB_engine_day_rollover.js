@@ -89,7 +89,7 @@ function checkNewDay() {
   /* 习惯子计划的「第二天怎么办」（三档：重置 / 只留未完成 / 清空）：
      和计划卡的 subsMode 是同一件事，就该走同一个日切闸门 —— 只放在渲染里的话，
      App 挂着过午夜、人没切页，任务复位了而习惯的子计划还停在昨天。 */
-  if (typeof rollHabitSubs === 'function') rollHabitSubs(today);
+  if (typeof rollHabitSubs === 'function') UIFX.rollHabitSubs(today);
   /* 一次性计划：排期日已过 → 清回「未排期」（提醒/开始/截止都不该停在昨天） */
   clearStaleOneOffSchedule(today);
   if (appData.lastTodoCleanupDate !== today) {

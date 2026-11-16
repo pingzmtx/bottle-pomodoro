@@ -254,7 +254,7 @@
                   e2 = _ensure();
                 if (st2 && st2.mode === 'idle' && !st2.running && e2 && e2.autoNext) {
                   try {
-                    showToast('▶️ 休息结束，自动开始下一轮专注');
+                    UIFX.showToast('▶️ 休息结束，自动开始下一轮专注');
                   } catch (e) { if (window.__silent) window.__silent(e, '02:hookGlobals'); }
                   if (typeof window.startPomodoro === 'function') window.startPomodoro();
                 }
@@ -312,10 +312,10 @@
   }
   function _strictBlock(msg) {
     try {
-      playSound('error');
+      UIFX.playSound('error');
     } catch (e) { if (window.__silent) window.__silent(e, '02:_strictBlock'); }
     try {
-      showToast(msg);
+      UIFX.showToast(msg);
     } catch (e) { if (window.__silent) window.__silent(e, '02:_strictBlock'); }
     try {
       let ring = _el('timerRingFill') || _el('timerCircle');
@@ -429,7 +429,7 @@
   }
   function _speechReport(msg) {
     try {
-      showToast('🔇 ' + msg);
+      UIFX.showToast('🔇 ' + msg);
     } catch (e) { if (window.__silent) window.__silent(e, '02:_speechReport'); }
     if (window.console) console.warn('[语音播报] ' + msg);
   }
@@ -829,13 +829,13 @@
     if (!file) return Promise.resolve();
     if (file.type && file.type.indexOf('audio/') !== 0) {
       try {
-        showToast('⚠️ 请选择音频文件（mp3/wav/ogg/m4a 等）');
+        UIFX.showToast('⚠️ 请选择音频文件（mp3/wav/ogg/m4a 等）');
       } catch (e) { if (window.__silent) window.__silent(e, '02:_uploadCustom'); }
       return Promise.resolve();
     }
     if (file.size > 8 * 1024 * 1024) {
       try {
-        showToast('⚠️ 音频不能超过 8MB');
+        UIFX.showToast('⚠️ 音频不能超过 8MB');
       } catch (e) { if (window.__silent) window.__silent(e, '02:_uploadCustom'); }
       return Promise.resolve();
     }
@@ -847,7 +847,7 @@
         _revoke(tone);
         enhRenderSndRows();
         try {
-          showToast('✅ 「' + _toneLabel(tone) + '」自定义提示音已生效');
+          UIFX.showToast('✅ 「' + _toneLabel(tone) + '」自定义提示音已生效');
         } catch (e) { if (window.__silent) window.__silent(e, '02:_uploadCustom'); }
       } catch (e) { if (window.__silent) window.__silent(e, '02:_uploadCustom'); }
     });
@@ -863,7 +863,7 @@
     } catch (e) { if (window.__silent) window.__silent(e, '02:_clearCustom'); }
     enhRenderSndRows();
     try {
-      showToast('↩️ 「' + _toneLabel(tone) + '」已还原为内置提示音');
+      UIFX.showToast('↩️ 「' + _toneLabel(tone) + '」已还原为内置提示音');
     } catch (e) { if (window.__silent) window.__silent(e, '02:_clearCustom'); }
   }
 
@@ -1046,7 +1046,7 @@
         if (now !== _sbLastToastMin) {
           _sbLastToastMin = now;
           try {
-            showToast('🍱 ' + label + '到啦！完成当前这轮就去休息一下吧');
+            UIFX.showToast('🍱 ' + label + '到啦！完成当前这轮就去休息一下吧');
           } catch (e) { if (window.__silent) window.__silent(e, '02:enhCheckSpecialTime'); }
           if (s.voice) _speak(label + '到啦，注意休息');
         }
@@ -1117,13 +1117,13 @@
       m.textContent =
         (timeStr ? '现在 ' + timeStr + '，' : '') + '是定点休息时间。起身走走、喝口水、看看窗外，让大脑切换一下。';
       try {
-        showModal('enhSbModal');
+        UIFX.showModal('enhSbModal');
       } catch (e) { if (window.__silent) window.__silent(e, '02:_sbShowModal'); }
     } catch (e) { if (window.__silent) window.__silent(e, '02:_sbShowModal'); }
   }
   function _enhSbStart() {
     try {
-      closeModal('enhSbModal');
+      UIFX.closeModal('enhSbModal');
     } catch (e) { if (window.__silent) window.__silent(e, '02:_enhSbStart'); }
     try {
       let st = timerState;
@@ -1134,10 +1134,10 @@
   }
   function _enhSbSkip() {
     try {
-      closeModal('enhSbModal');
+      UIFX.closeModal('enhSbModal');
     } catch (e) { if (window.__silent) window.__silent(e, '02:_enhSbSkip'); }
     try {
-      showToast('已跳过本次定点休息');
+      UIFX.showToast('已跳过本次定点休息');
     } catch (e) { if (window.__silent) window.__silent(e, '02:_enhSbSkip'); }
   }
 
@@ -1523,7 +1523,7 @@
           _save();
           if (key === 'strict') {
             try {
-              showToast(el.checked ? '🧘 严格模式已开启：专注中不可打断/提前结束/重置' : '严格模式已关闭');
+              UIFX.showToast(el.checked ? '🧘 严格模式已开启：专注中不可打断/提前结束/重置' : '严格模式已关闭');
             } catch (e) { if (window.__silent) window.__silent(e, '02-bindSettingsUI'); }
           }
           if (key === 'voice' && el.checked) {
@@ -1736,12 +1736,12 @@
         if (meta2) {
           _playCustom(k, vol).catch(function () {
             try {
-              showToast('⚠️ 音频播放失败，可能文件已损坏');
+              UIFX.showToast('⚠️ 音频播放失败，可能文件已损坏');
             } catch (e) { if (window.__silent) window.__silent(e, '02:enhRenderSndRows'); }
           });
         } else {
           try {
-            playSound(k);
+            UIFX.playSound(k);
           } catch (e) { if (window.__silent) window.__silent(e, '02:enhRenderSndRows'); }
         }
       });
@@ -1814,7 +1814,7 @@
 
   /* 切换视图时兜底刷新统计卡片 —— 走视图切换钩子（原来靠包装 window.switchView） */
   try {
-    tbOnViewSwitch(function () {
+    UIFX.tbOnViewSwitch(function () {
       setTimeout(function () {
         try {
           enhRenderCharts();

@@ -260,11 +260,11 @@
         } catch (e) {}
       }, 900);
       try {
-        if (window.showToast) showToast('✅ 错误现场已导出');
+        if (window.showToast) UIFX.showToast('✅ 错误现场已导出');
       } catch (e) {}
     } catch (e) {
       try {
-        if (window.showToast) showToast('导出失败');
+        if (window.showToast) UIFX.showToast('导出失败');
       } catch (e2) {}
     }
   }

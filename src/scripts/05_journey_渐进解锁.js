@@ -199,13 +199,13 @@
     }
     if (go) {
       try {
-        switchView('stats');
+        UIFX.switchView('stats');
       } catch (e) { if (window.__silent) window.__silent(e, '05:closeCard'); }
     }
   }
   function gotoStatsTab(stepId) {
     try {
-      switchView('stats');
+      UIFX.switchView('stats');
       let map = { tree: 'tree', rank: 'rank', coin: 'tree', achieve: 'ach', immerse: 'rank' };
       let tab = map[stepId];
       /* 尽力切到对应二级 tab；无则停在统计页 */
@@ -307,7 +307,7 @@
     __replace_claimMustDoReward(function () {
       try {
         if (coinLocked()) {
-          showToast('🔒 金币玩法需完成 5 个🍅后解锁', true);
+          UIFX.showToast('🔒 金币玩法需完成 5 个🍅后解锁', true);
           return;
         }
       } catch (e) { if (window.__silent) window.__silent(e, '05:gateSingle'); }
@@ -721,7 +721,7 @@
       persist();
       afterToggleRefresh();
       try {
-        showToast('🎮 已解锁「沉浸式专注」：开启即视为开始体验，旅程不再锁定', true);
+        UIFX.showToast('🎮 已解锁「沉浸式专注」：开启即视为开始体验，旅程不再锁定', true);
       } catch (e) { if (window.__silent) window.__silent(e, '05:unlockImmersiveOnOpen'); }
     } catch (e) { if (window.__silent) window.__silent(e, '05:unlockImmersiveOnOpen'); }
   }
@@ -744,7 +744,7 @@
     j.treeHintDone = true;
     persist();
     try {
-      showToast('🌱 点右下角的 🌱 按钮，亲手种下你的第 1 棵树', true);
+      UIFX.showToast('🌱 点右下角的 🌱 按钮，亲手种下你的第 1 棵树', true);
     } catch (e) { if (window.__silent) window.__silent(e, '05-hintTreeOnce'); }
   }
   /* 包装 switchStatsSubTab：锁 / NEW 介绍 / 首种树提示 */
@@ -923,12 +923,12 @@
         M.opened = true;
         setTimeout(function () {
           try {
-            renderStats();
+            UIFX.renderStats();
           } catch (e) { if (window.__silent) window.__silent(e, '05-jyToggleMore'); }
         }, 80);
         setTimeout(function () {
           try {
-            centerYearHeat();
+            UIFX.centerYearHeat();
           } catch (e) { if (window.__silent) window.__silent(e, '05:jyToggleMore'); }
         }, 260);
       } else {
@@ -1030,7 +1030,7 @@
       hd.innerHTML = '🎨 主题 <span class="group-arrow">▼</span>';
       hd.onclick = function () {
         try {
-          toggleGroup('theme');
+          UIFX.toggleGroup('theme');
         } catch (e) { if (window.__silent) window.__silent(e, '05:injectThemeGroup'); }
       };
       g.appendChild(hd);
@@ -1080,7 +1080,7 @@
       if (themeRow.nextSibling) body.insertBefore(fontRow, themeRow.nextSibling);
       else body.appendChild(fontRow);
       try {
-        applyFontScale(appData.settings.fontScale);
+        UIFX.applyFontScale(appData.settings.fontScale);
       } catch (e) { if (window.__silent) window.__silent(e, '05:injectThemeGroup'); }
       /* 「📲 添加到主屏幕」不再单独占一个设置组：并进「🎨 主题」组末尾。 */
       try {
@@ -1148,7 +1148,7 @@
       persist();
       afterToggleRefresh();
       try {
-        showToast(
+        UIFX.showToast(
           on ? '🧭 成长之旅已开启：玩法将随🍅逐步解锁（与新人一样从 0 开始）' : '🎮 已关闭成长之旅：全部玩法直接开放',
           true
         );
@@ -1164,10 +1164,10 @@
       if (_wasUnfinished !== null && _wasUnfinished === true && unfinished === false) {
         /* 全部解锁瞬间：把旅程期间隐藏的计时页玩法重新渲染出来 */
         try {
-          renderTimerRankStrip();
+          UIFX.renderTimerRankStrip();
         } catch (e) { if (window.__silent) window.__silent(e, '05-syncBodyFlags'); }
         try {
-          renderTimerBadge();
+          UIFX.renderTimerBadge();
         } catch (e) { if (window.__silent) window.__silent(e, '05:syncBodyFlags'); }
         try {
           refreshLockUI();
@@ -1185,10 +1185,10 @@
       refreshLockUI();
     } catch (e) { if (window.__silent) window.__silent(e, '05:afterToggleRefresh'); }
     try {
-      renderTimerRankStrip();
+      UIFX.renderTimerRankStrip();
     } catch (e) { if (window.__silent) window.__silent(e, '05:afterToggleRefresh'); }
     try {
-      renderTimerBadge();
+      UIFX.renderTimerBadge();
     } catch (e) { if (window.__silent) window.__silent(e, '05:afterToggleRefresh'); }
     try {
       let _c = document.getElementById('jyToggleEnable');
@@ -1381,7 +1381,7 @@
     if (ov2) ov2.classList.remove('jy-open');
     if (go) {
       try {
-        switchView('settings');
+        UIFX.switchView('settings');
       } catch (e) { if (window.__silent) window.__silent(e, '05:ann2Close'); }
     }
   }
@@ -1568,7 +1568,7 @@
   /* 视图切换钩子（原来靠包装 window.switchView）：
      切**前**保存展开中的计划详情（防切页丢失正在编辑的备注/🍅/最晚完成日）；
      切**后**若是进统计页，回收折叠卡（200ms 与 800ms 各收一次，覆盖慢渲染）。 */
-  tbOnViewSwitch(function () {
+  UIFX.tbOnViewSwitch(function () {
     try {
       if (typeof appData !== 'undefined' && appData && Array.isArray(appData.todos)) {
         for (let i = 0; i < appData.todos.length; i++) {
@@ -1580,13 +1580,13 @@
               expandedTodos[t.id] &&
               document.getElementById('todo_detail_' + t.id)
             )
-              forceSaveTodoDetail(t.id, true);
+              UIFX.forceSaveTodoDetail(t.id, true);
           } catch (e) { if (window.__silent) window.__silent(e, '05:cell'); }
         }
       }
     } catch (e) { if (window.__silent) window.__silent(e, '05:cell'); }
   }, 'before');
-  tbOnViewSwitch(function (view) {
+  UIFX.tbOnViewSwitch(function (view) {
     try {
       if (view === 'stats') {
         setTimeout(function () {
@@ -1656,13 +1656,13 @@
                     try {
                       ensureJourney();
                       afterToggleRefresh();
-                      updateTodayStats();
-                      renderStats();
-                      renderTodos();
-                      renderLogs();
-                      renderTeamSystem();
+                      UIFX.updateTodayStats();
+                      UIFX.renderStats();
+                      UIFX.renderTodos();
+                      UIFX.renderLogs();
+                      UIFX.renderTeamSystem();
                       try {
-                        showToast('🔄 检测到其他窗口有更新，已自动同步', true);
+                        UIFX.showToast('🔄 检测到其他窗口有更新，已自动同步', true);
                       } catch (e) { if (window.__silent) window.__silent(e, '05:setupCrossTabSync'); }
                     } catch (e) { if (window.__silent) window.__silent(e, '05-setupCrossTabSync'); }
                   })
