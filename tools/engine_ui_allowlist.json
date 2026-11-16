@@ -112,6 +112,10 @@
  "patch": [
   {
    "file": "01g_engine_init.js",
+   "name": "applySettingsToUI"
+  },
+  {
+   "file": "01g_engine_init.js",
    "name": "renderTodos"
   },
   {

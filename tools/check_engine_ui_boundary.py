@@ -16,16 +16,22 @@
     2. allow  —— `UIFX.xxx` 的 xxx 必须在白名单里。门面是 Proxy，
        `UIFX.whatever()` 永远不报错、只会静默返回 undefined —— 不设白名单，
        门面就成了「随便摸 UI 内部」的万能通道。
-    3. patch  —— 引擎里 `window.<UI 函数> = …` 改写 UI 实现的数量。只准降。
-       这类写法比调用更隐蔽：它不出现 CallExpression，静态扫描看不见，
-       但语义上是引擎在替换 UI 的行为。当前 11 处，逐条记录在案。
+    3. patch  —— 引擎改写 UI 实现的处数。只准降。两种形态语义相同：
+       a) `window.renderTodos = function(){…}`（显式写全局对象）
+       b) `renderTodos = function(){…}`（裸赋值 —— 本项目所有函数都在全局作用域，
+          运行时命中同一个绑定，所以这是同一个动作的另一种写法）
+       2026-11-16 之前只认 a：判据卡在 MemberExpression 左值上，`01g:2068`
+       `applySettingsToUI = function(){…}` 因此一年都没被看见（真实是 12，不是 11）。
+       现在两种都收，并卡两处避免误报：目标是**函数形态的声明**、右值是**函数值**。
+       裸赋值里把字面量写进 UI 变量（定时器句柄 `immersionIv = 0`、脏检查签名
+       `_todoSig = '__force__'`）不算改写，-v 会单列出来自证没漏判。
 
 不判 FAIL 的
     alias —— `const f = renderTodos` 这类取引用。它是 patch 的原材料，
     本身不改变行为；列出来供人工判断。
 
 基线
-    tools/engine_ui_allowlist.json 存「允许的 106 个门面能力」+「11 处已知 patch」。
+    tools/engine_ui_allowlist.json 存「允许的 107 个门面能力」+「12 处已知 patch」。
     新增能力 / 新增 patch 都要显式 --update，让它们出现在 diff 里。
 
 用法
@@ -118,12 +124,20 @@ def main():
     # 3. patch 棘轮
     added = sorted(patch_now - patch_base)
     gone = sorted(patch_base - patch_now)
+
+    def fmt(p):
+        """按形态打印：window 形态与裸赋值形态的修法不同，别让人照着错的去查。"""
+        if p.get("form") == "bare":
+            return "%s:%d  %s = function(){…}   （裸赋值，与 window.%s 等价）" % (
+                p["file"], p["line"], p["name"], p["name"])
+        return "%s:%d  window.%s = …" % (p["file"], p["line"], p["name"])
+
     if added:
         fails.append("新增引擎改写 UI 实现 %d 处（棘轮只准降）：" % len(added))
         for k in added:
-            f, n = k.split("::")
-            ln = next((p["line"] for p in patches if key_of(p) == k), 0)
-            fails.append("    %s:%d  window.%s = …" % (f, ln, n))
+            p = next((x for x in patches if key_of(x) == k), {"file": k.split("::")[0],
+                                                              "name": k.split("::")[1], "line": 0})
+            fails.append("    " + fmt(p))
 
     if update:
         if direct:
@@ -155,7 +169,11 @@ def main():
             print("    %s%s" % (n, "" if n in allow else "   ← 白名单外"))
         print("\n  改写 UI 实现：")
         for p in sorted(patches, key=key_of):
-            print("    %s:%d  window.%s" % (p["file"], p["line"], p["name"]))
+            print("    " + fmt(p))
+        print("\n  裸赋值但不算改写（判据卡了「目标是函数 + 右值是函数值」两条）：")
+        for a in data.get("notPatch", []):
+            print("    %s:%d  %s  @%s(%s)  rhs=%s" %
+                  (a["file"], a["line"], a["name"], a["owner"], a["ownerKind"], a["rhs"]))
         print("\n  取引用（不判 FAIL，供人工看）：")
         for a in sorted(aliases, key=key_of):
             print("    %s:%d  %s" % (a["file"], a["line"], a["name"]))
