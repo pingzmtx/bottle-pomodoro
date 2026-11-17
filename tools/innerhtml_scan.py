@@ -25,6 +25,13 @@ v2 强化（缘起：H1/剧本 3 处真实注入 v1 全漏）：
 """
 import os, re, sys, json
 
+try:
+    from filemap import owner_of
+except ImportError:
+    import sys as _sys
+    _sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import owner_of
+
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.dirname(_HERE)
 SRC = os.path.join(_ROOT, "src", "scripts")
@@ -215,15 +222,16 @@ def audit():
 
     baseline = _load_baseline()
     # 基线两代判定：v2（含 signatures）只认签名；v1（仅 files）走文件级兼容
-    base_sigs = set(tuple(s) for s in baseline.get("signatures", []))
+    # 签名里的文件名一律归一成语义键：改文件名不重置豁免，也不假绿
+    base_sigs = {(owner_of(s[0]),) + tuple(s[1:]) for s in baseline.get("signatures", [])}
     is_v2 = "signatures" in baseline
     base_files = set(baseline.get("files", [])) if not is_v2 else set()
 
     def _sig(f):
-        return (f["file"],) + tuple(sorted({e.strip() for e in f["exprs"]}))
+        return (owner_of(f["file"]),) + tuple(sorted({e.strip() for e in f["exprs"]}))
 
     highs = [f for f in findings if f["level"] == "高"]
-    for f in highs[:10]:
+    for f in highs:   # 不截断：截断 = 第 11 个高危点起静默放过（假绿）
         msg = (f"{f['file']}:{f['line']} 疑似未转义用户源注入"
                f"（{f.get('via', 'line')}）：{', '.join(f['exprs'][:2])}")
         if _sig(f) in base_sigs:
@@ -264,10 +272,10 @@ def write_baseline():
     且不再整文件豁免（新真问题在已登记文件里也会被拦）。"""
     stats, findings = scan()
     highs = [f for f in findings if f["level"] == "高"]
-    sigs = sorted({(f["file"],) + tuple(sorted({e.strip() for e in f["exprs"]})) for f in highs})
+    sigs = sorted({(owner_of(f["file"]),) + tuple(sorted({e.strip() for e in f["exprs"]})) for f in highs})
     data = {
         "_note": "innerHTML 注入基线 v2：签名级（file+表达式集合）。勿手改，用 --write-baseline 重建。",
-        "files": sorted({f["file"] for f in highs}),
+        "files": sorted({owner_of(f["file"]) for f in highs}),
         "signatures": [list(s) for s in sigs],
         "detail": [{"file": f["file"], "line": f["line"], "exprs": f["exprs"]}
                    for f in highs],
