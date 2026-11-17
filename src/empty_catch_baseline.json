@@ -1,6 +1,5 @@
 {
   "files": {
-    "01e2b_ui_immersive_poster": 0,
     "a11y_无障碍": 0,
     "achievements": 0,
     "component_registry": 0,
@@ -46,6 +45,7 @@
     "ui_forest": 0,
     "ui_fx": 0,
     "ui_habit": 0,
+    "ui_immersive_poster": 0,
     "ui_lifecycle": 0,
     "ui_lifegoal": 0,
     "ui_lifereview": 0,
