@@ -48,6 +48,12 @@ _ROOT = os.path.dirname(_HERE)
 SCRIPTS = os.path.join(_ROOT, "src", "scripts")
 BASELINE = os.path.join(_HERE, "size_baseline.json")
 
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, _HERE)
+    from filemap import FM
+
 AS_JSON = "--json" in sys.argv
 BUMP = "--bump" in sys.argv
 
@@ -86,7 +92,9 @@ def main():
     rows = []
     for p in sorted(glob.glob(os.path.join(SCRIPTS, "*.js"))):
         name = os.path.basename(p)
-        rows.append({"file": name, "lines": count_lines(p), "base": base.get(name)})
+        # 基线键是语义键（filemap.key），不是全名 —— 改名只需动 manifest
+        rows.append({"file": name, "key": FM.key(name),
+                     "lines": count_lines(p), "base": base.get(FM.key(name))})
 
     grown, over_cap, new_big, dropped, tiny = [], [], [], [], []
     for r in rows:
@@ -119,10 +127,10 @@ def main():
                     return 1
                 continue
             if r["lines"] < b:
-                base[r["file"]] = r["lines"]
+                base[r["key"]] = r["lines"]
                 changed += 1
         # 已删除的文件从基线里清掉
-        alive = {r["file"] for r in rows}
+        alive = {r["key"] for r in rows}
         for k in list(base):
             if k not in alive:
                 del base[k]

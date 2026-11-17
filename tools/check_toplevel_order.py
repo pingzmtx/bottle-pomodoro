@@ -41,6 +41,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOLS = os.path.join(ROOT, "tools")
 BASE = os.path.join(TOOLS, "toplevel_order_baseline.json")
 
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, TOOLS)
+    from filemap import FM
+
 
 def load_order():
     """与 build.assemble() 同源：模板片段顺序 → 槽占位顺序 → manifest 里的文件顺序。
@@ -95,7 +101,8 @@ def main():
     res = json.loads(r.stdout)
 
     edges = [(e["from"], e["to"], e["name"]) for e in res["edges"]]
-    have = set(edges)
+    # 基线存语义键（filemap.key）：改名只需动 manifest，这张表不用跟着改。
+    have = {(FM.key(a), FM.key(b), n) for a, b, n in edges}
     base = {"edges": []}
     if os.path.exists(BASE):
         base = json.load(open(BASE, encoding="utf-8"))

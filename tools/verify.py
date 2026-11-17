@@ -75,6 +75,10 @@ def main():
         # 门禁钩子有没有上膛。本挂载点剥执行位，.git/hooks/ 里的钩子会被 git
         # 静默忽略——「门禁形同虚设」本身就是一类回归，必须显形在全绿链里。
         ("gate", "python3 tools/install_hooks.py --check"),
+        # 文件名唯一映射自检（阶段 3 地基）：语义键唯一 + manifest 与磁盘双向一致。
+        # 它 <0.1s，但坏掉的后果是「工具静默解析到错文件」——比直接报错难查得多，
+        # 所以进 FAST_MUST：删掉这段，快档立刻红。
+        ("filemap", "python3 tools/filemap.py --check"),
         ("lint", "python3 tools/build.py --lint"),
         ("build", "python3 tools/build.py"),          # 2026-10-22：默认多产物 → public/
         ("check", "python3 tools/build.py --check"),   # 逐文件比对 public/ 与 src 重建结果
@@ -280,7 +284,7 @@ def main():
     # 代码没这么写（fast 只影响 smoke 一行），但一句错文档就能让人理直气壮地绕过检查。
     # 这里把"快档必须有哪些段"写成可执行断言：以后谁把某段挪到 only-full 分支，立刻红，
     # 而不是等下一次漏提交再回头查文档。
-    FAST_MUST = ("lint", "build", "check", "pubsync", "tlorder", "eubound", "unit", "csstok", "derived")
+    FAST_MUST = ("filemap", "lint", "build", "check", "pubsync", "tlorder", "eubound", "unit", "csstok", "derived")
     if fast:
         _have = {n for n, _c in steps}
         _miss = [n for n in FAST_MUST if n not in _have]

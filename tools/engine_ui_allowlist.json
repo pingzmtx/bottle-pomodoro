@@ -111,51 +111,51 @@
  ],
  "patch": [
   {
-   "file": "01g_engine_init.js",
+   "file": "engine_init",
    "name": "applySettingsToUI"
   },
   {
-   "file": "01g_engine_init.js",
+   "file": "engine_init",
    "name": "renderTodos"
   },
   {
-   "file": "02_enh571_自律增强.js",
+   "file": "enh571_自律增强",
    "name": "playSound"
   },
   {
-   "file": "02_enh571_自律增强.js",
+   "file": "enh571_自律增强",
    "name": "renderStats"
   },
   {
-   "file": "03_enh572_性能打磨.js",
+   "file": "enh572_性能打磨",
    "name": "renderStats"
   },
   {
-   "file": "03_enh572_性能打磨.js",
+   "file": "enh572_性能打磨",
    "name": "toggleDarkMode"
   },
   {
-   "file": "03_enh572_性能打磨.js",
+   "file": "enh572_性能打磨",
    "name": "updateTodayStats"
   },
   {
-   "file": "05_journey_渐进解锁.js",
+   "file": "journey_渐进解锁",
    "name": "jumpToBlock"
   },
   {
-   "file": "05_journey_渐进解锁.js",
+   "file": "journey_渐进解锁",
    "name": "renderTimerBadge"
   },
   {
-   "file": "05_journey_渐进解锁.js",
+   "file": "journey_渐进解锁",
    "name": "renderTimerRankStrip"
   },
   {
-   "file": "05_journey_渐进解锁.js",
+   "file": "journey_渐进解锁",
    "name": "showGift"
   },
   {
-   "file": "05_journey_渐进解锁.js",
+   "file": "journey_渐进解锁",
    "name": "switchStatsSubTab"
   }
  ],

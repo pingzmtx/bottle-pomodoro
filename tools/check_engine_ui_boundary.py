@@ -70,8 +70,23 @@ def run_ast():
         return None
 
 
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import FM
+
+
 def key_of(item):
-    return "%s::%s" % (item["file"], item["name"])
+    """基线键 = 语义键::函数名。AST 侧给的是全名，基线存的是键，在这里统一。
+
+    改名（01e5_ui_tree.js → ui_tree.js）时，基线 diff 应当是 **0 行**。
+    """
+    try:
+        f = FM.key(item["file"])
+    except KeyError:
+        f = item["file"]          # 不在 manifest（理论上不会）：保留原样，别静默丢
+    return "%s::%s" % (f, item["name"])
 
 
 def main():
@@ -178,7 +193,7 @@ def main():
                      "计数以 patch_count 为准，二者必须相等）。",
             "allow": sorted(used),
             "patch_count": len(patches),
-            "patch": [{"file": p["file"], "name": p["name"]}
+            "patch": [{"file": key_of(p).split("::")[0], "name": p["name"]}
                       for p in sorted(patches, key=key_of)],
         }
         with open(BASE, "w", encoding="utf-8") as f:

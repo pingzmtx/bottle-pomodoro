@@ -3,18 +3,18 @@
  "count": 3,
  "edges": [
   [
-   "01b_engine_data.js",
-   "00_pure_core.js",
+   "engine_data",
+   "pure_core",
    "POMO_DEFAULT_MINUTES"
   ],
   [
-   "01g_engine_init.js",
-   "00_pure_core.js",
+   "engine_init",
+   "pure_core",
    "getTodayStr"
   ],
   [
-   "01g_engine_init.js",
-   "01eH_ui_fx.js",
+   "engine_init",
+   "ui_fx",
    "ensureSfxResumed"
   ]
  ]

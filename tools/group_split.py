@@ -32,18 +32,30 @@ SRC = os.path.join(ROOT, "src")
 SCRIPTS = os.path.join(SRC, "scripts")
 TPL = os.path.join(SRC, "template.html")
 
+# 分组表写**语义键**（filemap.key），不写全名：
+#   core   —— 纯函数，零依赖
+#   base   —— 事件委托 + 门面，只依赖 core
+#   engine —— 引擎/业务层，依赖 core+base，不许依赖 UI
+#   （未列出的全部进 app —— UI 与胶水层）
+# 这样把 01e5_ui_tree.js 改名成 ui_tree.js，只需要动 manifest + 移动文件，
+# 这张表不用改。全名的职责只剩 manifest 一处。
 GROUPS = [
-    ("core", ["00_pure_core.js"]),
-    ("base", ["00_delegate.js", "01z_ui_facade.js"]),
-    ("engine", ["01a_engine_prelude.js", "01b1_storage.js", "01b_engine_data.js",
-                "01b2_achievements.js", "01c_engine_timer.js", "01d_engine_features.js",
-                "01d7_engine_record_link.js", "01d8_engine_plan_analysis.js",
-                "01d9_engine_tree_rank.js", "01dA_engine_rank_schedule.js",
-                "01dB_engine_day_rollover.js", "01dC_engine_task_exchange.js",
-                "01d2_engine_rank_bot.js", "01d3_engine_tree_shop.js", "01d4_engine_team.js",
-                "01d5_engine_stats.js", "01d6_engine_util.js"]),
+    ("core", ["pure_core"]),
+    ("base", ["delegate", "ui_facade"]),
+    ("engine", ["engine_prelude", "storage", "engine_data", "achievements", "engine_timer",
+                "engine_features", "engine_record_link", "engine_plan_analysis",
+                "engine_tree_rank", "engine_rank_schedule", "engine_day_rollover",
+                "engine_task_exchange", "engine_rank_bot", "engine_tree_shop",
+                "engine_team", "engine_stats", "engine_util"]),
 ]
-GROUP_OF = {f: g for g, fs in GROUPS for f in fs}
+
+try:
+    from filemap import FM
+except ImportError:  # 允许从仓库根 `python3 -c "import tools.group_split"` 的调用方式
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import FM
+
+GROUP_OF = {FM.path(k): g for g, ks in GROUPS for k in ks}
 
 
 def load_order():
@@ -118,7 +130,8 @@ def transform(pub):
     html = open(os.path.join(pub, "index.html"), encoding="utf-8").read()
     order = load_order()
     bodies = {f: open(os.path.join(SCRIPTS, f), encoding="utf-8").read() for f in order}
-    groups = [(g, fs) for g, fs in GROUPS]
+    # GROUPS 里是语义键，bodies / order 以文件名为键 —— 在这里统一解析一次。
+    groups = [(g, [FM.path(k) for k in ks]) for g, ks in GROUPS]
     assigned = {f for _g, fs in groups for f in fs}
     groups.append(("app", [f for f in order if f not in assigned]))
 
@@ -207,7 +220,8 @@ def main():
 
     order = load_order()
     bodies = {f: open(os.path.join(SCRIPTS, f), encoding="utf-8").read() for f in order}
-    groups = [(g, fs) for g, fs in GROUPS]
+    # GROUPS 里是语义键，bodies / order 以文件名为键 —— 在这里统一解析一次。
+    groups = [(g, [FM.path(k) for k in ks]) for g, ks in GROUPS]
     assigned = {f for _g, fs in groups for f in fs}
     rest = [f for f in order if f not in assigned]
     groups.append(("app", rest))
