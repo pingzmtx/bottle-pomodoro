@@ -2,549 +2,549 @@
   "_doc": "见 tools/data_ownership.py 顶部说明",
   "domains": {
     "__fingerprint": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js"
+        "engine_data"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "__migration": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01d7_engine_record_link.js",
-        "01d_engine_features.js"
+        "engine_features",
+        "engine_record_link"
       ],
       "note": "一次性迁移的运行日志（每次迁移追加一条 {at,kind,...}）。01d 的「段落账本打通（segLedgerV2）」也记在这里，并用它当\"跑过了\"的标记。"
     },
     "achDaily": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01d_engine_features.js"
+        "engine_features"
       ],
       "note": "成就「每日最多点亮 3 个」的配额 {date,count}。超出上限的成就**不入库**，下次结算重新算出，自然排队到次日。"
     },
     "achMigrated64": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01d_engine_features.js"
+        "engine_features"
       ],
       "note": "成就表 88→64 重排的一次性迁移标记。首次运行清孤儿 id，并在有历史记录时静默补记已达成项（不推送、不写传记）。"
     },
     "bioBackfillDone": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01eT_ui_stats_month.js"
+        "engine_data",
+        "ui_stats_month"
       ],
       "note": "传记历史回填完成标记"
     },
     "bioInitDone": {
-      "owner": "01eT_ui_stats_month.js",
+      "owner": "ui_stats_month",
       "writers": [
-        "01eT_ui_stats_month.js"
+        "ui_stats_month"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "bioTriggered": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01eT_ui_stats_month.js"
+        "engine_data",
+        "ui_stats_month"
       ],
       "note": "传记触发记录（防重复触发）"
     },
     "biographies": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01f_engine_immersive.js"
+        "engine_data",
+        "engine_immersive"
       ],
       "note": "传记条目（番茄树成长故事）"
     },
     "botLeaderboard": {
-      "owner": "01d2_engine_rank_bot.js",
+      "owner": "engine_rank_bot",
       "writers": [
-        "01b_engine_data.js",
-        "01d2_engine_rank_bot.js"
+        "engine_data",
+        "engine_rank_bot"
       ],
       "note": "机器人榜单数据"
     },
     "countdowns": {
-      "owner": "01eR_ui_diary.js",
+      "owner": "ui_diary",
       "writers": [
-        "01b3_sync.js",
-        "01b_engine_data.js",
-        "01eR_ui_diary.js"
+        "engine_data",
+        "sync",
+        "ui_diary"
       ],
       "note": "倒计时（计划页）"
     },
     "diaries": {
-      "owner": "01eS_ui_addrecord.js",
+      "owner": "ui_addrecord",
       "writers": [
-        "01eS_ui_addrecord.js",
-        "01eU_ui_biography.js"
+        "ui_addrecord",
+        "ui_biography"
       ],
       "note": "日记"
     },
     "enhSettings": {
-      "owner": "01eQ_ui_timerpanel.js",
+      "owner": "ui_timerpanel",
       "writers": [
-        "01eQ_ui_timerpanel.js",
-        "03_enh572_性能打磨.js"
+        "enh572_性能打磨",
+        "ui_timerpanel"
       ],
       "note": "增强模块（02/03）自己的设置"
     },
     "freeFocus": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01c_engine_timer.js"
+        "engine_data",
+        "engine_timer"
       ],
       "note": "自由专注统计（今日分钟/条数/历史，最多留 200 条）"
     },
     "gachaLog": {
-      "owner": "01e8_ui_misc.js",
+      "owner": "ui_misc",
       "writers": [
-        "01e8_ui_misc.js"
+        "ui_misc"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "ghostBeat": {
-      "owner": "01eV_ui_biocal_map.js",
+      "owner": "ui_biocal_map",
       "writers": [
-        "01eV_ui_biocal_map.js"
+        "ui_biocal_map"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "ghostBeatDate": {
-      "owner": "01eV_ui_biocal_map.js",
+      "owner": "ui_biocal_map",
       "writers": [
-        "01eV_ui_biocal_map.js"
+        "ui_biocal_map"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "ghostHalf": {
-      "owner": "01eV_ui_biocal_map.js",
+      "owner": "ui_biocal_map",
       "writers": [
-        "01eV_ui_biocal_map.js"
+        "ui_biocal_map"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "habitCatOpen": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01eB_ui_habit.js"
+        "engine_data",
+        "ui_habit"
       ],
       "note": "习惯分类的展开态"
     },
     "habitCats": {
-      "owner": "01eB_ui_habit.js",
+      "owner": "ui_habit",
       "writers": [
-        "01b_engine_data.js",
-        "01eB_ui_habit.js"
+        "engine_data",
+        "ui_habit"
       ],
       "note": "习惯分类（展开的文件夹）"
     },
     "habitSkips": {
-      "owner": "01eB_ui_habit.js",
+      "owner": "ui_habit",
       "writers": [
-        "01b_engine_data.js",
-        "01eB_ui_habit.js"
+        "engine_data",
+        "ui_habit"
       ],
       "note": "习惯跳过日 { habitId: ['YYYY-MM-DD', ...] }。Loop 的 `-` 语义：这天既不加分也不减分、不算破链。与 habitLogs 分开存 —— 跳过不是打卡，混进日志会让「打了几个」虚高。写入口只有 _habitSetSkip 一处。"
     },
     "habits": {
-      "owner": "01eC_ui_todo.js",
+      "owner": "ui_todo",
       "writers": [
-        "01b3_sync.js",
-        "01d8_engine_plan_analysis.js",
-        "01eB_ui_habit.js",
-        "01eC_ui_todo.js",
-        "01g_engine_init.js"
+        "engine_init",
+        "engine_plan_analysis",
+        "sync",
+        "ui_habit",
+        "ui_todo"
       ],
       "note": "习惯定义（名称/图标/频率/分类）"
     },
     "immersiveFocus": {
-      "owner": "01f_engine_immersive.js",
+      "owner": "engine_immersive",
       "writers": [
-        "01b_engine_data.js",
-        "01eP_ui_view.js",
-        "01f_engine_immersive.js",
-        "05_journey_渐进解锁.js"
+        "engine_data",
+        "engine_immersive",
+        "journey_渐进解锁",
+        "ui_view"
       ],
       "note": "沉浸式专注 / 剧情冒险（章节、角色卡、结局）"
     },
     "journey": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "05_journey_渐进解锁.js"
+        "engine_data",
+        "journey_渐进解锁"
       ],
       "note": "渐进解锁（新功能分批开放 + 公告已读）"
     },
     "lastBackupReminder": {
-      "owner": "01g_engine_init.js",
+      "owner": "engine_init",
       "writers": [
-        "01g_engine_init.js"
+        "engine_init"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "lastCareModalDate": {
-      "owner": "01eV_ui_biocal_map.js",
+      "owner": "ui_biocal_map",
       "writers": [
-        "01eV_ui_biocal_map.js"
+        "ui_biocal_map"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "lastExportDate": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js"
+        "engine_data"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "lastTodoCleanupDate": {
-      "owner": "01dB_engine_day_rollover.js",
+      "owner": "engine_day_rollover",
       "writers": [
-        "01dB_engine_day_rollover.js"
+        "engine_day_rollover"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "lifeAreas": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01eE_ui_lifegoal.js"
+        "engine_data",
+        "ui_lifegoal"
       ],
       "note": "人生领域（健康/事业/关系/成长，四条固定）。首次进目标页时自动补齐，之后只读。"
     },
     "lifeGoalCoinDay": {
-      "owner": "01eE_ui_lifegoal.js",
+      "owner": "ui_lifegoal",
       "writers": [
-        "01eE_ui_lifegoal.js"
+        "ui_lifegoal"
       ],
       "note": "里程碑奖励的每日发放计数 {date, n}。防「一次性勾掉 20 条历史里程碑按 20 次结算」—— 那是补录，不是 20 次完成。"
     },
     "lifeGoalOrder": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01eE_ui_lifegoal.js"
+        "engine_data",
+        "ui_lifegoal"
       ],
       "note": "目标排序（uid 数组，不是 id）。单独存而不是放 sortIndex：筛选态拖拽时只合并可见段，不会打乱隐藏段。★ 五期修过一个 bug：迁移代码原来拿 g.id 比 uid，每次启动都把这张表清空。"
     },
     "lifeGoals": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01eE_ui_lifegoal.js"
+        "engine_data",
+        "ui_lifegoal"
       ],
       "note": "人生目标（年/月/愿望）。进度**不存**在这里，由 00b_goal_progress.js 现算 —— 存了就会出现卡片和复盘两套数字。01eF 只写 status / checkpoints / lastReviewedAt（收尾与季度检查点）。"
     },
     "lifeYearNotes": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01eF_ui_lifecycle.js"
+        "ui_lifecycle"
       ],
       "note": "年初寄语 { '2026': '……' }，在九向弹层底部编辑，只在目标页出现，不参与任何统计。"
     },
     "lifeYearTheme": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01eF_ui_lifecycle.js"
+        "ui_lifecycle"
       ],
       "note": "年度关键词 { '2026': '收窄' }，写在年计划最上面的一行字。和 lifeYearNotes 分开：关键词是姿态（一年之始写），寄语是话（写给年尾的自己）。"
     },
     "liveSessions": {
-      "owner": "01d_engine_features.js",
+      "owner": "engine_features",
       "writers": [
-        "01d_engine_features.js"
+        "engine_features"
       ],
       "note": "进行中的计时（= 同一条记录的待结算形态）：一次计时 = 一条记录，段落只活在记录里，计时还没结算时就先住在这里。结算时整段搬进 records 并删除本会话 —— 删记录即整件事消失，结构上不可能留下孤儿段。2026-10-16 打通账本引入。"
     },
     "memos": {
-      "owner": "01e9_ui_memo.js",
+      "owner": "ui_memo",
       "writers": [
-        "01b3_sync.js",
-        "01e9_ui_memo.js"
+        "sync",
+        "ui_memo"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "mustDoFromPrev": {
-      "owner": "01d9_engine_tree_rank.js",
+      "owner": "engine_tree_rank",
       "writers": [
-        "01d9_engine_tree_rank.js"
+        "engine_tree_rank"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "mustDoRewarded": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js"
+        "engine_data"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "mustDoUI": {
-      "owner": "01eQ_ui_timerpanel.js",
+      "owner": "ui_timerpanel",
       "writers": [
-        "01b_engine_data.js",
-        "01eQ_ui_timerpanel.js"
+        "engine_data",
+        "ui_timerpanel"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "mustDos": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js"
+        "engine_data"
       ],
       "note": "「今日必做三件事」（含每日领奖标记）"
     },
     "outbox": {
-      "owner": "01b3_sync.js",
+      "owner": "sync",
       "writers": [
-        "01b3_sync.js",
-        "01b_engine_data.js"
+        "engine_data",
+        "sync"
       ],
       "note": "离线变更队列 [{uid,kind,op,at}]：编辑/删除自动入队，同步后按 ack 出队；同 uid 合并、超 2000 条裁旧"
     },
     "pendingAchRewards": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01d_engine_features.js"
+        "engine_data",
+        "engine_features"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "pendingFinish": {
-      "owner": "01c_engine_timer.js",
+      "owner": "engine_timer",
       "writers": [
-        "01c_engine_timer.js"
+        "engine_timer"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "pendingFreeSettle": {
-      "owner": "01c_engine_timer.js",
+      "owner": "engine_timer",
       "writers": [
-        "01c_engine_timer.js"
+        "engine_timer"
       ],
       "note": "自由专注点了「结束」但还没选怎么记的那一笔（secs/at/taskName/note）。冷启动据此重弹结算窗，而不是把计时复活成「正在计时」。"
     },
     "rankSystem": {
-      "owner": "01d9_engine_tree_rank.js",
+      "owner": "engine_tree_rank",
       "writers": [
-        "01b_engine_data.js",
-        "01d4_engine_team.js",
-        "01d7_engine_record_link.js",
-        "01d9_engine_tree_rank.js",
-        "01dA_engine_rank_schedule.js",
-        "01dB_engine_day_rollover.js",
-        "01dC_engine_task_exchange.js",
-        "01e6_ui_rank.js",
-        "01e8_ui_misc.js",
-        "01eV_ui_biocal_map.js"
+        "engine_data",
+        "engine_day_rollover",
+        "engine_rank_schedule",
+        "engine_record_link",
+        "engine_task_exchange",
+        "engine_team",
+        "engine_tree_rank",
+        "ui_biocal_map",
+        "ui_misc",
+        "ui_rank"
       ],
       "note": "段位系统（星、下注、晋级、周番茄兑换口径）"
     },
     "records": {
-      "owner": "01eR_ui_diary.js",
+      "owner": "ui_diary",
       "writers": [
-        "01b3_sync.js",
-        "01eD_ui_log.js",
-        "01eR_ui_diary.js"
+        "sync",
+        "ui_diary",
+        "ui_log"
       ],
       "note": "★ 核心事实表：专注记录。统计/日历/海报/CSV 全部由它**现算**，不存派生计数（ADR #3）"
     },
     "reviewStages": {
-      "owner": "01eD_ui_log.js",
+      "owner": "ui_log",
       "writers": [
-        "01eD_ui_log.js"
+        "ui_log"
       ],
       "note": "艾宾浩斯复习阶段"
     },
     "reviews": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01eG_ui_lifereview.js"
+        "engine_data",
+        "ui_lifereview"
       ],
       "note": "复盘（三期 + 五期周复盘）。存的是**当时的快照**（pct/measured/habitPct），不是目标本身 —— 以后改目标、删目标，历史数字不能变。周复盘（cadence:week）只有 focus/next 两句话，不分领域、快照为空。"
     },
     "round": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01c_engine_timer.js"
+        "engine_data",
+        "engine_timer"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "selfRewards": {
-      "owner": "01e5_ui_tree.js",
+      "owner": "ui_tree",
       "writers": [
-        "01b_engine_data.js",
-        "01e5_ui_tree.js"
+        "engine_data",
+        "ui_tree"
       ],
       "note": "自我奖励愿望清单（自己给自己设的兑换项）"
     },
     "settings": {
-      "owner": "01c_engine_timer.js",
+      "owner": "engine_timer",
       "writers": [
-        "01b3_sync.js",
-        "01b_engine_data.js",
-        "01c_engine_timer.js",
-        "01e4_ui_ux.js",
-        "01e9_ui_memo.js",
-        "01eA_ui_timeblock.js",
-        "01eB_ui_habit.js",
-        "01eD_ui_log.js",
-        "01eH_ui_fx.js",
-        "01eP_ui_view.js",
-        "01eV_ui_biocal_map.js",
-        "01g_engine_init.js",
-        "0E_theme_主题引擎.js"
+        "engine_data",
+        "engine_init",
+        "engine_timer",
+        "sync",
+        "theme_主题引擎",
+        "ui_biocal_map",
+        "ui_fx",
+        "ui_habit",
+        "ui_log",
+        "ui_memo",
+        "ui_timeblock",
+        "ui_ux",
+        "ui_view"
       ],
       "note": "用户设置（计时/难度/主题/通知…）★ 11 个文件共写，是下一步最该收敛的域 ｜ 2026-11-04 追加 01eB：只写 settings.planHabitDockOpen（计划页「今日习惯」dock 的折叠态，属于习惯 UI 自己的记忆，与计时/难度无关）"
     },
     "signIn": {
-      "owner": "01e6_ui_rank.js",
+      "owner": "ui_rank",
       "writers": [
-        "01b_engine_data.js",
-        "01e6_ui_rank.js"
+        "engine_data",
+        "ui_rank"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "sortPrefs": {
-      "owner": "01d8_engine_plan_analysis.js",
+      "owner": "engine_plan_analysis",
       "writers": [
-        "01d8_engine_plan_analysis.js"
+        "engine_plan_analysis"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "teamSystem": {
-      "owner": "01d4_engine_team.js",
+      "owner": "engine_team",
       "writers": [
-        "01b_engine_data.js",
-        "01d4_engine_team.js",
-        "01e3_ui_team.js"
+        "engine_data",
+        "engine_team",
+        "ui_team"
       ],
       "note": "组队冲刺（队伍、贡献）"
     },
     "timerSnapshot": {
-      "owner": "01c_engine_timer.js",
+      "owner": "engine_timer",
       "writers": [
-        "01c_engine_timer.js"
+        "engine_timer"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "todoDoneLog": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01eC_ui_todo.js"
+        "engine_data",
+        "ui_todo"
       ],
       "note": "计划完成日志"
     },
     "todoSchedLog": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01dB_engine_day_rollover.js"
+        "engine_data",
+        "engine_day_rollover"
       ],
       "note": "计划「排期快照」：日期 → [{id,title,remindAt,estEnd,pomodoros,...}]。计划勾完成（次日 checkNewDay 会删掉它）或排期被清回未排期时，把这天的排期冻结一份，日程表的预计块靠它补位。★ 只读快照，永不写回计划；写入者 01d（唯一写入口 pushTodoSchedSnapshot）、01eC（勾选/取消勾选的调用方）、01b（默认结构与老存档兜底）。"
     },
     "todos": {
-      "owner": "01eC_ui_todo.js",
+      "owner": "ui_todo",
       "writers": [
-        "01b3_sync.js",
-        "01dB_engine_day_rollover.js",
-        "01eC_ui_todo.js",
-        "01g_engine_init.js"
+        "engine_day_rollover",
+        "engine_init",
+        "sync",
+        "ui_todo"
       ],
       "note": "计划与待办（含重复计划 / 子任务 / 四象限 / 开始时间）"
     },
     "tombstones": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b3_sync.js",
-        "01b_engine_data.js"
+        "engine_data",
+        "sync"
       ],
       "note": "删除墓碑 [{uid, kind, deletedAt}]：删记录/计划/习惯/备忘时写；同步层据此判定「这条没了」，业务层只读不写"
     },
     "tree": {
-      "owner": "01d3_engine_tree_shop.js",
+      "owner": "engine_tree_shop",
       "writers": [
-        "01b_engine_data.js",
-        "01d3_engine_tree_shop.js",
-        "01d7_engine_record_link.js",
-        "01d8_engine_plan_analysis.js",
-        "01d9_engine_tree_rank.js",
-        "01dC_engine_task_exchange.js",
-        "01e5_ui_tree.js",
-        "01e8_ui_misc.js",
-        "05_journey_渐进解锁.js"
+        "engine_data",
+        "engine_plan_analysis",
+        "engine_record_link",
+        "engine_task_exchange",
+        "engine_tree_rank",
+        "engine_tree_shop",
+        "journey_渐进解锁",
+        "ui_misc",
+        "ui_tree"
       ],
       "note": "番茄树养成 / 金币 / 商店经济（金币写入口已收敛到 coinEarn/coinSpend，见 ADR #5）"
     },
     "uiPrefs": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01e6_ui_rank.js",
-        "01eL_ui_audio.js",
-        "01eN_ui_forest.js",
-        "01eP_ui_view.js",
-        "01f_engine_immersive.js",
-        "01g_engine_init.js",
-        "05_journey_渐进解锁.js",
-        "06_errRep_错误监控.js",
-        "07_uiFold_折叠记忆.js"
+        "engine_data",
+        "engine_immersive",
+        "engine_init",
+        "errRep_错误监控",
+        "journey_渐进解锁",
+        "uiFold_折叠记忆",
+        "ui_audio",
+        "ui_forest",
+        "ui_rank",
+        "ui_view"
       ],
       "note": "界面偏好（折叠态/引导已读/皮肤等零散偏好）"
     },
     "unlockedAchievements": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01d_engine_features.js"
+        "engine_data",
+        "engine_features"
       ],
       "note": "已解锁成就"
     },
     "usedTags": {
-      "owner": "01eC_ui_todo.js",
+      "owner": "ui_todo",
       "writers": [
-        "01b_engine_data.js",
-        "01eC_ui_todo.js",
-        "01g_engine_init.js"
+        "engine_data",
+        "engine_init",
+        "ui_todo"
       ],
       "note": "用过的标签（补全用）"
     },
     "version": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js"
+        "engine_data"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "weekFocus": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01b_engine_data.js",
-        "01eF_ui_lifecycle.js"
+        "engine_data",
+        "ui_lifecycle"
       ],
       "note": "本周重点（二期）。刻意不进 todos：塞进去会牵连日历、时间块、统计的口径。按 weekKey（ISO 周）归组，不按日期，跨年那一周也不会裂开。"
     },
     "weeklyBadges": {
-      "owner": "01d8_engine_plan_analysis.js",
+      "owner": "engine_plan_analysis",
       "writers": [
-        "01b_engine_data.js",
-        "01d8_engine_plan_analysis.js"
+        "engine_data",
+        "engine_plan_analysis"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
     },
     "wishes": {
-      "owner": "01b_engine_data.js",
+      "owner": "engine_data",
       "writers": [
-        "01eO_ui_lifewish.js"
+        "ui_lifewish"
       ],
       "note": "人生愿望清单（Bucket List）。★ 刻意不参与任何进度计算：不进九宫格、不进进度一览、没有完成率。写 30 条实现 3 条，那 3 条是成就，不是 10%。也没有截止日期/分类/优先级 —— 一加就变成第四个待办列表。"
     }

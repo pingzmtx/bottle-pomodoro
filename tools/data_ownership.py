@@ -33,7 +33,7 @@ import os
 import re
 import sys
 try:
-    from filemap import FM
+    from filemap import FM, owner_of
 except ImportError:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from filemap import FM
@@ -47,6 +47,7 @@ WRITE = r'\s*(?:[-+*/]?=(?!=)|[-+]{2})'
 
 # 数据层：负责建字段 / 迁移 / 默认值，对**所有**域都有写权（写的是"初始化"，不是业务逻辑）
 DATA_LAYER = FM.path('engine_data')
+DATA_LAYER_KEY = FM.key(DATA_LAYER)   # 基线里一律存语义键：改文件名不重置写权登记
 
 
 def read_files():
@@ -100,7 +101,8 @@ def main():
     for f in sorted(domains_of(files)):
         w = writers_of(f, files)
         if w:
-            live[f] = w
+            # 名字→语义键：基线与报告都只写键，改名不动登记
+            live[f] = collections.Counter({owner_of(k): v for k, v in w.items()})
 
     if '--baseline' in sys.argv or '--report' in sys.argv or '--why' in sys.argv:
         if '--why' in sys.argv:
@@ -130,6 +132,8 @@ def main():
         for f, w in sorted(live.items()):
             prev = doms.get(f, {})
             own = prev.get('owner') or (w.most_common(1)[0][0] if w else '')
+            if own.endswith('.js'):        # 旧基线存的是全名，迁移成键
+                own = owner_of(own)
             out['domains'][f] = {
                 'owner': own,
                 'writers': sorted(w.keys()),
@@ -149,7 +153,7 @@ def main():
         if not d:
             unknown.append((f, sorted(w.keys())))
             continue
-        allowed = set(d.get('writers') or []) | {DATA_LAYER}
+        allowed = set(d.get('writers') or []) | {DATA_LAYER_KEY}
         for name, cnt in w.items():
             if name not in allowed:
                 bad.append((f, name, cnt))
