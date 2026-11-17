@@ -1,7 +1,7 @@
 // @layer: L1
 /* ============================================================
  * 01eT · 月度/年度统计
- * 职责：年选择器、逐月表、逐年统计
+ * 职责：月度/年度统计（年选择器、逐月表、逐年统计）、专注传记文案与里程碑（bioText / bioTotalPomos / 回填）
  * 症状：月度统计空白 · 年份切不了 · 年度数字对不上
  * 归位：2026-11-14 由 01e7_ui_stats.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：renderMonthlyStat/yrYearNum/yrMapYearNum/yrMapAnchorDate/yrMapShift/statYearsList/statYearPomoMap/openYearPicker/renderYearPickGrid/pickStatYear/renderYearlyStat/renderYearMonthTable（+10 更多）

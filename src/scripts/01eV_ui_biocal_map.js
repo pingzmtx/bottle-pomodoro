@@ -1,7 +1,7 @@
 // @layer: L1
 /* ============================================================
  * 01eV · 传记日历与编辑
- * 职责：选日期、保存、极简模式、等级提示
+ * 职责：传记日历与编辑（选日期/保存/极简模式/等级提示）、幽灵对比条（renderGhostBar）
  * 症状：传记日期选不了 · 保存没反应 · 极简模式不生效
  * 归位：2026-11-14 由 01e7_ui_stats.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：pickBioDate/bioCalAll/bioCalToday/editBio/saveBioEdit/toggleGhostEnabled/renderEasyModeTag/maybeShowCareModal/enableEasyMode/dismissCareModal/showLevelUpToast/renderGhostBar（+8 更多）

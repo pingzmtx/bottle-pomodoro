@@ -28,6 +28,22 @@ if [ -n "$leak" ]; then
   exit 1
 fi
 
+# 闸门 0b（2026-11-17）：tools/ 与 src/ 下不许有「未跟踪的源文件」。
+# 为什么：c0f4829 新增 tools/where.py，但提交用的是 `git add -u`（含 `git add -u src/scripts
+# <产物>`）—— -u 只收**已跟踪文件**的修改，新文件不在内。结果 AGENTS.md 已经写着
+# `python3 tools/where.py "热力图"`，而 HEAD 里没有这个文件；同一提交 72 个文件都进了，
+# 唯独最重要的新增交付物没进，全部门禁照绿（tools/ 不在 pubsync 作用域，verify 也没有 where 段）。
+# 这与 ebd4de2 漏 assets/engine.js 是同一机制：**pathspec 漏了某个路径**。
+# 不猜"你想不想提交它"，只要求：要么 git add，要么移到 /tmp；确实不入库的写进 .gitignore。
+untracked=$(git status --porcelain --untracked-files=all -- src tools | awk '$1=="??"{print $2}' | grep -E '\.(py|js|json)$' || true)
+if [ -n "$untracked" ]; then
+  echo "[pre-commit] ❌ tools/ 或 src/ 下有未跟踪的源文件（不会进本次提交）："
+  echo "$untracked" | sed 's/^/             /'
+  echo "             修法：git add <文件>；临时草稿请移到 /tmp；"
+  echo "             确实不入库的，写进 .gitignore（之后不再显示为 ??）。"
+  exit 1
+fi
+
 # 2026-11-14 删除「闸门 0：单文件 index.html 不许入库」。
 # 原判据是"发布物是 public/，根目录 index.html 只是单文件预览"——错的是判据本身：
 # GitHub Pages legacy 只从仓库根目录或 /docs 发布，本仓库 /docs 已放工程文档，
