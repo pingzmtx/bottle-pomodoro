@@ -133,6 +133,38 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 
 > 判断口诀：**这是"改旧"还是"加新"？加新 = 默认新文件。**系统本身不拦你（你拦得住自己才叫制度）。
 
+### 1.6 改文件名 / 改加载顺序（阶段 3 之后的新规矩）
+
+**加载顺序只有一处真源：`src/manifest.json` 的 slots。** 文件名里的序号（`01e5_`）已经**不再承担任何职责**，它只是历史遗留的前缀。
+
+配套的是**语义键**：文件名去掉 `^[0-9][0-9A-Za-z]{0,3}_` 前缀 —— `01e5_ui_tree.js` → `ui_tree`。工具、基线、分组表一律写键，运行期用 `tools/filemap.py` 查一次真名：
+
+| 场景 | 代码里怎么写 |
+|---|---|
+| Python 工具/基线要真名 | `from filemap import FM`；`FM.path('ui_tree')` → `'01e5_ui_tree.js'`；`FM.key('01e5_ui_tree.js')` → `'ui_tree'` |
+| 要「认领键」（owner 等） | `owner_of(path)`：basename 去前缀去 `.js`，允许非 manifest 文件（`src/template.html`） |
+| Node 工具 | `const FM = require('./filemap'); FM.path('pure_core')` |
+| **不许** | 任何地方再写 `01e5_ui_tree.js` 全名（自检：`python3 tools/filemap.py --check`） |
+
+改名怎么做、预期是什么：
+
+| 改名类型 | 要动的文件 | 预期 |
+|---|---|---|
+| **保键改名**（`01e9_ui_memo.js` → `ui_memo.js`） | **只有 `manifest.json` 一行** | 全绿，产物 4 个 chunk 哈希逐字节不变 |
+| 改键改名（`ui_memo` → `memo_note`） | 还要改 owner / 数据写权 / 空 catch / innerHTML 签名 | **应该**红 4~5 段 —— 换键=换身份，登记表必须重登 |
+| 只改顺序 | 只调 manifest 里 `files[]` 的位置 | 全绿；`tlorder` 管顶层初始化顺序，越界会红 |
+
+验收不靠"数硬编码剩几处"，靠**真的改一次**：
+
+```bash
+python3 tools/rename_drill.py --key ui_memo          # 保键改名全链演练（约 90s，全绿才算过）
+python3 tools/rename_drill.py --key ui_memo --fast   # 只要静态段（约 40s）
+```
+
+两处**仍然**和文件名耦合，改名前必须知道：
+1. **引擎/UI 分层**靠文件名关键字判（`engine_ui_ast.js` 的 `isUI`：含 `ui|view|component|a11y` 算 UI）。把 UI 文件改成 `memo_note.js` 会被当成引擎层 → `eubound` 红。这不是 bug，是"名字里的语义真的变了"。
+2. **层级（L0/L1/L2…）**靠文件头 `// @layer:` 判（`w6_layer.py`），与文件名无关，但改文件时别把那一行弄丢。
+
 ## 2. 防退化规则（维持 9 分的制度）
 
 1. **回归是安全网不是可选**：改前跑一次基线确认绿；改后必须全绿。暴露产品 bug 先修产品；只有用例写错才改用例。
@@ -221,11 +253,13 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 | 目的 | 命令 | 何时用 |
 |---|---|---|
 | 一键全绿链（含 E2E，拆结构每批基线） | `python3 tools/verify.py --e2e` | 改结构/UI 后必跑 |
-| 快档（37 段静态：lint/build/check/pubsync/eubound/layer/size…，约 30s） | `python3 tools/verify.py --fast` | 改前快速自检 / pre-commit 兜底 |
+| 快档（38 段静态：lint/build/check/pubsync/eubound/layer/size…，约 30s） | `python3 tools/verify.py --fast` | 改前快速自检 / pre-commit 兜底 |
 | 结构化输出 | `python3 tools/verify.py --json` | AI 解析后决定是否提交 |
 | 改前影响面反查 | `python3 tools/dep_report.py --impact <函数名>` | 动任何被依赖函数之前 |
 | 函数/模块定位 | `python3 tools/dep_report.py --map <关键词>` | 不知改哪个文件 |
 | 症状词定位（**用户说法 → 文件**） | `python3 tools/where.py "热力图" [--list] [--json]` | 只记得用户怎么描述、不知道函数名时；读文件头的「症状/职责/标题/说明」，权重 4/3/2/1 |
+| 文件名映射自检（**已挂链 filemap**） | `python3 tools/filemap.py --check` / `--list` / `--path ui_tree` / `--key 01e5_ui_tree.js` | 语义键唯一 + manifest 与磁盘双向一致；写工具时查真名 |
+| **改名演练**（阶段 3 验收口径） | `python3 tools/rename_drill.py --key ui_memo [--fast] [--to memo_note.js]` | 想改文件名之前/之后；保键改名应全绿（只动 manifest 一行），否则说明还有工具在用全名 |
 | 依赖基线刷新 | `python3 tools/dep_report.py --md` | 跨模块调用变更后 |
 | DOM id 对账（**已挂链**） | `python3 tools/id_audit.py` | 改 DOM id 后；`--json` 结构化。静态确定性 <1s，抓「JS 引用了不存在的 id」这类一跑就 null 的错 |
 | git 门禁上膛 / 查膛（**已挂链 gate 段**） | `python3 tools/install_hooks.py`（装）/ `--check`（查） | 新 clone / 换机器 / **接手第一件事**；见 §2.10 |
