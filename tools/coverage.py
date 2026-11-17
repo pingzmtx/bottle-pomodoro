@@ -5,7 +5,7 @@
 ==================================================================
 为什么存在：`tools/tests/unit_pure.js` 有 363 条断言，但**没人知道它守住了多少**
 —— 报「363 通过」不等于「覆盖了大部分代码」。本工具用 Node 内置的 V8 覆盖率
-（`NODE_V8_COVERAGE`）跑一遍单测，算出 `src/scripts/00_pure_core.js` 的
+（`NODE_V8_COVERAGE`）跑一遍单测，算出纯函数层（pure_core）的
 **函数覆盖率**，并列出「哪些函数从未被任何测试执行过」。
 
 为什么用「函数覆盖率」而不是「行覆盖率」：本项目是单文件合并架构，行覆盖率会被
@@ -30,11 +30,16 @@ import os
 import shutil
 import subprocess
 import sys
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import FM
 import tempfile
 import urllib.parse
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TARGET_REL = 'src/scripts/00_pure_core.js'
+TARGET_REL = 'src/scripts/' + FM.path('pure_core')
 BASELINE = os.path.join(ROOT, 'tools', 'coverage_baseline.json')
 UNIT_REL = 'tools/tests/unit_pure.js'
 GOAL_PCT = 90.0          # 企业级目标（显示差距用，不作硬门禁）

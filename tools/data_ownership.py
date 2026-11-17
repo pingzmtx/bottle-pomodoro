@@ -32,6 +32,11 @@ import json
 import os
 import re
 import sys
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import FM
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'src', 'scripts')
@@ -41,7 +46,7 @@ DECL = re.compile(r'^\s*(?:const|let|var)\s')
 WRITE = r'\s*(?:[-+*/]?=(?!=)|[-+]{2})'
 
 # 数据层：负责建字段 / 迁移 / 默认值，对**所有**域都有写权（写的是"初始化"，不是业务逻辑）
-DATA_LAYER = '01b_engine_data.js'
+DATA_LAYER = FM.path('engine_data')
 
 
 def read_files():

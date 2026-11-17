@@ -37,7 +37,7 @@ TPL = os.path.join(SRC, "template.html")
 #   base   —— 事件委托 + 门面，只依赖 core
 #   engine —— 引擎/业务层，依赖 core+base，不许依赖 UI
 #   （未列出的全部进 app —— UI 与胶水层）
-# 这样把 01e5_ui_tree.js 改名成 ui_tree.js，只需要动 manifest + 移动文件，
+# 这样给 ui_tree 改个名字，只需要动 manifest + 移动文件，
 # 这张表不用改。全名的职责只剩 manifest 一处。
 GROUPS = [
     ("core", ["pure_core"]),

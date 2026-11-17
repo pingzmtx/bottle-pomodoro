@@ -31,16 +31,21 @@
 验收口径：
   「可回退」= (a) 抽掉后应用照常启动、不报错；且
               (b) 差集只落在该模块自身的 render 面上，不影响其他模块。
-  例外：纯性能/纯体验模块（如 0B_hash路由、03_enh572_性能打磨）
+  例外：纯性能/纯体验模块（如 hash路由、enh572_性能打磨）
         不按此口径判定，单列一栏、另用性能指标验证（本工具不做，只标注）。
 
 用法：
     python3 tools/probe_dep.py --list                 # 列出模块 + 性能类标注
     python3 tools/probe_dep.py --baseline             # 出基线集合
-    python3 tools/probe_dep.py --drop 0E_theme_主题引擎.js
+    python3 tools/probe_dep.py --drop <模块文件名>
     python3 tools/probe_dep.py --all                  # 全模块依次跑（耗时）
 """
 import sys, os, json, re, shutil, tempfile, subprocess, argparse
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import FM
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INDEX = None          # 延迟解析：需要内联探针时用 _app_path.single_html()
@@ -52,7 +57,7 @@ WORK = os.path.join(tempfile.gettempdir(), "probe_dep")
 # 选择器是对源码做**字符串定位**用的锚点；插入点在其后。
 # 这是人工挑选的「副作用点」，是本工具的固有成本 —— 不能无脑在函数入口打点。
 PROBES = {
-    "0E_theme_主题引擎.js": [
+    FM.path("theme_主题引擎"): [
         # applyTheme：真正写入 body[data-theme] 之后
         ("document.body.setAttribute(ATTR, key);",
          "done:themeAttr"),
@@ -67,15 +72,15 @@ PROBES = {
 
 # 纯性能 / 纯体验模块：探针与冒烟对其无效，单列标注（本轮不判定）
 PERF_MODULES = {
-    "0B_hash路由.js": "体验类：仅影响地址栏 hash 回写/切页历史，抽掉功能不变、体验退化",
-    "03_enh572_性能打磨.js": "性能类：缓存/空闲预热，抽掉功能不变、性能退化",
-    "04_enh573_统计缓存.js": "性能类：统计聚合缓存，抽掉功能不变、切页变慢",
-    "06_errRep_错误监控.js": "可观测类：仅影响错误上报，抽掉功能不变、问题更难查",
+    FM.path("hash路由"): "体验类：仅影响地址栏 hash 回写/切页历史，抽掉功能不变、体验退化",
+    FM.path("enh572_性能打磨"): "性能类：缓存/空闲预热，抽掉功能不变、性能退化",
+    FM.path("enh573_统计缓存"): "性能类：统计聚合缓存，抽掉功能不变、切页变慢",
+    FM.path("errRep_错误监控"): "可观测类：仅影响错误上报，抽掉功能不变、问题更难查",
 }
 
 # 需要额外验「数据兼容」（口径第 3 类）的模块：会往 appData 里写字段的
 DATA_COMPAT_MODULES = {
-    "0E_theme_主题引擎.js": "写入 appData.settings.theme；旧存档已存该字段",
+    FM.path("theme_主题引擎"): "写入 appData.settings.theme；旧存档已存该字段",
 }
 
 

@@ -1076,7 +1076,7 @@ def c110():
 def c26():
     """两条约定：
     ① 「选 10 分钟档位，专注结束了不提示休息，也没有休息时间」—— 复现发现
-       `01d_engine_features.js` 进休息的条件是 `if (type !== 'incomplete')`：
+       `engine_features` 进休息的条件是 `if (type !== 'incomplete')`：
        结算选「未完成」就一声不响回到待机（无弹窗、无提示，界面上看不到这条规则）。
        「只要点击结束，就直接进休息，本来休息也能跳过」。
     ② 「自由专注为什么不能像番茄那样输入任务名字记录」—— 原先 `applyTimerModeUI()`
@@ -1289,7 +1289,7 @@ def c29():
     # ⓿ 加载期证据（★ 专门补一个盲点）：本用例余下部分会把两个真实心跳暂停后**手工驱动**
     #    扫描，所以它**测不到**「01eK 末尾那处顶层调用 `startRemindWatcher();` 有没有生效」。
     #    而 `startRemindWatcher()` 在加载时会立即调一次 `remindCheckTime()`，
-    #    后者无条件写 `_remindWatchDay = 今天`（见 01eK_ui_remind.js 实现）——
+    #    后者无条件写 `_remindWatchDay = 今天`（见 ui_remind 实现）——
     #    于是这个值等于今天，就证明拆分后「定义先于调用」仍然成立。
     check(js("_remindWatchDay") == js("getTodayStr()"),
           "加载期 startRemindWatcher 的立即扫描已生效（_remindWatchDay = 今天）")
@@ -1744,7 +1744,7 @@ def c45():
     """计划：新增「重复周期」，不用每天手动加一条。
 
     设计：task.repeat = { mode, weekdays[], dom, interval, anchor, last, next }
-    - 规则运算全在 00_pure_core.js（纯函数，边界在 unit_pure.js）；
+    - 规则运算全在 pure_core（纯函数，边界在 unit_pure.js）；
     - 「到期复位」不是复制新任务，而是同一条任务按规则回到未完成，
       闸门 = repeat.next（next > today 什么都不做 → 一天跑几十次也只复位一次）；
     - 短月收口：选了 31 号，2 月落到当月最后一天，而不是整月跳过；
@@ -1955,7 +1955,7 @@ def c57():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C58 分段控件：.seg-btn 基础态 + 传记来源筛选", tier="feature", owner="template.html 01e7_ui_stats.js")
+@case("C58 分段控件：.seg-btn 基础态 + 传记来源筛选", tier="feature", owner="template.html 01e7_ui_stats")
 def c58():
     """这组控件原先只写了选中态，未选中的按钮落回浏览器默认（灰底 + outset 凸起 + 直角），
     与选中态的主色胶囊不是一套语言 —— 也就是"看着丑"的实现层原因。
@@ -1967,7 +1967,7 @@ def c58():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C59 传记条目布局：竖排一列（日期与标题不再左右并排）", tier="feature", owner="template.html 01e7_ui_stats.js")
+@case("C59 传记条目布局：竖排一列（日期与标题不再左右并排）", tier="feature", owner="template.html 01e7_ui_stats")
 def c59():
     """原先每条是「标题左 / 日期+操作右」两端分居，形似两栏；改为竖排：日期+操作在顶行、标题独占整宽、正文一行。
 
@@ -2228,28 +2228,28 @@ def c81_unplanned_contrast():
         check(okv, name)
 
 
-@case("C82 传记按番茄数计 + 切后台不丢刚敲的字", tier="feature", owner="01e7_ui_stats.js 01d_engine_features.js 01g_engine_init.js")
+@case("C82 传记按番茄数计 + 切后台不丢刚敲的字", tier="feature", owner="01e7_ui_stats 01d_engine_features 01g_engine_init")
 def c82_bio_count_and_diary_flush():
     res = json.loads(js(_case_js("c82_bio_count_and_diary_flush.js")))
     for _r in res:
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C83 日程块字幕：跨行的块不许只剩 1~3 个字", tier="feature", owner="01eA_ui_timeblock.js")
+@case("C83 日程块字幕：跨行的块不许只剩 1~3 个字", tier="feature", owner="01eA_ui_timeblock")
 def c83_tb_label_flow():
     res = json.loads(js(_case_js("c83_tb_label_flow.js")))
     for _r in res:
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C84 自由专注回到待命按正计时画（不许留番茄钟 25:00 与「暂停」按钮）", tier="feature", owner="01c_engine_timer.js")
+@case("C84 自由专注回到待命按正计时画（不许留番茄钟 25:00 与「暂停」按钮）", tier="feature", owner="01c_engine_timer")
 def c84_free_idle_paint():
     res = json.loads(js(_case_js("c84_free_idle_paint.js")))
     for _r in res:
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C85 同一个「专注时长」不许两个数（日记页要跟日志页同口径）", tier="feature", owner="01e7_ui_stats.js 01eD_ui_log.js")
+@case("C85 同一个「专注时长」不许两个数（日记页要跟日志页同口径）", tier="feature", owner="01e7_ui_stats 01eD_ui_log")
 def c85_focus_duration_one_source():
     res = json.loads(js(_case_js("c85_focus_duration_one_source.js")))
     for _r in res:
@@ -2263,21 +2263,21 @@ def c105_quad_chip_one_ink():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C106 重复计划的排期只能落在规则命中的日子（每周日不许出现在周三）", tier="feature", owner="00_pure_core.js 01d_engine_features.js 01eC_ui_todo.js")
+@case("C106 重复计划的排期只能落在规则命中的日子（每周日不许出现在周三）", tier="feature", owner="00_pure_core 01d_engine_features 01eC_ui_todo")
 def c106_repeat_block_on_rule_day():
     res = json.loads(js(_case_js("c106_repeat_block_on_rule_day.js")))
     for _r in res:
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C107 眼睛顺手收起今天不轮到的周期任务（开关要有回话）", tier="feature", owner="01eC_ui_todo.js template.html")
+@case("C107 眼睛顺手收起今天不轮到的周期任务（开关要有回话）", tier="feature", owner="01eC_ui_todo template.html")
 def c107_eye_hides_offcycle_repeat():
     res = json.loads(js(_case_js("c107_eye_hides_offcycle_repeat.js")))
     for _r in res:
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C109 专注中陪伴语音：该说时说话，不该说时闭嘴", tier="feature", owner="02_enh571_自律增强.js")
+@case("C109 专注中陪伴语音：该说时说话，不该说时闭嘴", tier="feature", owner="02_enh571_自律增强")
 def c109_companion_voice():
     """需求 2026-10-22：语音播报升级成会鼓励、会问「还在专注吗」。
     真正的难点全在「什么时候不该念」：一按开始就来一句像在催；后台念不出还会排队补念；
@@ -2288,14 +2288,14 @@ def c109_companion_voice():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C108 设置页每个开关都要有回话（开启/关闭各播一条）", tier="feature", owner="01e_engine_ui.js template.html")
+@case("C108 设置页每个开关都要有回话（开启/关闭各播一条）", tier="feature", owner="01e_engine_ui template.html")
 def c108_switch_toast_receipt():
     res = json.loads(js(_case_js("c108_switch_toast_receipt.js")))
     for _r in res:
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C86 重复计划跨天后昨天的预计块不许消失（要与一次性同口径）", tier="feature", owner="01d_engine_features.js 01eA_ui_timeblock.js")
+@case("C86 重复计划跨天后昨天的预计块不许消失（要与一次性同口径）", tier="feature", owner="01d_engine_features 01eA_ui_timeblock")
 def c86_repeat_hist_block():
     res = json.loads(js(_case_js("c86_repeat_hist_block.js")))
     for _r in res:
@@ -2343,7 +2343,7 @@ def c91_sort_next_block():
         check(okv, name)
 
 
-@case("C92 新增计划弹窗「预计🍅」快捷档（选而不是填）", tier="feature", owner="01eC_ui_todo.js")
+@case("C92 新增计划弹窗「预计🍅」快捷档（选而不是填）", tier="feature", owner="01eC_ui_todo")
 def c92_add_pomo_quick():
     """需求 2026-10-19：「预计番茄是可以选的，而不是给填呀，我可以有快捷方式选」。
     A 档位与编辑面板共用同一数组 / B 点 chip 写值+高亮 / C 手敲跟随、非档位值不硬凑 /
@@ -2354,7 +2354,7 @@ def c92_add_pomo_quick():
         check(okv, name)
 
 
-@case("C93 排期显示的日期精度：卡片到日、展开/设置/弹窗到年月日", tier="feature", owner="01eC_ui_todo.js 00_pure_core.js")
+@case("C93 排期显示的日期精度：卡片到日、展开/设置/弹窗到年月日", tier="feature", owner="01eC_ui_todo 00_pure_core")
 def c93_sched_date_precision():
     """需求 2026-10-19：「计划那展示不显示年月日；但你展开或者设置里、添加那里，要精确到年月日，
     因为不同的隔天排期这都不一样」。
@@ -2366,7 +2366,7 @@ def c93_sched_date_precision():
         check(okv, name)
 
 
-@case("C94 「下次重复时，子任务」三档：全部回到未完成 / 只清已完成 / 整条清空", tier="feature", owner="01eC_ui_todo.js 01d_engine_features.js 00_pure_core.js")
+@case("C94 「下次重复时，子任务」三档：全部回到未完成 / 只清已完成 / 整条清空", tier="feature", owner="01eC_ui_todo 01d_engine_features 00_pure_core")
 def c94_subs_mode_three():
     """需求 2026-10-19：「我本来想的是三个：一个整条清空重新列、一个清除已完成的只保留未完成的、
     还有一个所有全部回到未完成」。A reset / B clearDone / C clear 三档行为与归一。"""
@@ -2376,7 +2376,7 @@ def c94_subs_mode_three():
         check(okv, name)
 
 
-@case("C95 只做过、没排过的计划也要在日程表上画出实际块", tier="feature", owner="01eA_ui_timeblock.js")
+@case("C95 只做过、没排过的计划也要在日程表上画出实际块", tier="feature", owner="01eA_ui_timeblock")
 def c95_act_only_row():
     """需求 2026-10-19：「晚上完成的半个番茄背单词，为什么日程表上不显示」。
     没有排期就没有块、也就没有行 —— 实际段无处安放，整条记录在网格上消失。"""
@@ -2386,7 +2386,7 @@ def c95_act_only_row():
         check(okv, name)
 
 
-@case("C96 重复计划可以只改某一天的排期（按天覆盖）", tier="feature", owner="00_pure_core.js 01d_engine_features.js 01eC_ui_todo.js")
+@case("C96 重复计划可以只改某一天的排期（按天覆盖）", tier="feature", owner="00_pure_core 01d_engine_features 01eC_ui_todo")
 def c96_dayplan_override():
     """需求 2026-10-19：「我的周期任务排期不一定固定，但现在改一次就天天都变；
     还担心改了以后前面几天也跟着变」。
@@ -2397,7 +2397,7 @@ def c96_dayplan_override():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C97 重复计划的排期不写死某一天", tier="feature", owner="00_pure_core.js 01eC_ui_todo.js")
+@case("C97 重复计划的排期不写死某一天", tier="feature", owner="00_pure_core 01eC_ui_todo")
 def c97_repeat_sched_no_date():
     """需求 2026-10-19：「既然重复的，刨开那个单日那个排期，为什么它还会精确到日呢？
     这会让人产生误解吧」。
@@ -2410,7 +2410,7 @@ def c97_repeat_sched_no_date():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C98 自由专注快照不复活 + 冷启动回到上次那页", tier="feature", owner="01c_engine_timer.js 01e_engine_ui.js 01g_engine_init.js")
+@case("C98 自由专注快照不复活 + 冷启动回到上次那页", tier="feature", owner="01c_engine_timer 01e_engine_ui 01g_engine_init")
 def c98_free_snapshot_stale():
     """需求 2026-10-20：「选着选择计划突然变成计时界面，说我在计时洗漱，
     可我早就结束、还在日志里把记录删了，数据好像回滚了一样」。
@@ -2423,7 +2423,7 @@ def c98_free_snapshot_stale():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C99 「单日」可以在日程表上点两格指定", tier="feature", owner="01eM_ui_tbcreate.js 01eC_ui_todo.js")
+@case("C99 「单日」可以在日程表上点两格指定", tier="feature", owner="01eM_ui_tbcreate 01eC_ui_todo")
 def c99_dayplan_pick_block():
     """需求 2026-10-20：「单日是不是也可以选择那个块」「现在今日的怎么只能靠输入呀」。
     设置面板「单日」行加「在日程表选」→ 选段模式（_arm.mode='dayplan'）→ 点两格 =
@@ -2435,7 +2435,7 @@ def c99_dayplan_pick_block():
         check(okv, name)
 
 
-@case("C100 旧窗口不许覆盖新数据（守卫 3）", tier="feature", owner="01b_engine_data.js 01d_engine_features.js")
+@case("C100 旧窗口不许覆盖新数据（守卫 3）", tier="feature", owner="01b_engine_data 01d_engine_features")
 def c100_stale_instance_overwrite():
     """需求 2026-10-20：「昨天完成的英语今天变未完成，日志也删了」「数学排期也没了」。
     三次导出对比：今早那份逐字节等于昨晚 20:02 那份 → 一个从 20:02 起没重载过的窗口
@@ -2448,7 +2448,7 @@ def c100_stale_instance_overwrite():
         check(okv, name)
 
 
-@case("C101 每段排期各自到点提醒", tier="feature", owner="00_pure_core.js 01g_engine_init.js")
+@case("C101 每段排期各自到点提醒", tier="feature", owner="00_pure_core 01g_engine_init")
 def c101_remind_per_block():
     """需求 2026-10-20：「不同的排期应该有不同的提醒吧」「提醒想默认排期开始前」。
     原来只认 t.remindAt 一个时刻 + t.reminded 一个布尔：排了 8:20 和 9:20 两段，
@@ -2459,7 +2459,7 @@ def c101_remind_per_block():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C103 跨天计划在计划页怎么标（昨天的/明天的/重复不命中）", tier="feature", owner="01eC_ui_todo.js template.html")
+@case("C103 跨天计划在计划页怎么标（昨天的/明天的/重复不命中）", tier="feature", owner="01eC_ui_todo template.html")
 def c103_plan_cross_day_labels():
     """需求 2026-10-20：「排期到了第二天计划页还显示吗？单日的会不会混淆」。
     实测：昨天没做完的进「之前没完成的」、明天的进「之后的安排」、重复计划按设计恒在
@@ -2471,7 +2471,7 @@ def c103_plan_cross_day_labels():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C104 「✅ N 段 · 共 X 分」按天算，不跨天累计", tier="feature", owner="01d_engine_features.js 01eC_ui_todo.js")
+@case("C104 「✅ N 段 · 共 X 分」按天算，不跨天累计", tier="feature", owner="01d_engine_features 01eC_ui_todo")
 def c104_actual_segs_per_day():
     """问题 2026-10-20：「周期性任务那个 ✅ 4 段 · 共 100 分，第二天会重新计算吗」。
     会的 —— 段数与分钟都按**查看的那一天**从记录里算（tbTodoSegList / tbTodoFocusMs
@@ -2483,7 +2483,7 @@ def c104_actual_segs_per_day():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C102 番茄结束的备注不写回计划备注", tier="feature", owner="01d_engine_features.js 01c_engine_timer.js")
+@case("C102 番茄结束的备注不写回计划备注", tier="feature", owner="01d_engine_features 01c_engine_timer")
 def c102_finish_note_not_plan():
     """需求 2026-10-20：「番茄结束的备注为什么把计划的备注也改了」「周期性的任务每天都用
     番茄，岂不是会把备注改得乱七八糟」。结算时本会把结束备注写回计划 detail，重复计划
@@ -3126,7 +3126,7 @@ def _select_affected():
     return [c for c in _cases if c[0] in names]
 
 
-@case("C116 周挑战「本周单日完成 8 个番茄」：做 1 个不能算完成", tier="feature", owner="01d_engine_features.js")
+@case("C116 周挑战「本周单日完成 8 个番茄」：做 1 个不能算完成", tier="feature", owner="01d_engine_features")
 def c116_weekly_challenge_goal():
     """用户报：「本周单日完成这个 8 个番茄，我今天就完成了一个番茄，然后它就显示我这个
     任务完成了」。
@@ -3141,7 +3141,7 @@ def c116_weekly_challenge_goal():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C117 正计时记录：区间必须与专注时长自洽", tier="feature", owner="01d_engine_features.js")
+@case("C117 正计时记录：区间必须与专注时长自洽", tier="feature", owner="01d_engine_features")
 def c117_flowtime_record_span():
     """用户报：「我明明专注了 31 分钟，但是它显示 9:40 到 9:49，这不才 10 分钟吗？
     那个日志都是错的」。
@@ -3157,7 +3157,7 @@ def c117_flowtime_record_span():
         check(okv, name)
 
 
-@case("C118 习惯『节奏』：按规则打卡 + 今天不用做的收起来 + 弹窗新建/编辑", tier="feature", owner="01eB_ui_habit.js 00_pure_core.js")
+@case("C118 习惯『节奏』：按规则打卡 + 今天不用做的收起来 + 弹窗新建/编辑", tier="feature", owner="01eB_ui_habit 00_pure_core")
 def c118_habit_rhythm():
     """需求 2026-10-30：「有的习惯吧，就它就不是天天打卡的」「我这个不是今天需要打卡的…
     它应该支持隐藏这种习惯」「添加习惯跟添加计划一样，点加号弹窗让我选」。
@@ -3170,7 +3170,7 @@ def c118_habit_rhythm():
         check(okv, name)
 
 
-@case("C119 习惯↔目标：关联双向一致（目标里选的习惯，习惯详情看得见）", tier="feature", owner="01eB_ui_habit.js 01eE_ui_lifegoal.js 00b_goal_progress.js")
+@case("C119 习惯↔目标：关联双向一致（目标里选的习惯，习惯详情看得见）", tier="feature", owner="01eB_ui_habit 01eE_ui_lifegoal 00b_goal_progress")
 def c119_habit_goal_link():
     """缺陷 2026-10-30：「在目标里关联了习惯，习惯那里显示没有关联」。
     根因：目标页只写 goal.habitId，习惯详情只读 habit.lifeGoalId，两边互不相干。
@@ -3182,7 +3182,7 @@ def c119_habit_goal_link():
         check(okv, name)
 
 
-@case("C120 习惯：眼睛只是藏卡、统计口径和没打卡一样 + 每周 N 次的配额判定", tier="feature", owner="00_pure_core.js 01eB_ui_habit.js 01b_engine_data.js")
+@case("C120 习惯：眼睛只是藏卡、统计口径和没打卡一样 + 每周 N 次的配额判定", tier="feature", owner="00_pure_core 01eB_ui_habit 01b_engine_data")
 def c120_habit_skip_quota():
     """第二轮升级（对齐 习惯项目调研.md §4①②）：
     ① 跳过日 —— 以前点眼睛只是藏起来、不写历史，「每周一三五」的习惯周三跳过，
@@ -3196,7 +3196,7 @@ def c120_habit_skip_quota():
         check(okv, name)
 
 
-@case("C121 眼睛收起的退出路径 + 跨入口连续数一致", tier="feature", owner="00_pure_core.js 01eB_ui_habit.js 01b_engine_data.js 01d_engine_features.js")
+@case("C121 眼睛收起的退出路径 + 跨入口连续数一致", tier="feature", owner="00_pure_core 01eB_ui_habit 01b_engine_data 01d_engine_features")
 def c121_habit_skip_exit():
     """2026-10-30 自查修复的回归钉子。六个修复点各一组：
     A 跳过→补卡必须算数 / B 打卡后不给「跳过」入口 / C 列表与成就的连续数同口径 /
@@ -3207,7 +3207,7 @@ def c121_habit_skip_exit():
         check(okv, name)
 
 
-@case("C122 月历「‹ ›」翻月翻年：导入绑定只读 → 点了没反应（2026-10-30 回归）", tier="feature", owner="01e_engine_ui.js 01b_engine_data.js")
+@case("C122 月历「‹ ›」翻月翻年：导入绑定只读 → 点了没反应（2026-10-30 回归）", tier="feature", owner="01e_engine_ui 01b_engine_data")
 def c122_calendar_switch():
     """用户报「日程这里点击切换有问题」+ 控制台 Assignment to constant variable。
     calendarYear / calendarMonth 在产物里是 ESM 导入绑定（只读），`calendarYear++` 必抛。
@@ -3218,7 +3218,7 @@ def c122_calendar_switch():
         check(okv, name)
 
 
-@case("C124 习惯三件事：计划页 dock / 子计划是纯清单 / 习惯与分类排序", tier="feature", owner="01eB_ui_habit.js 00_pure_core.js 01g_engine_init.js 01b_engine_data.js")
+@case("C124 习惯三件事：计划页 dock / 子计划是纯清单 / 习惯与分类排序", tier="feature", owner="01eB_ui_habit 00_pure_core 01g_engine_init 01b_engine_data")
 def c124_habit_dock_subs_sort():
     """用户三条诉求（2026-11-04）：
     A 计划页底部默认折叠的「今日习惯」dock —— 一屏看见计划 + 习惯，勾选与习惯页同一份账；
@@ -3229,7 +3229,7 @@ def c124_habit_dock_subs_sort():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C125 习惯自己的排期：长在习惯卡上，日程表里一格都没有（2026-11-04）", tier="feature", owner="01eB_ui_habit.js 01eA_ui_timeblock.js 00_pure_core.js")
+@case("C125 习惯自己的排期：长在习惯卡上，日程表里一格都没有（2026-11-04）", tier="feature", owner="01eB_ui_habit 01eA_ui_timeblock 00_pure_core")
 def c125_habit_blocks_on_grid():
     """用户两句原话，方向只有一个：「我原先怎么给每个计划排日期你不知道吗？」
     「为什么在日程表上放一堆习惯？」。
@@ -3243,7 +3243,7 @@ def c125_habit_blocks_on_grid():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C123 回顾「每天最多回顾 N 天」：额度制，回顾完不再补位", tier="feature", owner="01eD_ui_log.js 01e_engine_ui.js")
+@case("C123 回顾「每天最多回顾 N 天」：额度制，回顾完不再补位", tier="feature", owner="01eD_ui_log 01e_engine_ui")
 def c123_review_max_days():
     """需求 2026-11-03：「这个回顾，能不能让用户自己设置最多看多少天的条数」。
 
@@ -3257,7 +3257,7 @@ def c123_review_max_days():
         check(okv, name)
 
 
-@case("C126 统计「‹ ›」翻年翻月：参数是数字，年份不能被拼成 2026-1-1（2026-11-05）", tier="feature", owner="01e7_ui_stats.js 01d5_engine_stats.js")
+@case("C126 统计「‹ ›」翻年翻月：参数是数字，年份不能被拼成 2026-1-1（2026-11-05）", tier="feature", owner="01e7_ui_stats 01d5_engine_stats")
 def c126_year_shift_no_concat():
     """用户截图：「年度专注统计 2026-1-1-1111-1年」。
 
@@ -3270,7 +3270,7 @@ def c126_year_shift_no_concat():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C127 习惯子计划是清单：没勾就一直留着，没有到期日（2026-11-06）", tier="feature", owner="00_pure_core.js 01eB_ui_habit.js")
+@case("C127 习惯子计划是清单：没勾就一直留着，没有到期日（2026-11-06）", tier="feature", owner="00_pure_core 01eB_ui_habit")
 def c127_habit_sub_overdue():
     """用户：「第二天不是我设置了第二天回到未完成吗？但是我第二天怎么不显示呀」。
 
@@ -3282,7 +3282,7 @@ def c127_habit_sub_overdue():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C128 日程表某天点＋新建：记计划日期，不加提醒也不排期（2026-11-06）", tier="feature", owner="01eC_ui_todo.js 00_pure_core.js")
+@case("C128 日程表某天点＋新建：记计划日期，不加提醒也不排期（2026-11-06）", tier="feature", owner="01eC_ui_todo 00_pure_core")
 def c128_add_on_anchor_date():
     """用户：「我想在周日完成一个任务，我就直接将我的日程表摁那个周日，
     然后我直接点那个加号，就可以排在那一天」。
@@ -3295,7 +3295,7 @@ def c128_add_on_anchor_date():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C129 日程表切换日期：列表跟着切，提示条出现，回到今天能点（2026-11-06）", tier="feature", owner="01eA_ui_timeblock.js 01eC_ui_todo.js")
+@case("C129 日程表切换日期：列表跟着切，提示条出现，回到今天能点（2026-11-06）", tier="feature", owner="01eA_ui_timeblock 01eC_ui_todo")
 def c129_switch_date_refresh():
     """用户：「为什么我点击别的那天，它不会显示正在看别天的那个计划？
     非得我添加完一个计划它才显示。然后我点那个回到今天，还点不动」。
@@ -3308,7 +3308,7 @@ def c129_switch_date_refresh():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C130 只勾子计划也要进日志「今天完成」（2026-11-06）", tier="feature", owner="01eC_ui_todo.js 01eD_ui_log.js 01e_engine_ui.js")
+@case("C130 只勾子计划也要进日志「今天完成」（2026-11-06）", tier="feature", owner="01eC_ui_todo 01eD_ui_log 01e_engine_ui")
 def c130_sub_partial_log():
     """用户：「我没把整个计划打勾，只完成一个子计划，它应该也记录呀」。
     另外：番茄结算进休息后就勾不了子计划 → 结算弹窗补一张子计划清单，
@@ -3318,7 +3318,7 @@ def c130_sub_partial_log():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C131 计划页累计番茄：千分位精确数、不换万、任何量级不裁切（2026-11-07）", tier="feature", owner="01eC_ui_todo.js 00_pure_core.js")
+@case("C131 计划页累计番茄：千分位精确数、不换万、任何量级不裁切（2026-11-07）", tier="feature", owner="01eC_ui_todo 00_pure_core")
 def c131_plan_pomo_total():
     """用户：「计划页最下面放 累计番茄数量 174+8=182，8 是今天；未来可能几千到万，
     不能超过框」。

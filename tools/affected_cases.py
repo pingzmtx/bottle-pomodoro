@@ -14,7 +14,7 @@
 
 用法：
   python3 tools/affected_cases.py                     # 读 git diff --name-only HEAD
-  python3 tools/affected_cases.py src/scripts/01c_engine_timer.js ...
+  python3 tools/affected_cases.py <改动文件路径>...   # 显式给文件
   python3 tools/affected_cases.py --staged            # 只看暂存区
   python3 tools/affected_cases.py --cmd               # 输出可直接复制的命令
 
@@ -28,17 +28,22 @@ import os
 import re
 import subprocess
 import sys
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import FM
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SMOKE = os.path.join(HERE, "run_smoke.py")
 
 # 全局文件：一改就可能波及所有用例，直接全量。
-# ★ 00_pure_core.js 必须留在名单里：它是所有模块的 L0 依赖（改一处塌一片），
+# ★ pure_core 必须留在名单里：它是所有模块的 L0 依赖（改一处塌一片），
 #   且 C32（日志合并阈值）等用例直接依赖它的常量 —— 曾经被移出，导致改它只跑 26/52 且漏掉 C32。
 # ★ src/template.html 已**移出**名单：它已被拆成 src/template/ 下的片段（拆分前是
 #   7843 行巨型文件、63% 是 CSS，任何样式改动都命中这里 → 逼出全量回归）。
 #   现在改样式只跑「显示类用例」（owner 里带 template.html 的那些）。
-GLOBAL = ("src/scripts/00_pure_core.js", "src/manifest.json", "tools/build.py", "tools/run_smoke.py")
+GLOBAL = ("src/scripts/" + FM.path("pure_core"), "src/manifest.json", "tools/build.py", "tools/run_smoke.py")
 
 # 模板片段路径 → 归一化成「模板整体」路径：用例的 owner 写的是 "template.html"
 # （含义是"我依赖整个模板的渲染/布局"），因此改任意片段都该命中它们。

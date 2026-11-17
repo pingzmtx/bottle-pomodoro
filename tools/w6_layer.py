@@ -17,7 +17,7 @@
 
 层级定义：
 
-    L0 纯函数层   00_pure_core.js
+    L0 纯函数层   pure_core
         —— 只放不碰 DOM/appData/存储的纯函数。**不许依赖任何东西**。
 
     L1 引擎层     01a~01g（prelude/data/timer/features/ui/immersive/init）

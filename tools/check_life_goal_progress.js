@@ -12,7 +12,8 @@
 'use strict';
 
 const path = require('path');
-const G = require(path.join(__dirname, '..', 'src', 'scripts', '00b_goal_progress.js'));
+const FM = require('./filemap');
+const G = require(path.join(__dirname, '..', 'src', 'scripts', FM.path('goal_progress')));
 
 /* ---- 极简断言 ---- */
 let pass = 0;

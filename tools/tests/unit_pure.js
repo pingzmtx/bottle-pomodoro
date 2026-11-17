@@ -2,10 +2,11 @@
 /**
  * 🍅 M4d · 纯函数 Node 单测
  * 用法: node tests/unit_pure.js     （退出码 0=全绿）
- * 被测: src/scripts/00_pure_core.js（浏览器与 Node 同一份实现）
+ * 被测: 纯函数层 pure_core（浏览器与 Node 同一份实现）
  */
 'use strict';
-const P = require('../../src/scripts/00_pure_core.js');
+const FM = require('../filemap');
+const P = require('../../src/scripts/' + FM.path('pure_core'));
 let pass = 0, fail = 0;
 function eq(desc, a, b) {
   const ok = JSON.stringify(a) === JSON.stringify(b);

@@ -13,8 +13,14 @@
 跑法: python3 tools/check_tomato_single_source.py
 退出码 0 = 通过 / 1 = 有问题
 """
+import os
 import re
 import sys
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import FM
 sys.dont_write_bytecode = True
 from pathlib import Path
 
@@ -59,7 +65,7 @@ POMOS_DESTRUCT_RE = re.compile(
     r'(?:const|let|var)\s*\{[^}]*\bpomos\b[^}]*\}\s*=|\s*\(\s*\{[^}]*\bpomos\b[^}]*\}\s*=\s*')
 # 逐条白名单：原始字段直读且无法用上面规则表达的（写清理由）
 POMOS_ALLOW = [
-    ('05_journey_渐进解锁.js', "r.pomos != null ? r.pomos : ''", 'CSV 导出原始字段，导出的是存档快照不是统计'),
+    (FM.path('journey_渐进解锁'), "r.pomos != null ? r.pomos : ''", 'CSV 导出原始字段，导出的是存档快照不是统计'),
 ]
 
 

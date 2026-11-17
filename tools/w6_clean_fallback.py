@@ -33,6 +33,11 @@
 import os
 import re
 import sys
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import FM
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.dirname(_HERE)
@@ -193,11 +198,11 @@ def main():
     # 安全自查：业务语义的「回退」必须完好
     print("\n【安全自查】业务语义词是否完好:")
     for name, kw in [
-        ("01e6_ui_rank.js", "赛季回退"),
-        ("01d_engine_features.js", "按新规则回退"),
-        ("01d_engine_features.js", "回退到树种名"),
-        ("01d_engine_features.js", "自动回退 window.confirm"),
-        ("01e_engine_ui.js", "同步回退"),
+        (FM.path("ui_rank"), "赛季回退"),
+        (FM.path("engine_features"), "按新规则回退"),
+        (FM.path("engine_features"), "回退到树种名"),
+        (FM.path("engine_features"), "自动回退 window.confirm"),
+        (FM.path("engine_ui"), "同步回退"),
     ]:
         p = os.path.join(SCRIPTS, name)
         ok = os.path.exists(p) and kw in open(p, encoding="utf-8").read()

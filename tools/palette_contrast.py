@@ -11,14 +11,20 @@
 用法：
   python3 tools/palette_contrast.py            # 只报告（默认）
   python3 tools/palette_contrast.py --check    # 不达标就退出码 1（可挂 CI / verify）
-  python3 tools/palette_contrast.py --rewrite  # 把算出的文字档写回 01eA_ui_timeblock.js
+  python3 tools/palette_contrast.py --rewrite  # 把算出的文字档写回 ui_timeblock
 """
 import io
 import re
+import os
 import sys
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import FM
 
 ROOT = __file__.rsplit('/tools/', 1)[0]
-JS = ROOT + '/src/scripts/01eA_ui_timeblock.js'
+JS = ROOT + '/src/scripts/' + FM.path('ui_timeblock')
 TARGET = 6.0
 
 # 计划外灰块：底/字/描边（浅色与深色各一档），同样要求 >= TARGET
@@ -70,7 +76,7 @@ def main():
     src = io.open(JS, encoding='utf-8').read()
     rows = re.findall(r"\{ key: '(\w+)',\s+solid: '(#\w+)', light: '(#\w+)', dark: '(#\w+)', ink: '(#\w+)' \}", src)
     if not rows:
-        print('✗ 没在 01eA_ui_timeblock.js 里找到 TB_PALETTE')
+        print('✗ 没在 ui_timeblock 里找到 TB_PALETTE')
         return 1
     bad = []
     out = []
@@ -101,7 +107,7 @@ def main():
             end = src.index('];', start)
             src = src[:start] + 'const TB_PALETTE = [\n' + new + '\n  ];\n' + src[end + 3:]
             io.open(JS, 'w', encoding='utf-8').write(src)
-            print('✓ 已写回 01eA_ui_timeblock.js，重跑 build.py')
+            print('✓ 已写回 ui_timeblock，重跑 build.py')
     print('结果：%s（阈值 %.1f:1）' % ('全部达标' if not bad else '不达标 ' + ', '.join(bad), TARGET))
     return 1 if (bad and '--check' in sys.argv) else 0
 

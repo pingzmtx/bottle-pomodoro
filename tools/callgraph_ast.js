@@ -37,6 +37,8 @@
  */
 'use strict';
 
+const FM = require('./filemap');
+
 const fs = require('fs');
 const path = require('path');
 const acorn = require('./vendor/acorn.js');
@@ -242,7 +244,7 @@ for (const f of files) {
       if (d.id.type === 'Identifier' && d.id.name === 'appData') appDataOwner = f;
   });
 }
-if (!appDataOwner) appDataOwner = '01b_engine_data.js';
+if (!appDataOwner) appDataOwner = FM.path('engine_data');
 
 /* ============================================================
  * 3. 边采集
@@ -576,8 +578,8 @@ for (const e of edges) {
  * 维护纪律：改源码导致行号漂移时，这里的键会失配 → 上界自动回退变宽，
  * 不会"悄悄变窄"，这是刻意的失效方向。 */
 const REVIEWED = {
-  '01d_engine_features.js:5413:window.rsConfirm': 'defensive',  // typeof window.rsConfirm==='function' ? await ... : window.confirm
-  '01d_engine_features.js:5487:window.rsConfirm': 'defensive',  // 同上（延后今日任务）
+  'engine_features:5413:window.rsConfirm': 'defensive',  // typeof window.rsConfirm==='function' ? await ... : window.confirm
+  'engine_features:5487:window.rsConfirm': 'defensive',  // 同上（延后今日任务）
 };
 
 /* 层违例（与 w6_layer 同口径：下层调上层 且 非防御式） —— 只算跨文件 call/state/dom */
@@ -592,7 +594,9 @@ const softDep = edges.filter((e) => e.dir === 'up' && e.defensive);
 const WEAK_CRITERIA = new Set(['context-240', 'guard-mismatch']);
 /* 注意：边对象上的字段是 `toSym`/`toFn`（JSON 序列化时才改名 sym/to_fn）。
  * 键格式：`文件:行:符号` —— 与 --evidence 打印的一致，便于人工对照登记。 */
-const edgeKey = (e) => `${e.from}:${e.line}:${e.toSym || e.toFn || e.via}`;
+// 键用语义键（filemap.key），REVIEWED 里不再写全名：改名后抑制表不用跟着改。
+const _fk = (f) => { try { return FM.key(f); } catch (e) { return f; } };
+const edgeKey = (e) => `${_fk(e.from)}:${e.line}:${e.toSym || e.toFn || e.via}`;
 const reviewedDefensive = new Set();
 const promotedHard = [];
 for (const e of softDep) {

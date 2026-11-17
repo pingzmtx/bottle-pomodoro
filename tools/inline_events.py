@@ -7,7 +7,7 @@
     python3 tools/inline_events.py src/template/*.html --check   # 只报告剩余数量
 
 为什么需要：内联 on*="..." 在全局作用域求值，是上 ES 模块的唯一硬阻塞。
-转换后由 src/scripts/00_delegate.js 统一派发（document 级委托，逐级上溯，
+转换后由 delegate（`00_delegate.js`）统一派发（document 级委托，逐级上溯，
 语义与内联处理器一致：祖先上的处理器照常触发、stopPropagation 照常生效）。
 
 支持两种写法：

@@ -3,7 +3,7 @@
 
 ## 为什么需要这个工具
 
-`00_delegate.js` 用 data-act 做事件委托：运行期 `resolve(name)` 从 window 上取同名
+`delegate` 用 data-act 做事件委托：运行期 `resolve(name)` 从 window 上取同名
 函数，取不到就 `console.error` 一行然后**什么都不做**。也就是说，模板里写错一个
 函数名，在界面上表现为「按钮点了没反应」，既不抛错也不弹提示 —— 用户只会当成卡顿。
 

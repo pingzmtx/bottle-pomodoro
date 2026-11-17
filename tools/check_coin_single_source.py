@@ -27,14 +27,20 @@
 退出码 0 = 通过 / 1 = 有问题
 """
 import re
+import os
 import sys
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import FM
 
 sys.dont_write_bytecode = True
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / 'src' / 'scripts'
-PURE = SRC / '00_pure_core.js'
+PURE = SRC / FM.path('pure_core')
 
 # R1：直接写余额（`.coins` 后跟可选 +/- 再跟 =）
 WRITE_RE = re.compile(r'\.coins\s*[-+]?=')
@@ -51,7 +57,7 @@ ENTRIES = ['coinEarn', 'coinSpend', 'coinUndo', 'coinLedgerCheck']
 
 
 def coin_types():
-    """从 00_pure_core.js 抓 COIN_TX_TYPES 的键集合"""
+    """从 pure_core 抓 COIN_TX_TYPES 的键集合"""
     if not PURE.exists():
         return set()
     src = PURE.read_text(encoding='utf-8')
@@ -83,7 +89,7 @@ def main():
     # ---------- R2 type 登记 ----------
     known = coin_types()
     if not known:
-        problems.append('R2 抓不到 COIN_TX_TYPES（00_pure_core.js 结构变了？）')
+        problems.append('R2 抓不到 COIN_TX_TYPES（pure_core 结构变了？）')
     for f in files:
         for i, line in enumerate(f.read_text(encoding='utf-8').split('\n'), 1):
             for t in TYPE_RE.findall(line):

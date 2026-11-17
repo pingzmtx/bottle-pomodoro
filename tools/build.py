@@ -27,6 +27,12 @@
 """
 import json, re, hashlib, sys, os, shutil, subprocess
 
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import FM
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "src")
 SCRIPTS = os.path.join(SRC, "scripts")
@@ -464,9 +470,9 @@ def lint():
         errs.append("合并产物未以 </html> 结尾")
     # 纯函数守卫：00_pure_core 禁止沾染浏览器/数据依赖（M5 制度）
     import re as _re2
-    pure = open(os.path.join(SCRIPTS, "00_pure_core.js"), encoding="utf-8").read()
+    pure = open(os.path.join(SCRIPTS, FM.path("pure_core")), encoding="utf-8").read()
     if _re2.search(r"(document\.|localStorage\.|sessionStorage\.|appData\.)", pure):
-        errs.append("00_pure_core.js 混入浏览器/数据依赖（须保持纯函数）")
+        errs.append(FM.path("pure_core") + " 混入浏览器/数据依赖（须保持纯函数）")
     # ===== W6-补：逐文件 JS 语法检查（门禁补漏）=====
     # 为什么必须有这一段：此前 lint 只查"结构一致性"（文件是否登记、标记是否齐全），
     # **不看语法**。结果是：一次批量注释清理误删了注释块的 */ 结束符，把后续代码整个
@@ -728,7 +734,7 @@ PUB = os.path.join(ROOT, "public")
 # 独立模块清单（--split）：源文件 → 模块名。只放**已验证无对外依赖**的叶子层。
 # 第一块是 00_pure_core（callgraph 实测 out-edges = 0），后续按层往上加。
 SPLIT_MODULES = {
-    "00_pure_core.js": "core",
+    "pure_core": "core",   # 语义键（filemap.key）：改名不用动这里
 }
 
 
@@ -841,7 +847,7 @@ def _emit_multi(dest=PUB, module=False):
         raw_body = body
         body = minify_js(body) if not NO_MINIFY else body
         # 默认开启拆分（叶子层无依赖，安全）；--no-split 可整体关掉，便于 A/B。
-        split_name = SPLIT_MODULES.get(m.get("file") or "") if (module and "--no-split" not in sys.argv) else None
+        split_name = SPLIT_MODULES.get(FM.key(m["file"])) if (module and m.get("file") and "--no-split" not in sys.argv) else None
         if split_name:
             _names, _stmt = _node_exports(os.path.join(SCRIPTS, m["file"]))
             _mod = body + "\n;\n" + _stmt

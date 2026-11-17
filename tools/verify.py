@@ -106,7 +106,7 @@ def main():
         # ReferenceError/TDZ，而 --check 只比对字节、smoke 未必点到那条路径。
         # 判据走 acorn AST（正则看不见跨行初始化表达式，实测正是它漏了第 4 条边）。
         ("tlorder", "python3 tools/check_toplevel_order.py"),
-        # 引擎→UI 边界（E3 契约，2026-11-16）：01z_ui_facade.js 的文件头早就写着
+        # 引擎→UI 边界（E3 契约，2026-11-16）：ui_facade 的文件头早就写着
         # 「引擎层不许直接调 UI」，但在此之前这句话没有任何东西在守 —— 实测裸调 215 处
         # （01g 一个文件 95 处）。tlorder 管的是「谁先加载」，本段管的是「谁许调用谁」，
         # 两者互补：顺序对了但方向错，一样会把 62 个文件焊成不可拆的整体。
@@ -158,7 +158,7 @@ def main():
         # 真实事故：2026-10-23 拖音效音量滑条报 `_lastSfxVol is not defined`，
         # 这正是模块化迁移漏网的一处；没有本段就只能等用户点到才发现。
         ("implicit", "node tools/check_implicit_globals.js"),
-        # data-act 派发的步进参数必须先过 Number()：00_delegate.js 的 readArgs()
+        # data-act 派发的步进参数必须先过 Number()：delegate 的 readArgs()
         # 对 `data-act-args='["-1"]'` 返回的是**字符串**，`month += delta` 于是变成
         # 字符串拼接 8 → "8-1" → "8-1-1"…
         # 真实事故：2026-10-25 日志页日历点几下左右箭头，标题成了
@@ -184,7 +184,7 @@ def main():
         # 用 --static（纯静态 <0.3s）；深度检查（弹窗语义/焦点陷阱，需浏览器）手动跑
         # `python3 tools/a11y_audit.py`。
         ("a11y", "python3 tools/a11y_audit.py --static"),
-        # 单测覆盖率（棘轮）：用 V8 coverage 算 00_pure_core.js 的函数覆盖率，
+        # 单测覆盖率（棘轮）：用 V8 coverage 算 pure_core 的函数覆盖率，
         # 已覆盖函数数不得降、未进入分支块数不得升。363→574 条断言后已到 100% 函数覆盖。
         ("cov", "python3 tools/coverage.py"),
         # 用例元数据门禁：每条 @case 的 tier/owner 必须写全、且 owner 指向真实文件。

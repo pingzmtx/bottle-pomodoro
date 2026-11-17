@@ -19,6 +19,11 @@ import json
 import os
 import re
 import sys
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import FM
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPTS = os.path.join(ROOT, "src", "scripts")
@@ -54,7 +59,7 @@ def main():
             gaps.append(item)
 
     # 1. 写盘入口唯一性
-    ls_hits = [h for h in find(r"localStorage\.setItem", files) if h[0] != "01b1_storage.js"]
+    ls_hits = [h for h in find(r"localStorage\.setItem", files) if h[0] != FM.path("storage")]
     add("OK" if not ls_hits else "FAIL", "localStorage 直写收敛",
         "全部经 TFStorage" if not ls_hits
         else "%d 处绕过 TFStorage：%s" % (len(ls_hits), ", ".join("%s:%d" % h for h in ls_hits[:5])))
@@ -62,10 +67,10 @@ def main():
     # 2. IndexedDB 打开点
     idb = find(r"indexedDB\.open\(", files)
     add("OK" if len(idb) <= 1 else "WARN", "IndexedDB 打开点",
-        "%d 处%s" % (len(idb), "（应集中在 01b_engine_data）" if len(idb) > 1 else ""))
+        "%d 处%s" % (len(idb), "（应集中在 %s）" % FM.path("engine_data") if len(idb) > 1 else ""))
 
     # 3. 单一保存入口
-    data_js = files.get("01b_engine_data.js", "")
+    data_js = files.get(FM.path("engine_data"), "")
     has_save = bool(re.search(r"function saveData\(\)", data_js))
     has_imm = bool(re.search(r"function _saveDataImmediate\(", data_js))
     add("OK" if has_save and has_imm else "FAIL", "单一保存入口",
@@ -101,7 +106,7 @@ def main():
         "DATA_VERSION=%s，迁移钩子 %d 处" % (ver.group(1) if ver else "?", len(mig)))
 
     # 8. 导出是否带契约字段
-    exp = files.get("01b_engine_data.js", "")
+    exp = files.get(FM.path("engine_data"), "")
     exp_ok = bool(re.search(r"exportData", exp)) and "tombstones" in exp
     add("OK" if exp_ok else "FAIL", "导出携带契约字段",
         "exportData 带上 tombstones / uid / updatedAt" if exp_ok

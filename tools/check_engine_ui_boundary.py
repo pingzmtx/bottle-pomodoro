@@ -3,7 +3,7 @@
 """引擎→UI 边界门禁（E3 契约的可执行版）。
 
 为什么需要它
-    src/scripts/01z_ui_facade.js 的文件头写着「引擎层不许直接调 UI」。
+    src/scripts/ui_facade 的文件头写着「引擎层不许直接调 UI」。
     这条约定在 2026-11 之前只存在于注释里：实测引擎层直接调用 UI 符号 215 处
     （01g 一个文件 95 处），没有任何东西在守。按加载序号切文件的历史后果是
     「调用方向没人管」，于是 62 个文件被 511 条运行期调用边焊成一个连通分量。
@@ -80,7 +80,7 @@ except ImportError:
 def key_of(item):
     """基线键 = 语义键::函数名。AST 侧给的是全名，基线存的是键，在这里统一。
 
-    改名（01e5_ui_tree.js → ui_tree.js）时，基线 diff 应当是 **0 行**。
+    改名（ui_tree → ui_tree.js）时，基线 diff 应当是 **0 行**。
     """
     try:
         f = FM.key(item["file"])

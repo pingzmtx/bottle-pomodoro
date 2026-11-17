@@ -302,7 +302,7 @@ DETECT = r"""
     /* ④ 文本被截断（scrollWidth 明显大于 clientWidth，且非滚动容器）
        误报排除：只有真正「裁剪」的才算截断。overflow 为 visible 时文字是
        **溢出可见**（如年度热力图 12px 列里的月份/年份标签，见
-       src/scripts/01e7_ui_stats.js 注释「4 字符年份会溢出 12px 列宽」），
+       ui_stats 的注释「4 字符年份会溢出 12px 列宽」），
        不是被切掉。 */
     if (el.children.length === 0 && (el.textContent || '').trim().length > 0) {
       if (el.scrollWidth > el.clientWidth + 3 && el.clientWidth > 8) {

@@ -28,7 +28,8 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const P = require('../src/scripts/00_pure_core.js');
+const FM = require('./filemap');
+const P = require('../src/scripts/' + FM.path('pure_core'));
 
 const BASELINE = path.join(__dirname, 'repeat_consistency_baseline.json');
 

@@ -21,6 +21,11 @@
 import os
 import re
 import sys
+try:
+    from filemap import FM
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import FM
 
 sys.dont_write_bytecode = True
 from pathlib import Path
@@ -30,12 +35,12 @@ SRC = ROOT / 'src' / 'scripts'
 
 # (概念, 定义正则, {权威名: 权威所在文件})
 CONCEPTS = [
-    ('补零', r'^[ \t]*function\s+(_p2|_pad|pad2|p2)\s*\(', {'_p2': '00_pure_core.js'}),
+    ('补零', r'^[ \t]*function\s+(_p2|_pad|pad2|p2)\s*\(', {'_p2': FM.path('pure_core')}),
     ('取今天(字符串)', r'^[ \t]*function\s+(getTodayStr|_todayStr|todayStr)\s*\(',
-     {'getTodayStr': '00_pure_core.js'}),
-    ('时间戳→日期', r'^[ \t]*function\s+(getDateStr|_dstr)\s*\(', {'getDateStr': '00_pure_core.js'}),
+     {'getTodayStr': FM.path('pure_core')}),
+    ('时间戳→日期', r'^[ \t]*function\s+(getDateStr|_dstr)\s*\(', {'getDateStr': FM.path('pure_core')}),
     ('HTML 转义', r'^[ \t]*function\s+(escapeHtml|esc)\s*\(',
-     {'escapeHtml': '01a1_dom_util.js'}),   # 2026-11-16：从 01eQ 上移，引擎层直调，不走 UIFX
+     {'escapeHtml': FM.path('dom_util')}),   # 2026-11-16：从 01eQ 上移，引擎层直调，不走 UIFX
 ]
 
 # 有意保留的例外：(概念, 名字) → 理由
