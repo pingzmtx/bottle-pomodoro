@@ -1,16 +1,9 @@
 // @layer: L1
-/* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
- * 由 01e7_ui_stats.js 按域拆出（2026-11-14 · S3，纯移动：一行逻辑都没改）。
- * 产物：index.html 逐字节不变；JS 包只在新增文件边界多 1 个空语句（tools/group_split.py 的拼接符 "\n;\n"，长度不变）。
- * 回退方式：删本文件 + 从 src/manifest.json 的 slot files 里摘掉 → 100% 还原。 */
 /* ============================================================
- * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：01eV_ui_biocal_map.js
- * 分组：ui
- * 职责：年度专注地图（365 天热力图，新增）；renderYearHeatmap 年度热力图区块拆分
- * 功能：
- *   - 年度专注地图（365 天热力图，新增）
- *   - renderYearHeatmap 年度热力图区块拆分
+ * 01eV · 传记日历与编辑
+ * 职责：选日期、保存、极简模式、等级提示
+ * 症状：传记日期选不了 · 保存没反应 · 极简模式不生效
+ * 归位：2026-11-14 由 01e7_ui_stats.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：pickBioDate/bioCalAll/bioCalToday/editBio/saveBioEdit/toggleGhostEnabled/renderEasyModeTag/maybeShowCareModal/enableEasyMode/dismissCareModal/showLevelUpToast/renderGhostBar（+8 更多）
  * ============================================================ */
 

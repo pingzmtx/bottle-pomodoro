@@ -1,6 +1,6 @@
 // @layer: L1
 /* ============================================================
- * 01d2 · 建议时长/疲劳/人机排行榜引擎
+ * 01d2 · 建议时长/疲劳/人机排行榜引擎 ｜症状：推荐时长不合理 · 排行榜不动
  * 由 01d_engine_features.js 按域拆出（可回退）
  * 函数索引（TOC）：startTeamMidnightTimer/getTeamInterval/teamTick/getRecommendedWorkDuration/getFatigueScore/checkFatigueAdvice/getBreakByDuration/getSuggestedDifficulty/getBotTier/initBotLeaderboard/getPlayerAvgDailyGain/dailyUpdateLeaderboard（+2 更多）
  * ============================================================ */

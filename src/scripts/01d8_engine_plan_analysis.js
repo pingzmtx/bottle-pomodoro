@@ -1,20 +1,10 @@
 // @layer: L1
-/* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
- * 由 01d_engine_features.js 按域拆出（2026-11-14 · S2，纯移动：一行逻辑都没改）。
- * 产物：index.html 逐字节不变；engine.js 因拼接符 "\n;\n" 在每个新文件边界各多 1 个空语句（共 6 处，长度不变）。
- * 计划/习惯排序、数据分析 v2、记录对账。对外仅 getSortPrefs / sortTodos / sortHabits / ANALYZERS。
- * 回退方式：删本文件 + 从 src/manifest.json 的 slot 1 files 里摘掉 → 100% 还原。 */
 /* ============================================================
- * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：01d8_engine_plan_analysis.js
- * 分组：features
- * 职责：业务层——计划与习惯排序、智能关怀、幽灵对比、数据分析 v2、记录↔奖励对账
- * 功能：
- *   - 排序：getSortPrefs / sortTodos / sortHabits
- *   - 智能疲劳干预 · 关怀模式：连续 2 个被打断 / 近 3 天低产 / 连续未达标 ≥2 天 → 非强迫性关怀，轻松模式时长减半且首个满 10 分钟按完整🍅计入
- *   - 过去的自己（幽灵对比）：三档基准（去年今日→昨天→随机历史日）+ 中性化反馈
- *   - 数据分析 v2：周对比 / 效率 / 时长分布 / 周节奏 / 任务 / 打断 / 洞察 / 段位
- *   - 记录 ↔ 奖励对账（删除记录 / 改类型 共用）
+ * 01d8 · 计划/习惯排序与周分析
+ * 职责：生长阶段、习惯降级、周目标校验、连续天数、记录↔奖励对账
+ * 症状：待办排序乱 · 每周目标不刷新 · 习惯降级看不懂
+ * 对外：getSortPrefs / sortTodos / sortHabits / ANALYZERS
+ * 归位：2026-11-14 由 01d_engine_features.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：getSortPrefs/sortTodos/sortHabits/getHabitStage/degradeHabits/syncHabitGrowth/getHabitStreak/getWeekStartStr/countDayFullPoints/countWeekTomatoes/checkWeekHabitReq/weekHabitMissingDays（+21 更多）
  * ============================================================ */
 

@@ -1,6 +1,6 @@
 // @layer: L1
 /* ============================================================
-   人生愿望清单（Bucket List）
+   人生愿望清单（Bucket List） ｜症状：愿望清单打不开 · 愿望保存不了
    ------------------------------------------------------------
    函数索引（TOC）：wishList/wishById/openLifeWish/closeLifeWish/renderLifeWish/wishAdd/wishToggle/wishDel
 

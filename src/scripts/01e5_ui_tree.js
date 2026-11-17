@@ -1,6 +1,6 @@
 // @layer: L1
 /* ============================================================
- * 01e5 · 番茄树/商店/成长渲染域
+ * 01e5 · 番茄树/商店/成长渲染域 ｜症状：树/商店界面不刷新 · 天气道具点了没反应
  * 由 01e_engine_ui.js 按渲染域拆出（可回退）
  * 函数索引（TOC）：renderTreeShopWeather/renderTreeShopProp/renderTreeShopFun/renderTreeShop/_nextSelfRewardId/addSelfReward/claimSelfReward/removeSelfReward/switchShopTab/initShopWheel/openCoinLedger/renderCoinLedger（+40 更多）
  * ============================================================ */

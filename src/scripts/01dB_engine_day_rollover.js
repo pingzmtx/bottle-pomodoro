@@ -1,19 +1,10 @@
 // @layer: L1
-/* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
- * 由 01d_engine_features.js 按域拆出（2026-11-14 · S2，纯移动：一行逻辑都没改）。
- * 产物：index.html 逐字节不变；engine.js 因拼接符 "\n;\n" 在每个新文件边界各多 1 个空语句（共 6 处，长度不变）。
- * 换日与赛季结算主干。对外白名单：checkNewDay / onPomodoroCompleteRank / checkRankPromotion。改这段必须小步 + 全量回归（它是结算链主干）。
- * 回退方式：删本文件 + 从 src/manifest.json 的 slot 1 files 里摘掉 → 100% 还原。 */
 /* ============================================================
- * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：01dB_engine_day_rollover.js
- * 分组：features
- * 职责：业务层——排期快照、换日（checkNewDay）、赛季推进、番茄完成结算与晋升
- * 功能：
- *   - 计划排期快照的写入口（唯一）：pushTodoSchedSnapshot / dropTodoSchedSnapshot / snapshotDoneTodosLeaving
- *   - 换日：checkNewDay（跨天复位 + 赛季推进 + 快照落库）
- *   - 赛季：startNewSeason（标准赛季 3 个月，全服统一锚点）
- *   - 结算主干：onPomodoroCompleteRank / calcExcessStars / checkRankPromotion
+ * 01dB · 跨日与赛季结算主干
+ * 职责：排期快照、换日（checkNewDay）、赛季推进、番茄完成结算与掉星/晋级
+ * 症状：过零点数据没变 · 新赛季没开始 · 掉星晋级算错
+ * 对外：checkNewDay / onPomodoroCompleteRank / checkRankPromotion（结算链主干：改这段必须小步 + 全量回归）
+ * 归位：2026-11-14 由 01d_engine_features.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：pushTodoSchedSnapshot/dropTodoSchedSnapshot/snapshotDoneTodosLeaving/checkNewDay/startNewSeason/calcExcessStars/onPomodoroCompleteRank/checkRankPromotion
  * ============================================================ */
 

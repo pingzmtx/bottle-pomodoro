@@ -1,6 +1,6 @@
 // @layer: L1
 /* ============================================================
- * 01d6 · 通用工具（段位星数查询 / 番茄折算 / 掉星计算）
+ * 01d6 · 通用工具（段位星数查询 / 番茄折算 / 掉星计算） ｜症状：段位星数不对 · 掉星算错
  * 由 01d_engine_features.js 按域拆出（可回退：本文件整段随 slot1 files 还原）
  * 说明：这 7 个工具被 01d3/01d4/01e 多域共用，独立成文件便于复用与定位。
  * 函数索引（TOC）：getMyRankStars/finishTypePlanText/countTomatoPoints/getEffectiveFull/getTodayEffectiveFull/calcDropStars

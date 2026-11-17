@@ -13,7 +13,7 @@
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
  * 文件名：04eL-ui-audio.js（源文件 01eL_ui_audio.js）
  * 分组：ui
- * 职责：内置白噪音曲目表与播放控制、我的歌单（网易云直链）增删/批量导入/上一首下一首/音量
+ * 职责：内置白噪音曲目表与播放控制、我的歌单（网易云直链）增删/批量导入/上一首下一首/音量 ｜症状：白噪音放不了 · 歌单导入失败 · 音量不动
  * 函数索引（TOC）：getNoiseAudio/initNoiseAudio/playNoise/stopNoise/toggleNoise/nextNoise/prevNoise/setNoiseVolume/updateNoiseUI/switchNoiseTab/myplGetAudio/myplLoad（+16 更多）
  * ============================================================ */
 

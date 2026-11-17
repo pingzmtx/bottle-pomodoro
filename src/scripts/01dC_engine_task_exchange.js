@@ -1,18 +1,10 @@
 // @layer: L1
-/* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
- * 由 01d_engine_features.js 按域拆出（2026-11-14 · S2，纯移动：一行逻辑都没改）。
- * 产物：index.html 逐字节不变；engine.js 因拼接符 "\n;\n" 在每个新文件边界各多 1 个空语句（共 6 处，长度不变）。
- * 换任务与周挑战结算。对外仅 countSpentTomatoes / getRerollState / getRerollCost / 周挑战入口。
- * 回退方式：删本文件 + 从 src/manifest.json 的 slot 1 files 里摘掉 → 100% 还原。 */
 /* ============================================================
- * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：01dC_engine_task_exchange.js
- * 分组：features
- * 职责：业务层——番茄换任务（只扣战力标计数，不碰统计数据）、每周挑战
- * 功能：
- *   - 换任务消耗的番茄：只从战力标计数里扣除，不碰任何统计数据
- *   - 番茄换任务：countSpentTomatoes / getRerollState / getRerollCost
- *   - 每周挑战：周一自动刷新，随机 3 个，完成自动领星（每周最多 +7⭐）
+ * 01dC · 番茄消耗与兑换
+ * 职责：番茄换任务（只扣战力标计数，不碰统计）、重掷、押注档位、周挑战进度、番茄点数
+ * 症状：番茄扣得不对 · 重掷点不出来 · 周挑战进度不动
+ * 对外：countSpentTomatoes / getRerollState / getRerollCost / 周挑战入口
+ * 归位：2026-11-14 由 01d_engine_features.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：countSpentTomatoes/getRerollState/getRerollCost/getBetTier/getBetStep/_healWeeklyItems/getWeeklyChallenge/calcWeeklyChallengeProgress/getWeekRangeTs/getWeekTomatoPoints/getWeekSpentTomatoes/getSpendableTomatoes（+10 更多）
  * ============================================================ */
 

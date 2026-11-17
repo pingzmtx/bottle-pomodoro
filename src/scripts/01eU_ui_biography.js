@@ -1,14 +1,9 @@
 // @layer: L1
-/* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
- * 由 01e7_ui_stats.js 按域拆出（2026-11-14 · S3，纯移动：一行逻辑都没改）。
- * 产物：index.html 逐字节不变；JS 包只在新增文件边界多 1 个空语句（tools/group_split.py 的拼接符 "\n;\n"，长度不变）。
- * 回退方式：删本文件 + 从 src/manifest.json 的 slot files 里摘掉 → 100% 还原。 */
 /* ============================================================
- * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：01eU_ui_biography.js
- * 分组：ui
- * 职责：（见各域注释）
- * 功能：
+ * 01eU · 传记列表
+ * 职责：搜索/排序/范围筛选、分页、高亮
+ * 症状：传记搜不到 · 列表不翻页 · 筛选清不掉
+ * 归位：2026-11-14 由 01e7_ui_stats.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：checkBiographyEvents/toggleBioHelp/applyBioSearch/toggleBioSort/setBioRange/bioRangeLabel/clearBioFilters/bioFilterActiveCount/bioSearchTokens/bioHighlight/turnBioPage/jumpBioPage（+9 更多）
  * ============================================================ */
 

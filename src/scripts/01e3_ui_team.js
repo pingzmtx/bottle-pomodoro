@@ -1,6 +1,6 @@
 // @layer: L1
 /* ============================================================
- * 01e3 · 组队系统 UI
+ * 01e3 · 组队系统 UI ｜症状：组队页打不开 · 倒计时不动
  * 由 01e_engine_ui.js 按渲染域拆出（可回退：本文件整段随 slot1 files 还原）
  * 函数索引（TOC）：updateTeamCountdown/buildTeamRulesHTML/buildTeamStatusHTML/buildTeamRankHTML/buildTeamSprintHTML/buildTeamSettledHTML/buildTeamActHTML/renderTeamSystem/toggleTeamSection/clearPartnerEndCode/copyTeamCode/fallbackCopy（+2 更多）
  * ============================================================ */

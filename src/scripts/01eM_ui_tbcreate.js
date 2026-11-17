@@ -16,7 +16,7 @@
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
  * 文件名：04eM-ui-tbcreate.js（源文件 01eM_ui_tbcreate.js）
  * 分组：ui
- * 职责：日程网格的「两次点击定头尾」入口 —— 选起点、选终点、打开新增计划并预填起止，
+ * 职责：日程网格的「两次点击定头尾」入口 —— 选起点、选终点、打开新增计划并预填起止， ｜症状：日程点两下建不出计划 · 起止时间对不上
  *       以及网格上方那行可折叠的使用说明。
  * 函数索引（TOC）：tbExtraFind/tbExtraEnsureGridOpen/tbExtraPaintBar/tbDayPlanArm/tbExtraArm/tbHabitArm/tbHabitDayArm/tbExtraArmFromModal/tbExtraDisarm/tbExtraReasonText/tbExtraCommit/tbCreateDateStr（+8 更多）
  * ============================================================ */

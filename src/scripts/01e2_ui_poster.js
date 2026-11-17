@@ -1,6 +1,6 @@
 // @layer: L1
 /* ============================================================
- * 01e2 · 分享打卡海报（Canvas）
+ * 01e2 · 分享打卡海报（Canvas） ｜症状：海报空白 · 海报保存不下来
  * 函数索引（TOC）：openSharePoster/closeSharePoster/setPosterType/renderTreePosterPicker/pickPosterTree/savePoster/_pFont/_pEmoji/_pBig/_pScore/_pC/_pL（+16 更多）
  * ============================================================ */
 /* ===== 分享打卡海报（Canvas 绘制，无外部依赖） ===== */

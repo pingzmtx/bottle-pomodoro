@@ -1,19 +1,10 @@
 // @layer: L1
-/* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
- * 由 01d_engine_features.js 按域拆出（2026-11-14 · S2，纯移动：一行逻辑都没改）。
- * 产物：index.html 逐字节不变；engine.js 因拼接符 "\n;\n" 在每个新文件边界各多 1 个空语句（共 6 处，长度不变）。
- * 记录 ↔ 计划归属、段索引缓存。对外仅 tbTodoOf / liveSessionOf / tbSegIndexFor 等查询入口；禁止在别处再写一份「按标题认领记录」的判定。
- * 回退方式：删本文件 + 从 src/manifest.json 的 slot 1 files 里摘掉 → 100% 还原。 */
 /* ============================================================
- * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：01d7_engine_record_link.js
- * 分组：features
- * 职责：业务层——「这条记录属于哪条计划」的准入判定 + 实时会话 + 待办分段索引缓存
- * 功能：
- *   - 记录归属：tbNormTitle / tbTodoTitleCount / tbTodoCreatedAt / tbTodoOf（名字不是身份；老记录 todoId 为空时按标题认领，三条准入缺一不可）
- *   - 实时会话：liveSessionOf / liveSessionEnsure / liveSessionSegs / closeStaleLiveSessions / dropLiveSession
- *   - 段索引缓存：tbInvalidateSegIndex（写入点显式失效）+ 数组身份/长度/版本号三重校验
- *   - 旧账迁移：migrateSegLedger
+ * 01d7 · 记录↔计划归属打通
+ * 职责：同名待办认领、旧名迁移、待办分段索引缓存、专注时长归属
+ * 症状：待办记不到记录里 · 记录的专注时长对不上
+ * 对外：tbTodoOf / liveSessionOf / tbSegIndexFor（禁止在别处再写一份「按标题认领记录」）
+ * 归位：2026-11-14 由 01d_engine_features.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：tbNormTitle/tbTodoTitleCount/tbTodoCreatedAt/tbLegacyNameClaimAllowed/tbResolveTodoByTitle/migrateRecordOwnership/tbInvalidateSegIndex/tbSegIndex/tbTodoFocusMs/tbTodoSegList/consumeLiveSessionForRecord/__setMustDoEditDate（+3 更多）
  * ============================================================ */
 

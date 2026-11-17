@@ -1,6 +1,6 @@
 // @layer: L1
 /* ============================================================
- * 01d3 · 树商店 / 金币经济 / 道具 / 皮肤 / 扭蛋 / 运势 / 树种
+ * 01d3 · 树商店 / 金币经济 / 道具 / 皮肤 / 扭蛋 / 运势 / 树种 ｜症状：商店价格不对 · 买了皮肤不生效 · 扭蛋抽不出
  * 函数索引（TOC）：skinPriceWithSurcharge/getSkinTier/getSkinPurchaseCount/bumpSkinPurchaseCount/getSkinDef/getSkin/skinIsActive/safeSkinUrl/skinRemainDays/addLotteryChance/syncLotteryCount/getWeekCoinExchanged（+62 更多）
  * ============================================================ */
 /* ===== 道具库存系统 ===== */

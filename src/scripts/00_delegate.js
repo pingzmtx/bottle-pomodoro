@@ -1,6 +1,6 @@
 // @layer: L1
 /* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
- * 事件委托运行时（L1）：承接模板里 data-act / data-change / data-input / data-keydown
+ * 事件委托运行时（L1）：承接模板里 data-act / data-change / data-input / data-keydown ｜症状：按钮点了没反应 · 输入框改了不生效
  * 等声明式事件，替代内联 on*="..."。上线顺序必须在任何页面片段渲染之前。
  * 红线：这里是**唯一**的事件委托入口。禁止在别处再造第二份 document 级监听去抢事件；
  *      新增事件类型只改 EVENTS 表。 */

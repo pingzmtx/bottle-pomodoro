@@ -9,7 +9,7 @@
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
  * 文件名：01-data.js
  * 分组：data
- * 职责：数据层——存储键、默认设置、数据结构、保存/读取、备份
+ * 职责：数据层——存储键、默认设置、数据结构、保存/读取、备份 ｜症状：设置保存不了 · 数据读回来是空的
  * 功能：
  *   - 存储键与默认设置：STORAGE_KEY、defaultSettings、WEEKLY_BADGES/RANK_TIERS 常量
  *   - 数据结构工厂：createDefaultAppData、全局状态 appData / timerState

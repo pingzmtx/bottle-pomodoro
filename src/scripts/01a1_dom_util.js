@@ -1,6 +1,6 @@
 // @layer: L1
 /* ===== 耦合契约（只读注释，不改运行逻辑）=====
- * DOM 工具层：对外 = escapeHtml。只碰 DOM，不碰 appData / 业务状态 / 存储。
+ * DOM 工具层：对外 = escapeHtml。只碰 DOM，不碰 appData / 业务状态 / 存储。 ｜症状：列表里露出 HTML 标签 · 引号把属性截断
  * 引擎层允许直接调用，**不经过 UIFX 门面**：UIFX 的语义是「上行调用 UI 回调」，
  * 不是字符串转换的分发口；把一个无状态纯转换包进门面，只会多一次 window 查找，
  * 且 UI 尚未加载时会返回 undefined、把 HTML 拼成字符串 "undefined"。

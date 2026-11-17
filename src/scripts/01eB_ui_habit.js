@@ -1,7 +1,7 @@
 // @layer: L1
 /* ==================== 模块: 01eB_ui_habit.js | 职责: 习惯区 UI（由 01e_engine_ui.js 按「习惯/打卡」域拆出）| 分组: ui ==================== */
 /* 拆分原因：单文件规模红线（tools/w6_size.py，>6000 行 FAIL）。
- * 本文件承载「习惯」这一完整域：新增/打卡/热力图/阶段徽标/分类文件夹/详情弹窗/
+ * 本文件承载「习惯」这一完整域：新增/打卡/热力图/阶段徽标/分类文件夹/详情弹窗/ ｜症状：习惯打卡不上 · 习惯热力图不显示
  * 归档/删除。与 01e 的其余域无共享私有状态，只依赖 appData / saveData / showModal /
  * 函数索引（TOC）：addHabit/toggleHabit/habitHeatmapHtml/habitDueToday/habitStatsLine/habitStageBadge/habitRepeatBadge/habitRepeatLabelCompact/habitSubLineHtml/_habitRowHtml/habitCatColor/toggleHabitOffSection（+67 更多）
  * renderHabits 等全局入口，故可整块外移。

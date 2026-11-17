@@ -1,6 +1,6 @@
 // @layer: L1
 /* ============================================================
- * 01d4 · 伙伴组队任务（编码/解码 / 冲刺档 / 结算）
+ * 01d4 · 伙伴组队任务（编码/解码 / 冲刺档 / 结算） ｜症状：组队码无效 · 组队结算不对
  * 函数索引（TOC）：teamEncode/teamDecode/teamSprintExtra/teamSprintDesc/computeTeamSettlement/getMyTaskCompletedStatus/generateTeamStartCode/inputPartnerStartCode/generateTeamEndCode/inputPartnerEndCode/settleTeamTask
  * ============================================================ */
 /* ===== 伙伴组队任务 ===== */

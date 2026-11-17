@@ -1,20 +1,10 @@
 // @layer: L1
-/* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
- * 由 01d_engine_features.js 按域拆出（2026-11-14 · S2，纯移动：一行逻辑都没改）。
- * 产物：index.html 逐字节不变；engine.js 因拼接符 "\n;\n" 在每个新文件边界各多 1 个空语句（共 6 处，长度不变）。
- * 段位星记账与排期写入口（唯一）。对外仅 addRankStars / settlePreviousDay / setTodoOccurrence / setDayPlan 等写入 API。
- * 回退方式：删本文件 + 从 src/manifest.json 的 slot 1 files 里摘掉 → 100% 还原。 */
 /* ============================================================
- * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：01dA_engine_rank_schedule.js
- * 分组：features
- * 职责：业务层——段位星统一记账、日结、重复计划复位与跳过、排期段 / 当天排期的写入口
- * 功能：
- *   - 段位星统一记账入口：addRankStars（唯一入口）+ settlePreviousDay（日结）
- *   - 重复计划的每日复位：resetTodoOccurrence / resetDueRepeatingTodos
- *   - 跳过本次（重复任务专用）：skipTodoOccurrence
- *   - 一次性计划的「排期已过」清理
- *   - 排期段写入口（唯一）/ 单独某天的排期（dayPlan）写入口
+ * 01dA · 段位星结算与排期写入
+ * 职责：段位星统一记账、日结、重复计划复位与跳过、排期段/当天排期的写入口
+ * 症状：星数不对 · 待办第二天没重置 · 排期改了不生效
+ * 对外：addRankStars / settlePreviousDay / setTodoOccurrence / setDayPlan
+ * 归位：2026-11-14 由 01d_engine_features.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：addRankStars/settlePreviousDay/resetTodoOccurrence/resetDueRepeatingTodos/skipTodoOccurrence/todoEnsureBlocks/todoAddBlock/todoRemoveBlock/todoDayPlanAdd/todoDayPlanSet/todoDayPlanClear/todoDayPlanRemoveSeg（+2 更多）
  * ============================================================ */
 

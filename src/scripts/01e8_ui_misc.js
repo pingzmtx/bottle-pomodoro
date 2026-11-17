@@ -1,6 +1,6 @@
 // @layer: L1
 /* ============================================================
- * 01e8 · 成就与其余 UI 渲染（杂项，后续可细分）
+ * 01e8 · 成就与其余 UI 渲染（杂项，后续可细分） ｜症状：成就列表不刷新 · 领奖励没反应
  * 函数索引（TOC）：claimAchievementReward/renderAchListOnly/renderQualityStack/intScopeSet/intShift/intHeadHtml/renderInterruptAnalysis/rankTrendBuildPoints/rankTrendCfg/rankTrendSegmentInfo/renderRankTrendChart/renderWeekCompareChart（+46 更多）
  * ============================================================ */
 // 成就系统

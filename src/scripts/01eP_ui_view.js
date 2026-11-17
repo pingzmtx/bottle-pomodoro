@@ -1,15 +1,9 @@
 // @layer: L1
-/* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
- * 由 01e_engine_ui.js 按域拆出（2026-11-14 · S3，纯移动：一行逻辑都没改）。
- * 产物：index.html 逐字节不变；JS 包只在新增文件边界多 1 个空语句（tools/group_split.py 的拼接符 "\n;\n"，长度不变）。
- * 回退方式：删本文件 + 从 src/manifest.json 的 slot files 里摘掉 → 100% 还原。 */
 /* ============================================================
- * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：01eP_ui_view.js
- * 分组：ui
- * 职责：记住上次看的视图
- * 功能：
- *   - 记住上次看的视图
+ * 01eP · 视图切换与全局外观
+ * 职责：记住上次视图、副标签切换、字号/主题/24 小时制
+ * 症状：切走再回来不是原来的页 · 字号/主题/24 小时制不生效
+ * 归位：2026-11-14 由 01e_engine_ui.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：tbOnViewSwitch/_fireViewSwitchHooks/rememberLastView/restoreLastView/switchView/switchViewCore/switchStatsSubTab/setWorkPreset/updateChromeTheme/toggleHour12/systemFontBoost/applyFontScale（+19 更多）
  * ============================================================ */
 

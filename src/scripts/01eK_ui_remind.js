@@ -13,7 +13,7 @@
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
  * 文件名：04eK-ui-remind.js（源文件 01eK_ui_remind.js）
  * 分组：ui
- * 职责：提醒增删与「每天/一次」切换、到点队列与去重、重臂与贪睡、5 秒心跳扫描、与专注的互斥静音
+ * 职责：提醒增删与「每天/一次」切换、到点队列与去重、重臂与贪睡、5 秒心跳扫描、与专注的互斥静音 ｜症状：提醒不响 · 贪睡不生效 · 提醒重复弹
  * 函数索引（TOC）：syncNewRemindDate/remindChangeRep/remindChangeDate/addRemind/delRemind/remindModalVisible/remindRenderHead/remindFocusRunning/remindFocusHintOnce/remindFocusFlush/remindEnqueue/remindAckCurrent（+7 更多）
  * ============================================================ */
 

@@ -1,15 +1,9 @@
 // @layer: L1
-/* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
- * 由 01e_engine_ui.js 按域拆出（2026-11-14 · S3，纯移动：一行逻辑都没改）。
- * 产物：index.html 逐字节不变；JS 包只在新增文件边界多 1 个空语句（tools/group_split.py 的拼接符 "\n;\n"，长度不变）。
- * 回退方式：删本文件 + 从 src/manifest.json 的 slot files 里摘掉 → 100% 还原。 */
 /* ============================================================
- * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：01eS_ui_addrecord.js
- * 分组：ui
- * 职责：补记的「关联计划」下拉
- * 功能：
- *   - 补记的「关联计划」下拉
+ * 01eS · 补记记录弹窗
+ * 职责：补记弹窗的时间/计划/子任务选项、保存、自动保存提示
+ * 症状：补记保存不了 · 时间选不了 · 关联计划下拉是空的
+ * 归位：2026-11-14 由 01e_engine_ui.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：fillAddRecordTimeOptions/updateAddRecordEnd/openAddRecordModal/fillAddRecordPlanOptions/onAddRecordPlanChange/fillAddRecordSubOptions/findTodoByIdStr/saveAddRecord/showAutoSaveHint/ensureDiary/cleanupEmptyDiaries/renderDiary（+24 更多）
  * ============================================================ */
 

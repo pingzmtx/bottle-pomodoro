@@ -1,21 +1,10 @@
 // @layer: L1
-/* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
- * 由 01d_engine_features.js 按域拆出（2026-11-14 · S2，纯移动：一行逻辑都没改）。
- * 产物：index.html 逐字节不变；engine.js 因拼接符 "\n;\n" 在每个新文件边界各多 1 个空语句（共 6 处，长度不变）。
- * 树养成与世界树、段位核心。对外白名单：addTreePoints / rollChestReward / rollShopWheelReward / onPomodoroCompleteRank 之外的树与段位 API；增强模块只许包装，不许复制第二份实现。
- * 回退方式：删本文件 + 从 src/manifest.json 的 slot 1 files 里摘掉 → 100% 还原。 */
 /* ============================================================
- * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：01d9_engine_tree_rank.js
- * 分组：features
- * 职责：业务层——树种与称号、世界树 V2、每日扭蛋、必做 3 件事、保护卡、段位核心与赛季锚点
- * 功能：
- *   - 树种系统：不同树种有独特外观，果实统一为🍅 / 番茄树称号（按历史最高积分，退化不影响称号）
- *   - 世界树 V2：果实币经济 / 装饰 / 场景 / 宝箱 / 心情 / 每日任务
- *   - 每日惊喜扭蛋：每天第 3/6/9 个番茄自动触发（金币 55% > 周番茄 30% > 段位星 15%）
- *   - 必做 3 件事 v2：提前一天立目标 / 可反复重填 / 卡片放大与折叠 / 当天完成拿奖励
- *   - 保护卡 / 恢复卡系统（连续 7 天免费送卡、断签自动消耗）
- *   - 段位系统核心逻辑（11 档位 + 星级、超额星分段、任务目标锚定产能）+ 赛季锚点（标准赛季 3 个月，全服统一）
+ * 01d9 · 番茄树阶段与抽取
+ * 职责：番茄树阶段推进、退化复活、宝箱/扭蛋/装饰抽取、树种解锁、段位核心与赛季锚点
+ * 症状：树不长大 · 宝箱抽不出来 · 树种解锁不了
+ * 对外：addTreePoints / rollChestReward / rollShopWheelReward / onPomodoroCompleteRank（增强模块只许包装，不许复制第二份实现）
+ * 归位：2026-11-14 由 01d_engine_features.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：speciesPrevFull/speciesPrevName/getCurrentTreeStages/getTreeStageFor/getTreeStage/reviveDegradePoints/rollChestReward/rollShopWheelReward/randomUnlockedDecor/_pickWeighted/gachaReward/checkGachaTrigger（+23 更多）
  * ============================================================ */
 

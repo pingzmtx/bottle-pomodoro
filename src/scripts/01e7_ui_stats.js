@@ -1,6 +1,6 @@
 // @layer: L1
 /* ============================================================
- * 01e7 · 统计页渲染域（导航/图表/传记/热力图/renderStats）
+ * 01e7 · 统计页渲染域（导航/图表/传记/热力图/renderStats） ｜症状：统计页图表空白 · 导航跳不过去
  * 函数索引（TOC）：toggleBlockAnalysis/ensureBlockAnalysis/jumpToBlock/renderStatsJumpNav/buildAreaChartSvg
  * ============================================================ */
 /* ===== 统计页：板块折叠分析（懒计算：展开才分析） ===== */

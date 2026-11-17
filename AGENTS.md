@@ -225,6 +225,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 | 结构化输出 | `python3 tools/verify.py --json` | AI 解析后决定是否提交 |
 | 改前影响面反查 | `python3 tools/dep_report.py --impact <函数名>` | 动任何被依赖函数之前 |
 | 函数/模块定位 | `python3 tools/dep_report.py --map <关键词>` | 不知改哪个文件 |
+| 症状词定位（**用户说法 → 文件**） | `python3 tools/where.py "热力图" [--list] [--json]` | 只记得用户怎么描述、不知道函数名时；读文件头的「症状/职责/标题/说明」，权重 4/3/2/1 |
 | 依赖基线刷新 | `python3 tools/dep_report.py --md` | 跨模块调用变更后 |
 | DOM id 对账（**已挂链**） | `python3 tools/id_audit.py` | 改 DOM id 后；`--json` 结构化。静态确定性 <1s，抓「JS 引用了不存在的 id」这类一跑就 null 的错 |
 | git 门禁上膛 / 查膛（**已挂链 gate 段**） | `python3 tools/install_hooks.py`（装）/ `--check`（查） | 新 clone / 换机器 / **接手第一件事**；见 §2.10 |

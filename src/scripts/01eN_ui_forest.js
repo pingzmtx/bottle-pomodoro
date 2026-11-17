@@ -13,7 +13,7 @@
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
  * 文件名：04eN-ui-forest.js（源文件 01eN_ui_forest.js）
  * 分组：ui
- * 职责：森林面板 —— 参数化 SVG 树（按**时长**分四档、按树种上色）、自适应网格（日期不再叠字）、
+ * 职责：森林面板 —— 参数化 SVG 树（按**时长**分四档、按树种上色）、自适应网格（日期不再叠字）、 ｜症状：森林不显示 · 树格子叠字
  *       近 14/30/90 天窗口切换、格子底色表当天强度、树种图例。
  * 函数索引（TOC）：forestWin/forestSetWin/forestTreeSvg/forestDaySpecies/forestStrength/forestDayCell/forestYearCells/renderForest
  * ============================================================ */

@@ -8,7 +8,7 @@
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
  * 文件名：02-timer.js
  * 分组：timer
- * 职责：计时层——番茄钟引擎、打断、休息、音效、通知
+ * 职责：计时层——番茄钟引擎、打断、休息、音效、通知 ｜症状：计时不走 · 暂停继续乱 · 休息不开始
  * 功能：
  *   - 番茄钟主体：toggleTimer / startPomodoro / onTimerComplete / finishPomodoro / resetToIdle / 自然完成待结算持久化（pendingFinish 恢复弹窗，防关页丢番茄）
  *   - 倒计时引擎：startTimerLoop / stopTimerLoop / 时间校准 / 模糊计时 / 快照保存恢复

@@ -1,15 +1,9 @@
 // @layer: L1
-/* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
- * 由 01e_engine_ui.js 按域拆出（2026-11-14 · S3，纯移动：一行逻辑都没改）。
- * 产物：index.html 逐字节不变；JS 包只在新增文件边界多 1 个空语句（tools/group_split.py 的拼接符 "\n;\n"，长度不变）。
- * 回退方式：删本文件 + 从 src/manifest.json 的 slot files 里摘掉 → 100% 还原。 */
 /* ============================================================
- * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：01eR_ui_diary.js
- * 分组：ui
- * 职责：年月跳转（和日记日历同一套面板样式）
- * 功能：
- *   - 年月跳转（和日记日历同一套面板样式）
+ * 01eR · 日记总览
+ * 职责：月历、翻页、按年跳转、日期跳转
+ * 症状：日记月历翻不动 · 找不到某一天
+ * 归位：2026-11-14 由 01e_engine_ui.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：togglePh/renderDiaryOverviewPage/renderAllDiaryBrowser/changeAllDiaryPage/jumpAllDiaryPage/renderOverviewCalendar/renderOverviewJump/toggleOverviewJump/changeOverviewYear/overviewJumpMonth/changeOverviewMonth/goToDiaryDate（+22 更多）
  * ============================================================ */
 

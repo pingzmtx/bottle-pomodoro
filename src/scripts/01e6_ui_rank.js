@@ -1,6 +1,6 @@
 // @layer: L1
 /* ============================================================
- * 01e6 · 段位/成就/签到/历史渲染域
+ * 01e6 · 段位/成就/签到/历史渲染域 ｜症状：段位弹窗不出现 · 升级动画不出来
  * 函数索引（TOC）：toggleImmersion/showSubRankUp/showRankUpCelebration/closeRankUpModal/showPomodoroCelebration/showRankFeedback/fmtMonthDay/fmtSeasonRange/renderRankSystem/renderStarRecords/renderSignIn/doSignIn（+10 更多）
  * ============================================================ */
 function toggleImmersion() {
