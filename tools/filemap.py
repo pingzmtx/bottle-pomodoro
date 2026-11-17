@@ -80,6 +80,16 @@ def load_files():
     return files
 
 
+def owner_of(path):
+    """文件的「认领键」：basename 去掉序号前缀与 .js。
+
+    与 key_of 的唯一区别：允许非 manifest 文件（如 src/template.html）。
+    冒烟用例的 owner 串按它**精确等价**匹配 —— 不做子串匹配，
+    因为子串会让 ui_stats 连带认领 ui_stats_month，把真正的覆盖盲区藏起来。
+    """
+    return key_of(os.path.basename(path))
+
+
 class FileMap(object):
     def __init__(self):
         self.files = load_files()

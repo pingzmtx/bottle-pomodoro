@@ -29,7 +29,7 @@ import re
 import subprocess
 import sys
 try:
-    from filemap import FM
+    from filemap import FM, owner_of
 except ImportError:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from filemap import FM
@@ -123,7 +123,8 @@ def select(files, meta=None):
             # （tools/check_case_meta.py 门禁会把它拦在提交前，这里只是兜底不静默。）
             hit.add(n); orphan_case.append(n)
             continue
-        if any(o in f for f in norm for o in owners):
+        own = set(owners)
+        if any(owner_of(f) in own for f in norm):
             hit.add(n)
     reason = f"core {len(core)} 条 ∪ 相关 {len(hit)} 条"
     sel = core | hit
@@ -148,7 +149,7 @@ def unclaimed(files, meta=None):
     meta = meta or parse_cases()
     owners = {o for _n, _t, os_ in meta for o in os_}
     return [f for f in files
-            if f.startswith("src/") and not any(o in _norm(f) for o in owners)]
+            if f.startswith("src/") and owner_of(_norm(f)) not in owners]
 
 
 def audit():
@@ -161,7 +162,7 @@ def audit():
     files += sorted(f for f in glob.glob(os.path.join(HERE, "..", "src", "template", "*"))
                     if not f.endswith("_order.json"))
     blind = [os.path.relpath(f, os.path.join(HERE, "..")) for f in files
-             if not any(o in f for o in owners)]
+             if owner_of(f) not in owners]
     print("覆盖盲区（%d 个模块没有用例认领）:" % len(blind))
     for b in blind:
         print("   " + b)

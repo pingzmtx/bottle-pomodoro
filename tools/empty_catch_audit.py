@@ -3,7 +3,7 @@
 """空 catch 治理棘轮：
 项目存量空 catch（catch (e) {}）460 处——多为清理保护/软依赖探测/toast 保护等
 防御性写法，一次性大改风险大于收益。治理方式改为「棘轮」：
-  · 基线 src/empty_catch_baseline.json 记录每文件存量计数
+  · 基线 src/empty_catch_baseline.json 记录每文件存量计数（按语义键，改名不重置）
   · 任何文件计数 > 基线 → FAIL（新增空 catch 必须显式登记，不许悄悄增加）
   · 计数下降 → 提示 --write 收紧基线（只能向下棘轮）
   · --report 输出启发式分类（清理/提示保护/软依赖/存储/DOM 探针/计时/其他）
@@ -13,6 +13,11 @@
   python3 tools/empty_catch_audit.py --report # 分类明细（人读）
 退出码：0 通过 / 1 棘轮被突破。"""
 import re, os, sys, json, glob, collections
+try:
+    from filemap import owner_of
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import owner_of
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASELINE = os.path.join(ROOT, 'src', 'empty_catch_baseline.json')
@@ -35,11 +40,11 @@ TRY_RE = re.compile(r'try\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}\s*catch\s*\([^)]*\
 
 
 def scan():
-    """返回 {文件名: 空 catch 计数}"""
+    """返回 {语义键: 空 catch 计数}（键跟着文件走，改名不重置棘轮）"""
     counts = {}
     for fp in sorted(glob.glob(os.path.join(ROOT, 'src', 'scripts', '*.js'))):
         src = open(fp, encoding='utf-8').read()
-        counts[os.path.basename(fp)] = len(EMPTY_RE.findall(src))
+        counts[owner_of(fp)] = len(EMPTY_RE.findall(src))
     return counts
 
 

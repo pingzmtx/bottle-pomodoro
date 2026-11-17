@@ -16,6 +16,12 @@
 """
 import glob
 import os
+import sys
+try:
+    from filemap import owner_of
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from filemap import owner_of
 import re
 import sys
 
@@ -48,6 +54,7 @@ def main():
             "多半是跨行写了装饰器；本门禁要求 @case(...) 写在一行内")
 
     files = src_files()
+    keys = {owner_of(f) for f in files}
 
     for name, tier, owner in cases:
         if tier not in TIERS:
@@ -61,9 +68,9 @@ def main():
                 "要么补 owner，要么升成 tier=\"core\"")
             continue
         for t in toks:
-            if not any(t in f for f in files):
+            if t not in keys:
                 problems.append(
-                    f"{name}: owner 前缀 {t!r} 在 src/ 下匹配不到任何文件（拼错？）"
+                    f"{name}: owner 键 {t!r} 在 src/ 下找不到同名文件（拼错？）"
                     "→ 它永远选不中")
 
     n_core = len([1 for _n, t, _o in cases if t == "core"])

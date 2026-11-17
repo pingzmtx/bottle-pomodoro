@@ -449,7 +449,7 @@ OVERFLOW_PROBE = (
 )
 
 # ================= 用例 =================
-@case("C01 启动基础", tier="core", owner="01a 01b_engine_data 01e_engine_ui 01g_engine_init 0B_hash路由 0D_store通知")
+@case("C01 启动基础", tier="core", owner="engine_prelude dom_util engine_data engine_ui engine_init hash路由 store通知")
 def c01():
     check(js("typeof appData!=='undefined'&&!!appData.settings"), "appData 就绪")
     check(js("typeof window.__jy!=='undefined'"), "旅程模块注入")
@@ -463,7 +463,7 @@ def c01():
     check(js("var e=document.getElementById('jyvx-css'); !!(e&&e.sheet&&e.sheet.cssRules.length>0)"),
           "视觉 CSS 注入（样式表已加载）")
 
-@case("C02 新用户旅程开启+闸口", tier="feature", owner="01a 01b_engine_data 01d_engine_features 01e_engine_ui 05_journey")
+@case("C02 新用户旅程开启+闸口", tier="feature", owner="engine_prelude dom_util engine_data engine_features engine_ui journey_渐进解锁")
 def c02():
     js("localStorage.clear();location.reload()"); time.sleep(2.6)
     check(js("appData.journey&&appData.journey.enabled===true") is True, "新用户旅程开启")
@@ -476,7 +476,7 @@ def c02():
     js("switchView('stats')"); time.sleep(0.4)
     check(js("(function(){var n=document.querySelector('.stats-nav-item[data-tab=tree]');return !!n&&n.textContent.indexOf('🔒')>=0;})()") is True, "统计 tab 树有🔒")
 
-@case("C03 结算跨档解锁", tier="feature", owner="04_enh573 05_journey 01d2 01d3_engine_tree_shop 01d5_engine_stats")
+@case("C03 结算跨档解锁", tier="feature", owner="enh573_统计缓存 journey_渐进解锁 engine_rank_bot engine_tree_shop engine_stats")
 def c03():
     js("""(function(){
       appData.records=[];appData.journey.seen=[];appData.journey.pending=[];
@@ -491,7 +491,7 @@ def c03():
         "(document.getElementById('jyCardName')||{}).textContent||''", timeout=8, interval=0.3)
     check("段位" in str(nm), f"跨档弹最高档卡(段位): {nm}")
 
-@case("C04 老用户默认放行", tier="feature", owner="04_enh573 05_journey 01b_engine_data 07_uiFold")
+@case("C04 老用户默认放行", tier="feature", owner="enh573_统计缓存 journey_渐进解锁 engine_data uiFold_折叠记忆")
 def c04():
     # JKEY 独立键已删，不再需要 removeItem
     js("""(function(){
@@ -502,7 +502,7 @@ def c04():
     check(js("window.__jy.unlocked('tree')") is True, "老用户全放行")
     check(js("(function(){var b=document.getElementById('jyBar');return !b||getComputedStyle(b).display==='none';})()") is True, "提示条隐藏")
 
-@case("C05 极简模式隐藏", tier="core", owner="01e_engine_ui 01e4_ui_ux 07_uiFold 0E_theme template.html")
+@case("C05 极简模式隐藏", tier="core", owner="engine_ui ui_ux uiFold_折叠记忆 theme_主题引擎 template.html")
 def c05():
     js("document.body.classList.add('minimal-mode')")
     for el in ["timerRankStrip", "timerGhostBox", "timerBadge"]:
@@ -510,7 +510,7 @@ def c05():
         check(d == "none", f"极简下 {el} 隐藏(={d})")
     js("document.body.classList.remove('minimal-mode')")
 
-@case("C06 金币锁期拦截", tier="feature", owner="01d_engine_features 05_journey 01d3_engine_tree_shop")
+@case("C06 金币锁期拦截", tier="feature", owner="engine_features journey_渐进解锁 engine_tree_shop")
 def c06():
     js("""(function(){
       appData.journey={enabled:true,seen:['tree','rank','coin'],pending:[],achieveSince:null,startTs:Date.now(),legacy:false};
@@ -522,7 +522,7 @@ def c06():
     check(js("appData.tree.coins") == 7, "金币锁期领取被拦(coins 不变)")
     check(js("window.__jy.unlocked('coin')") is False, "coin 仍锁(需5🍅)")
 
-@case("C09 统计折叠不泄漏+年度图完整", tier="feature", owner="01e_engine_ui 01d5_engine_stats 05_journey 04_enh573 template.html")
+@case("C09 统计折叠不泄漏+年度图完整", tier="feature", owner="engine_ui engine_stats journey_渐进解锁 enh573_统计缓存 template.html")
 def c09():
     js("""(function(){var y=new Date().getFullYear();appData.records=[];
       for(var i=0;i<100;i++){var d=new Date(y,0,1+i*3.5);if(d.getFullYear()>y)break;
@@ -552,7 +552,7 @@ def c09():
     check("12月" in str(js("(function(){var b=document.getElementById('yearHeatmapContainer');return b?b.children[1].textContent:'';})()")), "月份行含 1-12 月")
     check(js("!document.getElementById('enhHeat52Box')") is True, "52周重复图已停用")
 
-@case("C10 段位历史面板", tier="feature", owner="01e6_ui_rank 01e_engine_ui template.html")
+@case("C10 段位历史面板", tier="feature", owner="ui_rank engine_ui template.html")
 def c10():
     js("""(function(){
       appData.rankSystem.history={seasons:[{startDate:'2026-01-01',maxStars:12,maxRankName:'黄金'}]};
@@ -567,7 +567,7 @@ def c10():
     check("已收起" in str(js("document.getElementById('historyBody').textContent")), "反馈>8 显示折叠尾注")
     js("try{closeModal('historyModal');}catch(e){}")
 
-@case("C11 补记时长校验", tier="feature", owner="00_pure_core 01e_engine_ui")
+@case("C11 补记时长校验", tier="feature", owner="pure_core engine_ui")
 def c11():
     js("switchView('log')"); time.sleep(0.3)
     js("""(function(){var b=appData.records.length;
@@ -575,13 +575,13 @@ def c11():
       try{saveAddRecord();}catch(e){} return appData.records.length===b;})()""")
     check(js("(function(){var b=appData.records.length;document.getElementById('addRecordDuration').value='5';document.getElementById('addRecordType').value='full';try{saveAddRecord();}catch(e){}return appData.records.length===b;})()") is True, "补记 full/5min 被拦")
 
-@case("C12 时间回拨安全", tier="core", owner="00_pure_core 01c_engine_timer 01g_engine_init")
+@case("C12 时间回拨安全", tier="core", owner="pure_core engine_timer engine_init")
 def c12():
     js("""(function(){try{_lastActiveDay='2099-12-31';onDayRolled();}catch(e){}
       return _lastActiveDay;})()""")
     check(js("_lastActiveDay") == js("getTodayStr()"), "回拨后日期标记拉回今天")
 
-@case("C13 标题单一写入", tier="feature", owner="01e_engine_ui 03_enh572")
+@case("C13 标题单一写入", tier="feature", owner="engine_ui enh572_性能打磨")
 def c13():
     js("""(function(){timerState={mode:'focus',running:true,remaining:1499};
       try{updateTitle();}catch(e){} return document.title;})()""")
@@ -591,7 +591,7 @@ def c13():
     check("专注" in str(t1) and "专注" in str(t2) and bool(t1) and bool(t2), f"专注标题稳定({t1})")
 
 # ================= M1 专项用例 =================
-@case("C14 M1轮询门控·后台休眠", tier="core", owner="01g_engine_init 03_enh572")
+@case("C14 M1轮询门控·后台休眠", tier="core", owner="engine_init enh572_性能打磨")
 def c14():
     check(js("typeof window.__ivGov==='object'") is True, "__ivGov 存在")
     n = js("window.__ivGov._dbg().length")
@@ -613,7 +613,7 @@ def c14():
     res = js("(function(){var ts=window.__ivGov._dbg();return ts.filter(function(t){return t.h===null;}).length;})()")
     check(res == 0, f"回前台后门控定时器全部恢复(bad={res})")
 
-@case("C15 M1错误监控捕获", tier="feature", owner="06_errRep 01g_engine_init")
+@case("C15 M1错误监控捕获", tier="feature", owner="errRep_错误监控 engine_init")
 def c15():
     check(js("typeof window.__errRep==='object'") is True, "__errRep 存在")
     js("(function(){try{__errRep.clear();}catch(e){}return 1;})()")
@@ -631,7 +631,7 @@ def c15():
     check(vis is True, "错误角标出现")
     js("(function(){try{__errRep.clear();}catch(e){}return 1;})()")
 
-@case("C16 M1数据迁移链", tier="core", owner="01b_engine_data")
+@case("C16 M1数据迁移链", tier="core", owner="engine_data")
 def c16():
     # 版本号不写死：迁移链的语义是「旧档 → 当前版本」，而当前版本会随发版变
     # （DATA_VERSION 3.8→3.9 之后，本用例的前身写死 3.8，于是
@@ -660,7 +660,7 @@ def c16():
     frm = js("(function(){var m=appData.__migration;if(!m||!m.runs||!m.runs.length)return null;return m.runs[0].from;})()")
     check(frm == '3.7', f"迁移审计记录 from=3.7({frm})")
 
-@case("C17 M1备份校验器", tier="core", owner="01b_engine_data")
+@case("C17 M1备份校验器", tier="core", owner="engine_data")
 def c17():
     good = js("(function(){var b=createDefaultAppData();b.settings=Object.assign({},defaultSettings);b.version=appData.version||'3.9';var v=validateBackup(b);return JSON.stringify([v.ok,v.warns.length]);})()")
     check('[true,0]' == str(good), f"合法备份通过无警告({good})")
@@ -674,7 +674,7 @@ def c17():
     fut = js("(function(){var b=createDefaultAppData();b.settings=Object.assign({},defaultSettings);b.exportSchema=99;var v=validateBackup(b);return JSON.stringify([v.ok,String(v.reason)]);})()")
     check('[false' in str(fut) and 'schema' in str(fut), f"exportSchema=更高版本被拒并提示({fut})")
 
-@case("C18 M1标签注入转义", tier="core", owner="01e_engine_ui 01g_engine_init")
+@case("C18 M1标签注入转义", tier="core", owner="engine_ui engine_init")
 def c18():
     js("switchView('plan')"); time.sleep(0.3)
     js("(function(){window.__xss=0;appData.usedTags=['<img src=x onerror=\"window.__xss=1\">','学习'];(typeof renderUsedTagsRow==='function')&&renderUsedTagsRow();return 1;})()")
@@ -688,7 +688,7 @@ def c18():
     js("(function(){appData.usedTags=[];try{renderUsedTagsRow();}catch(e){}return 1;})()")
 
 # ================= M3 体验专项用例 =================
-@case("C19 小屏无横向溢出", tier="core", owner="01e_engine_ui template.html 09_a11y")
+@case("C19 小屏无横向溢出", tier="core", owner="engine_ui template.html a11y_无障碍")
 def c19():
     cdp("Emulation.setDeviceMetricsOverride", {"width": 320, "height": 900, "deviceScaleFactor": 1, "mobile": False})
     time.sleep(0.6)
@@ -726,7 +726,7 @@ def c19():
     time.sleep(0.5)
     js("switchView('timer')"); time.sleep(0.2)
 
-@case("C20 M3公告不挡手", tier="feature", owner="01e_engine_ui 07_uiFold template.html")
+@case("C20 M3公告不挡手", tier="feature", owner="engine_ui uiFold_折叠记忆 template.html")
 def c20():
     # 若公告元素不存在（旅程模块未注入时）手工补一个同结构的用于验证 CSS/交互
     js("""(function(){
@@ -750,7 +750,7 @@ def c20():
     check(closed is True, "公告卡片按钮可正常关闭")
     js("(function(){var o=document.getElementById('jyAnn');if(o){o.classList.remove('jy-open');}return 1;})()")
 
-@case("C21 选填区折叠记忆+极简联动", tier="feature", owner="01e_engine_ui 01e4_ui_ux 07_uiFold 0E_theme template.html")
+@case("C21 选填区折叠记忆+极简联动", tier="feature", owner="engine_ui ui_ux uiFold_折叠记忆 theme_主题引擎 template.html")
 def c21():
     # 全新用户态：清存储重载
     js("localStorage.clear();location.reload()"); time.sleep(2.8)
@@ -800,7 +800,7 @@ def c21():
       var ck=document.getElementById('setMinimalMode');if(ck)ck.checked=false;
       if(typeof toggleMinimalMode==='function')toggleMinimalMode();return 1;})()""")
 
-@case("C22 组件注册表 registerComponent", tier="core", owner="08_component_registry 01e_engine_ui 01e4_ui_ux 07_uiFold")
+@case("C22 组件注册表 registerComponent", tier="core", owner="component_registry engine_ui ui_ux uiFold_折叠记忆")
 def c22():
     js("localStorage.clear();location.reload()"); time.sleep(2.8)
     check(js("typeof window.registerComponent==='function'") is True, "注册表已注入")
@@ -860,7 +860,7 @@ def c22():
       var ck=document.getElementById('setMinimalMode');if(ck)ck.checked=false;
       if(typeof toggleMinimalMode==='function')toggleMinimalMode();return 1;})()""")
 
-@case("C21b 默认态收敛：手动偏好不被默认值吞掉", tier="feature", owner="01e_engine_ui 01e4_ui_ux 07_uiFold 0E_theme template.html")
+@case("C21b 默认态收敛：手动偏好不被默认值吞掉", tier="feature", owner="engine_ui ui_ux uiFold_折叠记忆 theme_主题引擎 template.html")
 def c21b():
     """守护 的核心不变量。
     背景（曾踩坑）：首版 defaultClosed 把"系统默认值"直接写进用户偏好 pref，
@@ -893,7 +893,7 @@ def c21b():
     js("localStorage.clear();location.reload()"); time.sleep(2.0)
 
 
-@case("C23 纯函数 Node 单测", tier="core", owner="00_pure_core 01d6_engine_util")
+@case("C23 纯函数 Node 单测", tier="core", owner="pure_core engine_util")
 def c23():
     import subprocess as _sp
     base = os.path.dirname(os.path.abspath(__file__))
@@ -915,7 +915,7 @@ def c23():
     except Exception as e:
         check(False, "node 单测运行异常: " + str(e))
 
-@case("C24 倒数日：勾选上计划页 + 导出导入往返", tier="feature", owner="00_pure_core 01b_engine_data 01e_engine_ui")
+@case("C24 倒数日：勾选上计划页 + 导出导入往返", tier="feature", owner="pure_core engine_data engine_ui")
 def c24():
     """两条约定，固化成断言：
     ① 计划页不该被倒数日塞满 —— 由玩家勾选决定谁上；**没勾的谁也不上**（原先是自动
@@ -983,7 +983,7 @@ def c24():
           f"老备份导入：note/pinned 自动补默认值({old})")
     js("appData.countdowns=[];renderCountdowns();renderPlanCountdowns();")
 
-@case("C25 设置默认值默认关 + 迁移只补缺、不覆盖用户选择", tier="core", owner="01b_engine_data 0A_默认态收敛 01g_engine_init")
+@case("C25 设置默认值默认关 + 迁移只补缺、不覆盖用户选择", tier="core", owner="engine_data 默认态收敛 engine_init")
 def c25():
     """两个开关的默认值与 v2 迁移契约（2026-10-22 修订）。
 
@@ -1046,7 +1046,7 @@ def c25():
     js("localStorage.clear();location.reload()")
     time.sleep(2.4)
 
-@case("C110 存储适配层：写戳必须同步落盘，TFStorage 不得缓冲", tier="feature", owner="01b1_storage 01b_engine_data")
+@case("C110 存储适配层：写戳必须同步落盘，TFStorage 不得缓冲", tier="feature", owner="storage engine_data")
 def c110():
     """数据安全回查（2026-10-22）。
 
@@ -1072,7 +1072,7 @@ def c110():
         check(t == exp, f"写戳时间等于刚写入值（{t} vs {exp}）")
     js("(function(){try{localStorage.removeItem('tomato_focus_v3_stamp');}catch(e){}return 1;})()")
 
-@case("C26 点「结束」必进休息 + 自由专注可填任务名/备注/状态", tier="feature", owner="01b_engine_data 01c_engine_timer 01e_engine_ui 01e8_ui_misc 01g_engine_init 02_enh571 0E_theme 01f_engine_immersive")
+@case("C26 点「结束」必进休息 + 自由专注可填任务名/备注/状态", tier="feature", owner="engine_data engine_timer engine_ui ui_misc engine_init enh571_自律增强 theme_主题引擎 engine_immersive")
 def c26():
     """两条约定：
     ① 「选 10 分钟档位，专注结束了不提示休息，也没有休息时间」—— 复现发现
@@ -1154,7 +1154,7 @@ def c26():
        "document.getElementById('currentTodoNote').value='';"
        "if(timerState.mode!=='idle'){resetToIdle();}saveData();return 1;})()" % n0)
 
-@case("C27 正计时/流式结束也进休息 + 休息时长分级（长休封顶 20）", tier="feature", owner="01c_engine_timer 01d2 01e_engine_ui 01e8_ui_misc 01g_engine_init 02_enh571")
+@case("C27 正计时/流式结束也进休息 + 休息时长分级（长休封顶 20）", tier="feature", owner="engine_timer engine_rank_bot engine_ui ui_misc engine_init enh571_自律增强")
 def c27():
     """正计时结束、流式计时结束也应该有休息：
     不同的时间长度应该有不同的休息时间吧」，并定口径：「实际专注 ≥5 分钟才进」
@@ -1214,7 +1214,7 @@ def c27():
     # ⑦ 收尾：回番茄模式，别影响后面用例
     js("(function(){if(timerState.mode!=='idle'){resetToIdle();}switchTimerMode('pomodoro');return 1;})()")
 
-@case("C28 微休息对自由专注同样适用（原先只认番茄）", tier="feature", owner="01c_engine_timer 01e_engine_ui 01g_engine_init 02_enh571")
+@case("C28 微休息对自由专注同样适用（原先只认番茄）", tier="feature", owner="engine_timer engine_ui engine_init enh571_自律增强")
 def c28():
     """微休息对自由专注同样适用。
 
@@ -1276,7 +1276,7 @@ def _remind_day(h, m):
     return js("(function(){var d=new Date();d.setHours(%d,%d,0,0);return d.getTime();})()" % (h, m))
 
 
-@case("C29 提醒：没点「知道了」就每分钟重催，点掉才停", tier="feature", owner="00_pure_core 01b_engine_data 01c_engine_timer 01e_engine_ui 01eK_ui_remind 01g_engine_init")
+@case("C29 提醒：没点「知道了」就每分钟重催，点掉才停", tier="feature", owner="pure_core engine_data engine_timer engine_ui ui_remind engine_init")
 def c29():
     """「计划里的设置」的提醒要像闹钟一样催到点掉（不是只响一次）。
 
@@ -1403,7 +1403,7 @@ def c29():
     check(js("_remindQueue.length") == 0, "收尾：确认队列清干净")
 
 
-@case("C30 四个显示类 bug 回归：备注 / 连续天数 / 树任务金币 / 必做任务名", tier="feature", owner="00_pure_core 01b_engine_data 01d_engine_features 01d3_engine_tree_shop 01e5_ui_tree 01e8_ui_misc 01e_engine_ui 0E_theme template.html")
+@case("C30 四个显示类 bug 回归：备注 / 连续天数 / 树任务金币 / 必做任务名", tier="feature", owner="pure_core engine_data engine_features engine_tree_shop ui_tree ui_misc engine_ui theme_主题引擎 template.html")
 def c30():
     """四条显示类回归，共同点是「数据是对的，显示不对」。
 
@@ -1464,7 +1464,7 @@ def c30():
        "appData.mustDos=b.m;saveData();_logSig='';delete window.__c30bk;return 1;})()")
 
 
-@case("C31 「仅记录」：只记时间，不算番茄、不进专注统计、不自动进休息", tier="feature", owner="00_pure_core 01b_engine_data 01c_engine_timer 01d5_engine_stats 01e8_ui_misc 01e_engine_ui 01g_engine_init")
+@case("C31 「仅记录」：只记时间，不算番茄、不进专注统计、不自动进休息", tier="feature", owner="pure_core engine_data engine_timer engine_stats ui_misc engine_ui engine_init")
 def c31():
     """补记非专注事项（例：去配眼镜）时的新类型。
 
@@ -1584,7 +1584,7 @@ def c31():
 
 
 
-@case("C32 日志类型可编辑 / 短时可选仅记录 / 结算卡片门槛 / 日志合并", tier="feature", owner="01b_engine_data 01c_engine_timer 01d_engine_features 01e8_ui_misc 01e_engine_ui 01g_engine_init 07_uiFold")
+@case("C32 日志类型可编辑 / 短时可选仅记录 / 结算卡片门槛 / 日志合并", tier="feature", owner="engine_data engine_timer engine_features ui_misc engine_ui engine_init uiFold_折叠记忆")
 def c32():
     """四项体验修正的机器回归：
     ① 编辑日志能改类型（只改记录与统计口径，已发奖励不追溯）
@@ -1603,7 +1603,7 @@ def c32():
         "saveData();_logSig='';renderLogs();return 1;})()"
     )
 
-@case("C33 轮次目标 + 计划/日历联动（日历翻页 / 今天高亮 / 仅记录打点）", tier="feature", owner="01d2_engine_rank_bot 01eC_ui_todo 01eD_ui_log")
+@case("C33 轮次目标 + 计划/日历联动（日历翻页 / 今天高亮 / 仅记录打点）", tier="feature", owner="engine_rank_bot ui_todo ui_log")
 def c33():
     """★ 2026-10-21 首次注册：这个文件一直在 tools/tests/ 里躺着，但**从没有对应的
     @case 包装**——100 条注册用例里查无 C33，等于零覆盖。测试文件写得再细，
@@ -1616,7 +1616,7 @@ def c33():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C34 自由专注快照：开始即落盘 + 切走/暂停补落（番茄钟一直有，它原来两个都没有）", tier="feature", owner="01b_engine_data 01c_engine_timer 01e_engine_ui 01g_engine_init")
+@case("C34 自由专注快照：开始即落盘 + 切走/暂停补落（番茄钟一直有，它原来两个都没有）", tier="feature", owner="engine_data engine_timer engine_ui engine_init")
 def c34():
     """自由专注：计时中切走/刷新后计时全丢（番茄钟不受影响）。
 
@@ -1631,7 +1631,7 @@ def c34():
         check(okv, name)
 
 
-@case("C35 计划列表空状态不残留", tier="feature", owner="01e_engine_ui template.html")
+@case("C35 计划列表空状态不残留", tier="feature", owner="engine_ui template.html")
 def c35():
     """计划页：添加计划后「还没有计划任务」的空状态不消失。
 
@@ -1647,7 +1647,7 @@ def c35():
     for name, okv in json.loads(res):
         check(okv, name)
 
-@case("C36 计时页子任务卡随关联计划出现/恢复", tier="feature", owner="01b_engine_data 01c_engine_timer 01e_engine_ui 0E_theme")
+@case("C36 计时页子任务卡随关联计划出现/恢复", tier="feature", owner="engine_data engine_timer engine_ui theme_主题引擎")
 def c36():
     """计时界面：子任务卡有时显示、有时不显示。
 
@@ -1668,7 +1668,7 @@ def c36():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C37 树复活/重种后能浇水（禁用状态单向写）", tier="feature", owner="00_pure_core 01b_engine_data 01d2 01d3_engine_tree_shop 01e5_ui_tree 01e8_ui_misc 01e_engine_ui")
+@case("C37 树复活/重种后能浇水（禁用状态单向写）", tier="feature", owner="pure_core engine_data engine_rank_bot engine_tree_shop ui_tree ui_misc engine_ui")
 def c37():
     """树木：复活之后浇水按钮仍然点不动。
 
@@ -1684,7 +1684,7 @@ def c37():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C39 专注中不弹提醒（定点/任务都只轻提示，专注结束补弹）", tier="feature", owner="01b_engine_data 01c_engine_timer 01e_engine_ui 01g_engine_init")
+@case("C39 专注中不弹提醒（定点/任务都只轻提示，专注结束补弹）", tier="feature", owner="engine_data engine_timer engine_ui engine_init")
 def c39():
     """计时中（含重开 App 恢复的那次）不应该弹任务提醒窗。
 
@@ -1697,7 +1697,7 @@ def c39():
         check(okv, name)
 
 
-@case("C40 自由专注也算专注 + 番茄暂停/打断态恢复（重开不自跑、不自动结算）", tier="feature", owner="01b_engine_data 01c_engine_timer 01e_engine_ui 01g_engine_init 0E_theme")
+@case("C40 自由专注也算专注 + 番茄暂停/打断态恢复（重开不自跑、不自动结算）", tier="feature", owner="engine_data engine_timer engine_ui engine_init theme_主题引擎")
 def c40():
     """自由专注计时中仍然弹任务提醒；重开 App 后恢复计时也弹。
 
@@ -1712,7 +1712,7 @@ def c40():
         check(okv, name)
 
 
-@case("C43 打断分析按 日/月/年/累计 分区间（不再是全历史总账）", tier="feature", owner="01d5_engine_stats 01e7_ui_stats 01e8_ui_misc")
+@case("C43 打断分析按 日/月/年/累计 分区间（不再是全历史总账）", tier="feature", owner="engine_stats ui_stats ui_misc")
 def c43():
     """打断分析：原来印的是全历史累计，和旁边的「近7天/近8周」不是一个口径。
 
@@ -1726,7 +1726,7 @@ def c43():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C44 习惯页展示备注（列表行不再吞掉 h.note）", tier="feature", owner="01e_engine_ui 01e7_ui_stats template.html")
+@case("C44 习惯页展示备注（列表行不再吞掉 h.note）", tier="feature", owner="engine_ui ui_stats template.html")
 def c44():
     """习惯页：列表行不显示备注。
 
@@ -1739,7 +1739,7 @@ def c44():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C45 计划「重复周期」（不用每天手动加一条）", tier="feature", owner="00_pure_core 01b_engine_data 01d_engine_features 01e_engine_ui")
+@case("C45 计划「重复周期」（不用每天手动加一条）", tier="feature", owner="pure_core engine_data engine_features engine_ui")
 def c45():
     """计划：新增「重复周期」，不用每天手动加一条。
 
@@ -1757,7 +1757,7 @@ def c45():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C42 日志页「记录时长」与「专注时长」两条账分开", tier="feature", owner="00_pure_core 01c_engine_timer 01e_engine_ui")
+@case("C42 日志页「记录时长」与「专注时长」两条账分开", tier="feature", owner="pure_core engine_timer engine_ui")
 def c42():
     """日志页：「记录时长」和「专注时长」两条账分开。
 
@@ -1772,7 +1772,7 @@ def c42():
 # 用户认为"预计 vs 实际"读不出行动价值，连它上面的「📋 任务」跳转一起卸掉。
 # 取数端 buildTaskCompareRows / buildTaskIntStats 仍保留（其它分析在用）。
 
-@case("C46 计划排序（提醒时间/预计结束/四象限）+ 四象限分类", tier="feature", owner="00_pure_core 01b_engine_data 01d_engine_features 01e_engine_ui")
+@case("C46 计划排序（提醒时间/预计结束/四象限）+ 四象限分类", tier="feature", owner="pure_core engine_data engine_features engine_ui")
 def c46():
     """计划排序：去掉「按名字」，新增 提醒时间 / 预计结束 / 四象限，方向可正可倒。
 
@@ -1786,7 +1786,7 @@ def c46():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C47 专注记录与计划关联（子任务/标签/象限/预计vs实际）", tier="feature", owner="00_pure_core 01b_engine_data 01c_engine_timer 01d_engine_features 01e8_ui_misc 01e_engine_ui 01g_engine_init")
+@case("C47 专注记录与计划关联（子任务/标签/象限/预计vs实际）", tier="feature", owner="pure_core engine_data engine_timer engine_features ui_misc engine_ui engine_init")
 def c47():
     """需求：计划和专注记录关联度不高 —— 记录里存了计划快照，日志行却没显示出来。
 
@@ -1798,7 +1798,7 @@ def c47():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C48 日志页「回顾」按钮 + 艾宾浩斯遗忘曲线排期", tier="feature", owner="00_pure_core 01b_engine_data 01e_engine_ui")
+@case("C48 日志页「回顾」按钮 + 艾宾浩斯遗忘曲线排期", tier="feature", owner="pure_core engine_data engine_ui")
 def c48():
     """需求：日志页「筛选 / 补记」旁要有「回顾」，按艾宾浩斯曲线挑出今天该回顾的日期。
 
@@ -1811,7 +1811,7 @@ def c48():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C49 习惯升级（连续/近30天达标、详情、归档分区、每周N次折算）", tier="feature", owner="00_pure_core 01b_engine_data 08_component_registry 01e_engine_ui 07_uiFold")
+@case("C49 习惯升级（连续/近30天达标、详情、归档分区、每周N次折算）", tier="feature", owner="pure_core engine_data component_registry engine_ui uiFold_折叠记忆")
 def c49():
     """习惯功能对齐「小日常」一类的习惯 App：信息分层 + 达标率按频次折算 + 归档分区。
 
@@ -1823,7 +1823,7 @@ def c49():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C50 左右滑动切视图（中段能切 / 靠边让给浏览器 / 设置可关）", tier="feature", owner="01e4_ui_ux 01b_engine_data 01e_engine_ui 0B_hash路由 template.html")
+@case("C50 左右滑动切视图（中段能切 / 靠边让给浏览器 / 设置可关）", tier="feature", owner="ui_ux engine_data engine_ui hash路由 template.html")
 def c50():
     """左右滑既触发浏览器前进/后退，又触发应用切页面，两个手势打架。
 
@@ -1840,7 +1840,7 @@ def c50():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C51 字号大小=只放大可读性不改布局（--fs-user / 系统字号归一 / 各档不溢出）", tier="feature", owner="template.html 01e_engine_ui 00_pure_core 01e4_ui_ux")
+@case("C51 字号大小=只放大可读性不改布局（--fs-user / 系统字号归一 / 各档不溢出）", tier="feature", owner="template.html engine_ui pure_core ui_ux")
 def c51():
     """「这个放大功能这么诡异」「不像界面放大，像手机浏览器双指放大那种强硬的放大」
     「现在也不能左右滑切换页面了」。
@@ -1860,7 +1860,7 @@ def c51():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C52 日程网格常驻计划列表上方 + 默认收起/展开按钮文案联动 + 每件事一个颜色（列表与网格同色源、计划块不透明带竖排标题）", tier="feature", owner="01eA_ui_timeblock 01e_engine_ui template.html")
+@case("C52 日程网格常驻计划列表上方 + 默认收起/展开按钮文案联动 + 每件事一个颜色（列表与网格同色源、计划块不透明带竖排标题）", tier="feature", owner="ui_timeblock engine_ui template.html")
 def c52():
     """「就别单独成一个列表成块了，就把这个放到那个计划的上方下面有计划就行了，
     不要单独成页了」「每个任务应该自动给它分配一个颜色」「这文字和那个都快糊在一起了」。
@@ -1875,7 +1875,7 @@ def c52():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C53 补记 ↔ 计划关联（写入快照 / 显式下拉 / 两处共用同一个计划归属构件 / 详情事后改挂）", tier="feature", owner="01e_engine_ui 01eD_ui_log 00_pure_core template.html")
+@case("C53 补记 ↔ 计划关联（写入快照 / 显式下拉 / 两处共用同一个计划归属构件 / 详情事后改挂）", tier="feature", owner="engine_ui ui_log pure_core template.html")
 def c53():
     """（附截图）：「完成计划和这个日志，这个都不，长得都不一样，样式也不一样，
     根本就不感觉就是生加进去的，根本就没有关联」。
@@ -1893,7 +1893,7 @@ def c53():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C54 成就分层与梯度（tier 四档 / guide 只放「第一次」/ 早起鸟·夜猫子 连续3天）", tier="feature", owner="01b_engine_data 01e8_ui_misc 01e7_ui_stats")
+@case("C54 成就分层与梯度（tier 四档 / guide 只放「第一次」/ 早起鸟·夜猫子 连续3天）", tier="feature", owner="engine_data ui_misc ui_stats")
 def c54():
     """「我就完成了几天，我就解锁了十几个成就，感觉成就系统需要升级」。
 
@@ -1908,7 +1908,7 @@ def c54():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C55 备忘「自我对话」（注入/发送/引用回复/删除/清空文案）", tier="feature", owner="01e9_ui_memo 00_pure_core 0C_确认弹窗 template.html")
+@case("C55 备忘「自我对话」（注入/发送/引用回复/删除/清空文案）", tier="feature", owner="ui_memo pure_core 确认弹窗 template.html")
 def c55():
     """备忘要能表达「自己跟自己对话」的来回。
 
@@ -1923,7 +1923,7 @@ def c55():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C56 日程网格：两次点击新建计划（说明行 / 起点高亮 / 预填起止 / 同格取消 / 不写数据）", tier="feature", owner="00_pure_core 01eA_ui_timeblock 01eC_ui_todo 01eM_ui_tbcreate")
+@case("C56 日程网格：两次点击新建计划（说明行 / 起点高亮 / 预填起止 / 同格取消 / 不写数据）", tier="feature", owner="pure_core ui_timeblock ui_todo ui_tbcreate")
 def c56():
     """网格上点起始格、再点结束格 → 打开「新增计划」并预填起止；点同一格两次 = 取消。
 
@@ -1939,7 +1939,7 @@ def c56():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C57 森林面板：接管重绘（SVG 树 / 网格 / 按月年视图 / 配色与归位 / 地貌随里程碑变化）", tier="feature", owner="00_pure_core 01e5_ui_tree 01eN_ui_forest template.html")
+@case("C57 森林面板：接管重绘（SVG 树 / 网格 / 按月年视图 / 配色与归位 / 地貌随里程碑变化）", tier="feature", owner="pure_core ui_tree ui_forest template.html")
 def c57():
     """森林面板此前**一条用例都没有**，这版重绘把它锁住。
 
@@ -1955,7 +1955,7 @@ def c57():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C58 分段控件：.seg-btn 基础态 + 传记来源筛选", tier="feature", owner="template.html 01e7_ui_stats")
+@case("C58 分段控件：.seg-btn 基础态 + 传记来源筛选", tier="feature", owner="template.html ui_stats")
 def c58():
     """这组控件原先只写了选中态，未选中的按钮落回浏览器默认（灰底 + outset 凸起 + 直角），
     与选中态的主色胶囊不是一套语言 —— 也就是"看着丑"的实现层原因。
@@ -1967,7 +1967,7 @@ def c58():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C59 传记条目布局：竖排一列（日期与标题不再左右并排）", tier="feature", owner="template.html 01e7_ui_stats")
+@case("C59 传记条目布局：竖排一列（日期与标题不再左右并排）", tier="feature", owner="template.html ui_stats")
 def c59():
     """原先每条是「标题左 / 日期+操作右」两端分居，形似两栏；改为竖排：日期+操作在顶行、标题独占整宽、正文一行。
 
@@ -1977,7 +1977,7 @@ def c59():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C60 抽奖派生化 + 记录↔奖励对账（补记→删除不再白嫖 / 租期不续期 / 礼包只发一次）", tier="feature", owner="00_pure_core 01b_engine_data 01d3_engine_tree_shop 01d_engine_features 01e5_ui_tree 01e8_ui_misc")
+@case("C60 抽奖派生化 + 记录↔奖励对账（补记→删除不再白嫖 / 租期不续期 / 礼包只发一次）", tier="feature", owner="pure_core engine_data engine_tree_shop engine_features ui_tree ui_misc")
 def c60():
     """「我怀疑种树里面的那个金币抽奖是坏的，比如说我每次导入数据，它就可以让我重新抽奖」。
 
@@ -1990,7 +1990,7 @@ def c60():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C61 森林长线：树龄时间轴 + 年轮长尾 + 长线成就（十几年都有的可盼）", tier="feature", owner="00_pure_core 01b2_achievements 01d3_engine_tree_shop 01d_engine_features 01e5_ui_tree template.html")
+@case("C61 森林长线：树龄时间轴 + 年轮长尾 + 长线成就（十几年都有的可盼）", tier="feature", owner="pure_core achievements engine_tree_shop engine_features ui_tree template.html")
 def c61():
     """「我想它就是做一个长线的，因为用户可能要用好几年甚至十几年，你要保证长线上让它有意思，
     别让成就那么快得到」。
@@ -2002,7 +2002,7 @@ def c61():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C62 封树成林：林地收藏 + 封树时的数据安全（称号/金币/图鉴不受影响）", tier="feature", owner="00_pure_core 01b2_achievements 01b_engine_data 01d3_engine_tree_shop 01d_engine_features 01e5_ui_tree template.html")
+@case("C62 封树成林：林地收藏 + 封树时的数据安全（称号/金币/图鉴不受影响）", tier="feature", owner="pure_core achievements engine_data engine_tree_shop engine_features ui_tree template.html")
 def c62():
     """「我想它就是做一个长线的……甚至十几年都有可能」。
 
@@ -2013,7 +2013,7 @@ def c62():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C63 森林长线收口：年度回顾 + 树龄陪伴装饰 + 林地小树林", tier="feature", owner="00_pure_core 01d3_engine_tree_shop 01e5_ui_tree template.html")
+@case("C63 森林长线收口：年度回顾 + 树龄陪伴装饰 + 林地小树林", tier="feature", owner="pure_core engine_tree_shop ui_tree template.html")
 def c63():
     """长线三件收口：① 每满周年的「年度回顾」结账（只由 records 现算）；② 树周围随树龄出现陪伴物件；
     ③ 林地每封一代画一棵树（年轮越多越壮），文字列表照旧。"""
@@ -2022,7 +2022,7 @@ def c63():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C64 交接清单收口：回顾毕业原因分组 / 已排期可点开 / doneAt 签名 / 只看番茄入口", tier="feature", owner="00_pure_core 01eC_ui_todo 01eD_ui_log template.html")
+@case("C64 交接清单收口：回顾毕业原因分组 / 已排期可点开 / doneAt 签名 / 只看番茄入口", tier="feature", owner="pure_core ui_todo ui_log template.html")
 def c64():
     """来自交接文档 §八 已知遗留 与 §11.4 回顾机制复查的 4 条待办，一次做完并钉住。"""
     res = json.loads(js(_case_js("c64_handover_closeout.js")))
@@ -2030,7 +2030,7 @@ def c64():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C65 连续天数口径（今天无记录不从 0 算）+ 台账 ⏳ 项核实结论", tier="feature", owner="00_pure_core 05_journey_渐进解锁 01b_engine_data template.html")
+@case("C65 连续天数口径（今天无记录不从 0 算）+ 台账 ⏳ 项核实结论", tier="feature", owner="pure_core journey_渐进解锁 engine_data template.html")
 def c65():
     """核接力文档 §11.5 台账时发现：v9 P1-①「连续天数口径不统一」属实且**一直没修** ——
     `05_journey` 从今天起算，上午打开 App 显示「连续 0 天」（哪怕昨天已连续 30 天）。
@@ -2040,7 +2040,7 @@ def c65():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C66 可读性：日记/复盘 17px + 今日反馈默认展开 + 日程说明行收进折叠体", tier="feature", owner="01eM_ui_tbcreate 01e_engine_ui template.html")
+@case("C66 可读性：日记/复盘 17px + 今日反馈默认展开 + 日程说明行收进折叠体", tier="feature", owner="ui_tbcreate engine_ui template.html")
 def c66():
     """用户 2026-10-13 反馈三处：「日记字太小，看个日记都费劲」「今日反馈不要默认折叠」
     「那行展开说明还在那显示」（根因：说明行被插在标题行与折叠体之间，折叠时它单独留在外面）。"""
@@ -2049,7 +2049,7 @@ def c66():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C67 备忘录双向气泡 / 日程结束时间以点选为准 / 每日进步 emoji / 日志卡关联去重", tier="feature", owner="01e9_ui_memo 01eC_ui_todo 01e7_ui_stats 01eD_ui_log 01eM_ui_tbcreate template.html")
+@case("C67 备忘录双向气泡 / 日程结束时间以点选为准 / 每日进步 emoji / 日志卡关联去重", tier="feature", owner="ui_memo ui_todo ui_stats ui_log ui_tbcreate template.html")
 def c67():
     """用户 2026-10-13 一批反馈：备忘要"微信式对话"（左右气泡、可切身份）、
     日程排计划的结束时间被自动推算顶掉且改不了、每日进步 emoji 错位、
@@ -2059,7 +2059,7 @@ def c67():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C68 结算时刻=倒计时归零（不是点结算那一刻）/ 删记录连带裁掉计划实际时段", tier="feature", owner="01c_engine_timer 01d_engine_features 01eA_ui_timeblock")
+@case("C68 结算时刻=倒计时归零（不是点结算那一刻）/ 删记录连带裁掉计划实际时段", tier="feature", owner="engine_timer engine_features ui_timeblock")
 def c68():
     """需求 2026-10-16 实测：素描 10:30~12:00 做三个番茄，第三个 12:14 就自然完成，
     结算窗没写、13:46 重开 App 才点的结算 —— 结果记录结束时间写成 13:46。
@@ -2069,7 +2069,7 @@ def c68():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C69 总览日记字段表（感恩/新字段兜底）+ 总览年切换 + 传记筛选升级", tier="feature", owner="00_pure_core 01e_engine_ui 01e7_ui_stats template.html")
+@case("C69 总览日记字段表（感恩/新字段兜底）+ 总览年切换 + 传记筛选升级", tier="feature", owner="pure_core engine_ui ui_stats template.html")
 def c69():
     """需求 2026-10-17 四连问：「日记新增的感恩在总览看不到」「总览为什么只能切月，日志记录里
     不是做过年切换吗，复用一下不行吗」「点那个年我才知道能切年，太不明显」「传记筛选很一般」。
@@ -2084,7 +2084,7 @@ def c69():
         check(okv, name)
 
 
-@case("C70 「名字不是身份」：读路径只认 todoId，名字只在启动迁移用一次（实测：新同名计划吃掉了几天前的段与搁置天数）", tier="core", owner="00_pure_core 01d_engine_features 01eC_ui_todo 01eA_ui_timeblock")
+@case("C70 「名字不是身份」：读路径只认 todoId，名字只在启动迁移用一次（实测：新同名计划吃掉了几天前的段与搁置天数）", tier="core", owner="pure_core engine_features ui_todo ui_timeblock")
 def c70_name_is_not_identity():
     """病根：三处代码都拿**任务名**当身份，且不限日期、不查唯一 ——
     tbTodoSegList 读时按标题认领 / 卡片渲染没传日期 / 搁置按标题全库反查 /
@@ -2096,7 +2096,7 @@ def c70_name_is_not_identity():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C72 专注记录页十年可用：整月浏览 + 日历带条数 + 年份快跳 + 多词/按年份搜索", tier="feature", owner="01eD_ui_log template.html")
+@case("C72 专注记录页十年可用：整月浏览 + 日历带条数 + 年份快跳 + 多词/按年份搜索", tier="feature", owner="ui_log template.html")
 def c72_log_range_query():
     """需求原话：「我主要是想要更方便吧，就是以后用了10年、十几年，现在这个就不支持查询吧」
     「我之前那个日历功能怎么没加上呀」。
@@ -2108,7 +2108,7 @@ def c72_log_range_query():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C73 迟到结算：段落收在倒计时归零那一刻（不是点结算那一刻），计划卡/日程/记录同一套数字", tier="core", owner="01c_engine_timer 01d_engine_features 01g_engine_init")
+@case("C73 迟到结算：段落收在倒计时归零那一刻（不是点结算那一刻），计划卡/日程/记录同一套数字", tier="core", owner="engine_timer engine_features engine_init")
 def c73_seg_end_clamp():
     """需求 2026-10-17 第二次报：「我计时了但没结算，过了一会才想起来结算，
     专注记录显示 43 分，实际上计划页是 6:01，日程表上显示也是错的」。
@@ -2119,7 +2119,7 @@ def c73_seg_end_clamp():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C74 时长与区间解耦：块长/卡片分数读记录权威时长 effectiveSeconds，不再 Σ(e-s)", tier="core", owner="00_pure_core 01eA_ui_timeblock 01eC_ui_todo")
+@case("C74 时长与区间解耦：块长/卡片分数读记录权威时长 effectiveSeconds，不再 Σ(e-s)", tier="core", owner="pure_core ui_timeblock ui_todo")
 def c74_seg_length_decoupled():
     """需求 2026-10-17 对照 super-productivity 后指出：「它的时长永远不从区间反算，
     区间歪了时长一点不受影响」。我们这边计划卡 Σ(e-s)、日程块用区间差 ——
@@ -2132,7 +2132,7 @@ def c74_seg_length_decoupled():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C71 段落索引加速：Map<todoId,段[]> 与直扫逐项相同（待办页 536ms→13ms 的正确性证明）", tier="core", owner="01d_engine_features 00_pure_core")
+@case("C71 段落索引加速：Map<todoId,段[]> 与直扫逐项相同（待办页 536ms→13ms 的正确性证明）", tier="core", owner="engine_features pure_core")
 def c71_seg_index():
     """性能改造不能改语义。用随机数据把「索引取数」与「暴力全表扫」逐项对拍：
     A 无日期筛 / B 有日期筛 / C 空记录与空计划 / D 二次读取命中缓存且结果不变 /
@@ -2144,7 +2144,7 @@ def c71_seg_index():
         check(okv, name)
 
 
-@case("C75 计划被删/被清排期后，日程表那天的预计块仍在（排期快照 todoSchedLog）", tier="feature", owner="00_pure_core 01d_engine_features 01eA_ui_timeblock 01eC_ui_todo")
+@case("C75 计划被删/被清排期后，日程表那天的预计块仍在（排期快照 todoSchedLog）", tier="feature", owner="pure_core engine_features ui_timeblock ui_todo")
 def c75_sched_snapshot_history():
     """需求 2026-10-17 报：「完成的任务第二天自动删除之后，预计的日程块就不显示了，
     很多天前完成的任务只能看到实际完成的时间」。
@@ -2157,7 +2157,7 @@ def c75_sched_snapshot_history():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C76 连续打卡起算点：今天还没完成整番茄时从昨天数（海报/统计页不再显示 0 天）", tier="feature", owner="01d5_engine_stats 01e7_ui_stats 01e2_ui_poster 01d_engine_features")
+@case("C76 连续打卡起算点：今天还没完成整番茄时从昨天数（海报/统计页不再显示 0 天）", tier="feature", owner="engine_stats ui_stats ui_poster engine_features")
 def c76_streak_today_fallback():
     """需求 2026-10-17 报：「这两天都有番茄，海报显示 0 天」。
     根因：calcStreakStats 从今天起算，今天没有整番茄就 break → 海报 0；
@@ -2170,7 +2170,7 @@ def c76_streak_today_fallback():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C77 多段排期：同一条计划的「主段 + 另排时段」（渲染/交互/校验/日切/快照）", tier="feature", owner="00_pure_core 01d_engine_features 01eA_ui_timeblock 01eC_ui_todo 01eM_ui_tbcreate")
+@case("C77 多段排期：同一条计划的「主段 + 另排时段」（渲染/交互/校验/日切/快照）", tier="feature", owner="pure_core engine_features ui_timeblock ui_todo ui_tbcreate")
 def c77_multi_block():
     """需求 2026-10-18：「早上 7 点到 8 点排一段，下午 3 点到 4 点还想排一段，
     还完不成，明天在日程表上再写一个」。
@@ -2183,7 +2183,7 @@ def c77_multi_block():
         check(okv, name)
 
 
-@case("C78 计划的「完成」不该让它从列表里消失（未来/过期/未排期三种落点）", tier="feature", owner="01eA_ui_timeblock 01eC_ui_todo")
+@case("C78 计划的「完成」不该让它从列表里消失（未来/过期/未排期三种落点）", tier="feature", owner="ui_timeblock ui_todo")
 def c78_done_keeps_in_list():
     """需求 2026-10-18：「我今天不小心点了一下，完成了那个网上图文问诊的任务，
     然后他突然那个任务就从我的列表上消失了？怎么回事」
@@ -2196,7 +2196,7 @@ def c78_done_keeps_in_list():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C79 专注记录的子步骤快照按记录结束时刻截断（之后勾的不倒灌）", tier="feature", owner="01d_engine_features 01eD_ui_log 00_pure_core")
+@case("C79 专注记录的子步骤快照按记录结束时刻截断（之后勾的不倒灌）", tier="feature", owner="engine_features ui_log pure_core")
 def c79_subs_snapshot_cutoff():
     """需求 2026-10-18：「我希望这个记录相当于是一个快照的形态，它不能实时更新我完成的
     子计划。比如今天下午几点几点，它只显示我那时完成了多少；后面再完成了别的子计划，
@@ -2212,7 +2212,7 @@ def c79_subs_snapshot_cutoff():
         check(okv, name)
 
 
-@case("C80 自由专注填的任务名/备注在结算时不许丢（输入框被清空也认会话）", tier="feature", owner="01c_engine_timer 01d_engine_features")
+@case("C80 自由专注填的任务名/备注在结算时不许丢（输入框被清空也认会话）", tier="feature", owner="engine_timer engine_features")
 def c80_free_name_keep():
     res = json.loads(js(_case_js("c80_free_name_keep.js")))
     for _r in res:
@@ -2220,7 +2220,7 @@ def c80_free_name_keep():
         check(okv, name)
 
 
-@case("C81 日程网格「计划外」灰块的对比度（深/浅主题都要看得清）", tier="feature", owner="01eA_ui_timeblock template.html")
+@case("C81 日程网格「计划外」灰块的对比度（深/浅主题都要看得清）", tier="feature", owner="ui_timeblock template.html")
 def c81_unplanned_contrast():
     res = json.loads(js(_case_js("c81_unplanned_contrast.js")))
     for _r in res:
@@ -2228,28 +2228,28 @@ def c81_unplanned_contrast():
         check(okv, name)
 
 
-@case("C82 传记按番茄数计 + 切后台不丢刚敲的字", tier="feature", owner="01e7_ui_stats 01d_engine_features 01g_engine_init")
+@case("C82 传记按番茄数计 + 切后台不丢刚敲的字", tier="feature", owner="ui_stats engine_features engine_init")
 def c82_bio_count_and_diary_flush():
     res = json.loads(js(_case_js("c82_bio_count_and_diary_flush.js")))
     for _r in res:
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C83 日程块字幕：跨行的块不许只剩 1~3 个字", tier="feature", owner="01eA_ui_timeblock")
+@case("C83 日程块字幕：跨行的块不许只剩 1~3 个字", tier="feature", owner="ui_timeblock")
 def c83_tb_label_flow():
     res = json.loads(js(_case_js("c83_tb_label_flow.js")))
     for _r in res:
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C84 自由专注回到待命按正计时画（不许留番茄钟 25:00 与「暂停」按钮）", tier="feature", owner="01c_engine_timer")
+@case("C84 自由专注回到待命按正计时画（不许留番茄钟 25:00 与「暂停」按钮）", tier="feature", owner="engine_timer")
 def c84_free_idle_paint():
     res = json.loads(js(_case_js("c84_free_idle_paint.js")))
     for _r in res:
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C85 同一个「专注时长」不许两个数（日记页要跟日志页同口径）", tier="feature", owner="01e7_ui_stats 01eD_ui_log")
+@case("C85 同一个「专注时长」不许两个数（日记页要跟日志页同口径）", tier="feature", owner="ui_stats ui_log")
 def c85_focus_duration_one_source():
     res = json.loads(js(_case_js("c85_focus_duration_one_source.js")))
     for _r in res:
@@ -2263,21 +2263,21 @@ def c105_quad_chip_one_ink():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C106 重复计划的排期只能落在规则命中的日子（每周日不许出现在周三）", tier="feature", owner="00_pure_core 01d_engine_features 01eC_ui_todo")
+@case("C106 重复计划的排期只能落在规则命中的日子（每周日不许出现在周三）", tier="feature", owner="pure_core engine_features ui_todo")
 def c106_repeat_block_on_rule_day():
     res = json.loads(js(_case_js("c106_repeat_block_on_rule_day.js")))
     for _r in res:
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C107 眼睛顺手收起今天不轮到的周期任务（开关要有回话）", tier="feature", owner="01eC_ui_todo template.html")
+@case("C107 眼睛顺手收起今天不轮到的周期任务（开关要有回话）", tier="feature", owner="ui_todo template.html")
 def c107_eye_hides_offcycle_repeat():
     res = json.loads(js(_case_js("c107_eye_hides_offcycle_repeat.js")))
     for _r in res:
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C109 专注中陪伴语音：该说时说话，不该说时闭嘴", tier="feature", owner="02_enh571_自律增强")
+@case("C109 专注中陪伴语音：该说时说话，不该说时闭嘴", tier="feature", owner="enh571_自律增强")
 def c109_companion_voice():
     """需求 2026-10-22：语音播报升级成会鼓励、会问「还在专注吗」。
     真正的难点全在「什么时候不该念」：一按开始就来一句像在催；后台念不出还会排队补念；
@@ -2288,21 +2288,21 @@ def c109_companion_voice():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C108 设置页每个开关都要有回话（开启/关闭各播一条）", tier="feature", owner="01e_engine_ui template.html")
+@case("C108 设置页每个开关都要有回话（开启/关闭各播一条）", tier="feature", owner="engine_ui template.html")
 def c108_switch_toast_receipt():
     res = json.loads(js(_case_js("c108_switch_toast_receipt.js")))
     for _r in res:
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C86 重复计划跨天后昨天的预计块不许消失（要与一次性同口径）", tier="feature", owner="01d_engine_features 01eA_ui_timeblock")
+@case("C86 重复计划跨天后昨天的预计块不许消失（要与一次性同口径）", tier="feature", owner="engine_features ui_timeblock")
 def c86_repeat_hist_block():
     res = json.loads(js(_case_js("c86_repeat_hist_block.js")))
     for _r in res:
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C87 计划页：去掉「排序」标签 + 眼睛开关（隐藏今天已完成）", tier="feature", owner="01eC_ui_todo 01d_engine_features 01g_engine_init")
+@case("C87 计划页：去掉「排序」标签 + 眼睛开关（隐藏今天已完成）", tier="feature", owner="ui_todo engine_features engine_init")
 def c87_hide_done():
     """需求 2026-10-19：删掉「排序」二字，在上/下箭头旁加一只眼睛（睁眼/闭眼），
     用来隐藏今天已勾选完成的任务。
@@ -2313,7 +2313,7 @@ def c87_hide_done():
         check(okv, name)
 
 
-@case("C88 折叠态显示另排时段 + 逾期小标 + 排期块不污染备注", tier="feature", owner="01eC_ui_todo 00_pure_core")
+@case("C88 折叠态显示另排时段 + 逾期小标 + 排期块不污染备注", tier="feature", owner="ui_todo pure_core")
 def c88_note_sched_view():
     """需求 2026-10-19：折叠起来也要看见另排时段（这是他截图给老师的依据）。
     A 折叠态（含「另排」行）/ B 排期块出现条件与去重 / C 不污染 detail / D 备注与排期两块内容"""
@@ -2323,7 +2323,7 @@ def c88_note_sched_view():
         check(okv, name)
 
 
-@case("C90 子任务进度与批量勾选", tier="feature", owner="01eC_ui_todo 00_pure_core")
+@case("C90 子任务进度与批量勾选", tier="feature", owner="ui_todo pure_core")
 def c90_subs_progress():
     """A 进度与 doneAt / B 脏项 / C 父完成隐藏按钮 / D 空清单 / E 直接调用也生效"""
     res = json.loads(js(_case_js("c90_subs_progress.js")))
@@ -2332,7 +2332,7 @@ def c90_subs_progress():
         check(okv, name)
 
 
-@case("C91 「按计划时间」排序：段过了就按下一段排（多段计划）", tier="feature", owner="00_pure_core 01d_engine_features")
+@case("C91 「按计划时间」排序：段过了就按下一段排（多段计划）", tier="feature", owner="pure_core engine_features")
 def c91_sort_next_block():
     """需求 2026-10-19：「如果时间过了，那就按下一段的那个排序」。
     A 锚点（早于/段中/段后/全过/空档）/ B 排序结果随时间推进 / C 单段与旧字段不回归 /
@@ -2343,7 +2343,7 @@ def c91_sort_next_block():
         check(okv, name)
 
 
-@case("C92 新增计划弹窗「预计🍅」快捷档（选而不是填）", tier="feature", owner="01eC_ui_todo")
+@case("C92 新增计划弹窗「预计🍅」快捷档（选而不是填）", tier="feature", owner="ui_todo")
 def c92_add_pomo_quick():
     """需求 2026-10-19：「预计番茄是可以选的，而不是给填呀，我可以有快捷方式选」。
     A 档位与编辑面板共用同一数组 / B 点 chip 写值+高亮 / C 手敲跟随、非档位值不硬凑 /
@@ -2354,7 +2354,7 @@ def c92_add_pomo_quick():
         check(okv, name)
 
 
-@case("C93 排期显示的日期精度：卡片到日、展开/设置/弹窗到年月日", tier="feature", owner="01eC_ui_todo 00_pure_core")
+@case("C93 排期显示的日期精度：卡片到日、展开/设置/弹窗到年月日", tier="feature", owner="ui_todo pure_core")
 def c93_sched_date_precision():
     """需求 2026-10-19：「计划那展示不显示年月日；但你展开或者设置里、添加那里，要精确到年月日，
     因为不同的隔天排期这都不一样」。
@@ -2366,7 +2366,7 @@ def c93_sched_date_precision():
         check(okv, name)
 
 
-@case("C94 「下次重复时，子任务」三档：全部回到未完成 / 只清已完成 / 整条清空", tier="feature", owner="01eC_ui_todo 01d_engine_features 00_pure_core")
+@case("C94 「下次重复时，子任务」三档：全部回到未完成 / 只清已完成 / 整条清空", tier="feature", owner="ui_todo engine_features pure_core")
 def c94_subs_mode_three():
     """需求 2026-10-19：「我本来想的是三个：一个整条清空重新列、一个清除已完成的只保留未完成的、
     还有一个所有全部回到未完成」。A reset / B clearDone / C clear 三档行为与归一。"""
@@ -2376,7 +2376,7 @@ def c94_subs_mode_three():
         check(okv, name)
 
 
-@case("C95 只做过、没排过的计划也要在日程表上画出实际块", tier="feature", owner="01eA_ui_timeblock")
+@case("C95 只做过、没排过的计划也要在日程表上画出实际块", tier="feature", owner="ui_timeblock")
 def c95_act_only_row():
     """需求 2026-10-19：「晚上完成的半个番茄背单词，为什么日程表上不显示」。
     没有排期就没有块、也就没有行 —— 实际段无处安放，整条记录在网格上消失。"""
@@ -2386,7 +2386,7 @@ def c95_act_only_row():
         check(okv, name)
 
 
-@case("C96 重复计划可以只改某一天的排期（按天覆盖）", tier="feature", owner="00_pure_core 01d_engine_features 01eC_ui_todo")
+@case("C96 重复计划可以只改某一天的排期（按天覆盖）", tier="feature", owner="pure_core engine_features ui_todo")
 def c96_dayplan_override():
     """需求 2026-10-19：「我的周期任务排期不一定固定，但现在改一次就天天都变；
     还担心改了以后前面几天也跟着变」。
@@ -2397,7 +2397,7 @@ def c96_dayplan_override():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C97 重复计划的排期不写死某一天", tier="feature", owner="00_pure_core 01eC_ui_todo")
+@case("C97 重复计划的排期不写死某一天", tier="feature", owner="pure_core ui_todo")
 def c97_repeat_sched_no_date():
     """需求 2026-10-19：「既然重复的，刨开那个单日那个排期，为什么它还会精确到日呢？
     这会让人产生误解吧」。
@@ -2410,7 +2410,7 @@ def c97_repeat_sched_no_date():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C98 自由专注快照不复活 + 冷启动回到上次那页", tier="feature", owner="01c_engine_timer 01e_engine_ui 01g_engine_init")
+@case("C98 自由专注快照不复活 + 冷启动回到上次那页", tier="feature", owner="engine_timer engine_ui engine_init")
 def c98_free_snapshot_stale():
     """需求 2026-10-20：「选着选择计划突然变成计时界面，说我在计时洗漱，
     可我早就结束、还在日志里把记录删了，数据好像回滚了一样」。
@@ -2423,7 +2423,7 @@ def c98_free_snapshot_stale():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C99 「单日」可以在日程表上点两格指定", tier="feature", owner="01eM_ui_tbcreate 01eC_ui_todo")
+@case("C99 「单日」可以在日程表上点两格指定", tier="feature", owner="ui_tbcreate ui_todo")
 def c99_dayplan_pick_block():
     """需求 2026-10-20：「单日是不是也可以选择那个块」「现在今日的怎么只能靠输入呀」。
     设置面板「单日」行加「在日程表选」→ 选段模式（_arm.mode='dayplan'）→ 点两格 =
@@ -2435,7 +2435,7 @@ def c99_dayplan_pick_block():
         check(okv, name)
 
 
-@case("C100 旧窗口不许覆盖新数据（守卫 3）", tier="feature", owner="01b_engine_data 01d_engine_features")
+@case("C100 旧窗口不许覆盖新数据（守卫 3）", tier="feature", owner="engine_data engine_features")
 def c100_stale_instance_overwrite():
     """需求 2026-10-20：「昨天完成的英语今天变未完成，日志也删了」「数学排期也没了」。
     三次导出对比：今早那份逐字节等于昨晚 20:02 那份 → 一个从 20:02 起没重载过的窗口
@@ -2448,7 +2448,7 @@ def c100_stale_instance_overwrite():
         check(okv, name)
 
 
-@case("C101 每段排期各自到点提醒", tier="feature", owner="00_pure_core 01g_engine_init")
+@case("C101 每段排期各自到点提醒", tier="feature", owner="pure_core engine_init")
 def c101_remind_per_block():
     """需求 2026-10-20：「不同的排期应该有不同的提醒吧」「提醒想默认排期开始前」。
     原来只认 t.remindAt 一个时刻 + t.reminded 一个布尔：排了 8:20 和 9:20 两段，
@@ -2459,7 +2459,7 @@ def c101_remind_per_block():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C103 跨天计划在计划页怎么标（昨天的/明天的/重复不命中）", tier="feature", owner="01eC_ui_todo template.html")
+@case("C103 跨天计划在计划页怎么标（昨天的/明天的/重复不命中）", tier="feature", owner="ui_todo template.html")
 def c103_plan_cross_day_labels():
     """需求 2026-10-20：「排期到了第二天计划页还显示吗？单日的会不会混淆」。
     实测：昨天没做完的进「之前没完成的」、明天的进「之后的安排」、重复计划按设计恒在
@@ -2471,7 +2471,7 @@ def c103_plan_cross_day_labels():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C104 「✅ N 段 · 共 X 分」按天算，不跨天累计", tier="feature", owner="01d_engine_features 01eC_ui_todo")
+@case("C104 「✅ N 段 · 共 X 分」按天算，不跨天累计", tier="feature", owner="engine_features ui_todo")
 def c104_actual_segs_per_day():
     """问题 2026-10-20：「周期性任务那个 ✅ 4 段 · 共 100 分，第二天会重新计算吗」。
     会的 —— 段数与分钟都按**查看的那一天**从记录里算（tbTodoSegList / tbTodoFocusMs
@@ -2483,7 +2483,7 @@ def c104_actual_segs_per_day():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C102 番茄结束的备注不写回计划备注", tier="feature", owner="01d_engine_features 01c_engine_timer")
+@case("C102 番茄结束的备注不写回计划备注", tier="feature", owner="engine_features engine_timer")
 def c102_finish_note_not_plan():
     """需求 2026-10-20：「番茄结束的备注为什么把计划的备注也改了」「周期性的任务每天都用
     番茄，岂不是会把备注改得乱七八糟」。结算时本会把结束备注写回计划 detail，重复计划
@@ -2495,7 +2495,7 @@ def c102_finish_note_not_plan():
         check(okv, name)
 
 
-@case("C111 内联事件清零：所有交互走 data-* 委托（模块化前置）", tier="feature", owner="template.html 00_delegate")
+@case("C111 内联事件清零：所有交互走 data-* 委托（模块化前置）", tier="feature", owner="template.html delegate")
 def c108_no_inline_handlers():
     """内联 on*="..." 在全局作用域求值，是上 ES 模块的唯一硬阻塞。
     本用例守两件事：① 五个视图都渲染过之后，DOM 里内联处理器必须为 0
@@ -2522,7 +2522,7 @@ def c108_no_inline_handlers():
     js("(function(){var m=document.getElementById('reviewModal');if(m)m.classList.remove('active');})()")
 
 
-@case("C112 数据契约：uid / updatedAt / 删除墓碑（接后端前置）", tier="feature", owner="01b_engine_data")
+@case("C112 数据契约：uid / updatedAt / 删除墓碑（接后端前置）", tier="feature", owner="engine_data")
 def c112_data_contract():
     """接后端前必须有的三样东西，缺一样同步就会出事：
 
@@ -2629,7 +2629,7 @@ def c112_data_contract():
     js("localStorage.clear();location.reload()"); time.sleep(2.4)
 
 
-@case("C113 离线同步：变更队列 + 合并规则（后端未接，链路先跑通）", tier="feature", owner="01b3_sync")
+@case("C113 离线同步：变更队列 + 合并规则（后端未接，链路先跑通）", tier="feature", owner="sync")
 def c113_sync_outbox():
     """后端还没写，但「离线改了东西怎么不丢」这件事现在就能测。
 
@@ -2817,7 +2817,7 @@ def c113_sync_outbox():
     js("localStorage.clear();location.reload()"); time.sleep(2.4)
 
 
-@case("C114 双设备时序：墓碑优先 / 乱序到达 / 离线积累（协议行为基准）", tier="feature", owner="01b3_sync")
+@case("C114 双设备时序：墓碑优先 / 乱序到达 / 离线积累（协议行为基准）", tier="feature", owner="sync")
 def c114_dual_device():
     """两台设备 + 一个内存服务端，跑真实的并发时序。
 
@@ -2968,7 +2968,7 @@ def c114_dual_device():
     js("localStorage.clear();location.reload()"); time.sleep(2.4)
 
 
-@case("C115 合并层的恶意输入：uid 为 __proto__ / 同 uid 重复（原型键不能打穿字典）", tier="feature", owner="00_pure_core 01b3_sync")
+@case("C115 合并层的恶意输入：uid 为 __proto__ / 同 uid 重复（原型键不能打穿字典）", tier="feature", owner="pure_core sync")
 def c115_proto_keys():
     """uid 是**外部输入**（服务端响应、别人给的备份 JSON），必须当作不可信处理。
 
@@ -3126,7 +3126,7 @@ def _select_affected():
     return [c for c in _cases if c[0] in names]
 
 
-@case("C116 周挑战「本周单日完成 8 个番茄」：做 1 个不能算完成", tier="feature", owner="01d_engine_features")
+@case("C116 周挑战「本周单日完成 8 个番茄」：做 1 个不能算完成", tier="feature", owner="engine_features")
 def c116_weekly_challenge_goal():
     """用户报：「本周单日完成这个 8 个番茄，我今天就完成了一个番茄，然后它就显示我这个
     任务完成了」。
@@ -3141,7 +3141,7 @@ def c116_weekly_challenge_goal():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C117 正计时记录：区间必须与专注时长自洽", tier="feature", owner="01d_engine_features")
+@case("C117 正计时记录：区间必须与专注时长自洽", tier="feature", owner="engine_features")
 def c117_flowtime_record_span():
     """用户报：「我明明专注了 31 分钟，但是它显示 9:40 到 9:49，这不才 10 分钟吗？
     那个日志都是错的」。
@@ -3157,7 +3157,7 @@ def c117_flowtime_record_span():
         check(okv, name)
 
 
-@case("C118 习惯『节奏』：按规则打卡 + 今天不用做的收起来 + 弹窗新建/编辑", tier="feature", owner="01eB_ui_habit 00_pure_core")
+@case("C118 习惯『节奏』：按规则打卡 + 今天不用做的收起来 + 弹窗新建/编辑", tier="feature", owner="ui_habit pure_core")
 def c118_habit_rhythm():
     """需求 2026-10-30：「有的习惯吧，就它就不是天天打卡的」「我这个不是今天需要打卡的…
     它应该支持隐藏这种习惯」「添加习惯跟添加计划一样，点加号弹窗让我选」。
@@ -3170,7 +3170,7 @@ def c118_habit_rhythm():
         check(okv, name)
 
 
-@case("C119 习惯↔目标：关联双向一致（目标里选的习惯，习惯详情看得见）", tier="feature", owner="01eB_ui_habit 01eE_ui_lifegoal 00b_goal_progress")
+@case("C119 习惯↔目标：关联双向一致（目标里选的习惯，习惯详情看得见）", tier="feature", owner="ui_habit ui_lifegoal goal_progress")
 def c119_habit_goal_link():
     """缺陷 2026-10-30：「在目标里关联了习惯，习惯那里显示没有关联」。
     根因：目标页只写 goal.habitId，习惯详情只读 habit.lifeGoalId，两边互不相干。
@@ -3182,7 +3182,7 @@ def c119_habit_goal_link():
         check(okv, name)
 
 
-@case("C120 习惯：眼睛只是藏卡、统计口径和没打卡一样 + 每周 N 次的配额判定", tier="feature", owner="00_pure_core 01eB_ui_habit 01b_engine_data")
+@case("C120 习惯：眼睛只是藏卡、统计口径和没打卡一样 + 每周 N 次的配额判定", tier="feature", owner="pure_core ui_habit engine_data")
 def c120_habit_skip_quota():
     """第二轮升级（对齐 习惯项目调研.md §4①②）：
     ① 跳过日 —— 以前点眼睛只是藏起来、不写历史，「每周一三五」的习惯周三跳过，
@@ -3196,7 +3196,7 @@ def c120_habit_skip_quota():
         check(okv, name)
 
 
-@case("C121 眼睛收起的退出路径 + 跨入口连续数一致", tier="feature", owner="00_pure_core 01eB_ui_habit 01b_engine_data 01d_engine_features")
+@case("C121 眼睛收起的退出路径 + 跨入口连续数一致", tier="feature", owner="pure_core ui_habit engine_data engine_features")
 def c121_habit_skip_exit():
     """2026-10-30 自查修复的回归钉子。六个修复点各一组：
     A 跳过→补卡必须算数 / B 打卡后不给「跳过」入口 / C 列表与成就的连续数同口径 /
@@ -3207,7 +3207,7 @@ def c121_habit_skip_exit():
         check(okv, name)
 
 
-@case("C122 月历「‹ ›」翻月翻年：导入绑定只读 → 点了没反应（2026-10-30 回归）", tier="feature", owner="01e_engine_ui 01b_engine_data")
+@case("C122 月历「‹ ›」翻月翻年：导入绑定只读 → 点了没反应（2026-10-30 回归）", tier="feature", owner="engine_ui engine_data")
 def c122_calendar_switch():
     """用户报「日程这里点击切换有问题」+ 控制台 Assignment to constant variable。
     calendarYear / calendarMonth 在产物里是 ESM 导入绑定（只读），`calendarYear++` 必抛。
@@ -3218,7 +3218,7 @@ def c122_calendar_switch():
         check(okv, name)
 
 
-@case("C124 习惯三件事：计划页 dock / 子计划是纯清单 / 习惯与分类排序", tier="feature", owner="01eB_ui_habit 00_pure_core 01g_engine_init 01b_engine_data")
+@case("C124 习惯三件事：计划页 dock / 子计划是纯清单 / 习惯与分类排序", tier="feature", owner="ui_habit pure_core engine_init engine_data")
 def c124_habit_dock_subs_sort():
     """用户三条诉求（2026-11-04）：
     A 计划页底部默认折叠的「今日习惯」dock —— 一屏看见计划 + 习惯，勾选与习惯页同一份账；
@@ -3229,7 +3229,7 @@ def c124_habit_dock_subs_sort():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C125 习惯自己的排期：长在习惯卡上，日程表里一格都没有（2026-11-04）", tier="feature", owner="01eB_ui_habit 01eA_ui_timeblock 00_pure_core")
+@case("C125 习惯自己的排期：长在习惯卡上，日程表里一格都没有（2026-11-04）", tier="feature", owner="ui_habit ui_timeblock pure_core")
 def c125_habit_blocks_on_grid():
     """用户两句原话，方向只有一个：「我原先怎么给每个计划排日期你不知道吗？」
     「为什么在日程表上放一堆习惯？」。
@@ -3243,7 +3243,7 @@ def c125_habit_blocks_on_grid():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C123 回顾「每天最多回顾 N 天」：额度制，回顾完不再补位", tier="feature", owner="01eD_ui_log 01e_engine_ui")
+@case("C123 回顾「每天最多回顾 N 天」：额度制，回顾完不再补位", tier="feature", owner="ui_log engine_ui")
 def c123_review_max_days():
     """需求 2026-11-03：「这个回顾，能不能让用户自己设置最多看多少天的条数」。
 
@@ -3257,7 +3257,7 @@ def c123_review_max_days():
         check(okv, name)
 
 
-@case("C126 统计「‹ ›」翻年翻月：参数是数字，年份不能被拼成 2026-1-1（2026-11-05）", tier="feature", owner="01e7_ui_stats 01d5_engine_stats")
+@case("C126 统计「‹ ›」翻年翻月：参数是数字，年份不能被拼成 2026-1-1（2026-11-05）", tier="feature", owner="ui_stats engine_stats")
 def c126_year_shift_no_concat():
     """用户截图：「年度专注统计 2026-1-1-1111-1年」。
 
@@ -3270,7 +3270,7 @@ def c126_year_shift_no_concat():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C127 习惯子计划是清单：没勾就一直留着，没有到期日（2026-11-06）", tier="feature", owner="00_pure_core 01eB_ui_habit")
+@case("C127 习惯子计划是清单：没勾就一直留着，没有到期日（2026-11-06）", tier="feature", owner="pure_core ui_habit")
 def c127_habit_sub_overdue():
     """用户：「第二天不是我设置了第二天回到未完成吗？但是我第二天怎么不显示呀」。
 
@@ -3282,7 +3282,7 @@ def c127_habit_sub_overdue():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C128 日程表某天点＋新建：记计划日期，不加提醒也不排期（2026-11-06）", tier="feature", owner="01eC_ui_todo 00_pure_core")
+@case("C128 日程表某天点＋新建：记计划日期，不加提醒也不排期（2026-11-06）", tier="feature", owner="ui_todo pure_core")
 def c128_add_on_anchor_date():
     """用户：「我想在周日完成一个任务，我就直接将我的日程表摁那个周日，
     然后我直接点那个加号，就可以排在那一天」。
@@ -3295,7 +3295,7 @@ def c128_add_on_anchor_date():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C129 日程表切换日期：列表跟着切，提示条出现，回到今天能点（2026-11-06）", tier="feature", owner="01eA_ui_timeblock 01eC_ui_todo")
+@case("C129 日程表切换日期：列表跟着切，提示条出现，回到今天能点（2026-11-06）", tier="feature", owner="ui_timeblock ui_todo")
 def c129_switch_date_refresh():
     """用户：「为什么我点击别的那天，它不会显示正在看别天的那个计划？
     非得我添加完一个计划它才显示。然后我点那个回到今天，还点不动」。
@@ -3308,7 +3308,7 @@ def c129_switch_date_refresh():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C130 只勾子计划也要进日志「今天完成」（2026-11-06）", tier="feature", owner="01eC_ui_todo 01eD_ui_log 01e_engine_ui")
+@case("C130 只勾子计划也要进日志「今天完成」（2026-11-06）", tier="feature", owner="ui_todo ui_log engine_ui")
 def c130_sub_partial_log():
     """用户：「我没把整个计划打勾，只完成一个子计划，它应该也记录呀」。
     另外：番茄结算进休息后就勾不了子计划 → 结算弹窗补一张子计划清单，
@@ -3318,7 +3318,7 @@ def c130_sub_partial_log():
         name, okv = _r[0], _r[1]
         check(okv, name)
 
-@case("C131 计划页累计番茄：千分位精确数、不换万、任何量级不裁切（2026-11-07）", tier="feature", owner="01eC_ui_todo 00_pure_core")
+@case("C131 计划页累计番茄：千分位精确数、不换万、任何量级不裁切（2026-11-07）", tier="feature", owner="ui_todo pure_core")
 def c131_plan_pomo_total():
     """用户：「计划页最下面放 累计番茄数量 174+8=182，8 是今天；未来可能几千到万，
     不能超过框」。
