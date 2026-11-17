@@ -4845,11 +4845,11 @@ function set(path,value){var parts=_split(path);if(!parts.length)return false;va
 o[parts[parts.length-1]]=value;emit(path,value,old);return true;}
 function emit(path,nv,ov){try{var parts=_split(path);for(var depth=parts.length;depth>=1;depth--){var key=parts.slice(0,depth).join('.');var list=_subs[key];if(!list)continue;for(var i=0;i<list.length;i++){try{list[i](nv!==undefined?nv:get(path),ov);}catch(e){if(window.__silent)window.__silent(e,'0D:emit');}}}}catch(e){if(window.__silent)window.__silent(e,'0D:emit');}}
 function subscribe(key,fn){if(typeof fn!=='function')return function(){};key=String(key||'');(_subs[key]||(_subs[key]=[])).push(fn);return function(){var list=_subs[key];if(!list)return;var idx=list.indexOf(fn);if(idx>=0)list.splice(idx,1);};}
-window.store={get:get,set:set,emit:emit,subscribe:subscribe,_subs:function(){var o={};for(var k in _subs)if(Object.prototype.hasOwnProperty.call(_subs,k))o[k]=_subs[k].length;return o;}};function reg(){try{window.store.subscribe('tree.coins',function(){try{renderTreeShop();}catch(e){if(window.__silent)window.__silent(e,'0D:reg');}
-try{renderTreeSection();}catch(e){if(window.__silent)window.__silent(e,'0D:reg');}
-try{renderWeeklyBadges();}catch(e){if(window.__silent)window.__silent(e,'0D:reg');}
-try{renderRankSystem();}catch(e){if(window.__silent)window.__silent(e,'0D:reg');}
-try{renderStats();}catch(e){if(window.__silent)window.__silent(e,'0D:reg');}});}catch(e){if(window.__silent)window.__silent(e,'0D:reg');}}
+window.store={get:get,set:set,emit:emit,subscribe:subscribe,_subs:function(){var o={};for(var k in _subs)if(Object.prototype.hasOwnProperty.call(_subs,k))o[k]=_subs[k].length;return o;}};function reg(){try{window.store.subscribe('tree.coins',function(){try{UIFX.renderTreeShop();}catch(e){if(window.__silent)window.__silent(e,'0D:reg');}
+try{UIFX.renderTreeSection();}catch(e){if(window.__silent)window.__silent(e,'0D:reg');}
+try{UIFX.renderWeeklyBadges();}catch(e){if(window.__silent)window.__silent(e,'0D:reg');}
+try{UIFX.renderRankSystem();}catch(e){if(window.__silent)window.__silent(e,'0D:reg');}
+try{UIFX.renderStats();}catch(e){if(window.__silent)window.__silent(e,'0D:reg');}});}catch(e){if(window.__silent)window.__silent(e,'0D:reg');}}
 reg();})();;(function(){'use strict';if(window.__themeEngineReady)return;window.__themeEngineReady=true;var THEMES={default:{name:'番茄原色',tag:'暖橙 · 经典',swatch:['#FDF6EC','#E85D3A','#2E9E5B']},nord:{name:'北欧',tag:'冷冽 · 克制',swatch:['#ECEFF4','#5E81AC','#7A9E6A']},tokyo:{name:'东京夜',tag:'深邃 · 霓虹',swatch:['#1A1B26','#7AA2F7','#BB9AF7']},gruvbox:{name:'复古灰',tag:'暖褐 · 怀旧',swatch:['#FBF1C7','#D65D0E','#98971A']},rosepine:{name:'玫瑰松',tag:'柔粉 · 雅致',swatch:['#FAF4ED','#EB6F92','#31748F']},catppuccin:{name:'卡布奇诺',tag:'奶咖 · 柔和',swatch:['#EFF1F5','#8839EF','#40A02B']}};var DEFAULT_THEME='default';var ATTR='data-theme';function _norm(id){if(!id||typeof id!=='string')return DEFAULT_THEME;var k=id.trim().toLowerCase();return Object.prototype.hasOwnProperty.call(THEMES,k)?k:DEFAULT_THEME;}
 function current(){try{var v=document.body&&document.body.getAttribute(ATTR);return _norm(v);}catch(e){return DEFAULT_THEME;}}
 function applyTheme(id){var key=_norm(id);try{if(!document.body)return key;document.body.setAttribute(ATTR,key);}catch(e){if(window.__silent)window.__silent(e,'0E:applyTheme');}

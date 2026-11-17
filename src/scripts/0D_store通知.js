@@ -129,19 +129,19 @@
       /* 场景：树/金币消耗后，多个视图的持有量数字要同步（原为手写 5 行 render） */
       window.store.subscribe('tree.coins', function () {
         try {
-          renderTreeShop();
+          UIFX.renderTreeShop();
         } catch (e) { if (window.__silent) window.__silent(e, '0D:reg'); }
         try {
-          renderTreeSection();
+          UIFX.renderTreeSection();
         } catch (e) { if (window.__silent) window.__silent(e, '0D:reg'); }
         try {
-          renderWeeklyBadges();
+          UIFX.renderWeeklyBadges();
         } catch (e) { if (window.__silent) window.__silent(e, '0D:reg'); }
         try {
-          renderRankSystem();
+          UIFX.renderRankSystem();
         } catch (e) { if (window.__silent) window.__silent(e, '0D:reg'); }
         try {
-          renderStats();
+          UIFX.renderStats();
         } catch (e) { if (window.__silent) window.__silent(e, '0D:reg'); }
       });
     } catch (e) { if (window.__silent) window.__silent(e, '0D:reg'); }
