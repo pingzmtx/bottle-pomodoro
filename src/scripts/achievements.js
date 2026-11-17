@@ -1,7 +1,7 @@
 // @layer: L1
 /* ===== 耦合契约（只读注释，不改运行逻辑）=====
  * 成就定义表：71 条静态字段（id / group / icon / name / desc / color / bg / tier）+ cond(ctx)。
- * 全部是**顶层 const（无 IIFE）** —— 必须与 01b_engine_data.js 待在**同一个 <script> 槽**
+ * 全部是**顶层 const（无 IIFE）** —— 必须与 engine_data.js 待在**同一个 <script> 槽**
  * （见 src/manifest.json 槽 1）：跨 <script> 的 const 互不可见，01d 的 getAchievements() 就取不到它。
  * 依赖方向：本文件 → 无。cond 里读 appData / getEternalStars 等全局，但只在**运行期**（求 unlocked 时）
  *   被调用，加载期不执行任何语句，所以放在 01b 之后、01d 之前加载都安全。
@@ -19,7 +19,7 @@
 
 /* ============================================================
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：01b2-achievements.js（源文件 01b2_achievements.js）
+ * 文件名：01b2-achievements.js（源文件 achievements.js）
  * 分组：engine
  * 职责：成就定义表 —— 每条含静态字段与 cond(ctx)；ctx 由 getAchievements()（01d）组装后传入。 ｜症状：成就不解锁 · 成就描述不对
  * 函数索引（TOC）：（本文件无顶层函数，仅常量/IIFE）

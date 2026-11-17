@@ -158,7 +158,7 @@
   -webkit-align-items: center;
   -webkit-justify-content: center;
 }
-/* 弹层打开时锁住背后的页面滚动（配合 01e_engine_ui.js 的 _syncModalLock）。
+/* 弹层打开时锁住背后的页面滚动（配合 engine_ui.js 的 _syncModalLock）。
    html 是滚动器（html{overflow-x:hidden} 让它接管纵向滚动），所以锁 html；
    body 一起写是为了兜住某些把滚动放在 body 上的环境。
    ★ 不要用 position:fixed 那套「记 scrollTop 再还原」的方案：
@@ -171,7 +171,7 @@ html.modal-open, body.modal-open { overflow: hidden; }
 
 /* ---------- 软键盘弹出时：把弹窗钉在「看得见的那块」上 ----------
    安卓浏览器弹键盘时不动布局视口，只把视觉视口往上推（--vv-top / --vv-h 由
-   01g_engine_init.js 的 initKeyboardInset 写入）。position:fixed 钉的是布局视口，
+   engine_init.js 的 initKeyboardInset 写入）。position:fixed 钉的是布局视口，
    于是遮罩留在原地、弹窗被推到屏幕外，用户看到的是「点一下输入框，框就没了」。
    这里在 body.kb-open 期间把遮罩改钉到视觉视口，弹窗按可用高度收缩。 */
 body.kb-open .modal-overlay.show {
@@ -379,7 +379,7 @@ textarea.rs-input { resize: vertical; }
 }
 /* 软键盘弹出时隐藏底部导航：它 position:fixed 钉在视口底，会和正在输入的输入框抢
    同一块位置。
-   kb-open / --kb-h 由 01g_engine_init.js 的 initKeyboardInset 写入。
+   kb-open / --kb-h 由 engine_init.js 的 initKeyboardInset 写入。
    桌面端 kb 恒为 0，不会命中此规则。 */
 body.kb-open .bottom-nav { display: none; }
 /* 首次打开渐进式引导条：固定在底部导航上方，轻量不遮挡 */

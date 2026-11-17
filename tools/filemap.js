@@ -6,11 +6,11 @@
  *   node tools/filemap.js --check
  *   node tools/filemap.js --list
  *   node tools/filemap.js --path ui_tree
- *   node tools/filemap.js --key 01e5_ui_tree.js
+ *   node tools/filemap.js --key ui_tree.js
  *
  * 脚本里：
  *   const FM = require('./filemap');
- *   FM.path('pure_core')        // → '00_pure_core.js'
+ *   FM.path('pure_core')        // → 'pure_core.js'
  *
  * 为什么 JS 也要一份：check_repeat_consistency / unit_pure / callgraph_ast 等
  * 是 node 脚本，不能 import Python。两份实现必须对同一份 manifest 得出同一结果，

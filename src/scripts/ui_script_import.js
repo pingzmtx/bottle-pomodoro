@@ -2,7 +2,7 @@
 /* ===== 耦合契约（只读注释，不改运行逻辑）=====
  * 沉浸式剧情副本 · **导入系统**：导入「副本 JSON」（独立于备份 JSON 的新格式）、
  * 校验与规范化、存独立存储、列表渲染与单条删除、格式帮助与示例下载。
- * 全部为**顶层函数声明**，跨 script 全局可见；本文件必须排在 01f_engine_immersive.js
+ * 全部为**顶层函数声明**，跨 script 全局可见；本文件必须排在 engine_immersive.js
  * **之后**加载（见 src/manifest.json 的槽 1 files）。
  * 依赖方向：本文件 → 01f（前向，安全）。唯一的跨文件依赖是 01f 的 `IMMERSIVE_SCRIPTS`
  *   （内置剧本库，只读引用，用于「副本与内置同构」的校验与同池抽卡）。
@@ -10,19 +10,19 @@
  * 本文件自带：`IMPORTED_SCRIPTS_FORMAT`（打包格式标识）、`SAMPLE_IMMERSIVE_SCRIPT`
  *   （内置示例副本 = 一键体验 + JSON 活模板）、`_importedScriptsOpen` / `_imScriptPanelOpen`
  *   （面板折叠状态）。这四项在本文件之外无引用 —— 01f 剩余部分与其它 38 个文件对它们的引用数均为 0。
- * ★ 数据边界：副本剧本存**独立存储** `IMPORTED_SCRIPTS_KEY`（见 01b_engine_data.js），
+ * ★ 数据边界：副本剧本存**独立存储** `IMPORTED_SCRIPTS_KEY`（见 engine_data.js），
  *   **不进 appData** —— 因此导出 / 恢复 / 清除个人数据都不影响它。改这块时别把它塞进 appData。 */
 /* ==================== 模块: 01f2-ui-script-import.js | 职责: 沉浸式剧情副本·导入系统 | 分组: ui ==================== */
 
 /* ============================================================
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：01f2-ui-script-import.js（源文件 01f2_ui_script_import.js）
+ * 文件名：01f2-ui-script-import.js（源文件 ui_script_import.js）
  * 分组：ui
  * 职责：副本 JSON 的导入/校验/规范化/存储、导入列表渲染与删除、 ｜症状：导入 JSON 失败 · 导入列表删不掉
  *       格式帮助面板、示例剧本一键导入与下载。
  *   · 只搬「顶层 function 声明 + 该域私有的顶层常量/状态」，**不搬任何顶层立即执行语句** ——
  *     因此跨 script 的加载顺序只影响「谁先定义」，不影响「谁能看见谁」。
- *   · 回退方式：把本文件内容按 TOC 顺序粘回 01f_engine_immersive.js 原位置
+ *   · 回退方式：把本文件内容按 TOC 顺序粘回 engine_immersive.js 原位置
  *     （即 `saveImmersivePoster` 之后、文件末尾），并删掉 src/manifest.json 里本文件那一行。
  * 函数索引（TOC）：validateImportedScript/storeImportedScript/renderImportedScriptsBox/toggleImportedScripts/toggleImportedScriptPanel/openImportedScriptPanel/removeImportedScriptUI/onImportScriptFile/applyImportedScriptPayload/importSampleImmersiveScript/renderImmersiveSettingsNote/toggleHelpFold（+5 更多）
  * ============================================================ */
@@ -375,7 +375,7 @@ function renderImportedScriptsBox() {
           const hasAch =
             sc.endings && sc.endings.perfect && sc.endings.perfect.achievement
               /* ★ 必须转义（P1-2）：同 P1-1，achievement 也来自用户导入的 JSON，
-                 原来直接拼进 innerHTML。对照组 01f_engine_immersive.js 同一字段
+                 原来直接拼进 innerHTML。对照组 engine_immersive.js 同一字段
                  用的是 textContent —— 团队知道它用户可控，只是这里漏了。 */
               ? ' 🏅' + escapeHtml(sc.endings.perfect.achievement)
               : '';

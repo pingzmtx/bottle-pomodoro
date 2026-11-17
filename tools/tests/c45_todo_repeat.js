@@ -2,7 +2,7 @@
    计划：新增「重复周期」，不用每天手动加一条。
 
    设计：task.repeat = { mode, weekdays[], dom, interval, anchor, last, next }
-   - 规则运算全是纯函数（00_pure_core.js），Node 单测在 unit_pure.js 里已覆盖边界；
+   - 规则运算全是纯函数（pure_core.js），Node 单测在 unit_pure.js 里已覆盖边界；
      本用例只打**运行时**：新增弹窗落盘 / 行内徽标 / 到点复位 / 每日清理不误删 / 编辑面板读写。
    - 「到点复位」的闸门是 repeat.next：next > today 什么都不做（所以一天跑几十次也只复位一次）。 */
 (function () {

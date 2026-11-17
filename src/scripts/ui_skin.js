@@ -2,7 +2,7 @@
 /* ===== 耦合契约（只读注释，不改运行逻辑）=====
  * 自定义皮肤层：树木背景 + 计时器壁纸 + 皮肤商店（购买 / 上传 / 自动 cover 裁切压缩 /
  * base64 存 IndexedDB / 到期自动清除）+ 拖拽调位与缩放滑杆。
- * 全部为**顶层函数声明**，跨 script 全局可见；本文件必须排在 01e8_ui_misc.js
+ * 全部为**顶层函数声明**，跨 script 全局可见；本文件必须排在 ui_misc.js
  * **之后**加载（见 src/manifest.json 的槽 1 files）。
  * 依赖方向：本文件 → 01e8（前向，安全）。本文件用到的 4 个私有状态
  *   （`_skinNat` / `_skinNatState` / `_skinUrlKind` / `_skinDrag`）**都在本文件内**，
@@ -14,13 +14,13 @@
 
 /* ============================================================
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：04eJ-ui-skin.js（源文件 01eJ_ui_skin.js）
+ * 文件名：04eJ-ui-skin.js（源文件 ui_skin.js）
  * 分组：ui
  * 职责：皮肤自然尺寸探测与缓存、cover 裁切几何、树/计时器换肤应用、皮肤商店渲染、 ｜症状：皮肤裁切错位 · 皮肤商店打不开 · 拖拽排序不生效
  *       上传与裁剪、拖拽调位与缩放、购买与到期处理。
  *   · 只搬「顶层 function 声明 + 该域私有的顶层状态」，**不搬任何顶层立即执行语句** ——
  *     因此跨 script 的加载顺序只影响「谁先定义」，不影响「谁能看见谁」。
- *   · 回退方式：把本文件内容按 TOC 顺序粘回 01e8_ui_misc.js 原位置
+ *   · 回退方式：把本文件内容按 TOC 顺序粘回 ui_misc.js 原位置
  *     （即 `timerTreeTalk` 之后、`openChest` 之前），并删掉 src/manifest.json 里本文件那一行。
  * 函数索引（TOC）：ensureSkinNatSize/applySkinGeometry/skinPreviewScale/skinLayerStyle/applySkinToTree/applySkinToTimer/applySkinsToDOM/buySkin/openSkinUrlInput/submitSkinUrl/removeSkin/onSkinSlider（+20 更多）
  * ============================================================ */

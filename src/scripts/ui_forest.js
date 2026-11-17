@@ -1,7 +1,7 @@
 // @layer: L1
 /* ===== 耦合契约（只读注释，不改运行逻辑）=====
  * 森林面板的**重绘接管**：把「🌲 我的森林」从一列列表情统计，改成一片能看见的林地。
- * 全部为**顶层 function 声明 + 该域私有状态**；本文件必须排在 01e5_ui_tree.js **之后**加载
+ * 全部为**顶层 function 声明 + 该域私有状态**；本文件必须排在 ui_tree.js **之后**加载
  * （见 src/manifest.json 的槽 1 files）—— 它包装后者定义的 window.renderForestPanel。
  * 依赖方向：本文件 → 01e5（被包装的 renderForestPanel）/ 00_pure_core（forestFromRecords /
  *   forestMilestones / getDateStr / fmtTomatoNum / fmtDurMin）/ 01b 的 appData.tree、uiPrefs。
@@ -11,7 +11,7 @@
 
 /* ============================================================
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：04eN-ui-forest.js（源文件 01eN_ui_forest.js）
+ * 文件名：04eN-ui-forest.js（源文件 ui_forest.js）
  * 分组：ui
  * 职责：森林面板 —— 参数化 SVG 树（按**时长**分四档、按树种上色）、自适应网格（日期不再叠字）、 ｜症状：森林不显示 · 树格子叠字
  *       近 14/30/90 天窗口切换、格子底色表当天强度、树种图例。

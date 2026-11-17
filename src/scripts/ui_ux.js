@@ -1,7 +1,7 @@
 // @layer: L1
 /* ============================================================
  * 01e4 · 极简/快捷面板/难度档与滑动手势 ｜症状：极简模式不生效 · 快捷面板打不开 · 划动没反应
- * 由 01e_engine_ui.js 按渲染域拆出（可回退：本文件整段随 slot1 files 还原）
+ * 由 engine_ui.js 按渲染域拆出（可回退：本文件整段随 slot1 files 还原）
  * 函数索引（TOC）：toggleMinimalMode/applyMinimalMode/toggleQuickPanel/closeQuickPanel/quickGoImmersive/refreshQuickPanel/renderDurationSuggestion/syncDifficultyWithDuration/getEasyModeEffectiveDuration/renderDifficultyPicker/setDifficulty/showRestFact（+7 更多）
  * ============================================================ */
 

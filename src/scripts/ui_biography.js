@@ -3,7 +3,7 @@
  * 01eU · 传记列表
  * 职责：传记列表（搜索/排序/范围筛选、分页、高亮）、传记事件生成（checkBiographyEvents）
  * 症状：传记搜不到 · 列表不翻页 · 筛选清不掉
- * 归位：2026-11-14 由 01e7_ui_stats.js 按域拆出（拆分前同一文件，行为未变）
+ * 归位：2026-11-14 由 ui_stats.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：checkBiographyEvents/toggleBioHelp/applyBioSearch/toggleBioSort/setBioRange/bioRangeLabel/clearBioFilters/bioFilterActiveCount/bioSearchTokens/bioHighlight/turnBioPage/jumpBioPage（+9 更多）
  * ============================================================ */
 

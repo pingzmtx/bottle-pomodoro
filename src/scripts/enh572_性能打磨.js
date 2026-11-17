@@ -499,7 +499,7 @@
   }
 
   /* ============ ⑦ 记录 CSV 导出 ============ */
-  /* 表头与行由纯函数统一构造 —— 唯一定义处：00_pure_core.js 的 recordsCsvTable()。
+  /* 表头与行由纯函数统一构造 —— 唯一定义处：pure_core.js 的 recordsCsvTable()。
      此前这里是 17 列，而 05 的另外两处导出各是 14 列：同一份记录三个结构，
      连「折算番茄」的算法都不同（一处走 getPomos 折算、一处读原始 pomos）。
      
@@ -540,7 +540,7 @@
   }
 
   /* ============ ⑦-b 目标层 CSV（四期）============
-     表结构由纯函数 lifeCsvTable 生成（00b_goal_progress.js），这里只管落盘。
+     表结构由纯函数 lifeCsvTable 生成（goal_progress.js），这里只管落盘。
      和「专注记录 CSV」分成两个文件：记录是流水（一行一个番茄），
      目标是实体（一行一个目标），混一张表里按日期筛会把目标行全带出来。 */
   function exportLifeCSV() {

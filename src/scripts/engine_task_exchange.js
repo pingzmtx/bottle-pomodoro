@@ -4,7 +4,7 @@
  * 职责：番茄换任务（只扣战力标计数，不碰统计）、重掷、押注档位、周挑战进度、番茄点数
  * 症状：番茄扣得不对 · 重掷点不出来 · 周挑战进度不动
  * 主要入口：countSpentTomatoes / getRerollState / getRerollCost / getWeeklyChallenge / calcWeeklyChallengeProgress
- * 归位：2026-11-14 由 01d_engine_features.js 按域拆出（拆分前同一文件，行为未变）
+ * 归位：2026-11-14 由 engine_features.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：countSpentTomatoes/getRerollState/getRerollCost/getBetTier/getBetStep/_healWeeklyItems/getWeeklyChallenge/calcWeeklyChallengeProgress/getWeekRangeTs/getWeekTomatoPoints/getWeekSpentTomatoes/getSpendableTomatoes（+10 更多）
  * ============================================================ */
 

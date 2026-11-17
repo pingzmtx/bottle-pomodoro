@@ -4,7 +4,7 @@
 
 用法
 ----
-    python3 tools/rename_drill.py --key ui_memo            # 保键改名：01e9_ui_memo.js → ui_memo.js
+    python3 tools/rename_drill.py --key ui_memo            # 保键改名：ui_memo.js → ui_memo.js
     python3 tools/rename_drill.py --key ui_memo --fast     # 只跑快档（跳过 smoke，约 40s）
     python3 tools/rename_drill.py --key ui_memo --keep     # 保留临时目录，便于事后翻现场
     python3 tools/rename_drill.py --key ui_memo --to memo_note.js   # 改键改名（会预期报错，见下）
@@ -191,8 +191,9 @@ def main():
     new_name = argv[argv.index("--to") + 1] if "--to" in argv else key + ".js"
     if not new_name.endswith(".js"):
         new_name += ".js"
-    if not re.match(r"^[A-Za-z_][\w\u4e00-\u9fff]*\.js$", new_name):
-        print("✗ 新名字不合法：%s（不要带序号前缀与路径）" % new_name)
+    if not re.match(r"^[0-9A-Za-z_][\w\u4e00-\u9fff]*\.js$", new_name) or "/" in new_name:
+        print("✗ 新名字不合法：%s（不带路径；允许带序号前缀——阶段 6 之后"
+              "「加回前缀」正是保键改名的一种）" % new_name)
         return 2
 
     # 换键改名 + 这个键在分组表里 → build 会在 import 期就 KeyError（见 group_split.GROUPS）。

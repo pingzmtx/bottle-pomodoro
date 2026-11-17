@@ -1,5 +1,5 @@
 // @layer: L1
-/* ==================== 模块: 01eB_ui_habit.js | 职责: 习惯区 UI（由 01e_engine_ui.js 按「习惯/打卡」域拆出）| 分组: ui ==================== */
+/* ==================== 模块: ui_habit.js | 职责: 习惯区 UI（由 engine_ui.js 按「习惯/打卡」域拆出）| 分组: ui ==================== */
 /* 拆分原因：单文件规模红线（tools/w6_size.py，>6000 行 FAIL）。
  * 本文件承载「习惯」这一完整域：新增/打卡/热力图/阶段徽标/分类文件夹/详情弹窗/ ｜症状：习惯打卡不上 · 习惯热力图不显示
  * 归档/删除。与 01e 的其余域无共享私有状态，只依赖 appData / saveData / showModal /
@@ -85,7 +85,7 @@ function habitHeatmapHtml(h, days) {
     return '<span class="habit-heat-cell' + (on ? ' on' : (sk ? ' skip' : '')) + '" title="' + d + (on ? ' 已打卡' : (sk ? ' 跳过（不算欠账）' : ' 未打卡')) + '"></span>';
   }).join('') + '</div>';
 }
-/* 这个习惯的跳过日列表：读档入口在 01b_engine_data.js 的 habitSkipsOf
+/* 这个习惯的跳过日列表：读档入口在 engine_data.js 的 habitSkipsOf
    （★ 2026-10-30 审查修复：原来定义在这里，01d 的 getHabitStreak 够不着，
     于是"排序/成就用的连续数"和"列表显示的连续数"各算各的）。 */
 /* 今天该不该做 —— 视图层唯一入口。

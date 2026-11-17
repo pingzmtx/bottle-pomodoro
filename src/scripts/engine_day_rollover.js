@@ -4,7 +4,7 @@
  * 职责：排期快照、换日（checkNewDay）、赛季推进、番茄完成结算与掉星/晋级
  * 症状：过零点数据没变 · 新赛季没开始 · 掉星晋级算错
  * 对外：checkNewDay / onPomodoroCompleteRank / checkRankPromotion（结算链主干：改这段必须小步 + 全量回归）
- * 归位：2026-11-14 由 01d_engine_features.js 按域拆出（拆分前同一文件，行为未变）
+ * 归位：2026-11-14 由 engine_features.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：pushTodoSchedSnapshot/dropTodoSchedSnapshot/snapshotDoneTodosLeaving/checkNewDay/startNewSeason/calcExcessStars/onPomodoroCompleteRank/checkRankPromotion
  * ============================================================ */
 

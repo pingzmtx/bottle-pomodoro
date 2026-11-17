@@ -1,7 +1,7 @@
 // @layer: L1
 /* ============================================================
  * 01d5 · 统计链（统计缓存 / 日期索引 / 连续天数 / 周聚合 / 日质量 / 7日视图 / ANALYZERS 分析器 / 月年统计） ｜症状：连续天数不对 · 周统计少一天
- * 由 01d_engine_features.js 按域拆出（可回退：本文件整段随 slot1 files 还原）
+ * 由 engine_features.js 按域拆出（可回退：本文件整段随 slot1 files 还原）
  * 注：本文件由两段区间合并而成（统计缓存链 + 月/年统计），中间夹的 UI 态/疲劳关怀留在 01d。
  * 函数索引（TOC）：invalidateStatsCache/buildStatsDateIndex/calcStreakStats/aggWeekRange/aggDateKeys/calcDayQuality/buildDay7/buildMood7/buildWeekView/buildTaskCompareRows/buildTaskIntStats/buildInterruptStats（+10 更多）
  * ============================================================ */

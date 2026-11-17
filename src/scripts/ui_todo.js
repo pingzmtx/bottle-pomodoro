@@ -2,7 +2,7 @@
 /* ===== 耦合契约（只读注释，不改运行逻辑）=====
  * 计划 / 待办层：新增弹窗（重复周期 + 四象限 + 子步骤）、完成流水、勾选 / 展开 / 排序 / ｜症状：待办加不上 · 勾选不生效 · 子任务展不开
  * 子任务、列表渲染（renderTodos / renderTodoRowHtml / renderTodosRows）与行级更新。
- * 全部为**顶层函数声明**，跨 script 全局可见；本文件必须排在 01e_engine_ui.js
+ * 全部为**顶层函数声明**，跨 script 全局可见；本文件必须排在 engine_ui.js
  * **之后**加载（见 src/manifest.json 槽 1（slots[0].files）的 files 顺序）。
  * 依赖方向：本文件 → 01e（前向，安全）。用到的 01e 顶层绑定只有两个，且都在 01e 里
  *   **先于本文件加载**，运行期一定已初始化：
@@ -23,7 +23,7 @@
 
 /* ============================================================
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：04eC-ui-todo.js（源文件 01eC_ui_todo.js）
+ * 文件名：04eC-ui-todo.js（源文件 ui_todo.js）
  * 分组：ui
  * 职责：待办/计划 —— 新增弹窗、重复周期与四象限控件、完成流水、勾选与展开、
  *       排序与手动移动、子任务、行级签名渲染与快捷修改。
@@ -185,7 +185,7 @@ function _todoViewGroups() {
 function _subValSafe(s) {
   /* ★ 不在本文件维护第二套转义（P2-14）：这一套只转 4 个字符、漏单引号，
      正是「同仓多套转义、行为递减」的典型 —— 谁在 onclick 里用了它就出事。
-     统一委托给 escapeHtml（01e_engine_ui.js:926，5 字符含 &#39;）。
+     统一委托给 escapeHtml（engine_ui.js:926，5 字符含 &#39;）。
      保留函数名与调用点：单文件测试环境里 escapeHtml 可能没加载，退回最小转义。 */
   if (typeof escapeHtml === 'function') return escapeHtml(s == null ? '' : s);
   return String(s || '')
@@ -503,17 +503,17 @@ function openAddTodoModal(draft) {
   } catch (e) { if (window.__silent) window.__silent(e, '01e:openAddTodoModal'); }
 }
 /* ===== 计划「重复周期」控件（新增弹窗 + 行内编辑面板共用同一份）=====
- * 规则运算全在 00_pure_core.js（纯函数）；这里只管界面读写。
+ * 规则运算全在 pure_core.js（纯函数）；这里只管界面读写。
  * 元素 id 一律由 repeatElId(prefix, part) 拼出，读写两侧同一来源，避免各写一半对不上。
  *   prefix = 'addTodo'        → 新增弹窗
  *   prefix = 'todo_<id>_'     → 该任务行内编辑面板
  * 各分支的显示状态在 HTML 生成时就算好（renderTodoRowHtml 是纯拼串、不能带副作用），
  * syncRepeatUI 只在用户改下拉时负责现场切换。 */
 function repeatElId(prefix, part) { return prefix + 'Repeat' + part; }
-/* 内联 handler 里的字符串参数一律走 idArg()（纯函数区已有，见 00_pure_core.js 注释） */
+/* 内联 handler 里的字符串参数一律走 idArg()（纯函数区已有，见 pure_core.js 注释） */
 /* 输出风格对齐 .tf-row + .tf-input（编辑面板里和"标签/最晚完成日"同一视觉） */
 /* ===== 计划「四象限」控件（新增弹窗 / 行内编辑 共用同一份标记）=====
- * 分类常量与排序权重在 00_pure_core.js（TODO_QUADS / normQuad / quadRank），这里只管渲染与读写。
+ * 分类常量与排序权重在 pure_core.js（TODO_QUADS / normQuad / quadRank），这里只管渲染与读写。
  * clickExpr 形如 "setTodoQuad(123," —— 后面补上 'q1') 就是完整 onclick，
  * 于是「弹窗里点一下就重画 chip」和「行内点一下直接写 appData」能共用同一份生成逻辑。 */
 function quadChipsHtml(quad, clickExpr) {

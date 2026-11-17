@@ -33,7 +33,7 @@ const isUI = f => /ui|view|component|a11y/i.test(f);
 // 2026-11-17 修正（审核发现）：原来写的是 /engine|enh|journey|errRep|fold|hash|路由|渐进/，
 // 只覆盖 60/71 个文件，剩下 11 个（00_pure_core / 00_delegate / 00b / 01a1 / 01b1 / 01b2 /
 // 01b3 / 0A / 0C / 0D / 0E）既不匹配 UI 也不匹配引擎，**整类不进扫描** —— 而输出照样打印
-// 「裸调 0 处」，没有任何「11 个文件没分类」的提示。实测 0D_store通知.js 有 5 处真实裸调
+// 「裸调 0 处」，没有任何「11 个文件没分类」的提示。实测 store通知.js 有 5 处真实裸调
 // （renderTreeShop/renderTreeSection/renderWeeklyBadges/renderRankSystem/renderStats）。
 // 门禁的形状必须是「默认管、例外要显式」，而不是「命中关键字才管」——否则新增一个
 // 命名不落关键字的新文件，就自动豁免了全部检查，且没人会发现。
@@ -111,7 +111,7 @@ const uifx = new Set();
 const alias = [];
 const notPatch = [];   // 裸赋值里被排除的（句柄/字符串写进 UI 变量），供 -v 自证不误报
 
-// escapeHtml 已上移到 01a1_dom_util.js（非 UI 文件），owner 判定自然会放过它，
+// escapeHtml 已上移到 dom_util.js（非 UI 文件），owner 判定自然会放过它，
 // 不再需要豁免名单。保留空集只是为了少改六处调用点；语义上它必须一直是空的 ——
 // 一旦往里加名字，就是「允许引擎直连某个 UI 函数」，那是门禁开口子，要走基线不是走这里。
 const NOT_UI_CAPABILITY = new Set();

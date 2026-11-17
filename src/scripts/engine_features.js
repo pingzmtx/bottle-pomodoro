@@ -15,16 +15,16 @@
  * 功能：
  *   - 番茄完成联动：savePomodoroRecord（记录 → 树成长 → 段位加星 → 统计更新）
  *   - 成就与周徽章：getAchievements / processWeeklyBadges / 习惯打卡要求 / 成就手动领取金币（解锁进 pendingAchRewards，成就页点 🎁 领取 +20🪙）/ 每日签到（完成 1 个番茄后可签 +10🪙，累计 7 天解锁成就）
- *   - 统计计算：getStatsCache / monthStats / yearStats / ANALYZERS 智能分析器（已拆至 01d5_engine_stats.js）
+ *   - 统计计算：getStatsCache / monthStats / yearStats / ANALYZERS 智能分析器（已拆至 engine_stats.js）
  *   - 树养成·业务：addTreePoints / 树种 / 成长阶段（getTreeStage / getTreeStageFor / getCurrentTreeStages）/ 死亡复活 / 种植 / 浇水 / 投喂 / 心情 / 运势签 / 生命日志数据
  *   - 树商店·业务：宝箱与转盘奖励（rollChestReward / rollShopWheelReward）/ 道具购买使用 / 装饰 / 场景 / 光环 / 天气 / 摆件 / 动态定价 / 限时到期
  *   - 树玩法·业务：神秘任务生成与领取 / 扭蛋奖励（gachaReward / checkGachaTrigger）/ 物种图鉴 / 命名 / 台词词库（对话框与弹窗界面见 04-ui.js）
  *   - 自定义皮肤·业务：SKIN_KINDS / getSkinDef / getSkin / skinIsActive / skinRemainDays / 定价（渲染、URL 录入、拖拽定位界面见 04-ui.js）
  *   - 待办快捷语法：parseTodoShortSyntax / 排序偏好 getSortPrefs
  *   - 段位系统：onPomodoroCompleteRank / 每日任务结算 / 赌注 / 周挑战 / 连胜 / 重构（11 档位+星级显示、超额星分段、完成奖励、任务目标锚定产能、赛季回退按星数）
- *   - 组队系统：组队码生成 / 输入 / 结算 / 午夜重置（已拆至 01d4_engine_team.js）
- *   - 树商店·业务：宝箱与转盘奖励 / 道具购买使用 / 装饰 / 场景 / 光环 / 天气 / 摆件 / 动态定价 / 限时到期（已拆至 01d3_engine_tree_shop.js）
- *   - 通用工具：getTodayStr / getDateStr / getPomos / countTomatoPoints / fmtDurMin（核心工具已拆至 01d6_engine_util.js）
+ *   - 组队系统：组队码生成 / 输入 / 结算 / 午夜重置（已拆至 engine_team.js）
+ *   - 树商店·业务：宝箱与转盘奖励 / 道具购买使用 / 装饰 / 场景 / 光环 / 天气 / 摆件 / 动态定价 / 限时到期（已拆至 engine_tree_shop.js）
+ *   - 通用工具：getTodayStr / getDateStr / getPomos / countTomatoPoints / fmtDurMin（核心工具已拆至 engine_util.js）
  *   - 沉浸式专注：savePomodoroRecord 冒险联动与长休抑制（状态机已迁移至 06-immersive.js）
  *   - 白帽游戏化：心流时长推荐（10/25/50，与难度档位同口径；手动选档后以用户为准、推荐仅提示）/ 疲劳检测 / 难度档位结算（档位=时长，奖励按 25 分钟=1 个🍅折算）/ 人机排行榜 v2（目标追随模型：BOT 目标=玩家星数×性格系数，单日涨幅跟随玩家产能）
  *   -  上瘾机制：必做3件事（提前一天立目标、当天全完成 +25🪙）/ 计划子任务（可折叠、计时界面同步勾选）/ 断签保护强化（连续7天免费送卡、断签自动消耗）/ 番茄完成中央大字庆祝（打破昨日/连续/效率亮点，2秒消失，toast 去堆叠）/ 年度专注地图（365 天热力图）/ 周报月报简报（总时长/最专注时段/任务TOP/较上期进退步）/ 每日专注总结（日记页，含明日建议）/ 每日惊喜扭蛋（第3/6/9个番茄触发：金币55%>周番茄30%>段位星15%）/ 赌注赢返还部分🍅
@@ -78,7 +78,7 @@ function getAchievements() {
       return 0;
     }
   })();
-  /* 成就定义表已外置 01b2_achievements.js（ACHIEVEMENT_DEFS：75 条静态字段 + cond(ctx)）。
+  /* 成就定义表已外置 achievements.js（ACHIEVEMENT_DEFS：75 条静态字段 + cond(ctx)）。
      本函数只组装 ctx 并对每条求 unlocked；静态字段原样引用常量，每次返回全新对象数组
      （与原行为一致：调用方改动返回值不会污染常量表）。 */
   /* 长线维度（都取「当前树种」的口径，与树面板显示一致）：
@@ -182,8 +182,8 @@ function checkNewAchievements() {
     });
   }
 }
-/* (M4d) getTodayStr 已迁移至 00_pure_core.js（Node 单测同源） */
-/* (M4d) fmtTime 已迁移至 00_pure_core.js */
+/* (M4d) getTodayStr 已迁移至 pure_core.js（Node 单测同源） */
+/* (M4d) fmtTime 已迁移至 pure_core.js */
 /* ===== 结算 toast 合并 =====
  * 一次番茄会连发好几条 toast（奖励 / 成长 / 段位…），逐条弹会糊成一片，
  * 所以先收集、再合成一张结算卡：

@@ -271,7 +271,7 @@ function pushEdge(e) {
 }
 
 /* 通用短名/方法名黑名单 —— 与 w6_layer.py 的 COMMON_NOISE 同源。
- * 不做这层过滤，`list.slice()` 会被误判成"调用了 08_component_registry.js 里的 list()"。 */
+ * 不做这层过滤，`list.slice()` 会被误判成"调用了 component_registry.js 里的 list()"。 */
 const COMMON_NOISE = new Set([
   'push', 'pop', 'shift', 'unshift', 'slice', 'splice', 'join', 'map', 'filter',
   'forEach', 'find', 'some', 'every', 'reduce', 'sort', 'concat', 'indexOf',

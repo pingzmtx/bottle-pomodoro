@@ -1,17 +1,17 @@
 // @layer: L1
 /* ===== 耦合契约（只读注释，不改运行逻辑）=====
  * 白噪音 + 我的歌单层：内置白噪音曲目表与播放控制、我的歌单（网易云直链）增删/批量导入/上一首下一首/音量
- * 全部为**顶层 function 声明 + 该域私有常量/状态**，跨 script 全局可见；本文件必须排在 01e_engine_ui.js
+ * 全部为**顶层 function 声明 + 该域私有常量/状态**，跨 script 全局可见；本文件必须排在 engine_ui.js
  * **之后、紧邻**加载（见 src/manifest.json 的槽 1 files）。
  * 依赖方向：本文件 → 01e / 00_pure_core / 01b（前向，安全）。本域**全部私有状态都在本文件内**
  *   （静态核对：01e 剩余部分与其它 39 个文件对它们的引用数均为 0）。
  *   反向不成立：01e **不**依赖本文件的任何东西。
- * 回退方式：把本文件内容按 TOC 顺序粘回 01e_engine_ui.js 原位置，并删掉 manifest 里本文件那一行。 */
+ * 回退方式：把本文件内容按 TOC 顺序粘回 engine_ui.js 原位置，并删掉 manifest 里本文件那一行。 */
 /* ==================== 模块: 04eL-ui-audio.js | 职责: 内置白噪音曲目表与播放控制、我的歌单（网易云直链）增删/批量导入/上一首下一首/音量 | 分组: ui ==================== */
 
 /* ============================================================
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：04eL-ui-audio.js（源文件 01eL_ui_audio.js）
+ * 文件名：04eL-ui-audio.js（源文件 ui_audio.js）
  * 分组：ui
  * 职责：内置白噪音曲目表与播放控制、我的歌单（网易云直链）增删/批量导入/上一首下一首/音量 ｜症状：白噪音放不了 · 歌单导入失败 · 音量不动
  * 函数索引（TOC）：getNoiseAudio/initNoiseAudio/playNoise/stopNoise/toggleNoise/nextNoise/prevNoise/setNoiseVolume/updateNoiseUI/switchNoiseTab/myplGetAudio/myplLoad（+16 更多）

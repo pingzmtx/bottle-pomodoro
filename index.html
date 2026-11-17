@@ -226,7 +226,7 @@
    ◦ v5.7.1 目标与体验：每日专注目标(统计页进度卡+计时页胶囊+达标庆祝) / 快捷键 P=打断·继续 与速查表 / 休息保持屏幕常亮(Wake Lock) / 自动跟随系统深色 / 记录 CSV 导出
    ◦ v5.7.2 性能专项：年地图 dayMap / 连续天数 dateSet / 周徽章 allWeeks 三处热路径改为记录级版本缓存(主代码内建回退)
   ····· 0E-theme.js —— 主题配色引擎（文件末尾独立注入 <script>，整段移除即可退回原版） ·····
-   ▣ 模块 0E_theme_主题引擎.js（位于文件末尾）
+   ▣ 模块 theme_主题引擎.js（位于文件末尾）
    ◦ 主题注册表 THEMES：6 套主题的 id / 名称 / 标签 / 色卡三色（色卡写死主题自身色，不跟当前主题变色）
    ◦ applyTheme(id)：只写 body[data-theme]，CSS 是唯一真源，JS 不直接改颜色
    ◦ setTheme(id)：应用 + 落库 appData.settings.theme + saveData（刷新/重启后保持）
@@ -602,7 +602,7 @@
       <div id="planGoalMain" style="margin-top:var(--sp-14)"></div>
       <!-- 本周重点 + 周期提示（检查点 / 收尾窗口）。★ 排在人生目标之上：
            「这周做什么」比「今年做什么」近，打开目标页第一眼该看到的是它。
-           由 01eF_ui_lifecycle.js 渲染；为空时不占高度（innerHTML 是空串）。 -->
+           由 ui_lifecycle.js 渲染；为空时不占高度（innerHTML 是空串）。 -->
       <div id="lifeWeekFocus" style="margin-top:var(--sp-16)"></div>
       <!-- 人生目标（年 / 月 / 愿望）。★ 容器名是 lifeGoalsList，不是 planGoalList：
            planGoal* 是既有 ID 家族（View/MustDo/Main），由 switchPlanTab 与
@@ -1724,7 +1724,7 @@
 </div>
 
 <!-- 月末 / 年末收尾：和编辑弹窗同一套 sheet 骨架（样式选择器合并写），
-     内容由 01eF_ui_lifecycle.js 的 openLifeEval() 渲染。 -->
+     内容由 ui_lifecycle.js 的 openLifeEval() 渲染。 -->
 <div class="modal-overlay" id="lifeEvalModal">
   <div class="modal" id="lifeEvalModalBox" style="max-width:480px; text-align:left">
     <h3 class="lg-modal-head" id="lifeEvalTitle">收尾</h3>
@@ -1773,7 +1773,7 @@
 </div>
 
 <!-- 复盘：列表 / 分步编辑 / 只读查看三种状态共用一个 sheet，
-     由 01eG_ui_lifereview.js 的 renderLifeReview() 切换内容。 -->
+     由 ui_lifereview.js 的 renderLifeReview() 切换内容。 -->
 <div class="modal-overlay" id="lifeReviewModal">
   <div class="modal" id="lifeReviewModalBox" style="max-width:480px; text-align:left">
     <h3 class="lg-modal-head" id="lifeReviewTitle">复盘</h3>

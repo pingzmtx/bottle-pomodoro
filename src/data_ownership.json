@@ -240,7 +240,7 @@
         "engine_data",
         "ui_lifegoal"
       ],
-      "note": "人生目标（年/月/愿望）。进度**不存**在这里，由 00b_goal_progress.js 现算 —— 存了就会出现卡片和复盘两套数字。01eF 只写 status / checkpoints / lastReviewedAt（收尾与季度检查点）。"
+      "note": "人生目标（年/月/愿望）。进度**不存**在这里，由 goal_progress.js 现算 —— 存了就会出现卡片和复盘两套数字。01eF 只写 status / checkpoints / lastReviewedAt（收尾与季度检查点）。"
     },
     "lifeYearNotes": {
       "owner": "engine_data",

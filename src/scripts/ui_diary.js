@@ -3,7 +3,7 @@
  * 01eR · 日记总览
  * 职责：月历、翻页、按年跳转、日期跳转
  * 症状：日记月历翻不动 · 找不到某一天
- * 归位：2026-11-14 由 01e_engine_ui.js 按域拆出（拆分前同一文件，行为未变）
+ * 归位：2026-11-14 由 engine_ui.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：togglePh/renderDiaryOverviewPage/renderAllDiaryBrowser/changeAllDiaryPage/jumpAllDiaryPage/renderOverviewCalendar/renderOverviewJump/toggleOverviewJump/changeOverviewYear/overviewJumpMonth/changeOverviewMonth/goToDiaryDate（+22 更多）
  * ============================================================ */
 
@@ -14,11 +14,11 @@ function togglePh(btn, descId) {
   d.style.display = open ? 'none' : 'block';
   if (btn) btn.textContent = open ? 'ⓘ 说明 ▾' : 'ⓘ 说明 ▴';
 }
-/* ===== 定点提醒（413 行）已迁至 01eK_ui_remind.js（回退见该文件头注释）===== */
-/* ===== 日志与回顾（1 个函数）已迁至 01eD_ui_log.js（回退见该文件头注释）===== */
+/* ===== 定点提醒（413 行）已迁至 ui_remind.js（回退见该文件头注释）===== */
+/* ===== 日志与回顾（1 个函数）已迁至 ui_log.js（回退见该文件头注释）===== */
 /* 日志页右下角逐天跳转：第1次→今天，之后逐天往下，到底回到最新；目标日期不在当前页时自动翻页 */
 let _logJumpDate = null;
-/* ===== 日志与回顾（1 个函数）已迁至 01eD_ui_log.js（回退见该文件头注释）===== */
+/* ===== 日志与回顾（1 个函数）已迁至 ui_log.js（回退见该文件头注释）===== */
 let editingCountdownId = null;
 /* 专区排序方式：'date' 按剩余天数（默认，近的在上）｜'added' 按添加时间（新的在上）。
    只用内存变量、不落盘 —— 排序偏好不是数据，是临时视图，
@@ -467,26 +467,26 @@ function toggleDiaryCountdown() {
 /* 专注记录日历：弹窗月历，红点标记有记录的日期，点日期按天筛选 */
 let logCalYear = 0,
   logCalMonth = 0;
-/* ===== 日志与回顾（3 个函数）已迁至 01eD_ui_log.js（回退见该文件头注释）===== */
+/* ===== 日志与回顾（3 个函数）已迁至 ui_log.js（回退见该文件头注释）===== */
 /* ===== 年月跳转（和日记日历同一套面板样式）=====
  * 之前只能一月一月点箭头：想翻到去年要按十几次。
  * 点标题展开：上年/下年 + 12 个月格子，一步到位。 */
 let _logCalJumpOpen = false;
-/* ===== 日志与回顾（8 个函数）已迁至 01eD_ui_log.js（回退见该文件头注释）===== */
+/* ===== 日志与回顾（8 个函数）已迁至 ui_log.js（回退见该文件头注释）===== */
 
-/* ===== 白噪音 + 我的歌单（387 行）已迁至 01eL_ui_audio.js（回退见该文件头注释）===== */
+/* ===== 白噪音 + 我的歌单（387 行）已迁至 ui_audio.js（回退见该文件头注释）===== */
 let _logLimit = 30;
 let _logPage = 1;
 const _logDaysPerPage = 7; /* 每页最多容纳 7 天（一周，按天分组折叠，超过即翻页） */
-/* ===== 日志与回顾（2 个函数）已迁至 01eD_ui_log.js（回退见该文件头注释）===== */
+/* ===== 日志与回顾（2 个函数）已迁至 ui_log.js（回退见该文件头注释）===== */
 let _logSig = '';
-/* ===== 日志与回顾（9 个函数）已迁至 01eD_ui_log.js（回退见该文件头注释）===== */
+/* ===== 日志与回顾（9 个函数）已迁至 ui_log.js（回退见该文件头注释）===== */
 
 const _logOpenGroups = {};
-/* ===== 日志与回顾（12 个函数）已迁至 01eD_ui_log.js（回退见该文件头注释）===== */
+/* ===== 日志与回顾（12 个函数）已迁至 ui_log.js（回退见该文件头注释）===== */
 /* 某天的记录摘要：只取任务名，去重后最多列 REVIEW_CHIP_MAX 个（弹窗里够看，不用滚） */
 const REVIEW_CHIP_MAX = 3;
-/* ===== 日志与回顾（2 个函数）已迁至 01eD_ui_log.js（回退见该文件头注释）===== */
+/* ===== 日志与回顾（2 个函数）已迁至 ui_log.js（回退见该文件头注释）===== */
 /* 当前正在看哪一天的详情；null = 停在「待回顾列表」。
    只是弹窗内部的临时视图状态，不落盘（关掉弹窗即忘，符合"看一眼就走"）。 */
 let _reviewDayView = null;
@@ -494,7 +494,7 @@ let _reviewDayView = null;
    「一次最多显示 N 天」决定（settings.reviewMaxDays，0 = 不限）。
    断更两周再打开回顾，一次铺几十张卡滚不到底，所以默认收在 10 天。 */
 let _reviewShownPages = 0;
-/* ===== 日志与回顾（16 个函数）已迁至 01eD_ui_log.js（回退见该文件头注释）===== */
+/* ===== 日志与回顾（16 个函数）已迁至 ui_log.js（回退见该文件头注释）===== */
 let activeMoreMenu = null;
 function showMoreMenu(e, id) {
   document.querySelectorAll('.more-menu').forEach(m => m.remove());

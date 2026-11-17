@@ -1752,7 +1752,7 @@ function timerTreeTalk() {
     }, 2600);
   }
 }
-/* ===== 自定义皮肤（树背景 / 计时器壁纸 / 皮肤商店，32 个函数）已迁至 01eJ_ui_skin.js（回退见该文件头注释）===== */
+/* ===== 自定义皮肤（树背景 / 计时器壁纸 / 皮肤商店，32 个函数）已迁至 ui_skin.js（回退见该文件头注释）===== */
 /* 宝箱弹出与开奖 */
 function openChest() {
   const overlay = document.getElementById('chestOverlay');

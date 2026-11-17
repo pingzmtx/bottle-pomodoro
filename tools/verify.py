@@ -179,7 +179,7 @@ def main():
         # 这类 bug 不报错、不告警，只是那条声明在 DevTools 里显示为删除线。
         ("calcspace", "python3 tools/check_calc_space.py"),
         ("dup", "python3 tools/check_dup_utils.py"),
-        # 无障碍（a11y）：图标按钮必须有可访问名。09_a11y_无障碍.js 写了焦点陷阱/
+        # 无障碍（a11y）：图标按钮必须有可访问名。a11y_无障碍.js 写了焦点陷阱/
         # aria-live/弹窗语义，但**没有验证它是否生效**——本段把「写了」变成「守住了」。
         # 用 --static（纯静态 <0.3s）；深度检查（弹窗语义/焦点陷阱，需浏览器）手动跑
         # `python3 tools/a11y_audit.py`。

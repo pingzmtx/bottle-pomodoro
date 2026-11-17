@@ -81,7 +81,7 @@
   function getTheme() { return current(); }
 
   /* 切换主题：写设置 + 落盘 + 立即应用。
-     注意 saveSettings 的行为（见 01e_engine_ui.js:717）：它是**整体重建**
+     注意 saveSettings 的行为（见 engine_ui.js:717）：它是**整体重建**
      appData.settings 对象，所以新字段必须同时加进 01b 的 defaultSettings，
      否则会被抹掉 —— 这是本项目的一条既有陷阱，其中已在 01b 补了 theme 字段。
      落盘走既有 saveData 单通道，不自己写 localStorage，避免双写回流。 */

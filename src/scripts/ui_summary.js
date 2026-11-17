@@ -3,7 +3,7 @@
  * 01eW · 记录页年度热力图 + 趋势图 + 每日专注总结
  * 职责：renderYearHeatmap、趋势图配置与绘制、每日专注总结（日记页收尾仪式）
  * 症状：看不到热力图 · 趋势图不刷新 · 每日总结不出现
- * 归位：2026-11-14 由 01e7_ui_stats.js 按域拆出（拆分前同一文件，行为未变）
+ * 归位：2026-11-14 由 ui_stats.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：renderYearHeatmap/_sumMinutes/_sumPomos/renderDailyFocusSummary/renderStatsEmpty/tChartNice/trendChartCfg/trendChartX/trendChartY/renderTrendChart/buildPeriodHeatWindow/periodHeatLevel（+3 更多）
  * ============================================================ */
 

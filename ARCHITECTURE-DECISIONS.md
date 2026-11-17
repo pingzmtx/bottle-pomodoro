@@ -37,12 +37,12 @@
 于是「半个番茄不算」反复出现、每次打补丁又漏一处（2026-10-08 组队冲刺显示 5、自测 6 就是这个）。
 人一多就必然漏 —— 这不是靠细心能解决的。
 
-**实现**：`00_pure_core.js` 的 `calcPomos/getPomos` 是唯一实现；
+**实现**：`pure_core.js` 的 `calcPomos/getPomos` 是唯一实现；
 `tools/check_tomato_single_source.py` 挂 `verify.py`：**登记制** —
 任何新的番茄取值函数不登记在 `tools/tomato_entries.txt` 就 FAIL；
 已删除的重复计数器名出现即 FAIL。
 
-**关键文件**：`00_pure_core.js`、`tools/check_tomato_single_source.py`、`tools/tomato_entries.txt`
+**关键文件**：`pure_core.js`、`tools/check_tomato_single_source.py`、`tools/tomato_entries.txt`
 
 **何时重新审视**：口径要变（比如「半个算 0.5 太重，改 0.3」）时 —— 改一处 + 改登记表即可，
 这正是当初做单一口径的目的。
@@ -61,7 +61,7 @@
 **实现**：`lotteryQuotaOf / lotteryAvailFrom / computeRoundStats / rangeStatsFrom` 等纯函数；
 `addLotteryChance` 保留为空壳（调用点与门禁依赖这个名字存在）。
 
-**关键文件**：`00_pure_core.js`、`01d3_engine_tree_shop.js`（`syncLotteryCount`）
+**关键文件**：`pure_core.js`、`engine_tree_shop.js`（`syncLotteryCount`）
 
 **何时重新审视**：现算在大数据量下变慢时（当前 1 万条记录级别无压力）。
 若真要缓存，缓存必须**带失效标记**且可由记录重建 —— 不许变成第二真相。
@@ -80,7 +80,7 @@
 **实现**：渲染循环与计时彻底解耦；不用 rAF 驱动进度动画；暂停/打断走
 `pausedElapsed` / `pausedRemaining` 快照落盘（否则暂停中刷新会丢）。
 
-**关键文件**：`01c_engine_timer.js`
+**关键文件**：`engine_timer.js`
 
 **何时重新审视**：几乎不会 —— 这是物理约束，不是设计偏好。
 
@@ -104,9 +104,9 @@
 - **超上限压实**：旧笔合并成一条「结转」，不能直接丢（丢了净额，账目就永远差着）。
 - **对账**：`coinLedgerCheck()` 随时能算出差额；面板上有出口，不静默。
 
-**关键文件**：`00_pure_core.js`（`coinTxMake/coinLedgerSum/coinTxUndoable`）、
-`01d3_engine_tree_shop.js`（`coinEarn/coinSpend/coinUndo/coinLedgerInit`）、
-`01e5_ui_tree.js`（明细面板）、`tools/check_coin_single_source.py`（门禁）、
+**关键文件**：`pure_core.js`（`coinTxMake/coinLedgerSum/coinTxUndoable`）、
+`engine_tree_shop.js`（`coinEarn/coinSpend/coinUndo/coinLedgerInit`）、
+`ui_tree.js`（明细面板）、`tools/check_coin_single_source.py`（门禁）、
 `tools/audit_coinledger.py`（37 条运行期断言）
 
 **何时重新审视**：要给金币加多币种、或引入「金币过期」这类时间维度规则时。
@@ -125,8 +125,8 @@
 **实现**：`COIN_EARN_TUNING.DUR_TIERS`（24/48/86 → 1/3/6，取最高档不叠加）；
 `DUR_COIN` 降级为派生视图（改了不算数）。
 
-**关键文件**：`00_pure_core.js`（`coinDurBase/coinStreakMult/coinEarnFinal`）、
-`01d_engine_features.js`（时长奖励调用点）
+**关键文件**：`pure_core.js`（`coinDurBase/coinStreakMult/coinEarnFinal`）、
+`engine_features.js`（时长奖励调用点）
 
 **何时重新审视**：真要开连续加成时（把 `STREAK_STEP` 从 0 调成 0.05）——
 那是一次经济平衡变更，必须先看商店价格与周兑换上限。
@@ -146,8 +146,8 @@
 **实现**：`tools/w6_layer.py` 静态检查硬违例；`window_whitelist.json` 管跨文件出口；
 订阅方带**重入守卫**（`renderTodos` 自己会调网格渲染，无守卫即无限递归）。
 
-**关键文件**：`tools/w6_layer.py`、`01eA_ui_timeblock.js`（`tbFireAfterRender`）、
-`01eC_ui_todo.js`（`_todoListInHook`）
+**关键文件**：`tools/w6_layer.py`、`ui_timeblock.js`（`tbFireAfterRender`）、
+`ui_todo.js`（`_todoListInHook`）
 
 **何时重新审视**：广播订阅超过 5 个、或需要「按条件触发不同订阅者」时（那时才值得上事件总线）。
 
@@ -162,10 +162,10 @@
 本项目是单文件、无服务端，用户手上有多个历史版本的 `index.html` 与备份文件，
 「新代码读旧数据」「旧代码读新数据（多余字段忽略）」两条都必须是安全的。
 
-**实现**：`01b_engine_data.js` 的迁移段是「缺什么补什么」的流水线；
+**实现**：`engine_data.js` 的迁移段是「缺什么补什么」的流水线；
 `appData.tree.coinLog` 就是本轮新加字段的样板（老存档无此字段 → 首次访问自动补齐）。
 
-**关键文件**：`01b_engine_data.js`
+**关键文件**：`engine_data.js`
 
 **何时重新审视**：需要对同一字段做**语义变更**（不是新增）时 —— 那才需要真正的版本迁移。
 
@@ -209,15 +209,15 @@
 它**只对第一个未处理错误弹窗**（避免错误风暴淹没用户），且对已知无害错误做白名单抑制（附注释说明原因）。
 
 **实现**：`__silent(e, '01e:hookTbDateEntries')` 带来源标签，便于定位；
-结算链（`01d_engine_features.js`）每个副作用独立 try + `warn` 级上报。
-错误侧还配了**环形缓冲 + 现场导出**（`06_errRep_错误监控.js`）：
+结算链（`engine_features.js`）每个副作用独立 try + `warn` 级上报。
+错误侧还配了**环形缓冲 + 现场导出**（`errRep_错误监控.js`）：
 warn 级不进角标、可 `console` 查、可一键导出错误现场（带最近上下文）；
 按 tag 节流 500ms，防止 1 秒轮询类的报错刷屏顶掉有效记录。
 —— 这条是比「抄来的」更进一步的：Super Productivity 只有 action log，
 本项目的错误缓冲直接可导出成一份可发给开发者的现场快照。
 
-**关键文件**：`06_errRep_错误监控.js`（缓冲/节流/导出）、
-`01d_engine_features.js`（结算链）、各文件里的 `window.__silent` 调用点
+**关键文件**：`errRep_错误监控.js`（缓冲/节流/导出）、
+`engine_features.js`（结算链）、各文件里的 `window.__silent` 调用点
 
 **何时重新审视**：出现「报错确实发生了、但缓冲里没有」时 ——
 说明 500ms 节流窗口把有效样本吃掉了（高频不同 fault 撞同一个 tag），
@@ -235,7 +235,7 @@ warn 级不进角标、可 `console` 查、可一键导出错误现场（带最�
 
 **实现**：`timerState.totalInterruptSeconds` 累计 + 额度校验；超额度自动恢复计时并提示。
 
-**关键文件**：`01c_engine_timer.js`（`interruptPomodoro` / `resumeFromInterrupt`）
+**关键文件**：`engine_timer.js`（`interruptPomodoro` / `resumeFromInterrupt`）
 
 **何时重新审视**：额度值调整（在设置里可配）—— 属于体验参数，不是架构。
 
@@ -250,7 +250,7 @@ warn 级不进角标、可 `console` 查、可一键导出错误现场（带最�
 它和日志卡的关系是**数据同源**（都出自 `appData.records`），不需要跳转；
 给它加点击行为反而会制造「点了应该有反应」的预期落差。
 
-**关键文件**：`01eA_ui_timeblock.js`（`tbPaperUnplannedHtml`）
+**关键文件**：`ui_timeblock.js`（`tbPaperUnplannedHtml`）
 
 **何时重新审视**：用户明确要求「点灰块跳到对应日志」时 —— 那时点击才成为需求而不是噪音。
 
@@ -277,7 +277,7 @@ warn 级不进角标、可 `console` 查、可一键导出错误现场（带最�
 `tools/audit_timer_modes.py`（27 条断言，**每条都对应一个被替换的判定点**，
 注释里写明原判定，如「旧判定：freeType !== 'flowtime' → 累计显示」）。
 
-**关键文件**：`01c_engine_timer.js`（策略表 + 12 处）、`01g_engine_init.js`（5 处）、
+**关键文件**：`engine_timer.js`（策略表 + 12 处）、`engine_init.js`（5 处）、
 `tools/audit_timer_modes.py`
 
 **何时重新审视**：要加第四种计时模式时（那时才真正吃到本决策的红利：
@@ -298,13 +298,13 @@ warn 级不进角标、可 `console` 查、可一键导出错误现场（带最�
   05 存展开计划 + 折卡回收 / 0B 同步 hash），谁先包谁后包由 `<script>` 顺序决定（隐性依赖），
   加第 5 个得先读懂全部 4 个；而且「切前要做」和「切后要做」混在同一个包装里。
 
-**实现**：`01e_engine_ui.js` 提供 `tbOnViewSwitch(fn, phase)`（phase = before/after），
+**实现**：`engine_ui.js` 提供 `tbOnViewSwitch(fn, phase)`（phase = before/after），
 switchView 拆成 `switchView`（触发钩子）+ `switchViewCore`（正文，逐字未改）。
 四个模块改为注册。**钩子按注册顺序执行（= 文件加载顺序），与旧包装的嵌套顺序一致**；
 after 钩子在 `finally` 里触发（等价于旧包装「apply 之后无条件执行」）；
 钩子抛错只跳过自身，绝不阻断切换。
 
-**关键文件**：`01e_engine_ui.js`、`01g` / `02` / `05` / `0B`（四个注册点）
+**关键文件**：`engine_ui.js`、`01g` / `02` / `05` / `0B`（四个注册点）
 
 **何时重新审视**：钩子种类超过 3 种、或需要「按条件只触发部分订阅者」时 ——
 那时才值得上通用事件总线；现在两个注册口（视图切换、网格渲染）刚好够用。
@@ -329,7 +329,7 @@ after 钩子在 `finally` 里触发（等价于旧包装「apply 之后无条件
 **实现**：
 - `src/data_ownership.json`：48 个域，每个带 `note`（这个域是什么，写给未来的自己）
 - `tools/data_ownership.py`：`--report` 看地图 / `--why <域>` 看写者 / `--baseline` 重建基线
-- 数据层 `01b_engine_data.js` 例外（它对所有域有权，写的是建字段/迁移，不是业务逻辑）
+- 数据层 `engine_data.js` 例外（它对所有域有权，写的是建字段/迁移，不是业务逻辑）
 - 与 `tools/impact.py` 配套：改前先量化影响面、看管辖归属
 
 **关键取舍**：不做「全量收敛」，也不把 appData 拆成命名空间对象——
@@ -346,7 +346,7 @@ after 钩子在 `finally` 里触发（等价于旧包装「apply 之后无条件
 
 ## #16 · 小工具只有一个实现（补零/取今天/取日期/转义）
 
-**决策**：这类「一行小事」全仓**只许有一份实现**（放在 `00_pure_core.js`，转义在 `01e` 作权威），
+**决策**：这类「一行小事」全仓**只许有一份实现**（放在 `pure_core.js`，转义在 `01e` 作权威），
 其他文件要就调用；有意例外（错误监控自包含）登记理由。由 `tools/check_dup_utils.py` 守（已挂一键链）。
 
 **理由（实测，2026-10-14 用户要求「命名/变量别乱七八糟」时扫出来的）**：
@@ -367,7 +367,7 @@ after 钩子在 `finally` 里触发（等价于旧包装「apply 之后无条件
 **为什么错误监控是例外**：`06_errRep` 必须在**别人出错时**还能工作，
 不能依赖 `01e` 是否已加载 —— 依赖别人就等于「01e 挂了，错误面板一起挂」。
 
-**关键文件**：`tools/check_dup_utils.py`、`00_pure_core.js`、`02` / `03` / `04` / `05` / `0C`
+**关键文件**：`tools/check_dup_utils.py`、`pure_core.js`、`02` / `03` / `04` / `05` / `0C`
 **何时重新审视**：某类工具出现第 3 处重复时，在 `CONCEPTS` 里加一条（门禁立刻守住）。
 
 ---
@@ -380,20 +380,20 @@ after 钩子在 `finally` 里触发（等价于旧包装「apply 之后无条件
 
 **理由（三件实测证据）**：
 
-1. **47 个业务规则函数零覆盖**：`00_pure_core.js` 120 个具名函数里只有 73 个被单测覆盖（60.8%），
+1. **47 个业务规则函数零覆盖**：`pure_core.js` 120 个具名函数里只有 73 个被单测覆盖（60.8%），
    未覆盖的全是业务规则载体（`todoOccursOn` 周计划归日、`habitCurrentStreak` 习惯连续天数、
    `ebReview` 艾宾浩斯复习间隔、`normMemo` 备忘录留存、`quadRank` 四象限排序、15 个日程网格几何函数…）。
    这些是纯函数、**改错了不报错、只静默改变业务行为**——最该有回归网的地方反而没网。
 2. **性能只有一次性数据**：`tools/bench.py` 能测冷启动/视图切换/统计页渲染，但跑完就没了，
    没有人对比历史，**性能退化无人知**。
-3. **`09_a11y_无障碍.js` 写了但没验证生效**：无障碍层交付了，却没有自动验证它「还在、还有效」——
+3. **`a11y_无障碍.js` 写了但没验证生效**：无障碍层交付了，却没有自动验证它「还在、还有效」——
    模板里 6 个翻页符号按钮漏了 `title`，兜底生成的 `aria-label="按钮 ‹"` 让屏读用户听到「按钮 左尖括号」，
     **有名字但听不懂**，静默存在了很久。
 
 **实现**：
 
 - **`tools/coverage.py` + `tools/coverage_baseline.json`**：用 Node 内置 V8 coverage（`NODE_V8_COVERAGE`）
-  统计 `00_pure_core.js` 的函数覆盖，**双维度棘轮**——已覆盖函数数不得低于基线、未进入分支块数不得高于基线。
+  统计 `pure_core.js` 的函数覆盖，**双维度棘轮**——已覆盖函数数不得低于基线、未进入分支块数不得高于基线。
   本轮补 211 条断言（unit 363→574）后，函数覆盖率 **60.8% → 100%**（120/120），剩余未进入分支块 81 处。
   挂 `verify.py` 的 `cov` 段。
 - **`tools/perf_gate.py` + `tools/perf_baseline.json`**：把 bench 指标基线化，

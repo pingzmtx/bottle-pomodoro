@@ -3,12 +3,12 @@
  * 音效与动效层：对外 = playSound / updateSfxVolume / showFocusQuote / popEl / shakeEl / fxVal / fxNumPop / fxVibrate。
  * 被依赖多（01c 计时、01d 结算、01e 各处、01f 沉浸）：全部**顶层函数声明**，跨 script 全局可见。
  * 红线：这些名字是全局契约，改名会让所有调用点一起失效；
- *       本文件必须排在 01e_engine_ui.js **之后**加载（见 src/manifest.json 的槽 1 files）。 */
+ *       本文件必须排在 engine_ui.js **之后**加载（见 src/manifest.json 的槽 1 files）。 */
 /* ==================== 模块: 04eH-ui-fx.js | 职责: 音效与动效（WebAudio 合成 + DOM 特效） | 分组: ui ==================== */
 
 /* ============================================================
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：04eH-ui-fx.js（源文件 01eH_ui_fx.js）
+ * 文件名：04eH-ui-fx.js（源文件 ui_fx.js）
  * 分组：ui
  * 职责：音效（WebAudio 合成，无 mp3 资产）+ 焦点语录 + 轻量 DOM 动效 ｜症状：没声音 · 音效卡住 · 焦点语录不出来
  *   · 只搬「顶层函数声明 + 它们的私有常量」，**不搬任何顶层立即执行语句** ——

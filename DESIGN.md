@@ -2,7 +2,7 @@
 
 > **性质**：本文件是「瓶子专注」的**设计契约**，由项目真源逐值提取而成
 > （`src/template/10_tokens.css` / `11_layout_timer.css` / `12_components.css` /
-> `1A_dark_misc.css` §精致化视觉系统 / `src/scripts/0E_theme_主题引擎.js`），**不是另起一套**。
+> `1A_dark_misc.css` §精致化视觉系统 / `src/scripts/theme_主题引擎.js`），**不是另起一套**。
 > 每个数值都能在源码里核对；`>` 引用块里的「为什么」来自代码注释中的踩坑记录。
 > **适用对象**：人（设计师 / 前端）与 AI 编程代理。改界面前先读本文件，改完必须过 `python3 tools/build.py --lint`。
 >
@@ -115,7 +115,7 @@
 > 深色下 `.badge-card` / `.ach-card` 这类浅色品牌底必须被 `background:#1b2038 !important` 压掉，
 > 否则「亮成灯笼」。这是深色走查的第一高发区。
 
-### 2.6 六套主题（`body[data-theme]`，由 `0E_theme_主题引擎.js` 驱动）
+### 2.6 六套主题（`body[data-theme]`，由 `theme_主题引擎.js` 驱动）
 
 | key | 名称 | 气质 | swatch（底 / 主 / 辅） |
 |---|---|---|---|

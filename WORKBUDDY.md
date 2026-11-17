@@ -41,7 +41,7 @@ bottle-pomodoro/
 |---|---|
 | 文案、配色、间距、单个交互、样式微调 | 直接 `sh 上线.sh "…"` |
 | 新增功能（只动 `src/scripts/`、`src/template/`） | 直接上，提交信息写清范围 |
-| **数据层 / 版本迁移**（`01b_engine_data.js`、`01a*`、存储结构、导入导出） | **必须开 PR**：`git checkout -b wb-xxx && … && git push -u origin wb-xxx` |
+| **数据层 / 版本迁移**（`engine_data.js`、`01a*`、存储结构、导入导出） | **必须开 PR**：`git checkout -b wb-xxx && … && git push -u origin wb-xxx` |
 | **构建器 / 门禁**（`tools/build.py`、`tools/verify.py`、`src/manifest.json`） | **必须开 PR** |
 | `web/`、`LICENSE`、`.github/`、依赖 | 先问，不要自己动 |
 

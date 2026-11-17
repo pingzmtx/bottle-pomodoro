@@ -18,7 +18,7 @@
 
 **绝对不许：** 手改根目录产物（`index.html`/`assets`/`config.js`/`sw.js`/`icons`/`fonts`）、
 为了让门禁变绿去改门禁用例、在未开 PR 的情况下动数据层与构建器。
-**红线文件**（必须开 `wb-*` 分支发 PR，不许直推 main）：`src/scripts/01b_engine_data.js`、
+**红线文件**（必须开 `wb-*` 分支发 PR，不许直推 main）：`src/scripts/engine_data.js`、
 任何版本迁移代码、`tools/build.py`、`tools/verify.py`、`src/manifest.json`、`.github/`。
 
 > 站点线上地址：https://pingzmtx.github.io/bottle-pomodoro/ ——push 到 `main` 约 1 分钟后生效。
@@ -145,7 +145,7 @@ MIT · 作者 瓶子满天星 · ©2026
 2. **禁止复制第二份同名实现**（历史事故：updateTitle×2、年度热力图×2）。
    加功能前先 grep，发现已存在同职责函数就包装或复用，别再造一个。
 3. **新增 appData 字段**必须同步补默认值；设备 UI 态（折叠/引导/歌单/剧情/角标/公告等）进 `appData.uiPrefs.*`，不新增 localStorage 键（落地见 `docs/current/AI_SCAFFOLD.md`）。
-4. **新纯函数**进 `00_pure_core.js`；**新 UI 组件**走 `registerComponent()`（槽 8）；
+4. **新纯函数**进 `pure_core.js`；**新 UI 组件**走 `registerComponent()`（槽 8）；
    **新玩法**默认新建独立文件并登记槽（见 AGENTS.md §1.5）。
 5. **增强模块（02/03/05/06/07）只许"包装白名单函数"**，不许直接改写 01 系列内部实现，
    并保持"整段可回退"。

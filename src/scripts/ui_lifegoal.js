@@ -1,5 +1,5 @@
 // @layer: L1
-/* ==================== 模块: 01eE_ui_lifegoal.js | 职责: 人生目标页（年 / 月 / 愿望清单）| 分组: ui ==================== */
+/* ==================== 模块: ui_lifegoal.js | 职责: 人生目标页（年 / 月 / 愿望清单）| 分组: ui ==================== */
 /* 为什么单独一个文件：这是「目标层」的完整域（列表 / 卡片 / 编辑弹窗 / 里程碑 /
  * 数值指标 / 领域筛选），与 03_enh572 里的「今日番茄目标」是两套东西 —— ｜症状：人生目标存不住 · 目标周期算错
  * 那个是「今天做几个番茄」，这个是「今年要干什么」。
@@ -7,7 +7,7 @@
  * 命名一律 life 前缀：项目里 `goal` 已被当日番茄数占用（renderGoalCard /
  * claimGoalCoin / 周挑战阈值），两个 goal 混用会让人分不清语义。
  *
- * 进度算法不在这里：全部走 00b_goal_progress.js 的 lifeGoalProgress()，
+ * 进度算法不在这里：全部走 goal_progress.js 的 lifeGoalProgress()，
  * 保证卡片、周视图、复盘快照读的是同一份实现。
  *
  * 函数索引（TOC）：lifeGoalCycleKey/lifeGoalCycleNow/lifeGoalIsPast/ensureLifeAreas/lifeGoalsOf/lifeGoalById/lifeGoalChildren/goalsUsingHabit/syncHabitLink/lifeGoalTodoCount/lifeGoalPomoCount/lifeGoalSorted（+44 更多）

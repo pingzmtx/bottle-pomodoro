@@ -3,7 +3,7 @@
  * 01eT · 月度/年度统计
  * 职责：月度/年度统计（年选择器、逐月表、逐年统计）、专注传记文案与里程碑（bioText / bioTotalPomos / 回填）
  * 症状：月度统计空白 · 年份切不了 · 年度数字对不上
- * 归位：2026-11-14 由 01e7_ui_stats.js 按域拆出（拆分前同一文件，行为未变）
+ * 归位：2026-11-14 由 ui_stats.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：renderMonthlyStat/yrYearNum/yrMapYearNum/yrMapAnchorDate/yrMapShift/statYearsList/statYearPomoMap/openYearPicker/renderYearPickGrid/pickStatYear/renderYearlyStat/renderYearMonthTable（+10 更多）
  * ============================================================ */
 
@@ -276,7 +276,7 @@ function openMonthPicker() {
   showModal('monthPickModal');
 }
 function monthPickYearShift(d) {
-  /* ★ 跨模块状态必须走 __set__ 桥：_monthPickY 声明在 01d_engine_features.js，
+  /* ★ 跨模块状态必须走 __set__ 桥：_monthPickY 声明在 engine_features.js，
      在**本模块里是桥生成的 const 绑定**，直接 `_monthPickY +=` 会抛
      TypeError: Assignment to constant variable（读得到、写不得）。 */
   __set__monthPickY((_monthPickY || new Date().getFullYear()) + (Number(d) || 0));

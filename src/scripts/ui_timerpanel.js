@@ -3,7 +3,7 @@
  * 01eQ · 计时面板
  * 职责：今日统计、关联待办、子任务、必做区、段位样式、结算弹窗里「这次做完的子计划」
  * 症状：今日统计不动 · 关联待办选不了 · 子任务勾不上
- * 归位：2026-11-14 由 01e_engine_ui.js 按域拆出（拆分前同一文件，行为未变）
+ * 归位：2026-11-14 由 engine_ui.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：updateTodayStats/timerLinkedTodo/renderTimerSubs/renderFinishSubs/toggleFinishSub/selectTimerSub/toggleTimerSub/applyTodayTier/mustDoUI/toggleMustDoSection/toggleMustDoBlock/toggleMustDoCard（+7 更多）
  * ============================================================ */
 
@@ -45,7 +45,7 @@ function updateTodayStats() {
   renderEncourage();
   renderTimerBadge();
 }
-/* ===== 计划 / 待办 的增删改查与列表渲染已迁至 01eC_ui_todo.js（回退见该文件头注释）===== */
+/* ===== 计划 / 待办 的增删改查与列表渲染已迁至 ui_todo.js（回退见该文件头注释）===== */
 /* 计时界面子任务卡：开始番茄时同步展示主计划下的子任务，可勾选（与计划页数据一致） */
 /* 子任务勾选框（计划列表与计时页共用）：走 CSS 类，深色模式自动提亮 */
 const SUB_CB_SVG =
@@ -197,7 +197,7 @@ function toggleTimerSub(si) {
   renderTodos();
 }
 let _todoSig = '';
-/* escapeHtml 已上移到 01a1_dom_util.js（引擎与 UI 共用，见该文件头说明） */
+/* escapeHtml 已上移到 dom_util.js（引擎与 UI 共用，见该文件头说明） */
 /* 今日番茄分级：0-5 正常（红橙）｜6-9 努力（绿）｜10+ 十分努力（金+发光） */
 function applyTodayTier(tc) {
   const _stEl = document.getElementById('statsTotal');
@@ -515,7 +515,7 @@ function openMustDoModal(dateStr) {
       '全部打勾完成 → <b style="color: var(--primary-ink);">+' + COIN_MUSTDO_REWARD + '🪙</b>（奖励只在当天有效，过后作废）';
   showModal('mustDoModal');
 }
-/* ===== 计划 / 待办 的增删改查与列表渲染已迁至 01eC_ui_todo.js（回退见该文件头注释）===== */
+/* ===== 计划 / 待办 的增删改查与列表渲染已迁至 ui_todo.js（回退见该文件头注释）===== */
 /* 计划页二级导航：计划 / 习惯 / 目标 / 定点休息 */
 function switchPlanTab(tab) {
   let tv = document.getElementById('planTodoView');

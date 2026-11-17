@@ -75,7 +75,7 @@ function onDayRolled() {
     } catch (e) { if (window.__silent) window.__silent(e, '01g:onDayRolled'); }
   } catch (e) { if (window.__silent) window.__silent(e, '01g:onDayRolled'); }
 }
-/* 拖拽绑定已移进 01eJ_ui_skin.js 末尾自注册（幂等；module 执行时 DOM 已就绪） */
+/* 拖拽绑定已移进 ui_skin.js 末尾自注册（幂等；module 执行时 DOM 已就绪） */
 document.addEventListener('pointerdown', ensureSfxResumed, { once: true });
 document.addEventListener('visibilitychange', function () {
   if (document.hidden) return;

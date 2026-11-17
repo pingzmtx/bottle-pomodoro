@@ -301,7 +301,7 @@ html, body {
      ★ 这是「左右滑会前进后退，而且同时还在切页面」的第二半原因：
        overscroll-behavior-x 默认是 auto，Chrome/Via 在页面横向滑到边时会
        触发自己的后退/前进；改成 none 后，横向滑动只归应用自己的手势管。
-       （另一半原因是切视图会往历史栈塞记录，已在 0B_hash路由.js 里改为 replaceState。） */
+       （另一半原因是切视图会往历史栈塞记录，已在 hash路由.js 里改为 replaceState。） */
   overscroll-behavior-x: none;
   -webkit-overflow-scrolling: touch;
 }

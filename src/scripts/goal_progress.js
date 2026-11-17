@@ -1,6 +1,6 @@
 // @layer: L0
 /* ============================================================================
- * 00b_goal_progress.js —— 人生目标的进度计算（纯函数，无 DOM、无副作用） ｜症状：目标进度和复盘对不上
+ * goal_progress.js —— 人生目标的进度计算（纯函数，无 DOM、无副作用） ｜症状：目标进度和复盘对不上
  *
  * 为什么单独一个文件：
  *   进度公式会被 3 处调用（目标卡、周视图、复盘快照），如果每处各写一遍，
@@ -287,7 +287,7 @@
     return new Date(t + n * 86400000).toISOString().slice(0, 10);
   }
 
-  /* ISO 星期：1=周一 … 7=周日。全局已有 isoWeekday（00_pure_core.js:1134），
+  /* ISO 星期：1=周一 … 7=周日。全局已有 isoWeekday（pure_core.js:1134），
      这里保留自算兜底，免得单测环境取不到。 */
   function isoWd(ds) {
     if (typeof isoWeekday === 'function') return isoWeekday(ds);

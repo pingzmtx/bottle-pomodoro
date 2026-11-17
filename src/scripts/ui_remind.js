@@ -1,17 +1,17 @@
 // @layer: L1
 /* ===== 耦合契约（只读注释，不改运行逻辑）=====
  * 定点提醒层：提醒增删与「每天/一次」切换、到点队列与去重、重臂与贪睡、5 秒心跳扫描、与专注的互斥静音
- * 全部为**顶层 function 声明 + 该域私有常量/状态，并含该域末尾那处顶层调用 `startRemindWatcher();`**，跨 script 全局可见；本文件必须排在 01e_engine_ui.js
+ * 全部为**顶层 function 声明 + 该域私有常量/状态，并含该域末尾那处顶层调用 `startRemindWatcher();`**，跨 script 全局可见；本文件必须排在 engine_ui.js
  * **之后、紧邻**加载（见 src/manifest.json 的槽 1 files）。
  * 依赖方向：本文件 → 01e / 00_pure_core / 01b（前向，安全）。本域**全部私有状态都在本文件内**
  *   （静态核对：01e 剩余部分与其它 39 个文件对它们的引用数均为 0）。
  *   反向不成立：01e **不**依赖本文件的任何东西。
- * 回退方式：把本文件内容按 TOC 顺序粘回 01e_engine_ui.js 原位置，并删掉 manifest 里本文件那一行。 */
+ * 回退方式：把本文件内容按 TOC 顺序粘回 engine_ui.js 原位置，并删掉 manifest 里本文件那一行。 */
 /* ==================== 模块: 04eK-ui-remind.js | 职责: 提醒增删与「每天/一次」切换、到点队列与去重、重臂与贪睡、5 秒心跳扫描、与专注的互斥静音 | 分组: ui ==================== */
 
 /* ============================================================
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：04eK-ui-remind.js（源文件 01eK_ui_remind.js）
+ * 文件名：04eK-ui-remind.js（源文件 ui_remind.js）
  * 分组：ui
  * 职责：提醒增删与「每天/一次」切换、到点队列与去重、重臂与贪睡、5 秒心跳扫描、与专注的互斥静音 ｜症状：提醒不响 · 贪睡不生效 · 提醒重复弹
  * 函数索引（TOC）：syncNewRemindDate/remindChangeRep/remindChangeDate/addRemind/delRemind/remindModalVisible/remindRenderHead/remindFocusRunning/remindFocusHintOnce/remindFocusFlush/remindEnqueue/remindAckCurrent（+7 更多）

@@ -4,7 +4,7 @@
  * 职责：番茄树阶段推进、退化复活、宝箱/扭蛋/装饰抽取、树种解锁、段位核心与赛季锚点
  * 症状：树不长大 · 宝箱抽不出来 · 树种解锁不了
  * 主要入口：rollChestReward / rollShopWheelReward / reviveDegradePoints / getTreeStageFor（增强模块只许包装，不许复制第二份实现）
- * 归位：2026-11-14 由 01d_engine_features.js 按域拆出（拆分前同一文件，行为未变）
+ * 归位：2026-11-14 由 engine_features.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：speciesPrevFull/speciesPrevName/getCurrentTreeStages/getTreeStageFor/getTreeStage/reviveDegradePoints/rollChestReward/rollShopWheelReward/randomUnlockedDecor/_pickWeighted/gachaReward/checkGachaTrigger（+23 更多）
  * ============================================================ */
 

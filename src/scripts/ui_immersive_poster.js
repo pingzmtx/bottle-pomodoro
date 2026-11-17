@@ -1,6 +1,6 @@
 // @layer: L1
 /* ===== 耦合契约 E3（只读注释，不改运行逻辑）=====
- * 沉浸式冒险总结海报（L1，UI）：由 01f_engine_immersive.js 迁入，代码原样搬运。 ｜症状：冒险总结海报空白 · 保存不下来
+ * 沉浸式冒险总结海报（L1，UI）：由 engine_immersive.js 迁入，代码原样搬运。 ｜症状：冒险总结海报空白 · 保存不下来
  * 对外 = drawImmersivePoster / saveImmersivePoster（模板 data-act 按 window 名调用）。
  * 依赖方向：本文件 → 引擎（getImmersiveScript / chaptersName / immersiveComment）
  *           本文件 → 海报绘制原语（_pC/_pL/_pR/_pRR/_pEmoji @01e2）

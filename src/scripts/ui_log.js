@@ -2,7 +2,7 @@
 /* ===== 耦合契约（只读注释，不改运行逻辑）=====
  * 日志与回顾层：日志页渲染（renderLogs / 分组折叠 / 日历 / 筛选 / 翻页）、时长格式化辅助、
  * 艾宾浩斯「回顾」弹窗与自评（renderReviewModal / gradeReview / graduatedReviewDates）。
- * 全部为**顶层函数声明**，跨 script 全局可见；本文件必须排在 01e_engine_ui.js
+ * 全部为**顶层函数声明**，跨 script 全局可见；本文件必须排在 engine_ui.js
  * **之后**加载（见 src/manifest.json 的槽 1 files）。
  * 依赖方向：本文件 → 01e（前向，安全）。本文件使用的 01e 顶层**状态变量**仍留在 01e，
  *   且都在本文件之前初始化，运行期一定可用（例：`_logJumpDate` / `_logCalJumpOpen` /
@@ -15,7 +15,7 @@
 
 /* ============================================================
  * 【模块说明】本文件说明供「番茄钟合成器」识别展示，改功能时请同步更新
- * 文件名：04eD-ui-log.js（源文件 01eD_ui_log.js）
+ * 文件名：04eD-ui-log.js（源文件 ui_log.js）
  * 分组：ui
  * 职责：日志页（渲染 / 分组折叠 / 日历 / 筛选 / 翻页）、时长格式化辅助、 ｜症状：日志页空白 · 翻页不动 · 筛选没反应
  *       回顾（待回顾列表 / 单日详情 / 自评打分 / 回顾设置）。
@@ -1005,7 +1005,7 @@ function dayLogBlockHtml(date, dayRecs, opts) {
 
 /* ===== 艾宾浩斯「回顾」（遗忘曲线复习计划）=====
  * 复习对象是「日期」：把每个有专注记录的日子当成一张记忆卡。
- * 算法全在 00_pure_core.js（EBBINGHAUS_INTERVALS / ebReview / ebIsDue / ebStageName），
+ * 算法全在 pure_core.js（EBBINGHAUS_INTERVALS / ebReview / ebIsDue / ebStageName），
  * 这里只负责「读 appData → 算待办 → 画界面」，不含任何间隔常数。 */
 function reviewDatesWithRecords() {
   const set = {};

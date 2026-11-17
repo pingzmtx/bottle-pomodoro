@@ -226,7 +226,7 @@
    ◦ v5.7.1 目标与体验：每日专注目标(统计页进度卡+计时页胶囊+达标庆祝) / 快捷键 P=打断·继续 与速查表 / 休息保持屏幕常亮(Wake Lock) / 自动跟随系统深色 / 记录 CSV 导出
    ◦ v5.7.2 性能专项：年地图 dayMap / 连续天数 dateSet / 周徽章 allWeeks 三处热路径改为记录级版本缓存(主代码内建回退)
   ····· 0E-theme.js —— 主题配色引擎（文件末尾独立注入 <script>，整段移除即可退回原版） ·····
-   ▣ 模块 0E_theme_主题引擎.js（位于文件末尾）
+   ▣ 模块 theme_主题引擎.js（位于文件末尾）
    ◦ 主题注册表 THEMES：6 套主题的 id / 名称 / 标签 / 色卡三色（色卡写死主题自身色，不跟当前主题变色）
    ◦ applyTheme(id)：只写 body[data-theme]，CSS 是唯一真源，JS 不直接改颜色
    ◦ setTheme(id)：应用 + 落库 appData.settings.theme + saveData（刷新/重启后保持）
@@ -579,7 +579,7 @@ html, body {
      ★ 这是「左右滑会前进后退，而且同时还在切页面」的第二半原因：
        overscroll-behavior-x 默认是 auto，Chrome/Via 在页面横向滑到边时会
        触发自己的后退/前进；改成 none 后，横向滑动只归应用自己的手势管。
-       （另一半原因是切视图会往历史栈塞记录，已在 0B_hash路由.js 里改为 replaceState。） */
+       （另一半原因是切视图会往历史栈塞记录，已在 hash路由.js 里改为 replaceState。） */
   overscroll-behavior-x: none;
   -webkit-overflow-scrolling: touch;
 }
@@ -2058,7 +2058,7 @@ body.dark-mode .timer-badge .tb-icon { filter: drop-shadow(0 0 5px rgba(var(--wh
   -webkit-align-items: center;
   -webkit-justify-content: center;
 }
-/* 弹层打开时锁住背后的页面滚动（配合 01e_engine_ui.js 的 _syncModalLock）。
+/* 弹层打开时锁住背后的页面滚动（配合 engine_ui.js 的 _syncModalLock）。
    html 是滚动器（html{overflow-x:hidden} 让它接管纵向滚动），所以锁 html；
    body 一起写是为了兜住某些把滚动放在 body 上的环境。
    ★ 不要用 position:fixed 那套「记 scrollTop 再还原」的方案：
@@ -2071,7 +2071,7 @@ html.modal-open, body.modal-open { overflow: hidden; }
 
 /* ---------- 软键盘弹出时：把弹窗钉在「看得见的那块」上 ----------
    安卓浏览器弹键盘时不动布局视口，只把视觉视口往上推（--vv-top / --vv-h 由
-   01g_engine_init.js 的 initKeyboardInset 写入）。position:fixed 钉的是布局视口，
+   engine_init.js 的 initKeyboardInset 写入）。position:fixed 钉的是布局视口，
    于是遮罩留在原地、弹窗被推到屏幕外，用户看到的是「点一下输入框，框就没了」。
    这里在 body.kb-open 期间把遮罩改钉到视觉视口，弹窗按可用高度收缩。 */
 body.kb-open .modal-overlay.show {
@@ -2279,7 +2279,7 @@ textarea.rs-input { resize: vertical; }
 }
 /* 软键盘弹出时隐藏底部导航：它 position:fixed 钉在视口底，会和正在输入的输入框抢
    同一块位置。
-   kb-open / --kb-h 由 01g_engine_init.js 的 initKeyboardInset 写入。
+   kb-open / --kb-h 由 engine_init.js 的 initKeyboardInset 写入。
    桌面端 kb 恒为 0，不会命中此规则。 */
 body.kb-open .bottom-nav { display: none; }
 /* 首次打开渐进式引导条：固定在底部导航上方，轻量不遮挡 */
@@ -7027,7 +7027,7 @@ body.dark-mode .log-sub-wrap { border-top-color: var(--border); }
 .coin-ledger-undo:hover { color: var(--primary-ink); border-color: var(--primary); }
 .coin-ledger-empty { text-align: center; color: var(--text-light); font-size: var(--fs-note); padding: var(--sp-16) 0; }
 /* ===== 时间块 · 手帐式版式（日矩阵 / 任务清单）=====
-   01eA_ui_timeblock.js 输出的 tb-paper-* 类名此前在模板里一个都没定义 ——
+   ui_timeblock.js 输出的 tb-paper-* 类名此前在模板里一个都没定义 ——
    于是钟点竖着淌、任务条和清单糊在一起。这里一次补齐。
    版式目标：横向 = 钟点（07→22），纵向 = 一小时一条，色块横跨所占时段（手帐/日程表的样子）。 */
 #tbShell { margin: 0 0 var(--sp-10); }
@@ -10223,7 +10223,7 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
       <div id="planGoalMain" style="margin-top:var(--sp-14)"></div>
       <!-- 本周重点 + 周期提示（检查点 / 收尾窗口）。★ 排在人生目标之上：
            「这周做什么」比「今年做什么」近，打开目标页第一眼该看到的是它。
-           由 01eF_ui_lifecycle.js 渲染；为空时不占高度（innerHTML 是空串）。 -->
+           由 ui_lifecycle.js 渲染；为空时不占高度（innerHTML 是空串）。 -->
       <div id="lifeWeekFocus" style="margin-top:var(--sp-16)"></div>
       <!-- 人生目标（年 / 月 / 愿望）。★ 容器名是 lifeGoalsList，不是 planGoalList：
            planGoal* 是既有 ID 家族（View/MustDo/Main），由 switchPlanTab 与
@@ -11345,7 +11345,7 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
 </div>
 
 <!-- 月末 / 年末收尾：和编辑弹窗同一套 sheet 骨架（样式选择器合并写），
-     内容由 01eF_ui_lifecycle.js 的 openLifeEval() 渲染。 -->
+     内容由 ui_lifecycle.js 的 openLifeEval() 渲染。 -->
 <div class="modal-overlay" id="lifeEvalModal">
   <div class="modal" id="lifeEvalModalBox" style="max-width:480px; text-align:left">
     <h3 class="lg-modal-head" id="lifeEvalTitle">收尾</h3>
@@ -11394,7 +11394,7 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
 </div>
 
 <!-- 复盘：列表 / 分步编辑 / 只读查看三种状态共用一个 sheet，
-     由 01eG_ui_lifereview.js 的 renderLifeReview() 切换内容。 -->
+     由 ui_lifereview.js 的 renderLifeReview() 切换内容。 -->
 <div class="modal-overlay" id="lifeReviewModal">
   <div class="modal" id="lifeReviewModalBox" style="max-width:480px; text-align:left">
     <h3 class="lg-modal-head" id="lifeReviewTitle">复盘</h3>

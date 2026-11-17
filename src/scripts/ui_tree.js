@@ -1,7 +1,7 @@
 // @layer: L1
 /* ============================================================
  * 01e5 · 番茄树/商店/成长渲染域 ｜症状：树/商店界面不刷新 · 天气道具点了没反应
- * 由 01e_engine_ui.js 按渲染域拆出（可回退）
+ * 由 engine_ui.js 按渲染域拆出（可回退）
  * 函数索引（TOC）：renderTreeShopWeather/renderTreeShopProp/renderTreeShopFun/renderTreeShop/_nextSelfRewardId/addSelfReward/claimSelfReward/removeSelfReward/switchShopTab/initShopWheel/openCoinLedger/renderCoinLedger（+40 更多）
  * ============================================================ */
 function renderTreeShopWeather(tr) {
@@ -1804,7 +1804,7 @@ function renderTreeGrowthMeta() {
 }
 /* 森林成长面板 —— 借鉴 Forest「把专注种成一片森林」的长期心智：
    每天一片地、地里按**番茄**种树，攒的是「林子有多密」，而不是「一棵树有多大」。
-   树的口径 / 里程碑 / 展示窗口全在 00_pure_core.js，
+   树的口径 / 里程碑 / 展示窗口全在 pure_core.js，
    这里只把算好的林子画出来 —— 不自己数数、不写死任何数字。 */
 function renderForestPanel() {
   const el = document.getElementById('treeForestPanel');

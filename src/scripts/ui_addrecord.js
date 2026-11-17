@@ -3,7 +3,7 @@
  * 01eS · 补记记录弹窗
  * 职责：补记弹窗的时间/计划/子任务选项、保存、自动保存提示
  * 症状：补记保存不了 · 时间选不了 · 关联计划下拉是空的
- * 归位：2026-11-14 由 01e_engine_ui.js 按域拆出（拆分前同一文件，行为未变）
+ * 归位：2026-11-14 由 engine_ui.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：fillAddRecordTimeOptions/updateAddRecordEnd/openAddRecordModal/fillAddRecordPlanOptions/onAddRecordPlanChange/fillAddRecordSubOptions/findTodoByIdStr/saveAddRecord/showAutoSaveHint/ensureDiary/cleanupEmptyDiaries/renderDiary（+24 更多）
  * ============================================================ */
 

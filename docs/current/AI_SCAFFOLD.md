@@ -21,7 +21,7 @@
 
 ## 1. 数据字段（单点真相 + 默认值）
 
-**业务数据** → `src/scripts/01b_engine_data.js` `createDefaultAppData()` 内补默认字段：
+**业务数据** → `src/scripts/engine_data.js` `createDefaultAppData()` 内补默认字段：
 
 ```js
 myNewFeature: { enabled: false, lastDate: null },   // 跟随主存储/IDB 双写、导出、清空、迁移
@@ -42,7 +42,7 @@ uiPrefs: {
 
 | 内容 | 放哪 |
 |---|---|
-| 纯函数/计算（日期、折算、格式化） | `00_pure_core.js` + `tools/tests/unit_pure.js` 补用例（lint 守卫拦非纯函数） |
+| 纯函数/计算（日期、折算、格式化） | `pure_core.js` + `tools/tests/unit_pure.js` 补用例（lint 守卫拦非纯函数） |
 | 新玩法渲染 | **新文件** `NN_主题.js` → `template.html` 插 `<!--@@__JSS_N__@@-->` → `manifest.json` slots 追加 → `build.py --lint` 校验三者一致 |
 | 小改既有 UI | 该功能所属模块内就近的 `renderXxx()` |
 
@@ -52,7 +52,7 @@ uiPrefs: {
 
 - 静态宿主：直接给 `template.html` 对应 `.view` 里加容器 `<div id="xxxBox"></div>`（静态模板里 id 随便起，构建不动它）。
 - 动态视图：`switchView('timer'|'plan'|'log'|'stats'|'settings')` 是底部 5 视图唯一入口；**新玩法页面默认加进既有视图的子 tab/区块，不新增底部 tab**（底部导航是产品固定 5 项）。
-- 若容器在 boot 后才出现 → `registerComponent` 的 `host` 传函数/选择器由框架兜底重试；否则沿用 `renderXxx()` + 在 `01g_engine_init.js` boot 渲染段调用。
+- 若容器在 boot 后才出现 → `registerComponent` 的 `host` 传函数/选择器由框架兜底重试；否则沿用 `renderXxx()` + 在 `engine_init.js` boot 渲染段调用。
 
 ## 4. 持久化（单通道）
 
@@ -66,7 +66,7 @@ saveDataNow();     // 立即落盘（低频、点完即关场景：开关/折叠
 
 ## 5. 联动登记（registerComponent 声明式——替代手工黑名单）
 
-新 UI 组件建议直接走组件注册表（`08_component_registry.js`），一份声明自动获得：样式注入 / 幂等挂载 / 极简隐藏 / 折叠记忆 / 卸载清理：
+新 UI 组件建议直接走组件注册表（`component_registry.js`），一份声明自动获得：样式注入 / 幂等挂载 / 极简隐藏 / 折叠记忆 / 卸载清理：
 
 ```js
 window.registerComponent({
@@ -109,7 +109,7 @@ git status --short               # 干净后：R-段头注释 + 独立 commit（
 |---|---|---|
 | 新全局函数 | 先 `grep -rn` 查重；新玩法函数进新文件 | 直接往 01e（1.4w 行）里塞新功能"加段" |
 | 用户文本 | `escapeHtml(str)` 后再进 innerHTML | 直接把 input 内容拼进 HTML |
-| 纯逻辑 | 进 `00_pure_core.js` 并补 unit 用例 | 在渲染函数里复制一份日期/折算逻辑 |
+| 纯逻辑 | 进 `pure_core.js` 并补 unit 用例 | 在渲染函数里复制一份日期/折算逻辑 |
 | 数据持久化 | appData + saveData(/Now) | 新造 `localStorage` 副键 |
 | 联动登记 | `registerComponent` 声明式 | 手写极简黑名单 / 自研折叠 |
 | 错误处理 | 数据层危险操作留 confirm 兜底；异常接 `__errRep`/`__silent` | 空 `catch(e){}` 裸奔吞异常 |

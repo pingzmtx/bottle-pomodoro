@@ -226,7 +226,7 @@
    ◦ v5.7.1 目标与体验：每日专注目标(统计页进度卡+计时页胶囊+达标庆祝) / 快捷键 P=打断·继续 与速查表 / 休息保持屏幕常亮(Wake Lock) / 自动跟随系统深色 / 记录 CSV 导出
    ◦ v5.7.2 性能专项：年地图 dayMap / 连续天数 dateSet / 周徽章 allWeeks 三处热路径改为记录级版本缓存(主代码内建回退)
   ····· 0E-theme.js —— 主题配色引擎（文件末尾独立注入 <script>，整段移除即可退回原版） ·····
-   ▣ 模块 0E_theme_主题引擎.js（位于文件末尾）
+   ▣ 模块 theme_主题引擎.js（位于文件末尾）
    ◦ 主题注册表 THEMES：6 套主题的 id / 名称 / 标签 / 色卡三色（色卡写死主题自身色，不跟当前主题变色）
    ◦ applyTheme(id)：只写 body[data-theme]，CSS 是唯一真源，JS 不直接改颜色
    ◦ setTheme(id)：应用 + 落库 appData.settings.theme + saveData（刷新/重启后保持）

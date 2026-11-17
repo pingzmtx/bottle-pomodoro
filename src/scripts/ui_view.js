@@ -3,7 +3,7 @@
  * 01eP · 视图切换与全局外观
  * 职责：记住上次视图、副标签切换、字号/主题/24 小时制
  * 症状：切走再回来不是原来的页 · 字号/主题/24 小时制不生效
- * 归位：2026-11-14 由 01e_engine_ui.js 按域拆出（拆分前同一文件，行为未变）
+ * 归位：2026-11-14 由 engine_ui.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：tbOnViewSwitch/_fireViewSwitchHooks/rememberLastView/restoreLastView/switchView/switchViewCore/switchStatsSubTab/setWorkPreset/updateChromeTheme/toggleHour12/systemFontBoost/applyFontScale（+19 更多）
  * ============================================================ */
 

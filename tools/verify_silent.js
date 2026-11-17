@@ -8,7 +8,7 @@
  *
  * 用法：
  *   node tools/verify_silent.js <基线目录> <新目录>
- *   node tools/verify_silent.js <基线目录> <新目录> --declared 00_pure_core.js,01b_engine_data.js
+ *   node tools/verify_silent.js <基线目录> <新目录> --declared pure_core.js,engine_data.js
  *   不带参数时：<基线目录> 默认取 git 的 HEAD~1（即"导入前"）。
  *
  * 退出码：0 = 全部一致或差异均已声明；1 = 有未声明差异（需人工定位）。

@@ -6,7 +6,7 @@
  * 且 UI 尚未加载时会返回 undefined、把 HTML 拼成字符串 "undefined"。
  * 红线：本文件只放无状态转换，不放任何依赖 appData 或加载时序的逻辑。 */
 /* ============================================================
- * 【M0 DOM 工具】escapeHtml：从 01eQ_ui_timerpanel.js 上移
+ * 【M0 DOM 工具】escapeHtml：从 ui_timerpanel.js 上移
  * 为什么搬：引擎层调用它 18 处（01g 10 / 01f 5 / 02 2 / 05 1），
  *   它只做 createElement + textContent 的转义转换，与计时面板 UI 无关。
  *   留在 UI 文件里，会让「引擎不许直连 UI」的门禁产生 18 处假阳性——

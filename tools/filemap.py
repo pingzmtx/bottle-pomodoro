@@ -7,17 +7,17 @@
     python3 tools/filemap.py --check          # 自检：键唯一 / manifest 与磁盘双向一致
     python3 tools/filemap.py --list           # 键 → 文件名
     python3 tools/filemap.py --path ui_tree    # 键 → 文件名（脚本里也可 import）
-    python3 tools/filemap.py --key 01e5_ui_tree.js
+    python3 tools/filemap.py --key ui_tree.js
 
 脚本里
 ------
     from filemap import FM
-    p = FM.path('ui_tree')        # → '01e5_ui_tree.js'
-    k = FM.key('01e5_ui_tree.js') # → 'ui_tree'
+    p = FM.path('ui_tree')        # → 'ui_tree.js'
+    k = FM.key('ui_tree.js') # → 'ui_tree'
 
 为什么要有它
 ------------
-阶段 3 之前，工具/基线里散着 196 处 `01e5_ui_tree.js` 这样的全名。全名同时承担了两个
+阶段 3 之前，工具/基线里散着 196 处 `ui_tree.js` 这样的全名。全名同时承担了两个
 职责：**加载顺序**（01e5 这个序号）和**身份**（ui_tree 这个语义）。于是改名 = 全仓断链。
 
 现在的分工：
@@ -26,12 +26,14 @@
     其他所有地方（工具、基线、分组表）        —— 只写语义键，运行期查一次
 
 语义键 = 文件名去掉 `^[0-9][0-9A-Za-z]{0,3}_` 前缀：
-    01e5_ui_tree.js        → ui_tree
-    00_pure_core.js        → pure_core
-    0B_hash路由.js         → hash路由
-    02_enh571_自律增强.js  → enh571_自律增强
 
-所以把 `01e5_ui_tree.js` 改名成 `ui_tree.js` 只需要动 manifest 一行 + 移动文件；
+    01e5_ui_tree.js  → ui_tree      （历史形态：2026-11-17 阶段 6 之前的文件名）
+    ui_tree.js       → ui_tree      （现在是这种：文件名已经等于键）
+
+阶段 6 已经把 71 个文件的序号前缀摘掉了，所以正常情况下 key == 文件名。前缀规则
+留着有两个用处：① 有人加回前缀时键不变；② 判断「这次改名是保键还是换身份」。
+
+所以给 `ui_tree.js` 加回前缀（→ `01e9_ui_tree.js`）只需要动 manifest 一行 + 移动文件；
 任何工具、基线、分组表都不用改 —— 这是本文件存在的唯一理由。
 
 退出码

@@ -28,8 +28,8 @@
 
 | 项目 | 协议 | 借鉴的部分 | 本项目对应 |
 |---|---|---|---|
-| [Super Productivity](https://github.com/super-productivity/super-productivity) | MIT | 单一真相源、派生数据现算、纯函数层与副作用分离、分层门禁用工具守 | `00_pure_core.js`、`tools/verify.py` 的 layer 段 |
-| [HabitTrove](https://github.com/dohsimpson/HabitTrove) | AGPL-3.0 | 货币模型 = 余额 + 流水（`{ balance, transactions[] }`），面板只读账本 | 金币账本 `01d_engine_features.js`、`tools/check_coin_single_source.py` |
+| [Super Productivity](https://github.com/super-productivity/super-productivity) | MIT | 单一真相源、派生数据现算、纯函数层与副作用分离、分层门禁用工具守 | `pure_core.js`、`tools/verify.py` 的 layer 段 |
+| [HabitTrove](https://github.com/dohsimpson/HabitTrove) | AGPL-3.0 | 货币模型 = 余额 + 流水（`{ balance, transactions[] }`），面板只读账本 | 金币账本 `engine_features.js`、`tools/check_coin_single_source.py` |
 | [yuvomi](https://github.com/ulsklyc/yuvomi) | MIT | 月/周/日/议程四视图的形态与移动端降级节奏 | 计划页月视图形态 |
 | [weektodo](https://github.com/manuelernestog/weektodo) | GPL-3.0 | 横向日期条 + 按天归属的任务组织方式、重复事件按天记账去重 | 计划页周条、重复规则去重思路 |
 | [vikunja](https://github.com/go-vikunja/vikunja) | AGPL-3.0 | 月网格恒 42 格（6×7）以保证换月不跳高；重复规则字段设计 | 月历网格、`todoRepeat*` 字段 |

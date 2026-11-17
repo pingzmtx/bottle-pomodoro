@@ -37,21 +37,21 @@
 
 | 文件 | 一句话职责 | 对外白名单入口 |
 |---|---|---|
-| `00_pure_core.js` | 纯函数孤岛：日期/折算/格式化/常量（Node 可测，unit 21） | `getTodayStr/getDateStr/calcPomos/getPomos/fmtTomatoNum/DAY_MS/…` |
-| `01a_engine_prelude.js` | 全局基础：共用小工具/常量/定时器门控 `__ivGov` | 基础工具函数 |
-| `01b_engine_data.js` | 数据层：`loadData`/`saveData(Now)` 双写、默认结构、迁移链、导出导入/清空/备份 | `loadData/saveData/saveDataNow/exportData/importData/clearAllData/validateBackup` |
-| `01c_engine_timer.js` | 计时引擎：番茄/自由专注/打断/休息/结算窗（finishModal） | `startPomodoro/finishPomodoro/interruptPomodoro/resetToIdle/startBreak` |
-| `01d_engine_features.js` | 业务中枢：`savePomodoroRecord` 结算、段位/成就/树/组队/必做/日志 | `savePomodoroRecord/addTreePoints/checkNewAchievements/toggleMustDo/…` |
-| `01e_engine_ui.js` | 界面渲染：`switchView`、renderTodos/Logs/Stats/YearHeatmap/Shop/Team/Poster、escapeHtml | `switchView/escapeHtml/renderTodos/renderStats/renderLogs/…` |
-| `01f_engine_immersive.js` | 沉浸式专注：剧本生成/章节推进/沉浸结算/背景音 | `immersiveOnTomatoSettled/…`（经 01c/01d 结算链调用） |
-| `01g_engine_init.js` | boot 编排：init()=loadData→全量渲染→新手指引→`__bootDone`；启动画面/关怀弹窗 | boot 主流程（内部） |
-| `02_enh571_自律增强.js` | 增强①：沉浸音频/自定义音频/统计卡注入/定点休息提醒（`__enh`） | 注入+包装点（整段可回退） |
-| `03_enh572_性能打磨.js` | 增强②：自动深色/每日目标/常亮/CSV 导出/快捷键 | 同上 |
-| `04_enh573_统计缓存.js` | 增强③：`__enh*` 统计缓存 + 空闲预热（`invalidateStatsCache` 包装） | 同上 |
-| `05_journey_渐进解锁.js` | 成长之旅：STEPS 解锁表 + 闸口包装 8 个推进函数 + 归档 + 公告（`__jy`） | `__jy.ensure/unlocked/…`（闸口包装点见 §4） |
-| `06_errRep_错误监控.js` | M1 运行时监控：window error/unhandledrejection 捕获 + 角标 + 现场导出（`__errRep`） | `__errRep.warn/list/silent` |
-| `07_uiFold_折叠记忆.js` | 折叠记忆 + 极简联动（`__uiFold`）：点标题收展 + 手动偏好（存 `appData.uiPrefs.foldPrefs`） | `__uiFold.register/toggle/sync/state/remove` |
-| `08_component_registry.js` | 组件注册表（`registerComponent`/`__comp`）：样式/挂载/极简隐藏/折叠收编/卸载 | `window.registerComponent/__comp.list/deregister` |
+| `pure_core.js` | 纯函数孤岛：日期/折算/格式化/常量（Node 可测，unit 21） | `getTodayStr/getDateStr/calcPomos/getPomos/fmtTomatoNum/DAY_MS/…` |
+| `engine_prelude.js` | 全局基础：共用小工具/常量/定时器门控 `__ivGov` | 基础工具函数 |
+| `engine_data.js` | 数据层：`loadData`/`saveData(Now)` 双写、默认结构、迁移链、导出导入/清空/备份 | `loadData/saveData/saveDataNow/exportData/importData/clearAllData/validateBackup` |
+| `engine_timer.js` | 计时引擎：番茄/自由专注/打断/休息/结算窗（finishModal） | `startPomodoro/finishPomodoro/interruptPomodoro/resetToIdle/startBreak` |
+| `engine_features.js` | 业务中枢：`savePomodoroRecord` 结算、段位/成就/树/组队/必做/日志 | `savePomodoroRecord/addTreePoints/checkNewAchievements/toggleMustDo/…` |
+| `engine_ui.js` | 界面渲染：`switchView`、renderTodos/Logs/Stats/YearHeatmap/Shop/Team/Poster、escapeHtml | `switchView/escapeHtml/renderTodos/renderStats/renderLogs/…` |
+| `engine_immersive.js` | 沉浸式专注：剧本生成/章节推进/沉浸结算/背景音 | `immersiveOnTomatoSettled/…`（经 01c/01d 结算链调用） |
+| `engine_init.js` | boot 编排：init()=loadData→全量渲染→新手指引→`__bootDone`；启动画面/关怀弹窗 | boot 主流程（内部） |
+| `enh571_自律增强.js` | 增强①：沉浸音频/自定义音频/统计卡注入/定点休息提醒（`__enh`） | 注入+包装点（整段可回退） |
+| `enh572_性能打磨.js` | 增强②：自动深色/每日目标/常亮/CSV 导出/快捷键 | 同上 |
+| `enh573_统计缓存.js` | 增强③：`__enh*` 统计缓存 + 空闲预热（`invalidateStatsCache` 包装） | 同上 |
+| `journey_渐进解锁.js` | 成长之旅：STEPS 解锁表 + 闸口包装 8 个推进函数 + 归档 + 公告（`__jy`） | `__jy.ensure/unlocked/…`（闸口包装点见 §4） |
+| `errRep_错误监控.js` | M1 运行时监控：window error/unhandledrejection 捕获 + 角标 + 现场导出（`__errRep`） | `__errRep.warn/list/silent` |
+| `uiFold_折叠记忆.js` | 折叠记忆 + 极简联动（`__uiFold`）：点标题收展 + 手动偏好（存 `appData.uiPrefs.foldPrefs`） | `__uiFold.register/toggle/sync/state/remove` |
+| `component_registry.js` | 组件注册表（`registerComponent`/`__comp`）：样式/挂载/极简隐藏/折叠收编/卸载 | `window.registerComponent/__comp.list/deregister` |
 
 ## 3. 数据流（用户操作 → 落盘 → 渲染）
 
@@ -117,7 +117,7 @@
 
 | 层 | 名称 | 槽位 | 内容 | 允许依赖 |
 |---|---|---|---|---|
-| **L0** | 纯函数 | 9 | `00_pure_core.js` | 无（不碰 DOM/appData/存储，`--lint` 守卫拦截） |
+| **L0** | 纯函数 | 9 | `pure_core.js` | 无（不碰 DOM/appData/存储，`--lint` 守卫拦截） |
 | **L1** | 核心引擎 | 1 | `01a`~`01g`（含 `01d2` / `01e2`~`01e8` 同槽子文件） | L0 |
 | **L2** | 增强模块 | 2–5 | `02` 自律增强 / `03` 性能打磨 / `04` 统计缓存 / `05` journey | L0、L1（只走各文件头对外白名单） |
 | **L3** | 横切关注 | 6–8 | `06` 错误监控 / `07` 折叠记忆 / `08` 组件注册表 | L0、L1 |
@@ -130,7 +130,7 @@
 `manifest.json` 的槽号 = **执行顺序**，`build.py` 按此把 `src/template.html` + `src/scripts/*.js` 拼成单文件 `index.html`：
 
 ```
-槽9 00_pure_core.js        ← 最先（被所有人调用）
+槽9 pure_core.js        ← 最先（被所有人调用）
      ↓
 槽1 01a → 01b → 01c → 01d → 01e → 01f → 01g   （引擎主链，槽内 files[] 顺序 = 执行顺序）
      ↓

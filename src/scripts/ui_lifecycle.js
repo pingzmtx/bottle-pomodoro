@@ -1,5 +1,5 @@
 // @layer: L1
-/* ==================== 模块: 01eF_ui_lifecycle.js | 职责: 目标层的周期（本周重点 / 季度检查点 / 月末年末收尾）| 分组: ui ==================== */
+/* ==================== 模块: ui_lifecycle.js | 职责: 目标层的周期（本周重点 / 季度检查点 / 月末年末收尾）| 分组: ui ==================== */
 /* 为什么单独一个文件（而不是塞进 01eE）：
  * 01eE 管的是「目标本身长什么样」（卡片、列表、编辑弹窗），是**静态结构**； ｜症状：周计划不刷新 · 这周重点丢了
  * 这个文件管的是「时间在目标上走过时发生了什么」——本周做了什么、季度该看一眼、
@@ -14,7 +14,7 @@
  *   ③ 收尾窗口过了也能补录，只是不主动提醒（timeto.me 的教训）——
  *      只给 3 天窗口的产品，错过一次就再也不打开了。
  *
- * 进度一律走 00b_goal_progress.js 的纯函数，这里不重算任何百分比。
+ * 进度一律走 goal_progress.js 的纯函数，这里不重算任何百分比。
  *
  * 函数索引（TOC）：lifeWeekKey/lifeWeekList/lifeWeekItems/lifeWeekById/lifeWeekLastUnfinished/lifeWeekAdd/lifeWeekToggle/lifeWeekDel/lifeWeekCarry/renderLifeWeek/renderLifeWeekHtml/renderLifeNoticeHtml（+28 更多）
  *   lifeWeekCarry/renderLifeWeek/renderLifeWeekHtml/renderLifeNoticeHtml/

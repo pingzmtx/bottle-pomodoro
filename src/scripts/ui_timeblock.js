@@ -1,13 +1,13 @@
 // @layer: L1
-/* 01eA_ui_timeblock.js · 时间块计划板（Time Blocking Grid）
+/* ui_timeblock.js · 时间块计划板（Time Blocking Grid）
  * ------------------------------------------------------------------ ｜症状：时间块拖不动 · 日程网格错位
  * 定位：**「计划 vs 实际」的对照工具**，不是日历。
  *   计划块 = 计划卡上的「提醒时间(=开始) → 预计结束」，浅色虚线；
  *   实际块 = 专注记录（records，按 todoId 关联）落到当天的时间段，深色实心，可多段；
  *   截止   = 只画一个小旗子，绝不画成整块；
  *   当前时刻 = 整行画一条横线（不再给格子描边：两列会同时被圈中，变成两个孤立的红框）。
- * 视图层只做「像素 + 颜色」；分钟数 / 多轨分列 / 吸附全在 00_pure_core.js（tb* 系列）。
- * 入口：常驻在计划列表上方（模板 #tbShellHost），由 01e_engine_ui.js 的 renderTodos
+ * 视图层只做「像素 + 颜色」；分钟数 / 多轨分列 / 吸附全在 pure_core.js（tb* 系列）。
+ * 入口：常驻在计划列表上方（模板 #tbShellHost），由 engine_ui.js 的 renderTodos
  *       调用本文件的 renderTimeBlockGrid()（本文件不改它的内部状态）。
  * 函数索引（TOC）：tbIsDark/tbRepaintForTheme/install/tbResetOcc/tbPaperLayout/tbStr/tbHash/tbAssignColorsFor/tbColorKeyOf/tbPalette/tbAlpha/tbTint（+47 更多）
  */
@@ -1113,7 +1113,7 @@
 
   /* ---------- 交互 ----------
      预计段来自计划卡的预计时间，实际段来自计时记录 + 勾选完成的时间戳。
-     点背景格可以**直接排期**（两次点击定头尾，实现在 01eM_ui_tbcreate.js）；
+     点背景格可以**直接排期**（两次点击定头尾，实现在 ui_tbcreate.js）；
      改已有计划仍走下面那张计划卡 —— 表上不提供拖拽改时长、点块编辑。 */
   /* ★ 事件用**委托**挂在网格容器上，不给每个块写内联 onmousedown：
      块每次 render 都是新节点（内联属性得跟着重写），委托只绑一次、也不会漏。

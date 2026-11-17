@@ -2577,4 +2577,4 @@ function restartImmersiveAfterSummary() {
 }
 /* ---- 冒险总结海报已迁至 ui_immersive_poster.js（143 行 canvas 绘制） ---- */
 
-/* ===== 沉浸式剧情副本·导入系统（17 个函数 + 格式常量/示例剧本/面板状态）已迁至 01f2_ui_script_import.js（回退见该文件头注释）===== */
+/* ===== 沉浸式剧情副本·导入系统（17 个函数 + 格式常量/示例剧本/面板状态）已迁至 ui_script_import.js（回退见该文件头注释）===== */

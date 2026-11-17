@@ -28,10 +28,10 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 |---|---|---|
 | 某个功能模块（`src/scripts/NN_*.js`） | core 12 + 相关十几条 | 20~40 秒 |
 | 样式 / 界面（`src/template/` 下的片段） | core 12 + 显示类 12 | ~40 秒 |
-| 公共层：`00_pure_core.js` / `manifest.json` / `build.py` / `run_smoke.py` | **全量（当前 79 条，以工具输出为准）** | ~90 秒 |
+| 公共层：`pure_core.js` / `manifest.json` / `build.py` / `run_smoke.py` | **全量（当前 79 条，以工具输出为准）** | ~90 秒 |
 
 **耗时与用例总数无关** —— 工具读 `git diff` 自己挑（原理见 §2 第 2 条）。**只有这三种情况才需要全量**
-（`python3 tools/verify.py --e2e`，2~3 分钟）：**① 发版前 ② 改了构建/测试基础设施 ③ 动了 `00_pure_core.js`** ——
+（`python3 tools/verify.py --e2e`，2~3 分钟）：**① 发版前 ② 改了构建/测试基础设施 ③ 动了 `pure_core.js`** ——
 这三处是真的"一改塌一片"，其余都不必。
 
 > **术语人话版**（别人问"跑全量单元了吗 / 冒烟了吗"时对得上号）：
@@ -51,7 +51,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 > 你是「番茄专注」单文件应用的维护者。开始前必读 /workspace/AGENTS.md（禁止跳过，含红线索引与命令表）与 /workspace/README.md。
 > 遵守其中全部硬约束与工作流；任何代码改动都必须在 src/ 下完成。
 > **日常自检只跑两条**（见文首「日常只记这一条」）：`python3 tools/verify.py --fast` + `python3 tools/run_smoke.py --affected`（按改动自动选测）。
-> **只有发版 / 改构建与测试基础设施 / 动 `00_pure_core.js` 才跑全量**：`python3 tools/verify.py --e2e`；发布前加 `--strict`（有段没跑即非零退出）。
+> **只有发版 / 改构建与测试基础设施 / 动 `pure_core.js` 才跑全量**：`python3 tools/verify.py --e2e`；发布前加 `--strict`（有段没跑即非零退出）。
 > ⚠️ **看 `verified` 字段，不要只看 `status`**：`status:pass` 只表示"跑了的都过了"，smoke/e2e 跳过时它照样是 pass。
 > **接手第一步先跑「浏览器能力三连自检」**（AGENTS §2.8-12）：别假定"本机起不来浏览器"——**能跑就必须跑真 smoke/e2e**，跳过等于最大的网没张开。
 > 先给我「改动方案 + 影响范围」，我确认后再动手；每轮用可验证结果说话，不假装完成。
@@ -87,7 +87,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
    - `--new-only` = 只看「有没有被我改坏」，历史已知失败不啰嗦。
    - **「反向验证」（故意造错看断言报不报）每个修复做一次就够**，别每次改都全套重来。
 2b. **发布/大改前才要求全绿**：`tools/build.py --lint` → `tools/build.py` → `tools/run_smoke.py`（全绿、0 JS 异常）→ `node tools/tests/unit_pure.js`。一键链 = `tools/verify.py --e2e`：**gate**→lint→build→check→layer→toc→size→unit→catch→promise→e2e 动线→smoke。
-3. **不引入新屎山**：新全局名先 grep；新纯函数进 `00_pure_core.js`；新 UI 组件走 `registerComponent()`；不带 `try/catch` 吞异常裸奔。
+3. **不引入新屎山**：新全局名先 grep；新纯函数进 `pure_core.js`；新 UI 组件走 `registerComponent()`；不带 `try/catch` 吞异常裸奔。
 
 ## 0.5 红线索引（动代码前 1 分钟过一遍；引用不复制，完整规则见 §1/§2 与 `docs/references/ARCHITECTURE.md` §5）
 
@@ -108,7 +108,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 
 | 区域 | 文件 | AI 权限 |
 |---|---|---|
-| 纯函数 | `00_pure_core.js` | **只允许纯函数**（不碰 DOM/appData/存储）；`--lint` 守卫会拦截违规 |
+| 纯函数 | `pure_core.js` | **只允许纯函数**（不碰 DOM/appData/存储）；`--lint` 守卫会拦截违规 |
 | 核心引擎 | `01a_engine_prelude` … `01g_engine_init` | 能改，但**必须**：先给方案→回归先跑基线→小步改→全绿 |
 | 增强模块 | `02/03/04/05/06/07/08` | 能改；保持"整段可回退"注释 |
 | 结构重灾区 | journey 解锁、统计折叠、年度热力图 | **只允许小步修复 + 当轮回归**；禁止借机重构 |
@@ -125,7 +125,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 |---|---|
 | 修 bug / 小改既有功能的内部逻辑 | 进该功能所属的既有模块文件 |
 | **新玩法 / 新页面块 / 新独立功能** | **默认新建独立文件** `NN_主题.js`，按上方"新增槽规范步骤"登记，禁止塞进引擎段或增强模块里当"加段" |
-| 新纯函数 | 一律进 `00_pure_core.js`（守卫自动拦） |
+| 新纯函数 | 一律进 `pure_core.js`（守卫自动拦） |
 | 新 UI 组件 | 走 `registerComponent()`（槽 8），组件自带样式/挂载/联动，不必为此开新文件 |
 | 新数据键/新设置项 | 跟随所属功能模块，别散落 |
 
@@ -135,31 +135,38 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 
 ### 1.6 改文件名 / 改加载顺序（阶段 3 之后的新规矩）
 
-**加载顺序只有一处真源：`src/manifest.json` 的 slots。** 文件名里的序号（`01e5_`）已经**不再承担任何职责**，它只是历史遗留的前缀。
+**加载顺序只有一处真源：`src/manifest.json` 的 slots。** 文件名里的序号**不承担任何职责**。
 
-配套的是**语义键**：文件名去掉 `^[0-9][0-9A-Za-z]{0,3}_` 前缀 —— `01e5_ui_tree.js` → `ui_tree`。工具、基线、分组表一律写键，运行期用 `tools/filemap.py` 查一次真名：
+2026-11-17（阶段 6）起，71 个源文件已经把序号前缀**摘掉**了：`01e5_ui_tree.js` → `ui_tree.js`。所以现在**文件名 == 语义键**，正常情况下 `FM.path('ui_tree')` 就是 `'ui_tree.js'`。
+
+前缀规则仍然在（`filemap.key_of` 会剥掉 `^[0-9][0-9A-Za-z]{0,3}_`），因为两类地方还需要它：① 万一有人加回前缀（历史分支、临时实验），键不变；② 判断「这次改名是不是换身份」就靠它。
+
+工具、基线、分组表一律写键，运行期用 `tools/filemap.py` 查真名：
 
 | 场景 | 代码里怎么写 |
 |---|---|
-| Python 工具/基线要真名 | `from filemap import FM`；`FM.path('ui_tree')` → `'01e5_ui_tree.js'`；`FM.key('01e5_ui_tree.js')` → `'ui_tree'` |
+| Python 工具/基线要真名 | `from filemap import FM`；`FM.path('ui_tree')` → `'ui_tree.js'`；`FM.key('ui_tree.js')` → `'ui_tree'` |
 | 要「认领键」（owner 等） | `owner_of(path)`：basename 去前缀去 `.js`，允许非 manifest 文件（`src/template.html`） |
 | Node 工具 | `const FM = require('./filemap'); FM.path('pure_core')` |
-| **不许** | 任何地方再写 `01e5_ui_tree.js` 全名（自检：`python3 tools/filemap.py --check`） |
+| **不许** | 任何地方再写 `ui_tree.js` 全名（自检：`python3 tools/filemap.py --check`） |
 
 改名怎么做、预期是什么：
 
 | 改名类型 | 要动的文件 | 预期 |
 |---|---|---|
-| **保键改名**（`01e9_ui_memo.js` → `ui_memo.js`） | **只有 `manifest.json` 一行** | 全绿，产物 4 个 chunk 哈希逐字节不变 |
+| **保键改名**（`ui_memo.js` → `01e9_ui_memo.js`，或 `ui_memo.js` → 任意前缀 + `ui_memo.js`） | **只有 `manifest.json` 一行** | 全绿，产物 4 个 chunk 哈希逐字节不变 |
 | 改键改名（`ui_memo` → `memo_note`） | 还要改 owner / 数据写权 / 空 catch / innerHTML 签名（+ 若在 `group_split.GROUPS` 里，那张表也要改） | **至少**红「登记过这个键」的段；`size` / `tomato` 这类按新键缺基线也会红（工具会把它们列成「顺带还要动」） |
 | 只改顺序 | 只调 manifest 里 `files[]` 的位置 | 全绿；`tlorder` 管顶层初始化顺序，越界会红 |
 
 验收不靠"数硬编码剩几处"，靠**真的改一次**：
 
 ```bash
-python3 tools/rename_drill.py --key ui_memo          # 保键改名全链演练（约 90s，全绿才算过）
-python3 tools/rename_drill.py --key ui_memo --fast   # 只要静态段（约 40s）
-python3 tools/rename_drill.py --key ui_memo --to memo_note.js   # 改键改名，看"还要动哪些表"
+# 阶段 6 之后，"保键改名"= 加前缀（键不变）；这才是当前的验收口径
+python3 tools/rename_drill.py --key ui_memo --to 01e9_ui_memo.js          # 全链 ~90s，必须 rc=0
+python3 tools/rename_drill.py --key ui_memo --to 01e9_ui_memo.js --fast   # 只要静态段 ~40s
+
+# "换身份"改名：看它会要求你重登哪些表（rc=4 = 设计内红，不是故障）
+python3 tools/rename_drill.py --key ui_memo --to memo_note.js
 ```
 
 退出码要分清，**别在 CI 里把 rc=4 当失败**：
@@ -181,7 +188,7 @@ python3 tools/rename_drill.py --key ui_memo --to memo_note.js   # 改键改名�
 
 1. **回归是安全网不是可选**：改前跑一次基线确认绿；改后必须全绿。暴露产品 bug 先修产品；只有用例写错才改用例。
 2. **每模块保留"整段可回退"**：模块头注释写清职责/何时可删；不把逻辑散到多处副本（历史上 updateTitle×2、热力图×2 的教训）。
-3. **纯函数单源**：日期/折算/格式化类一律进 `00_pure_core.js` 并补 `tools/tests/unit_pure.js` 用例；禁止在别处复制第二份。
+3. **纯函数单源**：日期/折算/格式化类一律进 `pure_core.js` 并补 `tools/tests/unit_pure.js` 用例；禁止在别处复制第二份。
 4. **UI 联动登记**：新组件用 `registerComponent`（样式/挂载/极简隐藏/折叠记忆自动获得）；**禁止手写**极简 CSS 黑名单或自研折叠。
 5. **用户数据红线**：成就/段位/赛季永不清；删数据必须先导出/归档；计时进行中不塞打扰 UI。
 6. **老浏览器**：默认 ES5/低 ES6；不新增全量 var→const 之类破坏兼容的"风格化"改动。
@@ -270,7 +277,7 @@ python3 tools/rename_drill.py --key ui_memo --to memo_note.js   # 改键改名�
 | 改前影响面反查 | `python3 tools/dep_report.py --impact <函数名>` | 动任何被依赖函数之前 |
 | 函数/模块定位 | `python3 tools/dep_report.py --map <关键词>` | 不知改哪个文件 |
 | 症状词定位（**用户说法 → 文件**） | `python3 tools/where.py "热力图" [--list] [--json]` | 只记得用户怎么描述、不知道函数名时；读文件头的「症状/职责/标题/说明」，权重 4/3/2/1 |
-| 文件名映射自检（**已挂链 filemap**） | `python3 tools/filemap.py --check` / `--list` / `--path ui_tree` / `--key 01e5_ui_tree.js` | 语义键唯一 + manifest 与磁盘双向一致；写工具时查真名 |
+| 文件名映射自检（**已挂链 filemap**） | `python3 tools/filemap.py --check` / `--list` / `--path ui_tree` / `--key ui_tree.js` | 语义键唯一 + manifest 与磁盘双向一致；写工具时查真名 |
 | **改名演练**（阶段 3 验收口径） | `python3 tools/rename_drill.py --key ui_memo [--fast] [--to memo_note.js]` | 想改文件名之前/之后；保键改名应全绿（只动 manifest 一行），否则说明还有工具在用全名 |
 | 依赖基线刷新 | `python3 tools/dep_report.py --md` | 跨模块调用变更后 |
 | DOM id 对账（**已挂链**） | `python3 tools/id_audit.py` | 改 DOM id 后；`--json` 结构化。静态确定性 <1s，抓「JS 引用了不存在的 id」这类一跑就 null 的错 |
