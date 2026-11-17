@@ -17,7 +17,7 @@
  ],
  "detail": [
   {
-   "file": "01eS_ui_addrecord.js",
+   "file": "ui_addrecord",
    "line": 762,
    "exprs": [
     "bestBadge.icon",
@@ -25,7 +25,7 @@
    ]
   },
   {
-   "file": "05_journey_渐进解锁.js",
+   "file": "journey_渐进解锁",
    "line": 379,
    "exprs": [
     "nxt.name"

@@ -277,7 +277,7 @@ def write_baseline():
         "_note": "innerHTML 注入基线 v2：签名级（file+表达式集合）。勿手改，用 --write-baseline 重建。",
         "files": sorted({owner_of(f["file"]) for f in highs}),
         "signatures": [list(s) for s in sigs],
-        "detail": [{"file": f["file"], "line": f["line"], "exprs": f["exprs"]}
+        "detail": [{"file": owner_of(f["file"]), "line": f["line"], "exprs": f["exprs"]}
                    for f in highs],
     }
     with open(BASELINE_PATH, "w", encoding="utf-8") as fh:

@@ -35,7 +35,9 @@
   （engine_ui_ast.js 的 isUI），改名时把 ui 去掉会让文件被当成引擎层，
   eubound 会红 —— 这也算"语义真的变了"，不是工具坏了。
 
-退出码：0 全绿 / 1 有段红 / 2 用法错 / 3 环境问题（不是 git 仓库 / 工作区脏到无法演练）
+退出码：0 全绿 · 1 真断链（保键改名却红）/ 2 用法错 /
+        3 环境问题（不是 git 仓库 / clone 失败 / manifest 命中次数不对）/
+        4 **设计内红**（换键改名，且该红的段都红了 —— 不是故障，CI 里不要当失败）
 """
 
 import json
@@ -49,6 +51,8 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
+
+EXPECT_RED_ON_KEY_CHANGE = ("eubound", "casemeta", "catch", "domain")
 
 try:
     from filemap import FM, key_of
@@ -150,23 +154,35 @@ def main():
         segs = failed_segments(out)
         tail = "\n".join(out.strip().splitlines()[-6:])
         print(tail)
+        key_changed = key_of(new_name) != key
+
         if rc == 0:
             print("\n✅ 改名演练通过：%s → %s，只动了 manifest 一行" % (old_name, new_name))
-            if key_of(new_name) != key:
-                print("   注：语义键从 %s 变成了 %s —— 身份变了，全绿说明登记表也跟着换了（少见）"
+            if key_changed:
+                print("   ⚠️ 但语义键从 %s 变成了 %s —— 换身份却全绿，说明某张登记表不再按"
+                      "「谁」守了，去查 owner / 数据写权 / 空 catch / innerHTML 签名"
                       % (key, key_of(new_name)))
             return 0
-        print("\n❌ 改名演练失败：%d 段红 —— %s" % (len(segs), ", ".join(segs) or "（未解析到段名）"))
-        if key_of(new_name) != key:
-            print("   预期之内：语义键 %s → %s 是**换身份**，登记表（owner / 数据写权 / "
-                  "空 catch / innerHTML 签名）本来就要跟着改；\n   这条路不是阶段 3 的验收口径。"
-                  % (key, key_of(new_name)))
-        else:
-            print("   这是真断链：语义键没变，说明还有工具/基线在用全名。"
-                  "把上面红的那几段贴出来就能定位。")
-        print("   现场保留在：%s" % dst)
-        keep = True
-        return 1
+
+        print("\n✗ 有段红：%d 段 —— %s" % (len(segs), ", ".join(segs) or "（未解析到段名）"))
+        if not key_changed:
+            print("   ❌ 真断链：语义键没变（还是 %s），说明还有工具/基线在用全名。" % key)
+            print("      把上面红的那几段贴出来就能定位；现场留在：%s" % dst)
+            keep = True
+            return 1
+
+        # 换身份：红的段必须**覆盖**登记表所在的那几段，否则检测器自己失明了
+        missing = [s for s in EXPECT_RED_ON_KEY_CHANGE if s not in segs]
+        if missing:
+            print("   ❌ 换键改名应红未红：%s" % ", ".join(missing))
+            print("      这几段登记的是「谁」（owner / 数据写权 / 空 catch），换键却没报 = "
+                  "该段失明或已被摘掉。现场留在：%s" % dst)
+            keep = True
+            return 1
+        print("   ○ 预期之内：语义键 %s → %s 是**换身份**，上列红段正是要求你重新登记的地方"
+              % (key, key_of(new_name)))
+        print("      （这条路不是阶段 3 的验收口径；口径是保键改名全绿。）")
+        return 4                                        # 4 = 设计内红，不是故障
     finally:
         if not keep:
             shutil.rmtree(tmp, ignore_errors=True)
