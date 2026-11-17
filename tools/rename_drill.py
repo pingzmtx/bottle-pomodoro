@@ -52,13 +52,84 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
-EXPECT_RED_ON_KEY_CHANGE = ("eubound", "casemeta", "catch", "domain")
+EXPECT_RED_ON_KEY_CHANGE_PLACEHOLDER = None   # 由 expected_red(key, new_name) 派生，见下
 
 try:
     from filemap import FM, key_of
 except ImportError:                                   # pragma: no cover
     print("✗ 找不到 filemap.py（本工具必须在 tools/ 下运行）")
     sys.exit(3)
+
+
+def _read_json(rel, default):
+    p = os.path.join(ROOT, rel)
+    if not os.path.exists(p):
+        return default
+    try:
+        with open(p, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return default
+
+
+def _owner_tokens():
+    """冒烟用例里出现过的全部 owner 词（换键后 casemeta 会不会红，取决于它）。"""
+    p = os.path.join(ROOT, "tools", "run_smoke.py")
+    if not os.path.exists(p):
+        return set()
+    src = open(p, encoding="utf-8").read()
+    out = set()
+    for m in re.finditer(r'owner\s*=\s*"([^"]*)"', src):
+        out.update(m.group(1).split())
+    return out
+
+
+def _is_ui(name):
+    """与 tools/engine_ui_ast.js 的 isUI 同一条判据（分层靠文件名关键字）。"""
+    return bool(re.search(r"ui|view|component|a11y", name, re.I))
+
+
+def expected_red(key, new_name):
+    """换键改名时**应该**红的段 —— 按这个键在登记表里的实际登记情况派生，不写死。
+
+    写死过一版（"永远期望 eubound/casemeta/catch/domain 全红"），复审当场用
+    --key ui_summary 打回来：那个键不是任何用例的 owner、空 catch 为 0、
+    也不是数据写者，三段不红是**正确**的，却被报成"该段失明"。
+    正确做法：谁登记了它，谁才该红。
+    """
+    exp = set()
+    if key in _owner_tokens():
+        exp.add("casemeta")                                   # owner 表
+    catch = _read_json("src/empty_catch_baseline.json", {}).get("files", {})
+    if catch.get(key, 0) > 0:
+        exp.add("catch")                                      # 空 catch 基线
+    doms = _read_json("src/data_ownership.json", {}).get("domains", {})
+    for d in doms.values():
+        if key in (d.get("writers") or []) or d.get("owner") == key:
+            exp.add("domain")                                 # 数据写权基线
+            break
+    if key in _read_json("src/innerhtml_baseline.json", {}).get("files", []):
+        exp.add("lint")                                       # 注入签名（挂在 lint 段里）
+    if _is_ui(new_name) != _is_ui(FM.path(key)):
+        exp.add("eubound")                                    # 分层关键字变了
+        exp.add("lint")                                       # eubound 红了 lint 一定红（汇总壳）
+    return exp
+
+
+def _group_keys():
+    """tools/group_split.py 的 GROUPS 里列了哪些键（这些键改键改名会先崩 build）。"""
+    try:
+        from group_split import GROUPS
+    except Exception:
+        return set()
+    out = set()
+    for _g, files in GROUPS:
+        for f in files:
+            try:
+                out.add(key_of(f))
+            except Exception:
+                pass
+    return out
 
 
 def run(cmd, cwd, capture=True):
@@ -96,6 +167,14 @@ def main():
     if not re.match(r"^[A-Za-z_][\w\u4e00-\u9fff]*\.js$", new_name):
         print("✗ 新名字不合法：%s（不要带序号前缀与路径）" % new_name)
         return 2
+
+    # 换键改名 + 这个键在分组表里 → build 会在 import 期就 KeyError（见 group_split.GROUPS）。
+    # 与其让演练崩在 KeyError，不如提前说清楚「这里也要改」。
+    if key_of(new_name) != key and key in _group_keys():
+        print("✗ %s 在 tools/group_split.py 的 GROUPS 里（core/base/engine 分层表）。" % key)
+        print("  换键改名必须同时改那张表，否则 build 直接 KeyError。本演练不做自动修补 ——")
+        print("  先手工改 GROUPS，再跑 `--key %s`（保键改名）验证其余部分。" % key)
+        return 3
 
     keep = "--keep" in argv
     fast = "--fast" in argv
@@ -171,16 +250,21 @@ def main():
             keep = True
             return 1
 
-        # 换身份：红的段必须**覆盖**登记表所在的那几段，否则检测器自己失明了
-        missing = [s for s in EXPECT_RED_ON_KEY_CHANGE if s not in segs]
+        # 换身份：只有「登记过这个键」的段才该红，且它们必须真的红
+        want = expected_red(key, new_name)
+        missing = sorted(want - set(segs))
+        extra = sorted(set(segs) - want)
         if missing:
             print("   ❌ 换键改名应红未红：%s" % ", ".join(missing))
-            print("      这几段登记的是「谁」（owner / 数据写权 / 空 catch），换键却没报 = "
-                  "该段失明或已被摘掉。现场留在：%s" % dst)
+            print("      该段登记了这个键（见 expected_red），换键却没报 = 该段失明或已被摘掉。"
+                  "现场留在：%s" % dst)
             keep = True
             return 1
-        print("   ○ 预期之内：语义键 %s → %s 是**换身份**，上列红段正是要求你重新登记的地方"
-              % (key, key_of(new_name)))
+        print("   ○ 预期之内：语义键 %s → %s 是**换身份**；红的正是登记过它的段（%s）"
+              % (key, key_of(new_name), ", ".join(sorted(want)) or "无"))
+        if extra:
+            print("     顺带还要动：%s（没登记过这个键、但也受牵连，多半是分组/层级/文档链）"
+                  % ", ".join(extra))
         print("      （这条路不是阶段 3 的验收口径；口径是保键改名全绿。）")
         return 4                                        # 4 = 设计内红，不是故障
     finally:

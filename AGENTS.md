@@ -151,7 +151,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 | 改名类型 | 要动的文件 | 预期 |
 |---|---|---|
 | **保键改名**（`01e9_ui_memo.js` → `ui_memo.js`） | **只有 `manifest.json` 一行** | 全绿，产物 4 个 chunk 哈希逐字节不变 |
-| 改键改名（`ui_memo` → `memo_note`） | 还要改 owner / 数据写权 / 空 catch / innerHTML 签名 | **应该**红 4~5 段 —— 换键=换身份，登记表必须重登 |
+| 改键改名（`ui_memo` → `memo_note`） | 还要改 owner / 数据写权 / 空 catch / innerHTML 签名（+ 若在 `group_split.GROUPS` 里，那张表也要改） | **应该**红：只红「登记过这个键」的段 —— 换键=换身份，登记表必须重登 |
 | 只改顺序 | 只调 manifest 里 `files[]` 的位置 | 全绿；`tlorder` 管顶层初始化顺序，越界会红 |
 
 验收不靠"数硬编码剩几处"，靠**真的改一次**：
@@ -159,7 +159,19 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 ```bash
 python3 tools/rename_drill.py --key ui_memo          # 保键改名全链演练（约 90s，全绿才算过）
 python3 tools/rename_drill.py --key ui_memo --fast   # 只要静态段（约 40s）
+python3 tools/rename_drill.py --key ui_memo --to memo_note.js   # 改键改名，看"还要动哪些表"
 ```
+
+退出码要分清，**别在 CI 里把 rc=4 当失败**：
+
+| rc | 含义 | 该怎么办 |
+|---|---|---|
+| 0 | 保键改名全绿 | 这就是验收口径，收工 |
+| 1 | 真断链（保键却红）/ 换键却「该红未红」 | 前者贴红段定位；后者说明某段登记表失明了 |
+| 3 | 环境问题（不是 git 仓库 / clone 失败 / 该键在 `group_split.GROUPS` 里） | 按提示先补那张表 |
+| 4 | **设计内红**：换键改名，且红的正是登记过它的段 | 不是故障；去把那些表按新键重登 |
+
+「登记过它的段」由 `expected_red()` 按实况派生（owner 表 / 空 catch 基线 / 数据写权 / innerHTML 签名 / 分层关键字是否变化），不是写死的四段——否则没登记的键会被误报成"失明"。
 
 两处**仍然**和文件名耦合，改名前必须知道：
 1. **引擎/UI 分层**靠文件名关键字判（`engine_ui_ast.js` 的 `isUI`：含 `ui|view|component|a11y` 算 UI）。把 UI 文件改成 `memo_note.js` 会被当成引擎层 → `eubound` 红。这不是 bug，是"名字里的语义真的变了"。
