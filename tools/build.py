@@ -545,9 +545,14 @@ def lint():
         _eur = _sp.run([sys.executable, _eub],
                        capture_output=True, text=True, timeout=120)
         if _eur.returncode != 0:
-            for _ln in ((_eur.stdout or "") + (_eur.stderr or "")).strip().split("\n"):
-                if _ln.strip():
-                    errs.append("边界 " + _ln.strip())
+            # 只回收定位行（复审 P3-4）：完整报告里 3/4 是表头与统计，
+            # 全带进来会把真正的失败原因淹掉。匹配不到时退回前 3 行兜底。
+            _lines = [x.strip() for x in
+                      ((_eur.stdout or "") + (_eur.stderr or "")).split("\n") if x.strip()]
+            _key = [x for x in _lines
+                    if any(k in x for k in ("✗", "新增", "总数", "裸调 UI", "白名单外", "自相矛盾"))]
+            for _ln in (_key or _lines[:3]):
+                errs.append("边界 " + _ln)
     # ===== 设计令牌门禁：字号只许走变量 =====
     # 为什么必须有这一段：全项目曾有 49 种字号（含 9.5/10.5/11.5 等半像素），
     # 而 --fs-* 变量早已定义、JS 里引用了 194 次，template.html 却硬编码 655 处 ——

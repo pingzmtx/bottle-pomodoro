@@ -149,7 +149,17 @@ def main():
     # 判据打印「改写 UI 实现 13 处（基线 12）」，下一行却是「✓ 边界 OK · patch 未增长」、rc=0。
     # 原因是 key_of 只取 file::name，两处同名在集合里合并成一个 —— 同一段输出里
     # 13 > 12 却判 OK，是最容易被当成「已修好」的失效形态。所以总数单独比。
-    base_count = base.get("patch_count", len(base.get("patch", [])))
+    base_list = base.get("patch", [])
+    base_count = base.get("patch_count", len(base_list))
+    base_inconsistent = False
+    # 基线自校验（复审 P3-1）：patch_count 是手可以编辑的 JSON 字段，改一个字符
+    # 就能把棘轮从 12 放宽到 99（实测 13 处仍判 OK）。两个数字必须相等，
+    # 且列表条数也要对得上 —— 「字段存在但和列表不符」比「字段不存在」更危险。
+    if "patch_count" in base and base["patch_count"] != len(base_list):
+        fails.append("基线自相矛盾：patch_count=%d 但 patch 列表 %d 条（两者必须相等，"
+                     "手改基线后请一并核对）" % (base["patch_count"], len(base_list)))
+        base_count = len(base_list)   # 以列表为准继续判定，不让手误放宽棘轮
+        base_inconsistent = True
     dup_growth = len(patches) - base_count
     if dup_growth > 0 and not added and not update:
         fails.append("改写 UI 实现总数 %d > 基线 %d（+%d，集合差看不见同文件同名重复）："
@@ -163,7 +173,9 @@ def main():
         out = {
             "_note": "引擎→UI 门面能力的白名单。新增一项必须 --update，"
                      "让「引擎能调哪个 UI 能力」这一步在 diff 里可见。"
-                     "patch 段是引擎直接改写 UI 全局实现的位置，棘轮只准降。",
+                     "patch 段是引擎直接改写 UI 全局实现的位置，棘轮只准降；"
+                     "patch_count 是实际处数（同文件同名两处时列表会重复出现，"
+                     "计数以 patch_count 为准，二者必须相等）。",
             "allow": sorted(used),
             "patch_count": len(patches),
             "patch": [{"file": p["file"], "name": p["name"]}
@@ -176,7 +188,8 @@ def main():
         return 0
 
     # ---- 输出 ----
-    print("🔒 引擎→UI 边界  |  引擎 %d 文件 · UI %d 文件" %
+    # 措辞（复审 P3-3）：34 不是「引擎层」，是 UI 之外的全部文件（store / base / delegate / 胶水）。
+    print("🔒 引擎→UI 边界  |  非 UI %d 文件（含 store/base/胶水）· UI %d 文件" %
           (len(data["engineFiles"]), len(data["uiFiles"])))
     print("    裸调 %d 处 · 门面能力 %d 个（白名单 %d）· 改写 UI 实现 %d 处（基线 %d）"
           % (len(direct), len(used), len(allow), len(patches), base_count))
@@ -205,6 +218,8 @@ def main():
         n_bad = len(direct) + len(extra) + len(added)
         if dup_growth > 0 and not added:
             n_bad += dup_growth
+        if base_inconsistent:
+            n_bad += 1
         print()
         for line in fails:
             print("  " + line)
