@@ -83,7 +83,7 @@ jobs:
           fi
           git diff --name-only "$BEFORE" '${{ github.sha }}' > /tmp/changed.txt || exit 0
           echo "改动文件："; cat /tmp/changed.txt
-          HIT=$(grep -E '^(tools/build\.py|tools/verify\.py|src/manifest\.json|src/scripts/01b_engine_data\.js|\.github/workflows/)' /tmp/changed.txt || true)
+          HIT=$(grep -E '^(tools/build\.py|tools/verify\.py|src/manifest\.json|src/scripts/engine_data\.js|\.github/workflows/)' /tmp/changed.txt || true)
           if [ -n "$HIT" ] && ! echo '${{ github.event.head_commit.message }}' | grep -q '\[skip-gate\]'; then
             echo "::error::以下敏感文件被直接推到了 main："; echo "$HIT"
             echo "请改走 wb/* 分支开 PR（或在提交信息里写 [skip-gate]，仅限人工确认过的情况）。"

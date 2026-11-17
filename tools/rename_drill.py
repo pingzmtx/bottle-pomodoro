@@ -4,10 +4,10 @@
 
 用法
 ----
-    python3 tools/rename_drill.py --key ui_memo            # 保键改名：ui_memo.js → ui_memo.js
-    python3 tools/rename_drill.py --key ui_memo --fast     # 只跑快档（跳过 smoke，约 40s）
-    python3 tools/rename_drill.py --key ui_memo --keep     # 保留临时目录，便于事后翻现场
-    python3 tools/rename_drill.py --key ui_memo --to memo_note.js   # 改键改名（会预期报错，见下）
+    python3 tools/rename_drill.py --key ui_memo --to 01e9_ui_memo.js   # 保键改名（加回前缀）
+    python3 tools/rename_drill.py --key ui_memo --to 01e9_ui_memo.js --fast   # 只跑快档（约 40s）
+    python3 tools/rename_drill.py --key ui_memo --to 01e9_ui_memo.js --keep   # 保留临时目录
+    python3 tools/rename_drill.py --key ui_memo --to memo_note.js     # 改键改名（会预期报错，见下）
 
 它在做什么
 ----------
@@ -191,6 +191,10 @@ def main():
     new_name = argv[argv.index("--to") + 1] if "--to" in argv else key + ".js"
     if not new_name.endswith(".js"):
         new_name += ".js"
+    if new_name == old_name:                       # 阶段 6 之后文件名已等于键，--to 必须显式给
+        print("✗ 新名与现名相同（%s）。阶段 6 之后「保键改名」只能是加回前缀，"
+              "请用 --to <前缀>%s" % (old_name, new_name))
+        return 2
     if not re.match(r"^[0-9A-Za-z_][\w\u4e00-\u9fff]*\.js$", new_name) or "/" in new_name:
         print("✗ 新名字不合法：%s（不带路径；允许带序号前缀——阶段 6 之后"
               "「加回前缀」正是保键改名的一种）" % new_name)

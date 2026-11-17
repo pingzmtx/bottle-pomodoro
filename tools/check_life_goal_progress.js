@@ -26,7 +26,7 @@ function eq(name, got, want, note) {
     + (note ? '   （' + note + '）' : ''));
 }
 
-/* ---- 假的习惯统计：模拟 00_pure_core 的 habitStats 语义 ----
+/* ---- 假的习惯统计：模拟 pure_core 的 habitStats 语义 ----
    真函数是 habitStats(h, logs, today, days)：窗口 days 天、expected 按 freqPerWeek 折算。
    这里用同一套规则实现一份，保证测的是「调用方怎么用」而不是「真函数对不对」。 */
 function fakeHabitStats(h, logs, today, days) {

@@ -165,7 +165,7 @@ def main():
         # `2026年9-1111-1-1-111月`，new Date() 得到 Invalid Date，日期格子全空。
         # 同批查出四处日历 + 月份选择器共 8 个函数全中（都是同一个病）。
         ("actargs", "python3 tools/check_actargs_number.py"),
-        # data-act 指向的函数必须真的存在：00_delegate 解析不到名字只 console.error
+        # data-act 指向的函数必须真的存在：delegate 解析不到名字只 console.error
         # 一行，界面上表现为「按钮点了没反应」，不抛错不弹提示，用户只会当成卡顿。
         # 真实事故：2026-10-25 用户报「小赌/中赌/大赌点了没反应」—— 模板写的是
         # tryBetSafe，实现里只有 tryBet；同批还查出「延后一天」的

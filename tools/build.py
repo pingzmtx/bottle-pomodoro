@@ -468,7 +468,7 @@ def lint():
     out = assemble()
     if not out.strip().endswith("</html>"):
         errs.append("合并产物未以 </html> 结尾")
-    # 纯函数守卫：00_pure_core 禁止沾染浏览器/数据依赖（M5 制度）
+    # 纯函数守卫：pure_core 禁止沾染浏览器/数据依赖（M5 制度）
     import re as _re2
     pure = open(os.path.join(SCRIPTS, FM.path("pure_core")), encoding="utf-8").read()
     if _re2.search(r"(document\.|localStorage\.|sessionStorage\.|appData\.)", pure):
@@ -732,7 +732,7 @@ def lint():
 PUB = os.path.join(ROOT, "public")
 
 # 独立模块清单（--split）：源文件 → 模块名。只放**已验证无对外依赖**的叶子层。
-# 第一块是 00_pure_core（callgraph 实测 out-edges = 0），后续按层往上加。
+# 第一块是 pure_core（callgraph 实测 out-edges = 0），后续按层往上加。
 SPLIT_MODULES = {
     "pure_core": "core",   # 语义键（filemap.key）：改名不用动这里
 }

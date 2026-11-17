@@ -902,14 +902,14 @@ def c23():
                     capture_output=True, text=True, timeout=90)
         out = (r.stdout or "") + (r.stderr or "")
         check(r.returncode == 0, f"node 纯函数单测退出码 0(rc={r.returncode})")
-        # 不写死通过数（用例会随 00_pure_core 扩充），只要求全过且无失败
+        # 不写死通过数（用例会随 pure_core 扩充），只要求全过且无失败
         import re as _re
         _m = _re.search(r"PASS (\d+)\s+FAIL (\d+)", out)
         check(bool(_m) and int(_m.group(1)) >= 21 and _m.group(2) == "0",
               f"纯函数单测全绿(实际 {(_m.group(1) if _m else '?')}/{(_m.group(1) if _m else '?')})")
-        # 浏览器侧同源：00_pure_core 的全局函数可用且与引擎内使用一致
+        # 浏览器侧同源：pure_core 的全局函数可用且与引擎内使用一致
         v = js("(function(){return (typeof getDateStr==='function')&&(typeof getPomos==='function')&&(typeof window.__pure!=='undefined');})()")
-        check(v is True, "浏览器侧 00_pure_core 全局可用(__pure 已挂)")
+        check(v is True, "浏览器侧 pure_core 全局可用(__pure 已挂)")
         v2 = js("getDateStr(new Date(2026,8,4,13,30))")
         check(v2 == "2026-09-04", f"浏览器 getDateStr 与 Node 同实现(v={v2})")
     except Exception as e:
@@ -1538,7 +1538,7 @@ def c31():
         "ck(typeLabel('log')==='仅记录'&&typeLabel('full')==='完整'&&typeLabel('incomplete')==='未完成',"
         "'CSV 类型列用中文标签');"
         "/* CSV 表格三处共用（唯一定义处 recordsCsvTable）。这里必须验「运行期真能调到」："
-        "   00_pure_core 在槽 8，而调用它的 03/05 在槽 2/4 —— 声明更晚，只有运行期才安全。 */"
+        "   pure_core 在槽 8，而调用它的 03/05 在槽 2/4 —— 声明更晚，只有运行期才安全。 */"
         "ck(typeof recordsCsvTable==='function','CSV 表格纯函数运行期可调用（跨槽晚加载）');"
         "ck(recordsCsvTable([]).head.length===23,'CSV 表头 23 列');"
         "ck(recordsCsvTable([{startTime:0,type:'full',planTitle:'甲计划',quad:'q1'}"
@@ -2499,7 +2499,7 @@ def c102_finish_note_not_plan():
 def c108_no_inline_handlers():
     """内联 on*="..." 在全局作用域求值，是上 ES 模块的唯一硬阻塞。
     本用例守两件事：① 五个视图都渲染过之后，DOM 里内联处理器必须为 0
-    （模板已静态改写；脚本拼接的由 00_delegate 的兼容层在插入后接管）；
+    （模板已静态改写；脚本拼接的由 delegate 的兼容层在插入后接管）；
     ② 委托真的能派发 —— 直接点一个 data-act 元素，看状态变化。
     失败含义：有人新写了 onclick，或兼容层被改坏（解析不了会原样保留）。"""
     for v in ("timer", "plan", "log", "stats", "settings"):
@@ -2835,7 +2835,7 @@ def c114_dual_device():
     js("localStorage.clear();location.reload()"); time.sleep(2.8)
 
     raw = js("""(function(){
-      /* ---- 极简双设备 + 内存服务端；合并规则复用 00_pure_core 的同一套函数 ---- */
+      /* ---- 极简双设备 + 内存服务端；合并规则复用 pure_core 的同一套函数 ---- */
       function dev(name){ return { name:name, records:[], todos:[], tombstones:[] }; }
       function srv(){ return { recs:{}, tombs:[], ops:0 }; }
 

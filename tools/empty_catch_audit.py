@@ -80,7 +80,7 @@ def main():
         return 1
     base = json.load(open(BASELINE, encoding='utf-8'))['files']
 
-    rises, drops = [], []
+    rises, drops, stale = [], [], []
     for f, c in sorted(cur.items()):
         b = base.get(f)
         if b is None:
@@ -91,8 +91,13 @@ def main():
         elif c < b:
             drops.append(f'{f}: {b} → {c}（-{b - c}）')
     for f in base:
-        if f not in cur and base[f] > 0:
-            drops.append(f'{f}: {base[f]} → 0（文件已删）')
+        if f not in cur:
+            if base[f] > 0:
+                drops.append(f'{f}: {base[f]} → 0（文件已删）')
+            else:
+                # 0 值登记项最容易变成死键：文件改名/删除后，这里永远不报，
+                # 基线上就留着一个指不到任何文件的名字（阶段 6 改名时差点踩到）。
+                stale.append(f)
 
     if report:
         print('===== 空 catch 启发式分类 =====')
@@ -111,6 +116,10 @@ def main():
     if drops:
         print('  以下文件计数下降，可跑 --write 收紧基线:')
         for d in drops:
+            print(f'    {d}')
+    if stale:
+        print('  以下 0 值登记项已无对应文件（改名/删除留下的死键，--write 可清掉）:')
+        for d in stale:
             print(f'    {d}')
     return 0
 

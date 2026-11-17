@@ -55,7 +55,7 @@ POMOS_AGG = {
     '_tb',  # 同上（缓存引用）
     'b',    # buildStatsDateIndex 的按天桶
     'out',  # monthStats / yearStats 的输出对象
-    'g',    # 00_pure_core 的通用累加体
+    'g',    # pure_core 的通用累加体
 }
 POMOS_ANY_RE = re.compile(r'([A-Za-z_$][\w$]*)\s*\.pomos\b')
 # 写路径 / 比较 / typeof / Number() 兜底：不是「读出来当数用」，放行

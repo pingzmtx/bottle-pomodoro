@@ -130,7 +130,7 @@ def select(files, meta=None):
     sel = core | hit
     total = len(meta)
     if len(sel) >= total * 0.8:
-        # 命中上帝文件（01e_engine_ui / 01b_engine_data 之类）时选集≈全量，
+        # 命中上帝文件（engine_ui / engine_data 之类）时选集≈全量，
         # 与其假装精确，不如直说：这时候省不下时间，直接全量更好读。
         return set(n for n, _t, _o in meta), True, \
             f"改动命中全局模块：{len(sel)}/{total} 条 ≈ 全量，直接全量"

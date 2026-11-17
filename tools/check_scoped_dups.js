@@ -9,7 +9,7 @@
  *
  *   它把 depth=0（文件顶层）和 depth=1（文件自己 IIFE 里的私有函数）
  *   混进同一张 name→files 表。`q` / isMinimal / patchObserver 在
- *   07_uiFold 与 08_component_registry 里各有一份，但两份都在各自的
+ *   07_uiFold 与 component_registry 里各有一份，但两份都在各自的
  *   `(function(){ ... })()` 里，作用域不相交，不可能覆盖。
  *
  * 反证不需要跑代码：同一份 callgraph.json 的 `globals`（245 个，口径是

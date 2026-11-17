@@ -194,7 +194,7 @@ files.forEach(collectTopFns);
  * ⚠ 口径（2026-11-14 修正）：**只有 depth=0 才可能互相覆盖**。
  *   depth=0 是文件顶层声明 —— 拼接后它们共享同一个脚本作用域，后写的覆盖前面的；
  *   depth=1 是各文件自己 IIFE 里的私有函数 —— 作用域不相交，同名纯属巧合同名。
- *   旧代码把两者并进同一张表，于是 07_uiFold 与 08_component_registry 里各一份
+ *   旧代码把两者并进同一张表，于是 07_uiFold 与 component_registry 里各一份
  *   `q`/isMinimal/patchObserver` 被报成「13 组静默覆盖」。逐个查证：13 组全是误报，
  *   且同一份输出的 globals（245 个 window.xxx）里这 13 个名字一个都不在 ——
  *   工具不可能同时说「它不是全局」和「它被后加载的覆盖」。

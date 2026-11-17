@@ -41,7 +41,7 @@ ALLOW = {}
 # data-act="xxx" / data-act='xxx' / data-act=\"xxx\"（JS 里拼字符串）
 ACT_RE = re.compile(r"""data-act=\\?["']([A-Za-z_$][\w$]*)\\?["']""")
 
-# 会被 00_delegate 误接管的内联处理器：整条 handler 是 `this.xxx(...)` / `event.xxx(...)`
+# 会被 delegate 误接管的内联处理器：整条 handler 是 `this.xxx(...)` / `event.xxx(...)`
 # —— CALLRE 把它当路径 a.b.c，resolve() 从 window 起走必然取不到，
 # 于是属性被摘掉、换成一条无效 data-act，按钮点了彻底没反应。
 HOSTCALL_RE = re.compile(r"""on(?:click|change|input|keydown|focus|blur)=\\?["']\s*(this|event)\.[\w$.]*\s*\([^"';]*\)\s*;?\s*\\?["']""")
@@ -98,7 +98,7 @@ def main():
 
     if hostcalls:
         print("✗ act 目标: %d 处内联处理器写成宿主方法调用（this.xxx() / event.xxx()）" % len(hostcalls))
-        print("    00_delegate 会把它接管成无效的 data-act，点了不会有任何反应。")
+        print("    delegate 会把它接管成无效的 data-act，点了不会有任何反应。")
         print("    改法：换成具名全局函数，元素当实参传进去，例如 onclick=\"removeRow(this)\"。")
         for h in hostcalls:
             print("    %s" % h)

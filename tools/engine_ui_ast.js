@@ -31,7 +31,7 @@ const isUI = f => /ui|view|component|a11y/i.test(f);
 // 「非 UI」= 除 UI 文件之外的全部文件，不再用第二组关键字白名单。
 //
 // 2026-11-17 修正（审核发现）：原来写的是 /engine|enh|journey|errRep|fold|hash|路由|渐进/，
-// 只覆盖 60/71 个文件，剩下 11 个（00_pure_core / 00_delegate / 00b / 01a1 / 01b1 / 01b2 /
+// 只覆盖 60/71 个文件，剩下 11 个（pure_core / delegate / 00b / 01a1 / 01b1 / 01b2 /
 // 01b3 / 0A / 0C / 0D / 0E）既不匹配 UI 也不匹配引擎，**整类不进扫描** —— 而输出照样打印
 // 「裸调 0 处」，没有任何「11 个文件没分类」的提示。实测 store通知.js 有 5 处真实裸调
 // （renderTreeShop/renderTreeSection/renderWeeklyBadges/renderRankSystem/renderStats）。

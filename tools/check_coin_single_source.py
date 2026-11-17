@@ -16,7 +16,7 @@
      除非该行带 `coin-write-allow` 豁免标记（标记后必须写理由）。
      合法例外只有三类：迁移初始化（01b）、账本内部入账/出账/撤销（01d3）、
      未解锁门禁回滚（05，且必须配反向流水）。
-  R2 流水类型必须登记：coinEarn/coinSpend 的 type 字面量必须在 00_pure_core 的
+  R2 流水类型必须登记：coinEarn/coinSpend 的 type 字面量必须在 pure_core 的
      COIN_TX_TYPES 里 —— 拼错的 type 静态看不出来，只会在用户点开明细面板时
      显示成英文键名。
   R3 不许绕过入口写账本：`coinLog.push(` 直接出现即 FAIL（只能走 coinLedgerPush）。

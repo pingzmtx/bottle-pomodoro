@@ -13,7 +13,7 @@
     能切的前提是引擎层对 UI 的引用已全部走 UIFX 门面（2026-10-23 已做完）。
 
 注意:
-    · 加载顺序取 template 里 <script> 标记的实际顺序（slot 9 的 00_pure_core 最先），
+    · 加载顺序取 template 里 <script> 标记的实际顺序（slot 9 的 pure_core 最先），
       不是 manifest 的槽号顺序。
     · 扫描"组内用到的外部名字"前会剥掉注释与字符串字面量 —— 只在注释里出现的名字
       不能生成 import，否则 engine→app 会造出循环。

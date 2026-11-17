@@ -96,7 +96,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 | 只动 src | `public/` 与 `src/template.html` 都是构建**产物**，改 `src/` 后 `build.py` 生成 |
 | 00 禁 DOM/存储 | 纯函数孤岛只放纯函数（`--lint` 守卫拦截违规） |
 | 01c 计时红线 | 计时进行中不塞打扰 UI；`natural` 完成的结算窗不可取消；跨天/回拨只许小步修+回归 |
-| POMO 基准口径 | 25 分钟=1🍅，折算只经 `00_pure_core.calcPomos`，禁止别处复制第二份 |
+| POMO 基准口径 | 25 分钟=1🍅，折算只经 `pure_core.calcPomos`，禁止别处复制第二份 |
 | 等价验证 | 拆结构前后跑 `dep_report.py` + `rs_capture.py`；每批 R- 段头 + 独立 commit；失败 `git reset --hard` 回退 |
 | 不反向依赖 | 01 系不调 02~08；增强模块只走文件头「对外白名单」 |
 | 新玩法开新文件 | 默认新建 `NN_主题.js`（AGENTS §1.5），禁止塞进 01e/01d 大文件当"加段" |
@@ -109,7 +109,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 | 区域 | 文件 | AI 权限 |
 |---|---|---|
 | 纯函数 | `pure_core.js` | **只允许纯函数**（不碰 DOM/appData/存储）；`--lint` 守卫会拦截违规 |
-| 核心引擎 | `01a_engine_prelude` … `01g_engine_init` | 能改，但**必须**：先给方案→回归先跑基线→小步改→全绿 |
+| 核心引擎 | `engine_prelude` … `engine_init` | 能改，但**必须**：先给方案→回归先跑基线→小步改→全绿 |
 | 增强模块 | `02/03/04/05/06/07/08` | 能改；保持"整段可回退"注释 |
 | 结构重灾区 | journey 解锁、统计折叠、年度热力图 | **只允许小步修复 + 当轮回归**；禁止借机重构 |
 | 模板片段（**真源**） | `src/template/` 下的 21 个片段 + `_order.json` | 改样式/界面动这里；片段按视图/领域切，改哪块动哪块 |
@@ -137,7 +137,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 
 **加载顺序只有一处真源：`src/manifest.json` 的 slots。** 文件名里的序号**不承担任何职责**。
 
-2026-11-17（阶段 6）起，71 个源文件已经把序号前缀**摘掉**了：`01e5_ui_tree.js` → `ui_tree.js`。所以现在**文件名 == 语义键**，正常情况下 `FM.path('ui_tree')` 就是 `'ui_tree.js'`。
+2026-11-17（阶段 6）起，71 个源文件已经把序号前缀**摘掉**了：`ui_tree.js` → `ui_tree.js`。所以现在**文件名 == 语义键**，正常情况下 `FM.path('ui_tree')` 就是 `'ui_tree.js'`。
 
 前缀规则仍然在（`filemap.key_of` 会剥掉 `^[0-9][0-9A-Za-z]{0,3}_`），因为两类地方还需要它：① 万一有人加回前缀（历史分支、临时实验），键不变；② 判断「这次改名是不是换身份」就靠它。
 
@@ -154,7 +154,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 
 | 改名类型 | 要动的文件 | 预期 |
 |---|---|---|
-| **保键改名**（`ui_memo.js` → `01e9_ui_memo.js`，或 `ui_memo.js` → 任意前缀 + `ui_memo.js`） | **只有 `manifest.json` 一行** | 全绿，产物 4 个 chunk 哈希逐字节不变 |
+| **保键改名**（`ui_memo.js` → `ui_memo.js`，或 `ui_memo.js` → 任意前缀 + `ui_memo.js`） | **只有 `manifest.json` 一行** | 全绿，产物 4 个 chunk 哈希逐字节不变 |
 | 改键改名（`ui_memo` → `memo_note`） | 还要改 owner / 数据写权 / 空 catch / innerHTML 签名（+ 若在 `group_split.GROUPS` 里，那张表也要改） | **至少**红「登记过这个键」的段；`size` / `tomato` 这类按新键缺基线也会红（工具会把它们列成「顺带还要动」） |
 | 只改顺序 | 只调 manifest 里 `files[]` 的位置 | 全绿；`tlorder` 管顶层初始化顺序，越界会红 |
 
@@ -162,8 +162,8 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 
 ```bash
 # 阶段 6 之后，"保键改名"= 加前缀（键不变）；这才是当前的验收口径
-python3 tools/rename_drill.py --key ui_memo --to 01e9_ui_memo.js          # 全链 ~90s，必须 rc=0
-python3 tools/rename_drill.py --key ui_memo --to 01e9_ui_memo.js --fast   # 只要静态段 ~40s
+python3 tools/rename_drill.py --key ui_memo --to ui_memo.js          # 全链 ~90s，必须 rc=0
+python3 tools/rename_drill.py --key ui_memo --to ui_memo.js --fast   # 只要静态段 ~40s
 
 # "换身份"改名：看它会要求你重登哪些表（rc=4 = 设计内红，不是故障）
 python3 tools/rename_drill.py --key ui_memo --to memo_note.js
@@ -179,6 +179,12 @@ python3 tools/rename_drill.py --key ui_memo --to memo_note.js
 | 4 | **设计内红**：换键改名，且红的正是登记过它的段 | 不是故障；去把那些表按新键重登 |
 
 「登记过它的段」由 `expected_red()` 按实况派生（owner 表 / 空 catch 基线 / 数据写权 / innerHTML 签名 / 分层关键字是否变化），不是写死的四段——否则没登记的键会被误报成"失明"。
+
+**阶段 6 之后这个工具的用法变了**（别以为它没用了）：文件名已经等于键，"保键改名"只剩
+「加回前缀」一种形态（`ui_memo.js` → `01e9_ui_memo.js`）。它现在验的两件事是：
+① `FM.key` 去前缀 / `FM.path` 解析对**任意前缀**都兼容（防「某工具拿键直接拼 `.js`」的回退）；
+② `--to <新键>.js` 时，红的段必须**恰好**是 `expected_red()` 派生出来的那几段 —— 少一段就是登记表失明。
+真正会长期起作用的其实是 ②。
 
 两处**仍然**和文件名耦合，改名前必须知道：
 1. **引擎/UI 分层**靠文件名关键字判（`engine_ui_ast.js` 的 `isUI`：含 `ui|view|component|a11y` 算 UI）。把 UI 文件改成 `memo_note.js` 会被当成引擎层 → `eubound` 红。这不是 bug，是"名字里的语义真的变了"。
@@ -255,7 +261,7 @@ python3 tools/rename_drill.py --key ui_memo --to memo_note.js
     |---|---|---|
     | **A · 直接改** | 明显错误且零风险：错别字、与代码不符的注释、语法错、一跑就 null 的笔误 | **直接改**，但要在改动说明里写明「顺手改了 X，理由是 Y」 |
     | **B · 先提后改**（**最常走**） | 有设计取舍：更好的实现、体验优化、重构、性能改进 | **先提四要素方案**（发现了什么 / 更好在哪 / 影响面 / 回退方式）→ 等用户点头 → 再改 |
-    | **C · 只记录** | 超出本轮范围，或会碰核心（`00_pure_core` 与 `01c` 计时） | 写进建议清单，**不动代码**，交用户排期 |
+    | **C · 只记录** | 超出本轮范围，或会碰核心（`pure_core` 与 `01c` 计时） | 写进建议清单，**不动代码**，交用户排期 |
 
     > ⚠️ **别把「禁止顺手改」读成「不许有想法」。** 禁的是**改了不说**（用户回退不了），**不是**"发现更好方向"。
     > 反过来同样成立：**看到问题憋着不说，比说错更糟**——它把好方案一起埋了。

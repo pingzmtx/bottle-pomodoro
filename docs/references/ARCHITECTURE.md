@@ -91,7 +91,7 @@
 1. **只动 `src/`**：index.html 是产物，改 src 后 `python3 tools/build.py` 生成。
 2. **00 纯函数孤岛**：不碰 DOM/appData/存储（`--lint` 守卫拦截）。
 3. **01c 计时红线**：计时进行中不塞打扰 UI；跨天/回拨只许小步修+回归；结算窗 `finishSource==='natural'` 不可取消。
-4. **POMO 基准口径**：25 分钟=1🍅，折算只经 `00_pure_core.calcPomos`，禁止别处复制第二份。
+4. **POMO 基准口径**：25 分钟=1🍅，折算只经 `pure_core.calcPomos`，禁止别处复制第二份。
 5. **等价验证**：结构改动拆前/拆后 `dep_report.py` 对比 + `rs_capture.py` 渲染逐字节；每批 R- 段头 + 独立 commit；失败 `git reset --hard` 回退。
 6. **禁止反向依赖**：01 系不调 02~08；02~08 只走各文件头对外白名单。
 7. **禁止复制同名实现**：历史 updateTitle×2 / 热力图×2 教训；`grep` 先查重。

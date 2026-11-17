@@ -276,7 +276,7 @@ body.dark-mode #backupReminderBar { opacity: 0.9; }
 /* ============================================================
  * 白帽游戏化（极简模式 / 心流时长建议 / 难度选择器 / 人机排行榜）
  * ============================================================ */
-/* 极简模式隐藏黑名单（M5）：规则已收编至 08_component_registry 的 __mm_legacy__
+/* 极简模式隐藏黑名单（M5）：规则已收编至 component_registry 的 __mm_legacy__
    （registerComponent minimalSelectors 单一来源，删除此静态块避免双处维护）。 */
 /* 任务难度选择器（档位=时长：简单10分钟 / 中等25分钟 / 沉浸式50分钟 / 大师90分钟，无倍率） */
 .difficulty-picker { display: flex; gap: var(--sp-4); flex-wrap: wrap; }

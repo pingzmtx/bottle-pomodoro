@@ -5,7 +5,7 @@
 为什么存在这个工具（而不是并进 verify.py）：
   它要起无头浏览器、跑两轮场景（数据/渲染层 + 真实 UI 路径），约 3~4 分钟，
   与 tools/verify_csv_export.py 同定位：**改动日程链路（01eA / 01eM / 01eC /
-  00_pure_core 的 tb* / todoEst* / todoOccursOn）后手动跑**，不占日常提交链。
+  pure_core 的 tb* / todoEst* / todoOccursOn）后手动跑**，不占日常提交链。
 
 两轮覆盖：
   第一轮 S 段（数据/渲染层）：空态 / 勾选完成 / 番茄段开收续接 / 跨天开口段 /

@@ -324,7 +324,7 @@ def main():
             with open(os.path.join(out_dir, tag + ".json"), "w", encoding="utf-8") as f:
                 json.dump(snap, f, ensure_ascii=False)
             # 展开统计页折叠区（关键修正）
-            # 事实：05_journey_渐进解锁 的 reapFoldByIds() 会把 15 个分析图表块
+            # 事实：journey_渐进解锁 的 reapFoldByIds() 会把 15 个分析图表块
             #   （heatmapBox / yearHeatmapBox / yearlyStatWrap …）统一收进 __jyMore 折叠区，
             #   因此这些容器默认 0×0 是**产品设计而非缺陷**。
             #   原 rs_capture 只隐藏 jy-* 浮层、从未展开折叠区 →

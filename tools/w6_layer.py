@@ -26,10 +26,10 @@
 
     L2 增强层     02/03/04/05/0E
         —— 包装式注入。可依赖 L0/L1，**不许依赖 L3/L4**（增强模块不能反向要求插件）。
-           0E_theme_主题引擎 属此层：纯前端换肤，只改 body[data-theme] 与 CSS 变量，
+           theme_主题引擎 属此层：纯前端换肤，只改 body[data-theme] 与 CSS 变量，
            对 appData 只有读写 settings.theme 一处，不反向要求上层。
 
-    L3 横切层     06_errRep / 07_uiFold / 08_component_registry / 09_a11y
+    L3 横切层     06_errRep / 07_uiFold / component_registry / 09_a11y
         —— 基础设施，被所有层用但不依赖业务。**只可依赖 L0**。
 
     L4 胶水层     0A/0B/0C/0D（W3/W5 新增的路由、弹窗、store）
