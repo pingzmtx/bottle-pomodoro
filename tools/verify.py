@@ -107,7 +107,9 @@ def main():
         # （01g 一个文件 95 处）。tlorder 管的是「谁先加载」，本段管的是「谁许调用谁」，
         # 两者互补：顺序对了但方向错，一样会把 62 个文件焊成不可拆的整体。
         # 三道判据：裸调非 0 即 FAIL；UIFX.xxx 必须在白名单（Proxy 不报错、只静默 undefined）；
-        # window.<UI 函数>= … 改写数量只准降（当前 11 处，比调用更隐蔽）。
+        # 改写 UI 实现（window.X = … / 裸赋值 X = … / X = UIFX.X）数量只准降。
+        # 不在这里写死数字：写死就会像上一版那样，收紧到 12 处后注释还停在 11。
+        # 数量以 tools/engine_ui_allowlist.json 的 patch_count 为准。
         ("eubound", "python3 tools/check_engine_ui_boundary.py"),
         # 层依赖方向检查：硬违例（下层反向依赖上层）会 FAIL，挂门禁防架构腐化
         ("layer", "python3 tools/w6_layer.py"),

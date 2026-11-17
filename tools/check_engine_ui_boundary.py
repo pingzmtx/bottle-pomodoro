@@ -130,6 +130,10 @@ def main():
         if p.get("form") == "bare":
             return "%s:%d  %s = function(){…}   （裸赋值，与 window.%s 等价）" % (
                 p["file"], p["line"], p["name"], p["name"])
+        if p.get("form") == "uifx-alias":
+            # 这种形态最容易被误当成「已经改好了」：右边确实是 UIFX，但左边是全局绑定。
+            return "%s:%d  %s = UIFX.%s   （把全局名指回门面，仍是改写，不是消除耦合）" % (
+                p["file"], p["line"], p["name"], p["name"])
         return "%s:%d  window.%s = …" % (p["file"], p["line"], p["name"])
 
     if added:
@@ -138,6 +142,19 @@ def main():
             p = next((x for x in patches if key_of(x) == k), {"file": k.split("::")[0],
                                                               "name": k.split("::")[1], "line": 0})
             fails.append("    " + fmt(p))
+
+    # 3b. 数量棘轮：集合差看不见「同文件同名重复」。
+    #
+    # 2026-11-17 审核实测：在 03_enh572 末尾再追加一处 window.renderStats = fn，
+    # 判据打印「改写 UI 实现 13 处（基线 12）」，下一行却是「✓ 边界 OK · patch 未增长」、rc=0。
+    # 原因是 key_of 只取 file::name，两处同名在集合里合并成一个 —— 同一段输出里
+    # 13 > 12 却判 OK，是最容易被当成「已修好」的失效形态。所以总数单独比。
+    base_count = base.get("patch_count", len(base.get("patch", [])))
+    dup_growth = len(patches) - base_count
+    if dup_growth > 0 and not added and not update:
+        fails.append("改写 UI 实现总数 %d > 基线 %d（+%d，集合差看不见同文件同名重复）："
+                     "棘轮按数量算，新增一处就要显式 --update"
+                     % (len(patches), base_count, dup_growth))
 
     if update:
         if direct:
@@ -148,6 +165,7 @@ def main():
                      "让「引擎能调哪个 UI 能力」这一步在 diff 里可见。"
                      "patch 段是引擎直接改写 UI 全局实现的位置，棘轮只准降。",
             "allow": sorted(used),
+            "patch_count": len(patches),
             "patch": [{"file": p["file"], "name": p["name"]}
                       for p in sorted(patches, key=key_of)],
         }
@@ -161,7 +179,7 @@ def main():
     print("🔒 引擎→UI 边界  |  引擎 %d 文件 · UI %d 文件" %
           (len(data["engineFiles"]), len(data["uiFiles"])))
     print("    裸调 %d 处 · 门面能力 %d 个（白名单 %d）· 改写 UI 实现 %d 处（基线 %d）"
-          % (len(direct), len(used), len(allow), len(patches), len(patch_base)))
+          % (len(direct), len(used), len(allow), len(patches), base_count))
 
     if verbose:
         print("\n  门面能力清单：")
@@ -185,6 +203,8 @@ def main():
 
     if fails:
         n_bad = len(direct) + len(extra) + len(added)
+        if dup_growth > 0 and not added:
+            n_bad += dup_growth
         print()
         for line in fails:
             print("  " + line)

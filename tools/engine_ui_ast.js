@@ -28,9 +28,16 @@ const files = fs.readdirSync(ROOT).filter(f => f.endsWith('.js')).sort();
 
 // 与 check_duplicate / 派工单同一口径：按文件名判定归属
 const isUI = f => /ui|view|component|a11y/i.test(f);
-// UI 判定优先：01e_engine_ui.js 两边的模式都命中，但它是 UI 能力层（showToast/closeModal）。
-// 07_uiFold 同理 —— 折叠记忆是 UI 行为，不是引擎。
-const isEng = f => !isUI(f) && /engine|enh|journey|errRep|fold|hash|路由|渐进/i.test(f);
+// 「非 UI」= 除 UI 文件之外的全部文件，不再用第二组关键字白名单。
+//
+// 2026-11-17 修正（审核发现）：原来写的是 /engine|enh|journey|errRep|fold|hash|路由|渐进/，
+// 只覆盖 60/71 个文件，剩下 11 个（00_pure_core / 00_delegate / 00b / 01a1 / 01b1 / 01b2 /
+// 01b3 / 0A / 0C / 0D / 0E）既不匹配 UI 也不匹配引擎，**整类不进扫描** —— 而输出照样打印
+// 「裸调 0 处」，没有任何「11 个文件没分类」的提示。实测 0D_store通知.js 有 5 处真实裸调
+// （renderTreeShop/renderTreeSection/renderWeeklyBadges/renderRankSystem/renderStats）。
+// 门禁的形状必须是「默认管、例外要显式」，而不是「命中关键字才管」——否则新增一个
+// 命名不落关键字的新文件，就自动豁免了全部检查，且没人会发现。
+const isEng = f => !isUI(f);
 
 const owner = {};
 const declKind = {};   // 'func' | 'varfn' | 'var'  —— 决定裸赋值算不算「改写实现」
@@ -104,8 +111,10 @@ const uifx = new Set();
 const alias = [];
 const notPatch = [];   // 裸赋值里被排除的（句柄/字符串写进 UI 变量），供 -v 自证不误报
 
-// 已归位的工具函数：定义已不在 UI 文件里，即便还在 UI 文件里也不算上行能力
-const NOT_UI_CAPABILITY = new Set(['escapeHtml']);
+// escapeHtml 已上移到 01a1_dom_util.js（非 UI 文件），owner 判定自然会放过它，
+// 不再需要豁免名单。保留空集只是为了少改六处调用点；语义上它必须一直是空的 ——
+// 一旦往里加名字，就是「允许引擎直连某个 UI 函数」，那是门禁开口子，要走基线不是走这里。
+const NOT_UI_CAPABILITY = new Set();
 
 for (const f of files) {
   if (!isEng(f) || !asts[f]) continue;
@@ -154,9 +163,19 @@ for (const f of files) {
         if (localBinds[f] && localBinds[f].has(nm)) return;   // 局部同名量，不是全局
         const fnTarget = isFnDecl(nm);
         const fnValue = isFnValue(node.right);
-        if (fnTarget && fnValue) {
+        // c) X = UIFX.X —— 把全局绑定指回门面。
+        //
+        // 这不是「消除耦合」，是 patch 换了个写法：原来引擎自带一层实现包住 UI，
+        // 现在让全局名指向门面；门面再按名查 registry/window，很可能指回自己。
+        // 审核实测过：把 03:704 的 `window.renderStats = function(){…}` 改成
+        // `renderStats = UIFX.renderStats`，旧判据会打印「旧 patch 已消失（耦合变少，不拦）」
+        // 并 PASS —— 棘轮被白送一次下降。这种形态必须与 patch 同等计数。
+        const isUifxAlias = node.right.type === 'MemberExpression' &&
+          node.right.object.type === 'Identifier' && node.right.object.name === 'UIFX' &&
+          node.right.property.type === 'Identifier' && node.right.property.name === nm;
+        if (fnTarget && (fnValue || isUifxAlias)) {
           alias.push({ file: f, line: node.loc.start.line, name: nm, owner: own,
-                       patch: true, form: 'bare' });
+                       patch: true, form: isUifxAlias ? 'uifx-alias' : 'bare' });
         } else {
           // 看了但不算：留着给 -v 输出，证明判据不是「看见赋值就当 patch」
           notPatch.push({ file: f, line: node.loc.start.line, name: nm, owner: own,

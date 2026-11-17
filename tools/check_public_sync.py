@@ -148,6 +148,19 @@ def index_scope():
     return out_map
 
 
+def staged_deleted():
+    """暂存区里被标记为删除的路径集合。
+
+    没有它的话，「public/ 有、index 没有」只有一种解释：git add 漏了。
+    而 `git rm --cached assets/engine.js` 造成的也是同一现象 —— 诊断会指错方向，
+    让人去补 git add，实际该做的是决定「这个文件还要不要发布」。
+    """
+    rc, out = _git(["diff", "--cached", "--name-only", "--diff-filter=D"])
+    if rc != 0:
+        return set()
+    return set(x for x in out.decode("utf-8", "surrogateescape").split("\n") if x)
+
+
 def sha256_bytes(b):
     return hashlib.sha256(b).hexdigest()
 
@@ -161,6 +174,7 @@ def check_staged(verbose):
     if idx is None:
         print("✗ --staged 需要在 git 仓库里运行（找不到 .git）")
         return 3
+    deleted = staged_deleted()
 
     pub = scope_files(PUB)
     diffs = []
@@ -169,10 +183,17 @@ def check_staged(verbose):
     for rel in sorted(pub):
         want = open(pub[rel], "rb").read()
         if rel not in idx:
-            diffs.append((rel, "未暂存", [
-                "public/%s  %d B  %s" % (rel, len(want), build_id(pub[rel])),
-                "暂存区      —— 没有这个文件（git add 漏了，或压根没加过）",
-            ]))
+            if rel in deleted:
+                # 不是「忘了 add」，是「主动从 index 删了」——修法完全不同，必须分开报。
+                diffs.append((rel, "已从 index 删除", [
+                    "public/%s  %d B  %s" % (rel, len(want), build_id(pub[rel])),
+                    "暂存区      —— 这个文件被标记为删除（git rm / git rm --cached）",
+                ]))
+            else:
+                diffs.append((rel, "未暂存", [
+                    "public/%s  %d B  %s" % (rel, len(want), build_id(pub[rel])),
+                    "暂存区      —— 没有这个文件（git add 漏了，或压根没加过）",
+                ]))
             continue
         got = idx[rel]
         if sha256_bytes(got) != sha256_bytes(want):
@@ -205,6 +226,9 @@ def check_staged(verbose):
         for ln in lines:
             print("    %s" % ln)
     print("\n为什么工作区检查是绿的却还是错：promote.py 写工作区，而 git 只提交你 git add 过的路径。")
+    if any(kind == "已从 index 删除" for _, kind, _ in diffs):
+        print("修法（有文件被标记删除）：误删 → git reset -- <path>；")
+        print("      确实不再发布 → git rm public/<path> 后重新 build + promote")
     print("修法：git add -u          （已跟踪文件的修改全部进暂存区，一条覆盖 assets/*.js）")
     print("      或  git add -- assets icons fonts index.html config.js sw.js manifest.webmanifest")
     return 1

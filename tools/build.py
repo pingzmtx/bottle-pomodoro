@@ -531,6 +531,23 @@ def lint():
                     errs.append("层级 " + _ln.strip())
     else:
         errs.append("层级声明门禁不可用（缺 tools/w6_layer.py）")
+    # ===== 引擎→UI 边界门禁（2026-11-17）=====
+    # 与上一段同一条教训：判据只挂在 verify 上 = 只要有人只跑 lint 就失灵。
+    # 83465fc 把 patch 棘轮收紧到「裸赋值」形态，但 build --lint 当时不跑它，
+    # pre-commit 只跑 lint/build/pubsync/unit —— 手工 git commit 可以完全绕过边界检查。
+    # 现在 lint 直接跑完整判据（裸调 + 白名单 + patch 计数），与 verify 的 eubound 段同源。
+    _eub = os.path.join(_tdir, "check_engine_ui_boundary.py")
+    if not os.path.isfile(_eub):
+        errs.append("引擎→UI 边界门禁不可用（缺 tools/check_engine_ui_boundary.py）")
+    elif _no_node:
+        print("○ 未找到 node —— 引擎→UI 边界检查没跑（依赖 node 解析 AST）")
+    else:
+        _eur = _sp.run([sys.executable, _eub],
+                       capture_output=True, text=True, timeout=120)
+        if _eur.returncode != 0:
+            for _ln in ((_eur.stdout or "") + (_eur.stderr or "")).strip().split("\n"):
+                if _ln.strip():
+                    errs.append("边界 " + _ln.strip())
     # ===== 设计令牌门禁：字号只许走变量 =====
     # 为什么必须有这一段：全项目曾有 49 种字号（含 9.5/10.5/11.5 等半像素），
     # 而 --fs-* 变量早已定义、JS 里引用了 194 次，template.html 却硬编码 655 处 ——

@@ -221,7 +221,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 | 目的 | 命令 | 何时用 |
 |---|---|---|
 | 一键全绿链（含 E2E，拆结构每批基线） | `python3 tools/verify.py --e2e` | 改结构/UI 后必跑 |
-| 快档（lint+check+layer+toc+unit，0.5s） | `python3 tools/verify.py --fast` | 改前快速自检 / pre-commit 兜底 |
+| 快档（37 段静态：lint/build/check/pubsync/eubound/layer/size…，约 30s） | `python3 tools/verify.py --fast` | 改前快速自检 / pre-commit 兜底 |
 | 结构化输出 | `python3 tools/verify.py --json` | AI 解析后决定是否提交 |
 | 改前影响面反查 | `python3 tools/dep_report.py --impact <函数名>` | 动任何被依赖函数之前 |
 | 函数/模块定位 | `python3 tools/dep_report.py --map <关键词>` | 不知改哪个文件 |
@@ -234,7 +234,9 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 | 门面像素基线 | `python3 tools/rs_facade.py` | 改商店/海报门面样式后；产出 12 张 PNG（3 场景×2 主题×2 门面） |
 | 性能基线 | `python3 tools/bench.py [--throttle 6]` | 改动首屏/渲染热路径后；冷启 / 视图切换 / 统计页 8000 条 |
 | 长会话体检 | `python3 tools/session_audit.py [--rounds 60]` | 改动定时器/监听器/视图切换后；判据 interval 净增 ≤5 且错误 0 |
-| 层依赖方向检查（**已挂链**） | `python3 tools/w6_layer.py` | 改任何跨文件调用后；硬违例（下层反向依赖上层）= FAIL |
+| 层依赖方向检查（**已挂链 / 已挂 lint**） | `python3 tools/w6_layer.py [--brief] [--list] [--json]` | 改任何跨文件调用后；硬违例（下层反向依赖上层）= FAIL。层级唯一来源是文件头 `// @layer:`，中央表已删 |
+| 引擎→UI 边界（**已挂链 eubound / 已挂 lint**） | `python3 tools/check_engine_ui_boundary.py [-v] [--update]` | 改引擎调用前；裸调 UI = FAIL；`UIFX.xxx` 必须在白名单（Proxy 只静默 undefined）；改写 UI 实现数量按 `patch_count` 棘轮只准降 |
+| 产物同步（**已挂 pre-commit 闸门 3 / 3b**） | `python3 tools/check_public_sync.py [--staged] [-v]` | 提交前；工作区口径证明 promote 跑过，`--staged` 证明「要提交的那份 = 构建产物」 |
 | 死代码扫描 | `python3 tools/w6_deadcode.py` | 重构删功能后；四口径零引用才报，误报率低但**删前仍须人工确认** |
 | 文件级 TOC 生成（**已挂链**） | `python3 tools/w6_toc.py [--check]` | 增删顶层函数后；`--check` 在链里做一致性门禁 |
 | **增量体检（每轮都跑）** | `python3 tools/audit_diff.py [--strict]` / 发版后 `--set-base` | **审「这次改了什么」，不审全库**。成本恒定，与仓库大小无关。抓设计尺度字面量 / 魔法时长 / 手写 window 挂载 / 新增 innerHTML / 重名函数 —— 这些是 lint 与 win_whitelist 的空档 |
