@@ -151,7 +151,7 @@ python3 tools/run_smoke.py --affected   # ② 浏览器冒烟：只跑「本次�
 | 改名类型 | 要动的文件 | 预期 |
 |---|---|---|
 | **保键改名**（`01e9_ui_memo.js` → `ui_memo.js`） | **只有 `manifest.json` 一行** | 全绿，产物 4 个 chunk 哈希逐字节不变 |
-| 改键改名（`ui_memo` → `memo_note`） | 还要改 owner / 数据写权 / 空 catch / innerHTML 签名（+ 若在 `group_split.GROUPS` 里，那张表也要改） | **应该**红：只红「登记过这个键」的段 —— 换键=换身份，登记表必须重登 |
+| 改键改名（`ui_memo` → `memo_note`） | 还要改 owner / 数据写权 / 空 catch / innerHTML 签名（+ 若在 `group_split.GROUPS` 里，那张表也要改） | **至少**红「登记过这个键」的段；`size` / `tomato` 这类按新键缺基线也会红（工具会把它们列成「顺带还要动」） |
 | 只改顺序 | 只调 manifest 里 `files[]` 的位置 | 全绿；`tlorder` 管顶层初始化顺序，越界会红 |
 
 验收不靠"数硬编码剩几处"，靠**真的改一次**：

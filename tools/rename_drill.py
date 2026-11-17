@@ -52,8 +52,6 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
-EXPECT_RED_ON_KEY_CHANGE_PLACEHOLDER = None   # 由 expected_red(key, new_name) 派生，见下
-
 try:
     from filemap import FM, key_of
 except ImportError:                                   # pragma: no cover
@@ -95,41 +93,70 @@ def expected_red(key, new_name):
     写死过一版（"永远期望 eubound/casemeta/catch/domain 全红"），复审当场用
     --key ui_summary 打回来：那个键不是任何用例的 owner、空 catch 为 0、
     也不是数据写者，三段不红是**正确**的，却被报成"该段失明"。
-    正确做法：谁登记了它，谁才该红。
+    正确做法：谁登记了它，谁才该红 —— 而且判据要和真实门禁**同向**。
+
+    复审第二次打回来两处"看起来像、其实不同向"，都已改：
+      · eubound 只在「UI → 引擎」方向红（UI 变引擎才会有 patch 增长）；
+        引擎 → UI 只会减少 patch，不红。原来写成对称的 !=，反向改名会误报。
+      · catch 的真实判据看**当前代码里的空 catch 数**，不看基线值
+        （基线可以 >0 而代码已修好，棘轮只打印"可收紧"，不强制 --write）。
     """
     exp = set()
     if key in _owner_tokens():
         exp.add("casemeta")                                   # owner 表
-    catch = _read_json("src/empty_catch_baseline.json", {}).get("files", {})
-    if catch.get(key, 0) > 0:
-        exp.add("catch")                                      # 空 catch 基线
+
+    # 空 catch：真实门禁 = (新键不在基线) 或 (当前数 > 基线)，两边都看当前数
+    try:
+        import empty_catch_audit
+        cur = empty_catch_audit.scan().get(key, 0)
+    except Exception:
+        cur = _read_json("src/empty_catch_baseline.json", {}).get("files", {}).get(key, 0)
+    # 换键后新键一定不在基线里 → 真实门禁只看"当前数 > 0"这一条。
+    # （曾写成 cur > base：基线 3、代码也 3 时推出"不该红"，而门禁其实会因为
+    #   新键不在基线而红 —— 又一次"看起来同向、其实看错了对象"。）
+    if cur > 0:
+        exp.add("catch")
+
+    # 数据写权：真实门禁只认 writers（owner 仅用于报错文案，不参与 allowed 集合）
     doms = _read_json("src/data_ownership.json", {}).get("domains", {})
     for d in doms.values():
-        if key in (d.get("writers") or []) or d.get("owner") == key:
-            exp.add("domain")                                 # 数据写权基线
+        if key in (d.get("writers") or []):
+            exp.add("domain")
             break
+
     if key in _read_json("src/innerhtml_baseline.json", {}).get("files", []):
         exp.add("lint")                                       # 注入签名（挂在 lint 段里）
-    if _is_ui(new_name) != _is_ui(FM.path(key)):
-        exp.add("eubound")                                    # 分层关键字变了
+
+    # 引擎→UI 边界：两个来源会红，方向不同
+    #   ① UI 文件改成不带 ui/view/component/a11y 的名字 → 被当成引擎层 → 裸调 UI
+    #   ② 该键在改写 UI 实现的白名单里 → 换键后旧条目变孤儿，新键算"新增改写"
+    ui_flip = _is_ui(FM.path(key)) and not _is_ui(new_name)
+    if ui_flip or key in _patch_keys():
+        exp.add("eubound")
         exp.add("lint")                                       # eubound 红了 lint 一定红（汇总壳）
     return exp
 
 
-def _group_keys():
-    """tools/group_split.py 的 GROUPS 里列了哪些键（这些键改键改名会先崩 build）。"""
+def _patch_keys():
+    """engine_ui_allowlist.json 的 patch[].file 里有哪些键（改写 UI 实现的白名单）。"""
     try:
-        from group_split import GROUPS
+        data = _read_json("tools/engine_ui_allowlist.json", {})
+        return {p.get("file") for p in (data.get("patch") or []) if p.get("file")}
     except Exception:
         return set()
-    out = set()
-    for _g, files in GROUPS:
-        for f in files:
-            try:
-                out.add(key_of(f))
-            except Exception:
-                pass
-    return out
+
+
+def _group_keys():
+    """tools/group_split.py 的 GROUPS 里列了哪些键（这些键改键改名会先崩 build）。
+
+    解析失败**不能** fail-open：返回 None 让调用方直接停（否则预检静默失效，
+    演练又崩在别人的 KeyError 栈里）。
+    """
+    try:
+        from group_split import GROUPS
+        return {key_of(f) for _g, files in GROUPS for f in files}
+    except Exception:
+        return None
 
 
 def run(cmd, cwd, capture=True):
@@ -170,7 +197,12 @@ def main():
 
     # 换键改名 + 这个键在分组表里 → build 会在 import 期就 KeyError（见 group_split.GROUPS）。
     # 与其让演练崩在 KeyError，不如提前说清楚「这里也要改」。
-    if key_of(new_name) != key and key in _group_keys():
+    gk = _group_keys()
+    if gk is None:
+        print("✗ tools/group_split.py 的 GROUPS 自己解析不了（含无法解析的键）。")
+        print("  预检失效的话，演练会崩在 build 的 KeyError 里，说不清是谁的问题 —— 先修 GROUPS。")
+        return 3
+    if key_of(new_name) != key and key in gk:
         print("✗ %s 在 tools/group_split.py 的 GROUPS 里（core/base/engine 分层表）。" % key)
         print("  换键改名必须同时改那张表，否则 build 直接 KeyError。本演练不做自动修补 ——")
         print("  先手工改 GROUPS，再跑 `--key %s`（保键改名）验证其余部分。" % key)
