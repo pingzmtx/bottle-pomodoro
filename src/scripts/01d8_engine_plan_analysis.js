@@ -3,7 +3,7 @@
  * 01d8 · 计划/习惯排序与周分析
  * 职责：待办/习惯排序、智能关怀（checkCareNeeded）、幽灵对比（getGhostStats）、生长阶段与习惯降级、周目标校验、连续天数、记录↔奖励对账
  * 症状：待办排序乱 · 每周目标不刷新 · 习惯降级看不懂 · 关怀提示不出现
- * 对外：getSortPrefs / sortTodos / sortHabits / checkCareNeeded / getGhostStats
+ * 主要入口：getSortPrefs / sortTodos / sortHabits / checkCareNeeded / getGhostStats
  * 归位：2026-11-14 由 01d_engine_features.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：getSortPrefs/sortTodos/sortHabits/getHabitStage/degradeHabits/syncHabitGrowth/getHabitStreak/getWeekStartStr/countDayFullPoints/countWeekTomatoes/checkWeekHabitReq/weekHabitMissingDays（+21 更多）
  * ============================================================ */

@@ -3,7 +3,7 @@
  * 01d7 · 记录↔计划归属打通
  * 职责：保存番茄记录（savePomodoroRecord，本文件近半代码）、记录↔待办归属判定（同名认领 / 旧名迁移）、分段索引缓存、时长归属
  * 症状：待办记不到记录里 · 记录的专注时长对不上
- * 对外：savePomodoroRecord / tbResolveTodoByTitle / tbTodoFocusMs / migrateRecordOwnership（禁止在别处再写一份「按标题认领记录」）
+ * 主要入口：savePomodoroRecord / tbResolveTodoByTitle / tbTodoFocusMs / migrateRecordOwnership（禁止在别处再写一份「按标题认领记录」）
  * 归位：2026-11-14 由 01d_engine_features.js 按域拆出（拆分前同一文件，行为未变）
  * 函数索引（TOC）：tbNormTitle/tbTodoTitleCount/tbTodoCreatedAt/tbLegacyNameClaimAllowed/tbResolveTodoByTitle/migrateRecordOwnership/tbInvalidateSegIndex/tbSegIndex/tbTodoFocusMs/tbTodoSegList/consumeLiveSessionForRecord/__setMustDoEditDate（+3 更多）
  * ============================================================ */

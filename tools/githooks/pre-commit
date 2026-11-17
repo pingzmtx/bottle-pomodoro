@@ -35,7 +35,14 @@ fi
 # 唯独最重要的新增交付物没进，全部门禁照绿（tools/ 不在 pubsync 作用域，verify 也没有 where 段）。
 # 这与 ebd4de2 漏 assets/engine.js 是同一机制：**pathspec 漏了某个路径**。
 # 不猜"你想不想提交它"，只要求：要么 git add，要么移到 /tmp；确实不入库的写进 .gitignore。
-untracked=$(git status --porcelain --untracked-files=all -- src tools | awk '$1=="??"{print $2}' | grep -E '\.(py|js|json)$' || true)
+# 覆盖三种「文件没进历史」的形态（初版只覆盖 ASCII 的 py/js/json，实测三种全漏）：
+#   ?? 未跟踪    —— 用 ls-files -o -z，-z 不做中文转义（porcelain 对非 ASCII 会加引号，$2 带引号就匹配不上）
+#   A  intent-to-add（git add -N）—— index 里是空 blob，status 显示 ` A` 而不是 `??`，可直接 commit 却无内容
+#   扩展名不限   —— tools/ 与 src/ 本来就只放源文件，.sh/.mjs/.html 同样是源
+untracked=$(git ls-files --others --exclude-standard -z -- src tools | tr '\0' '\n')
+ita=$(git ls-files -s -z -- src tools | tr '\0' '\n' \
+      | awk '$2=="e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"{sub(/^[^\t]*\t/,"");print}')
+untracked=$(printf '%s\n%s\n' "$untracked" "$ita" | sed '/^$/d' | sort -u)
 if [ -n "$untracked" ]; then
   echo "[pre-commit] ❌ tools/ 或 src/ 下有未跟踪的源文件（不会进本次提交）："
   echo "$untracked" | sed 's/^/             /'
