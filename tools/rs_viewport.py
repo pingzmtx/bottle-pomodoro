@@ -153,19 +153,52 @@ def launch(width, height):
 
     send("Page.enable")
     send("Runtime.enable")
-    # 关键：覆写设备指标，真正把 CSS 视口压到目标宽度
-    send("Emulation.setDeviceMetricsOverride", {
-        "width": width, "height": height,
-        "deviceScaleFactor": 1, "mobile": width < 720,
-    })
+    # 2026-11-18：偶发「目标 360，实际 innerWidth=980」（约 1/5 概率，紧跟 e2e/perf 之后更容易出现）。
+    # 980 是 **mobile 布局视口没拿到目标宽**时的默认值 —— 说明 override 被导航冲掉了：
+    # CDP 的 Emulation 参数绑在「当前文档」上，页面再提交一次导航就会把它清掉。
+    # 原来只在启动后立刻下发一次就断言，正好卡在「已经开始导航、还没加载完」的窗口里。
+    # 现在：① 先等文档进入 interactive/complete（导航已提交）；② 下发后断言，
+    # 不符就重下一遍（最多 3 次，间隔递增）；③ 仍不符才硬失败，并把每一轮的
+    # innerWidth / readyState / CDP error 全打出来 —— 否则现场只剩两个数字，没法查。
+    for _ in range(60):
+        if js("document.readyState") in ("interactive", "complete"):
+            break
+        time.sleep(0.1)
+    _params = {"width": width, "height": height, "deviceScaleFactor": 1, "mobile": width < 720}
+    _tries = []
+    actual = None
+    for _i in range(3):
+        _ov = send("Emulation.setDeviceMetricsOverride", _params)
+        time.sleep(0.2)
+        actual = js("window.innerWidth")
+        _tries.append({"try": _i + 1, "innerWidth": actual,
+                       "readyState": js("document.readyState"),
+                       "cdp_error": (_ov or {}).get("error")})
+        if actual == width:
+            return ws, js, shot, proc
+        time.sleep(0.4 * (_i + 1))
     # 断言：回读必须等于目标，否则本档数据不可信 → 抛错终止
-    actual = js("window.innerWidth")
     if actual != width:
+        # 2026-11-18：失败只报「目标/实际」两个数，查了一整轮才知道要看什么。
+        # 这里把判定所需的全部现场一次性打出来：CDP 自己的 error、tab 是不是
+        # 我们那个页面、UA 有没有 Mobile、outerWidth 与 DPR、覆写后的 meta 生效值。
+        _diag = {
+            "tries": _tries,
+            "tab_url": page.get("url", "")[:120],
+            "tab_count": len(tabs),
+            "innerWidth": actual,
+            "outerWidth": js("window.outerWidth"),
+            "dpr": js("window.devicePixelRatio"),
+            "ua_mobile": js("navigator.userAgent.indexOf('Mobile') >= 0"),
+            "readyState": js("document.readyState"),
+            "screen_w": js("screen.width"),
+        }
         ws.close()
         proc.kill()
         raise RuntimeError(
-            f"视口覆写失败：目标 {width}，实际 innerWidth={actual}。"
-            f"本档数据不可信，已中止（拒绝产出假绿）。")
+            "视口覆写失败：目标 %d，实际 innerWidth=%s（已重试 3 次）。本档数据不可信，"
+            "已中止（拒绝产出假绿）。\n  现场：%s"
+            % (width, actual, json.dumps(_diag, ensure_ascii=False)))
     return ws, js, shot, proc
 
 

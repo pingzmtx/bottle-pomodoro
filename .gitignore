@@ -30,6 +30,10 @@ tools/tests/_tmp_block.js
 .publish-token
 tools/.ver_seq.json
 
+# 视口走查的截图存档（rs_viewport.py 每次跑都整目录重写，约 2 MB；
+# 要留档给人看就 --out=<临时目录>，别把 5 档 × 5 视图的 png 提交进来）
+docs/archive/视口走查/
+
 # 构建中间产物（根目录那份才是站点）
 public/
 dist/
