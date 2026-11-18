@@ -1,0 +1,15 @@
+# 构建产物
+.gradle/
+build/
+app/build/
+*.apk
+*.aab
+
+# 本机 SDK 路径（因人而异，不要入库）
+local.properties
+
+# IDE / Kotlin 缓存
+.idea/
+*.iml
+.kotlin/
+.cxx/

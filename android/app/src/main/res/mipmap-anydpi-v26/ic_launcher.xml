@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 图标零绘制（设计 §9）：图片直接用网页的 icon-192-maskable.png 原文件（@mipmap/ic_launcher_bg），
+     它本身就是为 maskable 设计的、自带安全区留白、四角是 #141A30 底色。
+
+     P2-4 修正：以前 <foreground> 写的是 @android:color/transparent，注释里的理由是
+     "避免同一张图叠两层被系统放大 1.5 倍后溢出裁切"。但全透明前景在部分启动器上会渲染成
+     空白图标（背景层被 mask 裁切后什么都不剩）。现在：
+       · background = 纯色 #141A30（PNG 底色，裁切后无接缝）
+       · foreground = 同一张 PNG，用 <inset> 缩到 72dp 可见区（见 drawable/ic_launcher_foreground.xml）
+     两层都是"实体"，不会再出现空白；也没有引入任何新绘制的图形。 -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+</adaptive-icon>

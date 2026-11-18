@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 用框架主题（不引 AppCompat，设计 §7）：WebView 自己画界面，原生只需要「没有 ActionBar」。
+         状态栏/导航栏用网页 meta theme-color 声明的 #141A30（设计 §0.4），不自己挑颜色。
+         windowBackground 用网页首屏底色 #FBF6EF：进程被杀后重进时，先铺页面底色再等 WebView 首绘，
+         比铺深色少一次「黑一下再变白」的闪烁。 -->
+    <style name="Theme.BottleFocus" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#FF141A30</item>
+        <item name="android:navigationBarColor">#FF141A30</item>
+        <item name="android:windowBackground">#FFFBF6EF</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+</resources>
