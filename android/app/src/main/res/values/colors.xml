@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 启动图标背景色 = icon-192-maskable.png 的底色（取样值 #141A30，与状态栏同色）。
+         为什么要单独定一个不透明色：P2-4 —— adaptive icon 的 foreground 之前是
+         `@android:color/transparent`，某些启动器在"背景层被 mask 裁切 + 前景层全透明"时
+         会渲染出一片空白图标。现在背景层是纯色、前景层是真图，两侧都不会空。 -->
+    <color name="ic_launcher_background">#FF141A30</color>
+
+</resources>

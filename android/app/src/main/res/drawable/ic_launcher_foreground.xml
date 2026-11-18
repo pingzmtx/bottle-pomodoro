@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  启动图标前景层：直接复用网页那份 icon-192-maskable.png 原文件（mipmap/ic_launcher_bg.png），
+  **不自己画新图标**（设计 §9 / §13）。
+
+  为什么用 <inset> 缩到 72dp：
+  adaptive icon 的两层都是 108dp，启动器只显示中间 72dp 的安全区（66.7%），外面 18dp 会被裁掉。
+  而 maskable PNG 的图形按 80% 安全区设计 —— 原样铺满 108dp 的话，边缘 8% 的图形会被裁。
+  缩进 18dp 后图形正好落在 72dp 的可见区内；四角被裁掉的是 PNG 自带的 #141A30 底色，
+  与 background 的纯色完全同色，所以看不出接缝。
+-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@mipmap/ic_launcher_bg"
+    android:inset="18dp" />
