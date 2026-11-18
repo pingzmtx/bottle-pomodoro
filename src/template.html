@@ -2034,9 +2034,11 @@ body.dark-mode .timer-badge .tb-icon { filter: drop-shadow(0 0 5px rgba(var(--wh
 @media (max-width: 345px) {
   .header h1 { font-size: calc(19px * var(--fs-boost)); letter-spacing: 0; }
   .header .header-brand-sub { font-size: calc(13px * var(--fs-boost)) !important; max-width: 72px; }
-  /* 日志汇总条四格（条记录/记录时长/专注时长/番茄）在极窄档收字号，免「1.9 小时」被挤断行 */
-  .log-sum-num { font-size: calc(16px * var(--fs-boost)); }
-  .log-sum-cell { padding-left: 2px; padding-right: 2px; }
+  /* 日志汇总条四格（条记录/记录时长/专注时长/番茄）的窄档覆盖**已移到 14_log_stats.css**。
+     原先写在这里，被 14_log_stats.css 的 `.log-sum-num { font-size: var(--fs-sub) }`
+     以「同特异性 + 后加载」压掉 —— 媒体查询一条都没生效，320 档实测仍是 21px，
+     四格被内容撑到 306px（容器 286px），把日志页顶出 2.8px。级联位置本身就是判据，
+     所以覆盖必须写在被覆盖规则**之后**的同一文件里。 */
 }
 @media (max-width: 330px) {
   /* 极窄档：副标题隐藏，只保主标题与按钮不打架 */
@@ -5694,6 +5696,45 @@ body.dark-mode .lg-seg-item.on { background: var(--surface-hover); }
 .log-sum-lab { font-size: var(--fs-note); color: var(--text-light); margin-top: var(--sp-2); white-space: nowrap; }
 /* 时长格里的单位（小时/分钟）：跟在数字后的小号字，让格名能固定成「记录时长」 */
 .log-sum-unit { font-size: 0.72em; font-weight: 600; }
+
+/* ===== 统计页柱状图的 x 轴（近 7 天质量图 / 近 8 周节奏图）=====
+   320px 档实测：图表可用宽只有 228px → 7 列 29px/列、8 列 25px/列。
+   原先列是内联 `flex:1; max-width:44px`，柱子写死 `width:28px`，标签「11/18」
+   在 14px 下实测宽 44px；flex 项默认 `min-width:auto` 不肯收缩到内容以下，
+   于是列被标签撑到 44px、整行 344px，把统计页顶出 17px 横向滚动
+   （tools/rs_viewport.py 320 档实测 hOverflow=17、越界 4 处）。
+   现在：柱宽跟列走（`width:100%;max-width:28px`）、标签「月/日」分段，
+   极窄档隐掉月份段 —— 7 天连排时「11」重复 7 次本来就是噪音，日号才是要读的。
+   ★ 列**不能**写 `min-width:0`：那会让列收缩到比文字窄，360 档实测 8 个标签
+     互相压盖（"10/5" 与 "10/12" 叠在一起）—— 门禁量的是「有没有超出视口」，
+     量不到「两个标签糊成一团」。靠隐藏月份把内容变窄，才是真收窄。
+   ★ 7 天标签用 --fs-micro 而不是 --fs-caption：14px 下「11/12」实测 44px，
+     7 列合计 344px > 卡片 300px，两端各被裁掉一截（门禁看不到，
+     因为没超出视口，只是被卡片 overflow 裁了）。13px 下 31px×7+36=253 放得下。 */
+.q7-row { display: flex; align-items: flex-end; height: 130px; gap: var(--sp-6); justify-content: center; }
+.q7-row.q7-labs { height: auto; align-items: baseline; margin-top: var(--sp-4); font-size: var(--fs-micro); color: var(--text-light); }
+.q7-col { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: flex-end; gap: var(--sp-2); height: 100%; }
+.q7-lab { flex: 1 1 auto; text-align: center; white-space: nowrap; }
+.w8-row { display: flex; align-items: flex-end; height: 120px; gap: var(--sp-4); justify-content: center; }
+.w8-col { flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); }
+.w8-bar { width: 100%; max-width: 28px; display: flex; align-items: flex-start; justify-content: center; color: var(--on-fill); font-size: var(--fs-tiny); font-weight: 800; border-radius: var(--radius-xs) var(--radius-xs) 0 0; }
+.w8-lab { font-size: var(--fs-micro); color: var(--text-light); white-space: nowrap; }
+.w8-cur { font-size: var(--fs-micro); color: var(--primary-ink); font-weight: 700; white-space: nowrap; }
+@media (max-width: 345px) {
+  /* 汇总条四格：320 档四格各约 71px，21px 的「43.8 小时」最小内容宽 84px+8
+     → 四格合计 306px（容器 286px），把日志页顶出 2.8px 横向溢出。
+     收到 16px 后各格 ≤ 68px，合计 235px。**必须写在这里**：
+     同特异性的 `.log-sum-num` 在上文，媒体查询放在之后才压得住（见 12_components.css 的说明）。 */
+  .log-sum-num { font-size: calc(16px * var(--fs-boost)); }
+  .log-sum-cell { padding-left: 2px; padding-right: 2px; }
+  .q7-row { gap: var(--sp-2); }
+  .q7-row.q7-labs { font-size: var(--fs-micro); }
+  .w8-row { gap: var(--sp-2); }
+  /* 25~29px 的列宽只放得下日号；月份段隐掉（上面的注释说明了为什么它不是信息损失） */
+  .lbl-m { display: none; }
+  /* 「本周」同样挤不下；这一列本来就靠 --primary 底色区分，文字在极窄档是冗余 */
+  .w8-cur { display: none; }
+}
 
 .log-date-header {
   display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline;

@@ -2384,12 +2384,12 @@ a.name+'</div><div style="font-size:var(--fs-caption);color:var(--text-light);li
 a.desc+'</div>'+
 (pend?'<div style="position:absolute;top:-6px;right:-6px;font-size:var(--fs-tiny);background:var(--yellow);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.2);" onclick="claimAchievementReward(\''+
 a.id+'\')" title="领取奖励">🎁</div>':ok?'<div style="position:absolute;top:-6px;right:-6px;font-size:var(--fs-body);background:var(--fill-primary);color:var(--on-fill);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;">✓</div>':'')+'</div>');}).join('')+'</div>';});el.innerHTML=achHtml;}
-function renderQualityStack(SC){const _qc=document.getElementById('qualityChart');if(_qc){const any=SC.day7.some(function(d){return d.full||d.half||d.inc;});if(!any){_qc.innerHTML='<div style="text-align:center;color:var(--text-light);font-size:var(--fs-body);padding:40px 0;">暂无数据</div>';}else{_qc.innerHTML='<div style="display:flex;align-items:flex-end;height:130px;gap:var(--sp-6);justify-content:center;">'+
-SC.day7.map(function(d){const total=d.full+d.half+d.inc;const h=function(v){return total?Math.round((v/total)*100):0;};return('<div style="flex:1;max-width:44px;display:flex;flex-direction:column;justify-content:flex-end;gap:var(--sp-2);height:100%;">'+
+function renderQualityStack(SC){const _qc=document.getElementById('qualityChart');if(_qc){const any=SC.day7.some(function(d){return d.full||d.half||d.inc;});if(!any){_qc.innerHTML='<div style="text-align:center;color:var(--text-light);font-size:var(--fs-body);padding:40px 0;">暂无数据</div>';}else{_qc.innerHTML='<div class="q7-row">'+
+SC.day7.map(function(d){const total=d.full+d.half+d.inc;const h=function(v){return total?Math.round((v/total)*100):0;};return('<div class="q7-col">'+
 (d.full?'<div style="background:var(--green);border-radius:var(--radius-xs);height:'+h(d.full)+'%;"></div>':'')+
 (d.half?'<div style="background:var(--yellow);border-radius:var(--radius-xs);height:'+h(d.half)+'%;"></div>':'')+
-(d.inc?'<div style="background:var(--red);border-radius:var(--radius-xs);height:'+h(d.inc)+'%;"></div>':'')+'</div>');}).join('')+'</div>'+'<div style="display:flex;gap:var(--sp-6);justify-content:center;margin-top:var(--sp-4);font-size:var(--fs-caption);color:var(--text-light);">'+
-SC.day7.map(function(d){return'<div style="flex:1;max-width:44px;text-align:center;">'+d.label+'</div>';}).join('')+'</div>';}}}
+(d.inc?'<div style="background:var(--red);border-radius:var(--radius-xs);height:'+h(d.inc)+'%;"></div>':'')+'</div>');}).join('')+'</div>'+'<div class="q7-row q7-labs">'+
+SC.day7.map(function(d){return'<div class="q7-lab">'+d.label.replace(/^(\d+\/)/,'<span class="lbl-m">$1</span>')+'</div>';}).join('')+'</div>';}}}
 let _intScope='month';let _intOffset=0;function intScopeSet(s){if(_intScope===s)return;_intScope=s;_intOffset=0;renderInterruptAnalysis();}
 function intShift(d){_intOffset=Math.min(0,_intOffset+d);renderInterruptAnalysis();}
 function intHeadHtml(R){const seg=[['day','日'],['month','月'],['year','年'],['all','累计']].map(function(it){const on=_intScope===it[0];return('<button onclick="intScopeSet(\''+
@@ -2483,13 +2483,13 @@ SC.durBuckets.map(function(v,i){return('<div style="display:flex;flex-direction:
 Math.max(2,Math.round((v/max)*120))+'px;display:flex;align-items:flex-start;justify-content:center;color:#fff;font-size:var(--fs-caption);font-weight:800;padding-top:var(--sp-2);">'+
 v+'</div><div style="font-size:var(--fs-caption);color:var(--text-light);">'+
 labels[i]+'</div></div>');}).join('')+'</div>';}}
-function renderWeek8Chart(SC){const _w8=document.getElementById('week8Chart');if(_w8){const max=Math.max.apply(null,SC.week8.map(function(w){return w.full;}).concat([1]));_w8.innerHTML='<div style="display:flex;align-items:flex-end;height:120px;gap:var(--sp-4);justify-content:center;">'+
-SC.week8.map(function(w){return('<div style="display:flex;flex-direction:column;align-items:center;gap:var(--sp-2);"><div style="width:28px;background:'+
-(w.isCurrent?'var(--primary)':'var(--c-energy)')+';border-radius:var(--radius-xs) var(--radius-xs) 0 0;height:'+
-Math.max(2,Math.round((w.full/max)*100))+'px;display:flex;align-items:flex-start;justify-content:center;color:#fff;font-size:var(--fs-tiny);font-weight:800;">'+
-w.full+'</div><div style="font-size:var(--fs-micro);color:var(--text-light);">'+
-w.label+'</div>'+
-(w.isCurrent?'<div style="font-size:var(--fs-micro);color: var(--primary-ink);font-weight:700;">本周</div>':'')+'</div>');}).join('')+'</div>';}}
+function renderWeek8Chart(SC){const _w8=document.getElementById('week8Chart');if(_w8){const max=Math.max.apply(null,SC.week8.map(function(w){return w.full;}).concat([1]));_w8.innerHTML='<div class="w8-row">'+
+SC.week8.map(function(w){return('<div class="w8-col"><div class="w8-bar" style="background:'+
+(w.isCurrent?'var(--primary)':'var(--c-energy)')+';height:'+
+Math.max(2,Math.round((w.full/max)*100))+'px;">'+
+w.full+'</div><div class="w8-lab">'+
+w.label.replace(/^(\d+\/)/,'<span class="lbl-m">$1</span>')+'</div>'+
+(w.isCurrent?'<div class="w8-cur">本周</div>':'')+'</div>');}).join('')+'</div>';}}
 function renderFocusRankBox(SC){const _fr=document.getElementById('focusRankBox');if(_fr){const fr=SC.focusRank;if(!fr||!fr.seg){_fr.innerHTML='<span style="color:var(--text-light);font-size:var(--fs-body);">完成第一个番茄后，这里会显示你的专注段数</span>';}else{const pct=Math.min(100,Math.round((fr.remain/fr.needNext)*100));const glow=fr.seg>=80?'box-shadow:0 0 14px '+fr.color+'66;':'';const tierTip=fr.seg<10?'刚起步，多专注就能快速升段':fr.seg<30?'小有所成，坚持每天做番茄就能稳定升段':fr.seg<50?'已经是老玩家了，每升一段都值得庆祝':fr.seg<70?'高段数，每一段都是长期坚持的证明':fr.seg<90?'传说段数，极少有人能走到这里':fr.seg>=100?'100 段目标达成！难度已封顶，之后每段都是纯粹的坚持，继续突破更高段数':'';const _sp=fr.sprint||{todayCount:0,streak:0,mult:1.2,mode:'normal',base:8};let _spBadge='';if(_sp.mode==='break'){_spBadge='<div style="display:flex;align-items:center;gap:var(--sp-6);margin-top:var(--sp-8);padding:var(--sp-6) var(--sp-10);border-radius:var(--radius);background:linear-gradient(90deg,rgba(255,138,80,.20),rgba(255,213,79,.10));border:1px solid var(--accent);font-size:var(--fs-note);font-weight:700;">'+'<span style="color:var(--accent);">⚡ 破限冲刺</span>'+'<span style="color:var(--text-light);font-weight:500;">连续 '+
 _sp.streak+' 天 12+🍅 · 今日第 9 个起积分 ×'+
 _sp.mult+'</span>'+'</div>';}else if(_sp.mode==='sprint'){const _sprTxt=_sp.streak>=1?'连续 '+_sp.streak+' 天冲刺 · 今日第 9 个起 ×'+_sp.mult:'今日已 '+_sp.todayCount+' 个 · 第 9 个起 ×'+_sp.mult;_spBadge='<div style="display:flex;align-items:center;gap:var(--sp-6);margin-top:var(--sp-8);padding:var(--sp-6) var(--sp-10);border-radius:var(--radius);background:rgba(255,138,80,.10);border:1px dashed var(--accent);font-size:var(--fs-note);font-weight:700;">'+'<span style="color:var(--accent);">🔥 冲刺中</span>'+'<span style="color:var(--text-light);font-weight:500;">'+

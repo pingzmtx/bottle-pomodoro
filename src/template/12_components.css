@@ -134,9 +134,11 @@
 @media (max-width: 345px) {
   .header h1 { font-size: calc(19px * var(--fs-boost)); letter-spacing: 0; }
   .header .header-brand-sub { font-size: calc(13px * var(--fs-boost)) !important; max-width: 72px; }
-  /* 日志汇总条四格（条记录/记录时长/专注时长/番茄）在极窄档收字号，免「1.9 小时」被挤断行 */
-  .log-sum-num { font-size: calc(16px * var(--fs-boost)); }
-  .log-sum-cell { padding-left: 2px; padding-right: 2px; }
+  /* 日志汇总条四格（条记录/记录时长/专注时长/番茄）的窄档覆盖**已移到 14_log_stats.css**。
+     原先写在这里，被 14_log_stats.css 的 `.log-sum-num { font-size: var(--fs-sub) }`
+     以「同特异性 + 后加载」压掉 —— 媒体查询一条都没生效，320 档实测仍是 21px，
+     四格被内容撑到 306px（容器 286px），把日志页顶出 2.8px。级联位置本身就是判据，
+     所以覆盖必须写在被覆盖规则**之后**的同一文件里。 */
 }
 @media (max-width: 330px) {
   /* 极窄档：副标题隐藏，只保主标题与按钮不打架 */

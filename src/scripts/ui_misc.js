@@ -135,7 +135,7 @@ function renderQualityStack(SC) {
         '<div style="text-align:center;color:var(--text-light);font-size:var(--fs-body);padding:40px 0;">暂无数据</div>';
     } else {
       _qc.innerHTML =
-        '<div style="display:flex;align-items:flex-end;height:130px;gap:var(--sp-6);justify-content:center;">' +
+        '<div class="q7-row">' +
         SC.day7
           .map(function (d) {
             const total = d.full + d.half + d.inc;
@@ -143,7 +143,7 @@ function renderQualityStack(SC) {
               return total ? Math.round((v / total) * 100) : 0;
             };
             return (
-              '<div style="flex:1;max-width:44px;display:flex;flex-direction:column;justify-content:flex-end;gap:var(--sp-2);height:100%;">' +
+              '<div class="q7-col">' +
               (d.full
                 ? '<div style="background:var(--green);border-radius:var(--radius-xs);height:' + h(d.full) + '%;"></div>'
                 : '') +
@@ -156,10 +156,10 @@ function renderQualityStack(SC) {
           })
           .join('') +
         '</div>' +
-        '<div style="display:flex;gap:var(--sp-6);justify-content:center;margin-top:var(--sp-4);font-size:var(--fs-caption);color:var(--text-light);">' +
+        '<div class="q7-row q7-labs">' +
         SC.day7
           .map(function (d) {
-            return '<div style="flex:1;max-width:44px;text-align:center;">' + d.label + '</div>';
+            return '<div class="q7-lab">' + d.label.replace(/^(\d+\/)/, '<span class="lbl-m">$1</span>') + '</div>';
           })
           .join('') +
         '</div>';
@@ -657,20 +657,20 @@ function renderWeek8Chart(SC) {
         .concat([1])
     );
     _w8.innerHTML =
-      '<div style="display:flex;align-items:flex-end;height:120px;gap:var(--sp-4);justify-content:center;">' +
+      '<div class="w8-row">' +
       SC.week8
         .map(function (w) {
           return (
-            '<div style="display:flex;flex-direction:column;align-items:center;gap:var(--sp-2);"><div style="width:28px;background:' +
+            '<div class="w8-col"><div class="w8-bar" style="background:' +
             (w.isCurrent ? 'var(--primary)' : 'var(--c-energy)') +
-            ';border-radius:var(--radius-xs) var(--radius-xs) 0 0;height:' +
+            ';height:' +
             Math.max(2, Math.round((w.full / max) * 100)) +
-            'px;display:flex;align-items:flex-start;justify-content:center;color:#fff;font-size:var(--fs-tiny);font-weight:800;">' +
+            'px;">' +
             w.full +
-            '</div><div style="font-size:var(--fs-micro);color:var(--text-light);">' +
-            w.label +
+            '</div><div class="w8-lab">' +
+            w.label.replace(/^(\d+\/)/, '<span class="lbl-m">$1</span>') +
             '</div>' +
-            (w.isCurrent ? '<div style="font-size:var(--fs-micro);color: var(--primary-ink);font-weight:700;">本周</div>' : '') +
+            (w.isCurrent ? '<div class="w8-cur">本周</div>' : '') +
             '</div>'
           );
         })
