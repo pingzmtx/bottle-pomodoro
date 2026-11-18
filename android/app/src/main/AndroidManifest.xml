@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- 权限清单只留四条（设计 §5.3）。
-         刻意不声明：INTERNET（资源全本地拦截，不声明=数据物理上出不了设备）、
+    <!-- 权限清单：原来四条 + SYSTEM_ALERT_WINDOW（小窗）。
+         SYSTEM_ALERT_WINDOW 是**特殊权限**：只能在 Manifest 声明 + 用户去系统页手动授予，
+         不能用 requestPermissions 申请（那样永远返回 denied）。
+         仍然刻意不声明：INTERNET（资源全本地拦截，不声明=数据物理上出不了设备）、
          FOREGROUND_SERVICE（不做前台服务）、WAKE_LOCK（setAlarmClock 自带唤醒，
-         keepScreenOn 是 View 属性，不需要该权限）、USE_EXACT_ALARM（Play 政策灰区）。 -->
+         keepScreenOn 是 View 属性，不需要该权限）、USE_EXACT_ALARM（Play 政策灰区）、
+         任何存储权限 / 无障碍服务 / DeviceAdmin（锁机用官方 startLockTask）。 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:name=".App"
@@ -35,6 +39,12 @@
 
         <receiver
             android:name=".AlarmReceiver"
+            android:exported="false" />
+
+        <!-- 常驻通知上的两个 action（小窗 / 锁机）走这里。
+             exported=false：只有本 App 自己的 PendingIntent 能触发。 -->
+        <receiver
+            android:name=".HostActionReceiver"
             android:exported="false" />
 
         <receiver

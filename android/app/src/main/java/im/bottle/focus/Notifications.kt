@@ -103,22 +103,103 @@ object Notifications {
      * @param endAtWall 网页算出的到点时刻（wall clock，毫秒）
      */
     fun showOngoing(ctx: Context, endAtWall: Long, title: String) {
+        showOngoingInternal(ctx, endAtWall, title, countDown = true)
+    }
+
+    /**
+     * 计时中常驻通知：**正计时**形态（A）。
+     *
+     * 与 [showOngoing] 共用同一个 `ID_ONGOING`（计时中只该有一条），差别只有三处：
+     * - `setWhen(startTimeWall)`：Chronometer 的 base 就是通知的 `when`；
+     * - `setChronometerCountDown(false)`：**往上数**，不是倒计时；
+     * - 文案改成"已计时"。
+     *
+     * 秒数依旧由 SystemUI 自己走，`setUsesChronometer(true)` 是唯一的驱动，
+     * 我们**不做**任何 1Hz 刷新（Doze 下会停摆、还费电）。
+     *
+     * @param startTimeWall 网页 `timerState.startTime`（wall clock，毫秒）
+     */
+    fun showOngoingCounting(ctx: Context, startTimeWall: Long, title: String) {
+        showOngoingInternal(ctx, startTimeWall, title, countDown = false)
+    }
+
+    /**
+     * 锁机按钮的三态（P1-B）。
+     *
+     * 旧代码把「锁机」两件事混在一个 toggle 上：文案三态 + 点击翻转，于是
+     * "开关开着但当前没锁"（文案正是「锁机」）点一下就变成**关掉锁机**。
+     * 新规则：**点哪个文案就做哪件事**，两个方向各用各的 action。
+     */
+    private data class LockAction(val label: String, val action: String, val icon: Int)
+
+    private fun lockActions(ctx: Context): List<LockAction> {
+        val locked = LockGuard.isLockedTask(ctx)
+        val enabled = LockGuard.isEnabled(ctx)
+        return when {
+            // 已经锁着：只有"解除"这一个方向
+            locked -> listOf(
+                LockAction("解除锁机", HostActionReceiver.ACTION_UNLOCK, android.R.drawable.ic_lock_lock)
+            )
+            // 开关开着但没锁（没开屏幕固定 / 已手动解锁）：能锁、也能明确关掉开关
+            enabled -> listOf(
+                LockAction("锁机", HostActionReceiver.ACTION_LOCK, android.R.drawable.ic_lock_lock),
+                LockAction("锁机·关", HostActionReceiver.ACTION_UNLOCK, android.R.drawable.ic_lock_idle_lock)
+            )
+            // 开关关着：点它就是打开并上锁（不再"关掉一个本来关着的东西"）
+            else -> listOf(
+                LockAction("开启锁机", HostActionReceiver.ACTION_LOCK, android.R.drawable.ic_lock_idle_lock)
+            )
+        }
+    }
+
+    private fun showOngoingInternal(
+        ctx: Context,
+        baseWall: Long,
+        title: String,
+        countDown: Boolean
+    ) {
         val builder = NotificationCompat.Builder(ctx, CH_ONGOING)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentTitle(title)
-            .setContentText("剩余时间")
-            .setWhen(endAtWall)
+            .setContentText(if (countDown) "剩余时间" else "已计时")
+            .setWhen(baseWall)
             .setShowWhen(true)
             .setUsesChronometer(true)
-            .setChronometerCountDown(true) // API 24+，minSdk 26 安全
+            // API 24+，minSdk 26 安全。倒计时 true / 正计时 false，这是两种形态唯一的实质差别。
+            .setChronometerCountDown(countDown)
             .setOngoing(true)
-            .setOnlyAlertOnce(true)
+            .setOnlyAlertOnce(true) // 保持：更新同一条时不再响/震
             .setSilent(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_STOPWATCH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(openAppIntent(ctx))
+            // D：纯原生动作。都走 BroadcastReceiver（exported=false），不用 Activity。
+            .addAction(
+                android.R.drawable.ic_menu_view,
+                "小窗",
+                HostActionReceiver.pending(ctx, HostActionReceiver.ACTION_BUBBLE)
+            )
+        // 锁机动作按三态挂（最多两条：锁 / 关）
+        lockActions(ctx).forEach { a ->
+            builder.addAction(a.icon, a.label, HostActionReceiver.pending(ctx, a.action))
+        }
         safeNotify(ID_ONGOING, builder.build(), ctx)
+    }
+
+    /**
+     * 按已落盘的 session 重建常驻通知（切换锁机开关后刷一次 action 文案用）。
+     *
+     * 只读 session、不猜状态：没有活跃会话就什么都不做。
+     */
+    fun refreshOngoing(ctx: Context) {
+        val session = State.loadSession(ctx) ?: return
+        if (!session.active(System.currentTimeMillis())) return
+        if (session.isCounting) {
+            showOngoingCounting(ctx, session.startTime, session.title)
+        } else {
+            showOngoing(ctx, session.endAt, session.title)
+        }
     }
 
     fun cancelOngoing(ctx: Context) {

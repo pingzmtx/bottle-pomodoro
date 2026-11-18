@@ -210,11 +210,22 @@ class Bridge(
             is TimerWatch.ArmResult.Keep -> {
                 out.put("armed", true).put("fireAt", result.fireAt).put("kept", true)
             }
+            is TimerWatch.ArmResult.Counting -> {
+                // 正计时：没有闹钟，但常驻通知已经是正计时形态（A）。
+                // 显式告诉网页"我在数着"，别写成 armed=false 让它以为失败了。
+                out.put("armed", false)
+                    .put("counting", true)
+                    .put("startAt", result.startAt)
+                    .put("reason", "count-up")
+            }
             is TimerWatch.ArmResult.Disarmed -> {
                 out.put("armed", false).put("reason", result.reason)
             }
         }
         replyOk(id, out, proxy)
+
+        // 小窗 / 锁机是**纯原生联动**，只读投影、不回写任何网页状态。
+        activity.onTimerState(s)
 
         // 首次真正"开始计时"时才申请通知权限（有手势、有上下文，不是冷启动骚扰）
         if (s.running && !s.paused) {

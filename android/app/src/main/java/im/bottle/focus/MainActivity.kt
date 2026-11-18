@@ -3,6 +3,8 @@ package im.bottle.focus
 import android.Manifest
 import android.app.Activity
 import android.app.AlarmManager
+import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
 import android.content.Intent
 import android.content.IntentFilter
@@ -15,6 +17,7 @@ import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -42,6 +45,57 @@ class MainActivity : Activity() {
     private var backToken = 0
     private var backResolved = false
     private var lastExitPressAt = 0L
+
+    /** 锁机出口：长按 1.5s 或 2s 内连按 3 次 → 原生确认框。 */
+    private var lockHoldArmed = false
+    private var lockTaps = 0
+    private var lastLockTapAt = 0L
+    private val lockHoldRunnable = Runnable {
+        lockHoldArmed = false
+        if (LockGuard.isLockedTask(this)) {
+            Log.i(TAG, "lock exit: back held ${LOCK_EXIT_HOLD_MS}ms")
+            LockGuard.showExitConfirm(this)
+        }
+    }
+
+    /** 上一帧"计时是否在跑"，用于识别"这一场刚开始"。 */
+    private var lastTimerActive = false
+
+    /** 上一帧的会话键：键变了就说明是**新的一场**（暂停继续不会变，见 [SessionKey]）。 */
+    private var lastSessionKey = ""
+
+    /**
+     * 授权"门"队列。
+     *
+     * 为什么要队列：悬浮窗授权页、屏幕固定设置页、精确闹钟页**都是系统页**，
+     * 同一帧连跳两个时后一个会把前一个覆盖掉（`startActivity` 谁后谁在上），
+     * 而被覆盖的那一个的"本场已问过"标记已经置位 → 小窗永久不出现（P1-3）。
+     *
+     * 一帧最多一个系统页：所有跳页收在 [jumpGate] 一个入口，跳完 `gateBusy = true` 锁住；
+     * 用户在 `onResume` 回来（或 2.5s 超时看门狗）再放开，继续 take 下一个。
+     */
+    private val gateQueue = ArrayDeque<Gate>()
+    private var gateBusy = false
+
+    /**
+     * "门"令牌。每次置位 busy / 放开 busy 都会 +1，超时定时器带着自己那一格令牌回来，
+     * 只有令牌还对得上才允许清 busy。
+     *
+     * 防的是什么：ROM 忽略 `startActivity` / 系统页立刻 finish 时，`onResume` 不一定来，
+     * busy 会永真 → 之后所有引导被吞。看门狗能救回来，但**旧定时器不能误清新门**：
+     * 门 A 跳出去后 2.5s 的定时器如果照常执行，会把门 B 的 busy 清掉，
+     * 于是门 B 还在系统页上、队列又放开 → 同帧再跳门 C，两张系统页又叠在一起（P1-3 复发）。
+     */
+    private var gateToken = 0
+
+    /**
+     * 首次「专注时是否开启锁机？」对话框是否正在显示（防重复弹）。
+     * 它显示期间 [pumpGates] 必须停住：不要在询问框上面再叠一张系统页（P2）。
+     */
+    private var lockIntroDialogShowing = false
+
+    /** 是否在前台。后台时只更新小窗，不去 startActivity / startLockTask（Android 10+ 会拒绝）。 */
+    private var resumed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,11 +126,13 @@ class MainActivity : Activity() {
                     "Notification 能力探测有概率仍判为不支持（设计 §3.2 已记录该风险）"
             )
         }
+        LockGuard.attach(this)
         host.loadApp()
     }
 
     override fun onResume() {
         super.onResume()
+        resumed = true
 
         if (clockWatcher == null) {
             val receiver = watch.createClockWatcher()
@@ -100,11 +156,18 @@ class MainActivity : Activity() {
             host.webView.keepScreenOn = true
         }
 
-        // 精确闹钟授权引导：只在"用户真的开始计时过"之后问，且只问一次
+        // 从系统授权页 / 屏幕固定设置页回来：先放开"门"（上一次那张已经回来了），
+        // 再复查并**立刻**生效，最后把该排的门排上、一个一个放。
+        releaseGate()
+        // 精确闹钟授权引导：只在"用户真的开始计时过"之后问，且只问一次。
+        // 它也排进门队列（不再在这里直接 startActivity）：它同样是一张系统页，
+        // 和悬浮窗 / 屏幕固定页抢栈时是同一类问题（P1-3），只是以前漏在队列外面。
         maybeRequestExactAlarm()
+        resumeHostGates()
     }
 
     override fun onPause() {
+        resumed = false
         clockWatcher?.let {
             runCatching { unregisterReceiver(it) }
             clockWatcher = null
@@ -120,9 +183,400 @@ class MainActivity : Activity() {
             clockWatcher = null
         }
         mainHandler.removeCallbacksAndMessages(null)
+        // 兜底解锁：onDestroy 不解锁会把用户留在一个空白页里（屏幕固定只钉这一个任务）。
+        LockGuard.stop(this)
+        LockGuard.detach(this)
         if (::files.isInitialized) files.release()
         host.destroy()
         super.onDestroy()
+    }
+
+    /**
+     * 回前台复查所有"特殊权限"型授权（悬浮窗 / 屏幕固定）。
+     *
+     * 这一整套之所以存在，是因为它们都**不是**运行时权限：
+     * `requestPermissions` 对它们永远返回 denied，只能跳系统页 + 回来复查。
+     *
+     * 本方法只"排门"，不直接跳页：所有系统页统一由 [pumpGates] 一次一个地放出去。
+     */
+    private fun resumeHostGates() {
+        val now = System.currentTimeMillis()
+        val session = State.loadSession(this)
+        // 只认"还活着"的那一场（倒计时已过 / 超过 8h 的正计时都不算）
+        val live = if (session != null && session.active(now)) session else null
+
+        // ① 通知 action「小窗」在没权限时记下的待办：回来就把用户送到授权页 / 直接把小窗显示出来。
+        //    这里**只排门**，不直跳（旧代码在这里 startActivity，紧接着 pumpGates 又跳一个，
+        //    同一帧两张系统页 —— P1-C 的旁路之一）。
+        if (State.overlayPending(this)) {
+            State.setOverlayPending(this, false)
+            if (FloatingBubble.canDraw(this)) {
+                live?.let { FloatingBubble.restore(this, it) }
+            } else {
+                enqueueGate(Gate.OVERLAY_USER)
+            }
+        }
+
+        // ② 正在计时：小窗该在就在；权限没给就排一个授权门（每场一次）
+        if (live != null) {
+            if (FloatingBubble.canDraw(this)) {
+                FloatingBubble.restore(this, live)
+            } else {
+                enqueueGate(Gate.OVERLAY)
+            }
+        }
+
+        // ③ 锁机：LockGuard 只回答"我要跳哪个门"（它自己不再 startActivity），
+        //    真正跳页由 [jumpGate] 统一做。
+        val mode = live?.mode
+        if (LockGuard.onResume(this, mode) == LockGuard.Wants.PINNING_SETTINGS) {
+            enqueueGate(Gate.PINNING)
+        }
+
+        if (live != null) {
+            enqueueStartGates(mode ?: "")
+        }
+        pumpGates()
+    }
+
+    /**
+     * 按这一场的 mode 排引导门。
+     *
+     * 顺序有意义：① 首次要不要锁（原生对话框，不跳页）→ ② 悬浮窗授权页
+     * → ③ 屏幕固定设置页。悬浮窗必须排在屏幕固定**之前**：
+     * 一旦 startLockTask() 生效，任务被钉住，再去拉别的系统页会被系统拒掉。
+     *
+     * 休息段（`shortBreak` / `longBreak`）**不排锁机相关的门**：休息不锁机（P2-6），
+     * 也就没必要问"专注时是否开启锁机"。
+     */
+    private fun enqueueStartGates(mode: String) {
+        val lockable = LockGuard.isLockableMode(mode)
+        if (lockable && !State.lockIntroAsked(this)) enqueueGate(Gate.LOCK_INTRO)
+        if (!FloatingBubble.canDraw(this)) enqueueGate(Gate.OVERLAY)
+        if (lockable) enqueueGate(Gate.PINNING)
+    }
+
+    /**
+     * 放门：一次只 take 一个，跳出去就锁住，等 `onResume`（或看门狗超时）再来。
+     *
+     * 循环继续的条件是"这个门当场就不需要了"（比如权限已经给了 / 本场已经问过），
+     * 那是**纯计算**、不会跳页，所以不会出现一帧两个系统页。
+     */
+    private fun pumpGates() {
+        if (!resumed || gateBusy) return
+        // 询问框（原生 AlertDialog）正在屏幕上：停住，不要在它上面再叠一张系统页（P2）
+        if (lockIntroDialogShowing) return
+        while (true) {
+            val gate = gateQueue.removeFirstOrNull() ?: return
+            if (jumpGate(gate)) return
+        }
+    }
+
+    private fun enqueueGate(gate: Gate) {
+        if (!gateQueue.contains(gate)) gateQueue.addLast(gate)
+    }
+
+    /**
+     * **所有**系统页跳转的唯一入口（P1-C）。
+     *
+     * 置 busy → 执行 → post 一个 2.5s 的看门狗：万一 `startActivity` 被 ROM 吞掉、
+     * 或者页面立刻 finish 而没有回调 `onResume`，busy 也会自己放开，
+     * 不至于之后所有引导被永久吞掉（只能切后台自愈）。
+     *
+     * @return true = 真的跳了页 / 弹了框（队列保持 busy）
+     */
+    private fun jumpGate(gate: Gate): Boolean {
+        if (!resumed || isFinishing) return false
+        beginGate()
+        val jumped = try {
+            launchGate(gate)
+        } catch (e: Exception) {
+            Log.w(TAG, "gate $gate failed", e)
+            false
+        }
+        if (!jumped) endGate()
+        return jumped
+    }
+
+    /** 置 busy + 起一个新令牌的看门狗（旧令牌的定时器从此无效）。 */
+    private fun beginGate() {
+        gateBusy = true
+        gateToken++
+        mainHandler.postDelayed(GateTimeout(gateToken), GATE_TIMEOUT_MS)
+    }
+
+    /** 放开队列，并作废所有在飞的看门狗（令牌 +1）。 */
+    private fun endGate() {
+        gateToken++
+        gateBusy = false
+    }
+
+    /** `onResume` 用：用户回来了，上一次那张系统页已经不在栈上。 */
+    private fun releaseGate() {
+        endGate()
+    }
+
+    /**
+     * 看门狗：只在自己那一格令牌还是最新的时才清 busy。
+     *
+     * 举例：门 A 在 t=0 跳出去（令牌 5，定时器 5）。用户在 1s 后回来，
+     * `releaseGate` 把令牌推到 6；随后门 B 跳出去，令牌 7。t=2.5s 时 A 的定时器醒了，
+     * 带着令牌 5 ≠ 7 → 直接返回，**不会**把 B 的 busy 清掉。
+     */
+    private inner class GateTimeout(private val token: Int) : Runnable {
+        override fun run() {
+            if (token != gateToken) return
+            Log.w(TAG, "gate watchdog fired (no resume in ${GATE_TIMEOUT_MS}ms), release")
+            gateBusy = false
+            pumpGates()
+        }
+    }
+
+    /** @return true = 真的跳了页 / 弹了框（调用方要锁住队列） */
+    private fun launchGate(gate: Gate): Boolean = when (gate) {
+        Gate.EXACT_ALARM -> requestExactAlarmPage()
+        Gate.LOCK_INTRO -> launchLockIntroGate()
+        Gate.OVERLAY -> launchOverlayGate()
+        Gate.OVERLAY_USER -> openOverlaySettings()
+        Gate.PINNING -> launchPinningGate()
+    }
+
+    private fun launchPinningGate(): Boolean {
+        val session = activeSession() ?: return false
+        return when (LockGuard.onTimerActive(this, session.mode)) {
+            // 直接上锁成功：不占门（没有系统页）
+            LockGuard.Wants.LOCKED, LockGuard.Wants.NONE -> false
+            // 需要设置页：这是本类唯一的跳页实现，LockGuard 不再自己 startActivity
+            LockGuard.Wants.PINNING_SETTINGS -> openPinningSettings()
+        }
+    }
+
+    /**
+     * 通知栏点了「锁机」、但屏幕固定没开：由 LockGuard 回调过来排门。
+     *
+     * 用户此刻可能不在前台 —— 门会一直排着，回前台由 `onResume` 的 `pumpGates` 放出去。
+     */
+    fun requestPinningGate() {
+        enqueueGate(Gate.PINNING)
+        pumpGates()
+    }
+
+    private fun activeSession(): SessionRecord? {
+        val s = State.loadSession(this) ?: return null
+        return if (s.active(System.currentTimeMillis())) s else null
+    }
+
+    // ------------------------------------------------------- 门 ① 锁机开关询问
+
+    /**
+     * 首次进入计时时问一次「专注时是否开启锁机？」。
+     *
+     * 为什么必须问：锁机会把用户钉在前台（尽管有返回键长按 / 连按的出口），
+     * 这属于"要用户点头"的能力 —— 默认静默上锁是不可接受的（P1-2）。
+     * 只问一次（`lock.introAsked` 落盘，跨进程有效）。
+     */
+    private fun launchLockIntroGate(): Boolean {
+        if (State.lockIntroAsked(this)) return false
+        if (activeSession() == null) return false
+        if (lockIntroDialogShowing || isFinishing) return false
+        return showLockIntroDialog()
+    }
+
+    private fun showLockIntroDialog(): Boolean {
+        lockIntroDialogShowing = true
+        return try {
+            AlertDialog.Builder(this)
+                .setTitle("专注时开启锁机？")
+                .setMessage(
+                    "开启后，专注期间会用系统「屏幕固定」把瓶子钉在前台，减少中途切走。\n" +
+                        "随时可以在通知栏的「锁机」按钮一键切换；返回键长按 1.5 秒也能解开。"
+                )
+                .setPositiveButton("开启") { dialog, _ ->
+                    // 先落状态、再 dismiss：dismiss 会触发 onDismiss → 立刻 pumpGates，
+                    // 那个时刻队列看到的必须是"已经开启"的锁机开关，否则顺序会倒过来。
+                    State.markLockIntroAsked(this)
+                    // 开启路径要顺：不二次确认，直接去屏幕固定设置页，回来就锁（P1-2）
+                    LockGuard.setEnabled(this, true)
+                    enqueueGate(Gate.PINNING)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("不用") { dialog, _ ->
+                    State.markLockIntroAsked(this)
+                    LockGuard.setEnabled(this, false)
+                    dialog.dismiss()
+                }
+                .setOnDismissListener {
+                    // 三个出口（开启 / 不用 / 返回键取消）都要走到这里。
+                    // P2-1：返回键取消以前只关框不记账，于是每次进入计时又弹一次。
+                    // 记账放在这里（而不是只在两个按钮里）才覆盖"按返回键"这条出口。
+                    State.markLockIntroAsked(this)
+                    lockIntroDialogShowing = false
+                    endGate()
+                    pumpGates()
+                }
+                .show()
+            true
+        } catch (e: Exception) {
+            lockIntroDialogShowing = false
+            // 弹不出来也不能每场重试：记成"问过"，默认保持关闭（安全侧）。
+            State.markLockIntroAsked(this)
+            Log.w(TAG, "show lock intro dialog failed", e)
+            false
+        }
+    }
+
+    // ------------------------------------------------------- 门 ② 悬浮窗授权
+
+    /**
+     * 悬浮窗授权引导（每场计时最多一次）。
+     *
+     * 不用 `requestPermissions`：`SYSTEM_ALERT_WINDOW` 是特殊权限，那样只会立刻拿到 denied。
+     *
+     * @return true = 跳了系统页
+     */
+    private fun launchOverlayGate(): Boolean {
+        if (FloatingBubble.canDraw(this)) return false
+        if (activeSession() == null) return false
+        val key = State.sessionKey(this)
+        if (key.isEmpty()) return false // 没有会话身份就不记账（空串会和空串相等）
+        if (State.askedOverlaySession(this) == key) return false
+        // P2-3：标记写在跳页**之后**。旧代码先写再跳，跳失败（ROM 没有这一页 /
+        // 系统拒绝了后台启动）也把本场的标记烧掉，于是这一场的小窗再也不会被引导。
+        val jumped = openOverlaySettings()
+        if (jumped) State.markAskedOverlaySession(this, key)
+        return jumped
+    }
+
+    /** @return true = 跳了系统页 */
+    private fun openOverlaySettings(): Boolean {
+        if (FloatingBubble.canDraw(this)) return false
+        return try {
+            startActivity(
+                Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                )
+            )
+            Log.i(TAG, "opened overlay permission page")
+            true
+        } catch (e: ActivityNotFoundException) {
+            // 个别 ROM 没有这个页面：只记录，不崩，也不静默假装成功
+            Log.w(TAG, "no overlay permission page on this ROM", e)
+            false
+        } catch (e: Exception) {
+            Log.w(TAG, "open overlay settings failed", e)
+            false
+        }
+    }
+
+    // ----------------------------------------------------- 门 ③ 屏幕固定设置页
+
+    /**
+     * 打开「屏幕固定」设置页 —— 全 App 唯一的实现（LockGuard 只提供 Intent）。
+     *
+     * @return true = 真的跳出了一张系统页（调用方据此锁住"门"队列；
+     *         跳失败时返回 false，否则队列会被一个不存在的页面永久卡住）
+     */
+    private fun openPinningSettings(): Boolean {
+        return try {
+            startActivity(LockGuard.pinningSettingsIntent())
+            // 跳成功才记账：`awaitingPinPage` 让 onResume 只复查/自动锁这一次（避免确认框死循环），
+            // `askedPinSession` 让本场不再反复来；跳失败两条都不该烧掉。
+            LockGuard.notePinPageOpened(this)
+            Log.i(TAG, "opened screen pinning settings")
+            true
+        } catch (e: ActivityNotFoundException) {
+            // 个别 ROM 没有单独这一页：退回安全设置，用户仍能自己找到「屏幕固定」
+            Log.w(TAG, "no screen pinning page, fallback to security settings", e)
+            val ok = runCatching { startActivity(LockGuard.securitySettingsIntent()) }
+                .onFailure { Log.w(TAG, "open security settings failed", it) }
+                .isSuccess
+            if (ok) LockGuard.notePinPageOpened(this)
+            ok
+        } catch (e: Exception) {
+            Log.w(TAG, "open pinning settings failed", e)
+            false
+        }
+    }
+
+    /**
+     * 网页计时状态变化（由 [Bridge] 在 `timer.report` 之后回调）。
+     *
+     * 只做原生联动，**不写任何网页状态**：
+     * - 小窗显示 / 隐藏；
+     * - 锁机开始（每场一次）/ 结束（暂停或结束时立刻解锁）。
+     */
+    fun onTimerState(s: TimerState) {
+        val now = System.currentTimeMillis()
+        val active = s.running && !s.paused && (s.endAt > now || s.isCounting)
+
+        if (!active) {
+            lastTimerActive = false
+            lastSessionKey = ""
+            // 计时停了：本场的门全部作废，别把"上一次没来得及跳的引导"补到下一次计时里。
+            // ⚠️ 清队列必须同时放开 busy 并作废看门狗（P1-C）：旧代码只 clear() 队列，
+            //    busy 还是 true，于是下一场开始后所有门都被吞（只能切后台自愈）。
+            gateQueue.clear()
+            endGate()
+            FloatingBubble.hide(this)
+            LockGuard.onSessionEnd(this)
+            return
+        }
+
+        val key: String = State.sessionKey(this)
+        val firstFrame = !lastTimerActive || key != lastSessionKey
+        lastTimerActive = true
+        lastSessionKey = key
+
+        State.loadSession(this)?.let { FloatingBubble.restore(this, it) }
+        // 只有在前台才引导：后台 startActivity 会被系统拒绝，反而留下"点了没反应"的日志噪音
+        if (!resumed) return
+        if (!firstFrame) return
+
+        // 一帧把所有该跳的门**排进队列**（顺序即优先级），由 pumpGates 一个一个放
+        enqueueStartGates(s.mode)
+        pumpGates()
+    }
+
+    // ------------------------------------------------------------------ 锁机出口
+
+    /**
+     * 返回键的两段处理。
+     *
+     * 锁定期间**必须**留一个原生出口，否则用户会被钉在计时页 25 分钟：
+     * - 长按 1.5 秒 → 确认框；
+     * - 或 2 秒内连按 3 次 → 同一个确认框（按不出长按的人也有路）。
+     *
+     * 只解锁，不调任何 JS —— 结束/结算仍由用户自己在页面点。
+     */
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK && LockGuard.isLockedTask(this)) {
+            if (event.repeatCount == 0) {
+                lockHoldArmed = true
+                mainHandler.postDelayed(lockHoldRunnable, LOCK_EXIT_HOLD_MS)
+            }
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK && LockGuard.isLockedTask(this)) {
+            mainHandler.removeCallbacks(lockHoldRunnable)
+            if (lockHoldArmed) {
+                lockHoldArmed = false
+                val now = SystemClock.uptimeMillis()
+                lockTaps = if (now - lastLockTapAt <= LOCK_TAP_WINDOW_MS) lockTaps + 1 else 1
+                lastLockTapAt = now
+                if (lockTaps >= LOCK_TAPS_TO_EXIT) {
+                    lockTaps = 0
+                    Log.i(TAG, "lock exit: $LOCK_TAPS_TO_EXIT back taps")
+                    LockGuard.showExitConfirm(this)
+                }
+            }
+            return true
+        }
+        return super.onKeyUp(keyCode, event)
     }
 
     /**
@@ -150,6 +604,21 @@ class MainActivity : Activity() {
     // enableOnBackInvokedCallback="false" 让它继续是唯一入口，这里刻意保留。
     @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
     override fun onBackPressed() {
+        // 手势导航不会走 onKeyDown/onKeyUp，只回调这里 —— 锁机出口必须在两条路上都成立。
+        if (LockGuard.isLockedTask(this)) {
+            val now = SystemClock.uptimeMillis()
+            lockTaps = if (now - lastLockTapAt <= LOCK_TAP_WINDOW_MS) lockTaps + 1 else 1
+            lastLockTapAt = now
+            if (lockTaps >= LOCK_TAPS_TO_EXIT) {
+                lockTaps = 0
+                LockGuard.showExitConfirm(this)
+            } else {
+                val left = LOCK_TAPS_TO_EXIT - lockTaps
+                Toast.makeText(this, "再按 $left 次返回可解除锁机", Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
+
         backToken++
         val token = backToken
         backResolved = false
@@ -224,6 +693,10 @@ class MainActivity : Activity() {
         val prefs = State.prefs(this)
         prefs.edit().putBoolean(K_TIMER_STARTED, true).apply()
 
+        // 门队列里有一张系统页正在飞（授权的瞬间就是这个场景）：不要在同一帧再叠一个
+        // 系统权限对话框。不写 K_NOTIF_ASKED，下一次 timer.report 会自然重试。
+        if (gateBusy) return
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
         if (prefs.getBoolean(K_NOTIF_ASKED, false)) return
         val granted = ContextCompat.checkSelfPermission(
@@ -237,6 +710,9 @@ class MainActivity : Activity() {
     /**
      * 精确闹钟授权：`canScheduleExactAlarms()` 为 false 时拉起系统页，**只拉一次**。
      * 被拒后走 `setAndAllowWhileIdle`，Doze 下迟到几分钟，数据不受影响（设计 §5.3）。
+     *
+     * 它也是系统页，所以**只排门**（P1-C）：跳页由 [jumpGate] 统一做。
+     * 排在最前面（它是"到点会不会响"的前提，比其他引导更要紧）。
      */
     private fun maybeRequestExactAlarm() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
@@ -246,14 +722,24 @@ class MainActivity : Activity() {
         if (am.canScheduleExactAlarms()) return
 
         State.markExactAlarmAsked(this)
-        runCatching {
+        if (!gateQueue.contains(Gate.EXACT_ALARM)) gateQueue.addFirst(Gate.EXACT_ALARM)
+    }
+
+    /** @return true = 这一帧真的跳了系统页（调用方要把"门"锁住，别同帧再跳第二张） */
+    private fun requestExactAlarmPage(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return false
+        return try {
             startActivity(
                 Intent(
                     Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
                     Uri.parse("package:$packageName")
                 )
             )
-        }.onFailure { Log.w(TAG, "request exact alarm page failed", it) }
+            true
+        } catch (e: Exception) {
+            Log.w(TAG, "request exact alarm page failed", e)
+            false
+        }
     }
 
     /** 供 Bridge 调用：切换 WebView 的屏幕常亮。 */
@@ -265,16 +751,55 @@ class MainActivity : Activity() {
         }
     }
 
+    /**
+     * 授权"门"的种类。声明顺序 = 优先级（队列按 enqueue 顺序放）。
+     *
+     * 悬浮窗（OVERLAY）必须排在屏幕固定（PINNING）之前：
+     * `startLockTask()` 生效后任务被钉住，再去拉别的系统页会被系统拒绝。
+     * 精确闹钟（EXACT_ALARM）由 [maybeRequestExactAlarm] 插到队首。
+     */
+    private enum class Gate {
+        /** 精确闹钟授权页（`ACTION_REQUEST_SCHEDULE_EXACT_ALARM`）。 */
+        EXACT_ALARM,
+
+        /** 首次「专注时是否开启锁机？」原生对话框。 */
+        LOCK_INTRO,
+
+        /** 悬浮窗（`SYSTEM_ALERT_WINDOW`）授权页，每场最多一次。 */
+        OVERLAY,
+
+        /** 用户主动点通知里的「小窗」但没权限：授权页，不受"每场一次"限制。 */
+        OVERLAY_USER,
+
+        /** 「屏幕固定」设置页 / 直接上锁。 */
+        PINNING
+    }
+
     companion object {
         private const val TAG = "BottleMain"
-
         private const val REQ_NOTIFICATION = 9001
+
+        /**
+         * 门看门狗：跳出去 2.5s 还没回来就强行放开队列。
+         *
+         * 为什么必须有：`startActivity` 可能被 ROM 忽略（后台启动限制 / 页面被裁剪），
+         * 或者系统页立刻 finish 而没有回调 `onResume` —— 这两种情况下 `gateBusy` 会永真，
+         * 之后所有授权引导都被吞掉，用户只能切后台/重进 App 自愈。
+         */
+        private const val GATE_TIMEOUT_MS = 2_500L
 
         /** 返回键等网页回答的最长时间；超时按"网页没处理"继续降级。 */
         private const val BACK_TIMEOUT_MS = 600L
 
         /** 同一页第二次退出按下的时间窗。 */
         private const val EXIT_WINDOW_MS = 2_000L
+
+        /** 锁机出口：返回键按住多久弹确认框（长按 1.5 秒）。 */
+        private const val LOCK_EXIT_HOLD_MS = 1_500L
+
+        /** 或连按 3 次（也允许短按党）。 */
+        private const val LOCK_TAPS_TO_EXIT = 3
+        private const val LOCK_TAP_WINDOW_MS = 2_000L
 
         private const val K_TIMER_STARTED = "timer.started"
         private const val K_NOTIF_ASKED = "notif.asked"

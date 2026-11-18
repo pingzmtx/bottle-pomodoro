@@ -304,15 +304,23 @@ object Shim {
   // ③ timerState 边沿上报
   // 只在"签名"变化时发，不是 1Hz 灌流量。签名刻意不含 remaining：
   // 它每秒都在变，含进去就退化成每秒一条；原生排闹钟只需要 endAt。
+  //
+  // ★ 冷启动第一帧 appData.settings 还没落库（loadData 是异步的），
+  //   此时 `!!s.notify` 会得到 false。旧写法照发，原生 `onReport` 第一规则
+  //   立刻 `disarm("web-notify-off")` —— 把 BootReceiver 刚恢复的闹钟和常驻通知
+  //   一起撤掉。所以这里改成"设置没准备好就不上报"，等下一帧。
   // ==================================================================
   var lastSig = '';
   function report() {
     var t = window.timerState;
     if (!t) { return; }
-    var s = (window.appData && window.appData.settings) || {};
+    var s = null;
+    try { s = (window.appData && window.appData.settings) || null; } catch (e) { s = null; }
+    // 设置对象还没就绪（字段缺失 / 不是布尔）→ 这一帧跳过，绝不猜成 false。
+    if (!s || typeof s.notify !== 'boolean') { return; }
     var paused = (typeof t.paused === 'boolean') ? t.paused : !t.running;
     var sig = [t.mode, t.freeType, !!t.running, paused, +t.endAt || 0, +t.startTime || 0,
-               !!s.bgPause, !!s.notify].join('|');
+               !!s.bgPause, s.notify === true].join('|');
     if (sig === lastSig) { return; }
     lastSig = sig;
     call('timer.report', {
@@ -325,7 +333,7 @@ object Shim {
       remaining: +t.remaining || 0,
       totalDuration: +t.totalDuration || 0,
       bgPause: !!s.bgPause,
-      notify: !!s.notify
+      notify: s.notify === true
     });
   }
 

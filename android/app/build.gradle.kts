@@ -14,8 +14,8 @@ android {
         applicationId = "im.bottle.focus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "0.1.1"
+        versionCode = 5
+        versionName = "0.1.4"
     }
 
     // BuildConfig.VERSION_NAME / DEBUG 在代码里要用（device.info、WebView 调试开关）
