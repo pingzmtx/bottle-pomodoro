@@ -145,12 +145,12 @@ function renderQualityStack(SC) {
             return (
               '<div class="q7-col">' +
               (d.full
-                ? '<div style="background:var(--green);border-radius:var(--radius-xs);height:' + h(d.full) + '%;"></div>'
+                ? '<div class="q7-seg" style="background:var(--green);border-radius:var(--radius-xs);height:' + h(d.full) + '%;"></div>'
                 : '') +
               (d.half
-                ? '<div style="background:var(--yellow);border-radius:var(--radius-xs);height:' + h(d.half) + '%;"></div>'
+                ? '<div class="q7-seg" style="background:var(--yellow);border-radius:var(--radius-xs);height:' + h(d.half) + '%;"></div>'
                 : '') +
-              (d.inc ? '<div style="background:var(--red);border-radius:var(--radius-xs);height:' + h(d.inc) + '%;"></div>' : '') +
+              (d.inc ? '<div class="q7-seg" style="background:var(--red);border-radius:var(--radius-xs);height:' + h(d.inc) + '%;"></div>' : '') +
               '</div>'
             );
           })

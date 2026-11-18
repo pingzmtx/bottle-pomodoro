@@ -102,6 +102,10 @@
 .q7-row { display: flex; align-items: flex-end; height: 130px; gap: var(--sp-6); justify-content: center; }
 .q7-row.q7-labs { height: auto; align-items: baseline; margin-top: var(--sp-4); font-size: var(--fs-micro); color: var(--text-light); }
 .q7-col { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: flex-end; gap: var(--sp-2); height: 100%; }
+/* 柱宽上限跟着 w8 走（28px）。列宽是自适应的：320 档每列 ~36px，768 档 ~95px，
+   若让柱宽 = 列宽，宽屏下就成了 95px 的大色块，不像柱状图。
+   ★ 不能改回给 .q7-col 设 max-width —— 那会限制整列（含标签），320 档直接溢出。 */
+.q7-seg { width: 100%; max-width: 28px; margin: 0 auto; }
 .q7-lab { flex: 1 1 auto; text-align: center; white-space: nowrap; }
 .w8-row { display: flex; align-items: flex-end; height: 120px; gap: var(--sp-4); justify-content: center; }
 .w8-col { flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); }

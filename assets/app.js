@@ -2386,9 +2386,9 @@ a.desc+'</div>'+
 a.id+'\')" title="领取奖励">🎁</div>':ok?'<div style="position:absolute;top:-6px;right:-6px;font-size:var(--fs-body);background:var(--fill-primary);color:var(--on-fill);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;">✓</div>':'')+'</div>');}).join('')+'</div>';});el.innerHTML=achHtml;}
 function renderQualityStack(SC){const _qc=document.getElementById('qualityChart');if(_qc){const any=SC.day7.some(function(d){return d.full||d.half||d.inc;});if(!any){_qc.innerHTML='<div style="text-align:center;color:var(--text-light);font-size:var(--fs-body);padding:40px 0;">暂无数据</div>';}else{_qc.innerHTML='<div class="q7-row">'+
 SC.day7.map(function(d){const total=d.full+d.half+d.inc;const h=function(v){return total?Math.round((v/total)*100):0;};return('<div class="q7-col">'+
-(d.full?'<div style="background:var(--green);border-radius:var(--radius-xs);height:'+h(d.full)+'%;"></div>':'')+
-(d.half?'<div style="background:var(--yellow);border-radius:var(--radius-xs);height:'+h(d.half)+'%;"></div>':'')+
-(d.inc?'<div style="background:var(--red);border-radius:var(--radius-xs);height:'+h(d.inc)+'%;"></div>':'')+'</div>');}).join('')+'</div>'+'<div class="q7-row q7-labs">'+
+(d.full?'<div class="q7-seg" style="background:var(--green);border-radius:var(--radius-xs);height:'+h(d.full)+'%;"></div>':'')+
+(d.half?'<div class="q7-seg" style="background:var(--yellow);border-radius:var(--radius-xs);height:'+h(d.half)+'%;"></div>':'')+
+(d.inc?'<div class="q7-seg" style="background:var(--red);border-radius:var(--radius-xs);height:'+h(d.inc)+'%;"></div>':'')+'</div>');}).join('')+'</div>'+'<div class="q7-row q7-labs">'+
 SC.day7.map(function(d){return'<div class="q7-lab">'+d.label.replace(/^(\d+\/)/,'<span class="lbl-m">$1</span>')+'</div>';}).join('')+'</div>';}}}
 let _intScope='month';let _intOffset=0;function intScopeSet(s){if(_intScope===s)return;_intScope=s;_intOffset=0;renderInterruptAnalysis();}
 function intShift(d){_intOffset=Math.min(0,_intOffset+d);renderInterruptAnalysis();}
