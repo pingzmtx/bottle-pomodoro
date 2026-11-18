@@ -7,17 +7,17 @@
  * 这个应用改版频繁，缓存优先意味着用户永远停在旧版，还查不出原因。
  * 网络优先：在线时永远拿最新的，离线时才回落到上次的副本。
  *
- * 版本号由 tools/build_site.py 在构建时替换 2ec32c3cd3c1（取 index.html 的 sha256 前 12 位），
+ * 版本号由 tools/build_site.py 在构建时替换 b17cd8680d14（取 index.html 的 sha256 前 12 位），
  * 每次改动内容都会生成新缓存名，旧缓存随之清掉。不要手改这个占位符。
  */
 
-const BUILD_ID = '2ec32c3cd3c1';
+const BUILD_ID = 'b17cd8680d14';
 const CACHE = 'bottle-pomodoro-' + BUILD_ID;
 
 /* 预缓存：只要这几个文件齐了，断网也能完整打开。
    ★ 这里只放「跟着版本变」的东西（页面、脚本、样式）。字体和图标移到 STATIC_ASSETS，
      否则每次发版换代都要把它们重下一遍 —— 光是文楷就有 1.5 MB。 */
-const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "assets/style.5a8b09263e36.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js"];
+const PRECACHE = ["./", "./manifest.webmanifest", "assets/style.5a8b09263e36.css", "assets/core.js", "assets/base.js", "assets/engine.js", "assets/app.js"];
 
 /* 字体 / 图标：体积大、内容几乎永不变化，放在一个**不随版本换代**的缓存里。
    首代 SW 预热一次，之后任何版本都直接命中，不再走网络。
@@ -29,8 +29,13 @@ self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
     const cache = await caches.open(CACHE);
     // 逐个 add：任一文件 404 不至于让整次 install 失败（预缓存是加速，不是前提）
+    // ★ 绝对不要用 { cache: 'reload' }。install 由页面 load 之后触发，此刻首屏
+    //   那批文件（index.html / 4 个 chunk / css）刚下完、就在 HTTP 缓存里；
+    //   reload 会强制绕过它再下一遍 —— 首访白付 2.7 MB，弱网下遮罩多挂十几秒，
+    //   用户看到的就是「文件较大，请稍候」转个不停（刷新后才好，因为缓存已齐）。
+    //   默认模式命中 HTTP 缓存，这一遍是 0 字节。
     await Promise.all(PRECACHE.map((u) =>
-      cache.add(new Request(u, { cache: 'reload' })).catch(() => {})
+      cache.add(u).catch(() => {})
     ));
     // 给这一代缓存盖时间戳：activate 要靠它决定「保留哪一代」，否则只能瞎删或全留
     await cache.put('__meta__', new Response(String(Date.now())));
@@ -38,7 +43,8 @@ self.addEventListener('install', (e) => {
     const stat = await caches.open(STATIC_CACHE);
     await Promise.all(STATIC_ASSETS.map(async (u) => {
       if (await stat.match(u)) return;
-      await stat.add(new Request(u, { cache: 'reload' })).catch(() => {});
+      // 同上：不带 reload。字体多半已被首屏正文字体拉过一次，强刷等于重下 488 KB。
+      await stat.add(u).catch(() => {});
     }));
     await self.skipWaiting();
   })());

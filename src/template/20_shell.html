@@ -18,6 +18,72 @@
 </div>
 <div data-page-node-id="UgE0x58PD18pjugjtMJkUl" class="tomato-drop-layer" id="tomatoDropLayer"></div>
 
+<!-- 启动兜底 —— 这段**必须**独立于 assets/app.js：它存在的唯一前提就是「主模块没跑起来」。
+     为什么不能只靠 engine_init.js 里那 3 秒兜底：那 3 秒本身是 1.4 MB 主模块的一部分，
+     模块下载慢 / import 的 chunk 404 / 解析出错时它根本不会执行，遮罩就永远挂在
+     「正在加载，文件较大」上，用户只能反复刷新碰运气。
+     ★ 分三档，判据不同 —— 把「真失败」和「就是慢」分开，别把慢网用户踢出启动页：
+       · 12s 还没好：文案换成「网络有点慢」，说明还在动；
+       · 20s 还没好：只有主模块**报了错**（script onerror 打上 data-boot-fail）才撤罩 + 重试条；
+                     只是慢的话继续等 —— 弱网下 3 MB 首屏本来就可能要几十秒；
+       · 40s 还没好：无论有没有报错都撤罩给重试条，绝不允许无限期停在启动页。
+     主模块跑完会调 hideBootSplash()，那里 cancel 本兜底并清掉重试条。 -->
+<script>
+(function () {
+  function splash() { return document.getElementById('bootSplash'); }
+  function failed() { return document.documentElement.getAttribute('data-boot-fail') === '1'; }
+  function setHint(txt) {
+    var h = document.querySelector('#bootSplash .boot-hint');
+    if (h) h.textContent = txt;
+  }
+  /* 撤罩 + 一条可点的出路。遮罩撤掉不等于应用起来了：不解释的话，
+     用户面对的是「能看见、点不动、不知道该干嘛」的静止页面。 */
+  function dismissBecause(reason) {
+    var s = splash();
+    if (s) {
+      s.className = 'boot-splash hide';
+      setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 400);
+    }
+    if (document.getElementById('bootFailBar')) return;
+    var bar = document.createElement('div');
+    bar.id = 'bootFailBar';
+    /* 走普通流、插在 body 最前：header 是 position:relative（不是 fixed），
+       放 fixed 会整条压在品牌头上 —— 实测截图里「番茄专注」被盖掉一半。
+       占一行高度把 header 推下去，宁可少 50px 内容，也不要遮挡和错位。 */
+    bar.style.cssText = 'position:relative;z-index:99998;flex-shrink:0;background:#FFF3E0;' +
+      'color:#5D4037;border-bottom:2px solid #E85D3A;padding:10px 14px;' +
+      'font:14px/1.5 system-ui;text-align:center';
+    bar.innerHTML = (reason === 'fail' ? '⚠️ 应用加载失败（网络中断或文件缺失）。'
+                                       : '⏳ 网络很慢，应用还没加载完。') +
+      '<a href="./" style="color:#C2410C;font-weight:700;margin-left:6px">点这里重试</a>';
+    document.body.insertBefore(bar, document.body.firstChild);
+  }
+  var t1 = setTimeout(function () {
+    if (!splash()) return;
+    setHint('网络有点慢，仍在加载…');
+  }, 12000);
+  var t2 = setTimeout(function () {
+    if (!splash()) return;
+    if (failed()) { dismissBecause('fail'); return; }
+    setHint('网络很慢，再等一会儿…');
+    t3 = setTimeout(function () {
+      if (!splash()) return;
+      dismissBecause(failed() ? 'fail' : 'slow');
+    }, 20000);
+  }, 20000);
+  var t3 = null;
+  window.__bootFallback = {
+    cancel: function () {
+      clearTimeout(t1); clearTimeout(t2);
+      if (t3) clearTimeout(t3);
+      /* 主模块终于跑起来了：之前挂的「网络很慢」条该撤 —— 它只描述加载期，不该留在成品页上。 */
+      var b = document.getElementById('bootFailBar');
+      if (b && b.parentNode) b.parentNode.removeChild(b);
+    }
+  };
+})();
+</script>
+
 <header data-page-node-id="0SpAvarA0sauxj4A8aLkaa" class="header">
   <span class="header-spacer" aria-hidden="true"></span>
   <svg data-page-node-id="eCnVsvAVV3we4fqWw5noEq" aria-label="番茄专注" class="tomato-icon" fill="none" role="img" viewBox="0 0 24 24">

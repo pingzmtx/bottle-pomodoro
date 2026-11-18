@@ -308,12 +308,12 @@ function ensureBootSplash() {
   if (q) q.textContent = BOOT_QUOTES[Math.floor(Math.random() * BOOT_QUOTES.length)];
 }
 function hideBootSplash() {
+  /* 撤模板内联兜底的定时器与重试条（20_shell.html）—— 慢网下它会留一条「网络很慢」在顶部。 */
+  if (window.__bootFallback) window.__bootFallback.cancel();
   const s = document.getElementById('bootSplash');
   if (!s || !s.parentNode) return;
-  /* 加载动画"完整演完一轮"再淡出。
-     进度条 bootSlide 单周期 1.1s，展示 ~1.6s ≈ 1.5 个周期 + 语录淡入，
-     快设备不再因 650ms 砍戏而产生"动画没播完就消失"的突兀顿挫；
-     慢设备实际耗时超最短展示则到点即走，不双倍空等。 */
+  /* 加载动画"完整演完一轮"再淡出：进度条单周期 1.1s，展示 ~1.6s ≈ 1.5 个周期 + 语录淡入；
+     快设备不再因 650ms 砍戏而"动画没播完就消失"，慢设备超最短展示则到点即走，不双倍空等。 */
   const MIN_BOOT_MS = 1600;
   const remain = Math.max(0, MIN_BOOT_MS - (Date.now() - _bootShownAt));
   setTimeout(function () {

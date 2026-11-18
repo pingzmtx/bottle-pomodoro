@@ -179,7 +179,11 @@ def transform(pub):
         files.append("assets/%s.js" % g)
 
     html = re.sub(r'<script[^>]*src="assets/app\.[^"]*"[^>]*></script>', "", html)
-    tag = '<script type="module" src="assets/app.js"></script>\n'
+    # onerror 只打标记，不做事：真正的处理在模板的内联兜底里（20s 判据）。
+    # 主模块 404 / 网络中断时它才会被触发；慢但会成功的情况不触发 —— 这正是
+    # 「把真失败和只是慢分开」所需要的那个信号。
+    tag = ('<script type="module" src="assets/app.js" '
+           'onerror="document.documentElement.setAttribute(\'data-boot-fail\',\'1\')"></script>\n')
     if "</body>" in html:
         html = html.replace("</body>", tag + "</body>", 1)
     else:
@@ -188,7 +192,10 @@ def transform(pub):
 
     # sw 预缓存要跟着换（否则离线首屏拿不到新模块）
     css = [os.path.basename(x) for x in glob.glob(os.path.join(assets, "style.*.css"))]
-    precache = ["./", "./index.html", "./manifest.webmanifest"] + ["assets/" + c for c in css] + files
+    # ★ 文档只放 "./" 一个 key：Cache API 按 URL 原名存，"index.html" 与 "./" 是两个
+    #   key —— 同一份 292 KB 存两遍，且首访时预缓存的那个必然再下一次（它没进 HTTP 缓存）。
+    #   站点入口与 manifest.start_url 都是 "./"，保留它就够；离线回落里仍试 './index.html'。
+    precache = ["./", "./manifest.webmanifest"] + ["assets/" + c for c in css] + files
     # ★ 字体 / 图标不放这里：它们跨版本不变，放进按 BUILD_ID 换代的预缓存 = 每次发版
     #   重下 1.9 MB（文楷 1.5 MB）。它们归 STATIC_CACHE，见 web/sw.js 的 STATIC_ASSETS。
     #   这里同时写 STATIC_ASSETS，是为了加/删字体文件时不用手改两处。
@@ -275,7 +282,11 @@ def main():
 
     html = open(os.path.join(pub, "index.html"), encoding="utf-8").read()
     html = re.sub(r'<script[^>]*src="assets/app\.[^"]*"[^>]*></script>', "", html)
-    tag = '<script type="module" src="assets/app.js"></script>\n'
+    # onerror 只打标记，不做事：真正的处理在模板的内联兜底里（20s 判据）。
+    # 主模块 404 / 网络中断时它才会被触发；慢但会成功的情况不触发 —— 这正是
+    # 「把真失败和只是慢分开」所需要的那个信号。
+    tag = ('<script type="module" src="assets/app.js" '
+           'onerror="document.documentElement.setAttribute(\'data-boot-fail\',\'1\')"></script>\n')
     if "</body>" in html:
         html = html.replace("</body>", tag + "</body>", 1)
     else:

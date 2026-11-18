@@ -36,8 +36,13 @@ self.addEventListener('install', (e) => {
   e.waitUntil((async () => {
     const cache = await caches.open(CACHE);
     // 逐个 add：任一文件 404 不至于让整次 install 失败（预缓存是加速，不是前提）
+    // ★ 绝对不要用 { cache: 'reload' }。install 由页面 load 之后触发，此刻首屏
+    //   那批文件（index.html / 4 个 chunk / css）刚下完、就在 HTTP 缓存里；
+    //   reload 会强制绕过它再下一遍 —— 首访白付 2.7 MB，弱网下遮罩多挂十几秒，
+    //   用户看到的就是「文件较大，请稍候」转个不停（刷新后才好，因为缓存已齐）。
+    //   默认模式命中 HTTP 缓存，这一遍是 0 字节。
     await Promise.all(PRECACHE.map((u) =>
-      cache.add(new Request(u, { cache: 'reload' })).catch(() => {})
+      cache.add(u).catch(() => {})
     ));
     // 给这一代缓存盖时间戳：activate 要靠它决定「保留哪一代」，否则只能瞎删或全留
     await cache.put('__meta__', new Response(String(Date.now())));
@@ -45,7 +50,8 @@ self.addEventListener('install', (e) => {
     const stat = await caches.open(STATIC_CACHE);
     await Promise.all(STATIC_ASSETS.map(async (u) => {
       if (await stat.match(u)) return;
-      await stat.add(new Request(u, { cache: 'reload' })).catch(() => {});
+      // 同上：不带 reload。字体多半已被首屏正文字体拉过一次，强刷等于重下 488 KB。
+      await stat.add(u).catch(() => {});
     }));
     await self.skipWaiting();
   })());

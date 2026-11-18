@@ -900,7 +900,11 @@ def _emit_multi(dest=PUB, module=False):
 
     build_id = _site_build_id(idx_path, assets)
     sw = open(os.path.join(WEB_DIR, "sw.js"), encoding="utf-8").read().replace("__BUILD_ID__", build_id)
-    precache = ["./", "./index.html", "./manifest.webmanifest", "assets/" + css_name] + written
+    # ★ 只放 "./" 一份文档：Cache API 按 URL 原名存，"index.html" 与 "./" 是**两个 key**，
+    #   同一份 292 KB 会被存两遍，且首访时预缓存那个必然再下一次（另一个 key 没进 HTTP 缓存）。
+    #   站点入口与 manifest.start_url 都写死 "./"，所以只留 "./" 就够；
+    #   sw.js 的离线回落里仍保留 cache.match('./index.html')，命中不了会落到 './'。
+    precache = ["./", "./manifest.webmanifest", "assets/" + css_name] + written
     # 字体 / 图标不进按版本换代的 PRECACHE：它们**永不变化**，但每次发版换代都要重下
     # 一遍（光是文楷首屏块就 488 KB）。放进 STATIC_CACHE，跨版本共用，只在缺的时候补。
     # ★ 超过 PRECACHE_LIMIT 的单个字体**不预缓存**：文楷备用块有 1.15 MB，装 SW 时下它
