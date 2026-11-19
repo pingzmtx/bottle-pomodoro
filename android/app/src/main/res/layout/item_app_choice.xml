@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  应用选择列表的一行：56dp 内容 + 8dp 间距 ≈ 64dp 行高。
+
+  左侧那条 3dp 竖条是"已选"的唯一视觉锚点（默认 INVISIBLE 而不是 GONE：
+  GONE 会让文字在勾选 / 取消时左右跳 3dp，扫一眼列表就觉得在抖）。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <View
+        android:id="@+id/selBar"
+        android:layout_width="3dp"
+        android:layout_height="40dp"
+        android:background="@color/settings_accent"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="13dp"
+        android:background="@drawable/bg_app_icon"
+        android:clipToOutline="true"
+        android:contentDescription="@null"
+        android:scaleType="fitCenter" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/settings_text"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/pkg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/settings_text_dim"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <Switch
+        android:id="@+id/sw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:minWidth="48dp" />
+</LinearLayout>

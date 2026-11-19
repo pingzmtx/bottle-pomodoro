@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  应用锁（无障碍服务）配置 —— 隐私最小化，逐条都有理由（设计 §3.3 / A7）：
+
+  · canRetrieveWindowContent="false"：只要"前台是哪个包名"这一个信息，不读任何窗口文本。
+    这条也是隐私说明里「仅读取前台应用包名」的技术依据，**不要**为了"更好用"改成 true。
+  · packageNames 省略（= 全量）：限定成黑名单会让 launcher / systemui 的切换事件收不到，
+    也就无法判断"当前前台是谁"，反而彻底失效。
+  · accessibilityEventTypes 只要 typeWindowStateChanged：窗口切换的那一个事件就够。
+  · notificationTimeout=100：合并快速切换产生的抖动脉冲（100ms 足够把"切到微信"与
+    "微信内部 Activity 切换"压成一次判定，后者再被 1.5s 同包节流吃掉）。
+  · accessibilityFlags 只有 flagDefault：不开 flagRetrieveInteractiveWindows（那要读内容）、
+    不开 flagRequestFilterKeyEvents（键盘事件与本功能无关）。
+  · 不写 settingsActivity：会多一个跳板，且部分 ROM 打开即崩。
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canPerformGestures="false"
+    android:canRequestFilterKeyEvents="false"
+    android:canRetrieveWindowContent="false"
+    android:description="@string/guard_service_desc"
+    android:notificationTimeout="100" />

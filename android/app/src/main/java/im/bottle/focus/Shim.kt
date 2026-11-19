@@ -319,8 +319,13 @@ object Shim {
     // 设置对象还没就绪（字段缺失 / 不是布尔）→ 这一帧跳过，绝不猜成 false。
     if (!s || typeof s.notify !== 'boolean') { return; }
     var paused = (typeof t.paused === 'boolean') ? t.paused : !t.running;
+    // ★ 任务名（T05 / 设计 C1）：必须进 lastSig —— 不进就永远不会因为"改名"而上报一次，
+    //   小窗上的名字会停在这一场开始时的那个词。进了 sig 仍然是**边沿上报**（不是 1Hz 灌流）。
+    //   截断 64 字符：与原生 `GuardRules.MAX_TASK_NAME` 一致；显示交给小窗的 ellipsize，
+    //   硬截会切在词中间（中文 20 字以上的任务名很常见，设计 C4）。
+    var taskName = String(t.taskName || '').slice(0, 64);
     var sig = [t.mode, t.freeType, !!t.running, paused, +t.endAt || 0, +t.startTime || 0,
-               !!s.bgPause, s.notify === true].join('|');
+               !!s.bgPause, s.notify === true, taskName].join('|');
     if (sig === lastSig) { return; }
     lastSig = sig;
     call('timer.report', {
@@ -333,7 +338,8 @@ object Shim {
       remaining: +t.remaining || 0,
       totalDuration: +t.totalDuration || 0,
       bgPause: !!s.bgPause,
-      notify: s.notify === true
+      notify: s.notify === true,
+      taskName: taskName
     });
   }
 
@@ -524,6 +530,82 @@ object Shim {
   } catch (eDl) {
     console.warn('[bottle] blob download shim failed: ' + eDl);
   }
+
+  // ==================================================================
+  // ⑦ 设置入口注入（设计 B1 的辅助入口 / T04）
+  //
+  // 目标：在网页设置页的「更多」分组末尾插一行「⚙ 应用设置」，点了调 call('app.settings')。
+  //
+  // 三条纪律（这一段的失败面完全可控，因为它只是锦上添花）：
+  //   1. 只插一次：`data-bottle-native="1"` 去重 + 插成功后立刻断开 observer；
+  //   2. **5 秒还没找到目标节点就静默放弃** —— 选择器依赖网页 DOM 结构，网页一重构就失效；
+  //      主入口是静态快捷方式（长按图标），这里绝不能反过来要求网页配合；
+  //   3. 不改网页任何行为：只 append 一个自己的节点，点击回调走桥。
+  //
+  // 注入时机是 documentStart（DOM 还不存在），所以先直接试一次，不行就挂 MutationObserver。
+  // ==================================================================
+  (function () {
+    if (!hasBridge) { return; }          // 无桥时点了也没反应，不如不插（少一个死按钮）
+    var SEL = '.settings-group[data-group="more"] .group-body';
+    var GIVE_UP_MS = 5000;
+    var done = false;
+    var obs = null;
+    var giveUpTimer = null;
+
+    function stopWatch() {
+      if (obs) { try { obs.disconnect(); } catch (eStop) {} obs = null; }
+      if (giveUpTimer) { clearTimeout(giveUpTimer); giveUpTimer = null; }
+    }
+
+    function inject() {
+      if (done) { return true; }
+      var body = null;
+      try { body = document.querySelector(SEL); } catch (eSel) { body = null; }
+      if (!body) { return false; }
+      done = true;
+      stopWatch();
+      try {
+        if (document.querySelector('[data-bottle-native="1"]')) { return true; }
+        var row = document.createElement('div');
+        row.className = 'setting-row';
+        row.setAttribute('data-bottle-native', '1');
+        var label = document.createElement('div');
+        label.className = 'setting-label';
+        label.appendChild(document.createTextNode('⚙ 应用设置'));
+        var desc = document.createElement('div');
+        desc.className = 'setting-desc';
+        desc.appendChild(document.createTextNode('应用锁 / 小窗 / 通知栏按钮（原生页面）'));
+        label.appendChild(desc);
+        row.appendChild(label);
+        var go = document.createElement('span');
+        go.style.cssText =
+          'color:var(--primary);font-weight:800;font-size:var(--fs-body);white-space:nowrap;';
+        go.appendChild(document.createTextNode('打开 ›'));
+        row.appendChild(go);
+        row.addEventListener('click', function () { call('app.settings'); });
+        body.appendChild(row);
+        console.log('[bottle] settings entry injected');
+      } catch (eInj) {
+        console.warn('[bottle] settings entry inject failed: ' + eInj);
+      }
+      return true;
+    }
+
+    if (inject()) { return; }
+    try {
+      obs = new MutationObserver(function () { inject(); });
+      obs.observe(document.documentElement || document, { childList: true, subtree: true });
+    } catch (eObs) {
+      console.warn('[bottle] settings observer failed: ' + eObs);
+      return;
+    }
+    giveUpTimer = setTimeout(function () {
+      if (done) { return; }
+      stopWatch();
+      console.log('[bottle] settings entry skipped: settings-group not found in ' + GIVE_UP_MS + 'ms');
+    }, GIVE_UP_MS);
+    document.addEventListener('DOMContentLoaded', function () { inject(); });
+  })();
 
   // ==================================================================
   // ⑤ 自证已安装（唯一的验证锚点）

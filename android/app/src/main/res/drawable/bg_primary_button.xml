@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 主色按钮（底部「完成」/ 授权页跳转）：圆角 24dp，颜色取网页 CSS 变量 primary (#E85D3A) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/settings_accent" />
+    <corners android:radius="24dp" />
+</shape>

@@ -13,17 +13,20 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
+import android.text.TextUtils
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.widget.Chronometer
-import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.TextView
 
 /**
- * 小窗（悬浮窗）：一块 96×44dp 的胶囊，里面是**系统 Chronometer**。
+ * 小窗（悬浮窗）：一块 148×48dp 的胶囊，**单行双区** —— 左任务名（12sp）+ 右 Chronometer（16sp）。
  *
  * 为什么必须是 Chronometer 而不是自己画：
  * - 自绘要每秒 setText，等于在原生侧养一个 1Hz 定时器，Doze 下停摆、还费电，
@@ -32,7 +35,11 @@ import android.widget.FrameLayout
  *   不经过我们的 Handler，页面退到后台、进程被冻结也不影响显示。
  *
  * 因此这里**没有任何周期性 Handler**：只在 `endAt` 那一个时刻 post 一次隐藏
- * （一次性定时，不是每秒刷新）。
+ * （一次性定时，不是每秒刷新）。任务名同理：只有 `timer.report` 说它变了才 `setText`
+ * （[updateTaskName]），**不重建窗口**、不新增 Handler（设计 C3）。
+ *
+ * 为什么是"一行"而不是"两行"（设计 C2）：两行会把高度顶到 56dp，锁屏/顶部遮挡更明显；
+ * 48dp 是"不挡内容"与"看得清"的折中，而 Chronometer 的 base 逻辑一行都不用改。
  *
  * 权限：`SYSTEM_ALERT_WINDOW` 是**特殊权限**，只能引导用户去系统页手动开，
  * 不能用 `requestPermissions`（那样永远返回 denied）。
@@ -41,9 +48,17 @@ object FloatingBubble {
 
     private const val TAG = "BottleBubble"
 
-    private const val WIDTH_DP = 96
-    private const val HEIGHT_DP = 44
+    /** 带任务名时的宽度（原 96dp）。 */
+    private const val WIDTH_DP = 148
+
+    /** 关掉任务名后回落的宽度（原 96dp，时间仍然完整可见）。 */
+    private const val WIDTH_COMPACT_DP = 96
+
+    private const val HEIGHT_DP = 48
     private const val MARGIN_DP = 8
+
+    /** 任务名区最大宽度：72dp / 12sp 约 5–6 个汉字后出省略号（设计 C4）。 */
+    private const val NAME_MAX_WIDTH_DP = 72
 
     private const val REQ_OPEN = 7301
 
@@ -52,10 +67,38 @@ object FloatingBubble {
     private var wm: WindowManager? = null
     private var root: View? = null
     private var chronometer: Chronometer? = null
+    private var nameView: TextView? = null
     private var params: WindowManager.LayoutParams? = null
 
     /** 当前展示的场次键（`mode#startTime`）；用于"同一场不重复重建"。 */
     private var shownKey = ""
+
+    /** 当前窗口是"带名字区"还是"紧凑"形态：设置页的开关变了要按它判断是否重建。 */
+    private var shownShowName = true
+
+    /** 当前窗口对应的通知标题（空任务名时回落到它，设计 C5）。 */
+    private var shownTitle = ""
+
+    /**
+     * 当前 Chronometer 的 `base` 是**按哪一组时间基准**算出来的。
+     *
+     * 这三个字段是"要不要重算 base"的唯一判据（Bug 1 的根因）：
+     * 会话键是粘性的（暂停继续不变），所以**键相同不代表时间基准相同** ——
+     * 网页在"暂停 → 继续"和"回前台补 gap"时都会重算 `endAt`，
+     * 旧代码只比键就直接 return，于是 Chronometer 永远停在暂停前那个 `endAt` 上，
+     * 小窗越走越快、差值越积越大。
+     */
+    private var shownEndAt = 0L
+    private var shownStartTime = 0L
+    private var shownCounting = false
+
+    /**
+     * 进程内最新的任务名（**不落盘**：它是网页状态的投影，真源永远在网页）。
+     *
+     * 小窗没显示时也记下来：下一次 `show` 直接用最新名字，不会先闪一帧旧名。
+     */
+    private var currentTaskName = ""
+
     private var hideAtEnd: Runnable? = null
 
     /** 悬浮窗权限：系统特殊权限，只能由用户手动授予。 */
@@ -92,7 +135,17 @@ object FloatingBubble {
         ensureShown(ctx, session)
     }
 
-    /** 已经显示同一场就什么都不做（避免每次上报都重建）。 */
+    /**
+     * 已经显示同一场（形态也一致）就什么都不做（避免每次上报都重建）。
+     *
+     * ★ Bug 1 的闸门（2026-11 真机反馈）：键相同 **不等于** 时间基准相同。
+     * 判据必须把 `endAt` / `startTime` / 是否正计时一起比：
+     * - 网页暂停→继续时 `endAt = now + remaining*1000`（`engine_timer.js`）；
+     * - 回前台 `bgPause` 会把 `endAt += gap*1000`（`engine_init.js`）。
+     * 这两种情况会话键都不变，旧代码直接 return → Chronometer 的 base 停在旧 `endAt`，
+     * 小窗比网页走得快。现在"键同、基准变"走 [retuneChronometer]：**不重建窗口**
+     * （不闪、不丢拖动位置）、也**不起任何 Handler**（零周期 Handler 的设计不变）。
+     */
     fun ensureShown(ctx: Context, session: SessionRecord) {
         runOnMain {
             if (!canDraw(ctx)) {
@@ -105,7 +158,19 @@ object FloatingBubble {
                 return@runOnMain
             }
             val key = State.sessionKey(ctx)
-            if (isShowing && shownKey == key) return@runOnMain
+            val showName = State.bubbleShowTaskName(ctx)
+            if (isShowing && shownKey == key && shownShowName == showName) {
+                // 键与形态都没变：只有时间基准变了才需要动（否则每帧都重算 base 也会闪）
+                if (shownEndAt == session.endAt &&
+                    shownStartTime == session.startTime &&
+                    shownCounting == session.isCounting &&
+                    shownTitle == session.title
+                ) {
+                    return@runOnMain
+                }
+                retuneChronometer(session, key)
+                return@runOnMain
+            }
             // P2-1：window 已经被系统摘掉，但字段还在 → 先复位（removeView 可能抛，忽略）
             if (root != null && !isShowing) resetState()
             showInternal(ctx, session, key)
@@ -131,15 +196,39 @@ object FloatingBubble {
         runOnMain { hideInternal() }
     }
 
+    /**
+     * 更新任务名（T05，设计 C3）。
+     *
+     * 只在文本真的变了才 `textView.text = ...`：
+     * - **不重建窗口**（重建会闪一下，也会丢掉用户拖到的位置）；
+     * - **不加 Handler**（"零周期 Handler"的设计不能破：时间由 Chronometer 自己走，
+     *   任务名是低频文本，`timer.report` 的边沿上报已经替我们做了节流）。
+     *
+     * @param rawTaskName 网页 `timerState.taskName`（shim 已截断 64 字符，这里再归一化一次）
+     */
+    fun updateTaskName(ctx: Context, rawTaskName: String) {
+        val name = GuardRules.normalizeTaskName(rawTaskName)
+        if (name == currentTaskName) return
+        currentTaskName = name
+        runOnMain {
+            val tv = nameView ?: return@runOnMain // 窗口没显示：值已经记下，show 时直接用
+            val text = GuardRules.displayName(currentTaskName, shownTitle)
+            if (tv.text?.toString() == text) return@runOnMain
+            tv.text = text
+        }
+    }
+
     private fun showInternal(ctx: Context, session: SessionRecord, key: String) {
         hideInternal()
         val w = ctx.getSystemService(WindowManager::class.java) ?: return
         wm = w
 
         val density = ctx.resources.displayMetrics.density
-        val width = (WIDTH_DP * density).toInt()
+        val showName = State.bubbleShowTaskName(ctx)
+        val width = ((if (showName) WIDTH_DP else WIDTH_COMPACT_DP) * density).toInt()
         val height = (HEIGHT_DP * density).toInt()
         val margin = (MARGIN_DP * density).toInt()
+        val padH = (10 * density).toInt()
 
         val chrono = Chronometer(ctx).apply {
             setTextColor(Color.WHITE)
@@ -150,19 +239,28 @@ object FloatingBubble {
             // base 用 elapsedRealtime 时间轴：
             //   正计时 → 把 startTime 换算成"那一刻的 elapsed"
             //   倒计时 → 把 endAt 换算成"那一刻的 elapsed"（Chronometer 各自向前/向后走）
-            val nowElapsed = SystemClock.elapsedRealtime()
-            val nowWall = System.currentTimeMillis()
-            base = if (session.isCounting) {
-                val start = if (session.startTime > 0L) session.startTime else nowWall
-                nowElapsed - (nowWall - start)
-            } else {
-                nowElapsed + (session.endAt - nowWall)
-            }
+            base = chronometerBaseFor(session)
             isCountDown = !session.isCounting
             start()
         }
 
-        val container = FrameLayout(ctx).apply {
+        // 左区：任务名（12sp / maxWidth 72dp / ellipsize=END）
+        val name = TextView(ctx).apply {
+            setTextColor(0xCCFFFFFF.toInt())
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+            includeFontPadding = false
+            gravity = Gravity.CENTER_VERTICAL or Gravity.START
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
+            maxWidth = (NAME_MAX_WIDTH_DP * density).toInt()
+            text = GuardRules.displayName(currentTaskName, session.title)
+            visibility = if (showName) View.VISIBLE else View.GONE
+        }
+
+        val container = LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(padH, 0, padH, 0)
             background = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
                 cornerRadius = height / 2f
@@ -170,14 +268,20 @@ object FloatingBubble {
                 setStroke((1 * density).toInt(), COLOR_STROKE)
             }
             addView(
+                name,
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT
+                ).apply { rightMargin = (6 * density).toInt() }
+            )
+            addView(
                 chrono,
-                FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT
                 )
             )
         }
-        container.setPadding(margin, 0, margin, 0)
 
         val lp = WindowManager.LayoutParams(
             width,
@@ -205,22 +309,102 @@ object FloatingBubble {
         }
         root = container
         chronometer = chrono
+        nameView = name
         params = lp
         shownKey = key
+        shownShowName = showName
+        shownTitle = session.title
+        shownEndAt = session.endAt
+        shownStartTime = session.startTime
+        shownCounting = session.isCounting
 
         // 倒计时到点后小窗没有意义了：只 post 一次，不做每秒刷新。
-        if (!session.isCounting) {
-            val delay = session.endAt - System.currentTimeMillis()
-            if (delay > 0L) {
-                val r = Runnable {
-                    Log.i(TAG, "countdown reached zero, hide bubble")
-                    hideInternal()
-                }
-                hideAtEnd = r
-                main.postDelayed(r, delay + 800L)
-            }
+        scheduleHideAtEnd(session)
+        Log.i(
+            TAG,
+            "bubble shown session=$key counting=${session.isCounting} " +
+                "endAt=${session.endAt} name='${GuardRules.displayName(currentTaskName, session.title)}' " +
+                "width=$width"
+        )
+    }
+
+    /**
+     * 重算 Chronometer 的基准（Bug 1 的修复动作）。
+     *
+     * 什么时候会被调用：会话键没变、窗口还在屏幕上，但网页把 `endAt` / `startTime` 改了
+     * （暂停→继续、回前台补 gap、时区/时间被改）。**不重建窗口**：
+     * 重建会闪一下，也会把用户拖到的位置丢掉。
+     *
+     * 为什么连 `stop()/start()` 一起做：
+     * - `base` / `isCountDown` 的 setter 各自会 `updateText()`（AOSP 实现），文本会立刻正确；
+     * - 但 Chronometer 内部的 ticking 循环（`updateRunning()` 那套状态）只在
+     *   `mRunning` 变化时才会重新对齐节拍。倒计时→正计时这种方向翻转、
+     *   或者长时间冻结后回来，光改 base 可能让节拍停在旧相位上；
+     * - 三步（stop → 改 base/方向 → start）在**同一个主线程消息**里同步完成，
+     *   中间没有任何一帧被绘制，所以用户看不到"跳一下"。
+     */
+    private fun retuneChronometer(session: SessionRecord, key: String) {
+        val chrono = chronometer ?: return
+        hideAtEnd?.let { main.removeCallbacks(it) }
+        hideAtEnd = null
+        if (!session.active(System.currentTimeMillis())) {
+            Log.i(TAG, "retune skipped: session already over, hide bubble")
+            hideInternal()
+            return
         }
-        Log.i(TAG, "bubble shown session=$key counting=${session.isCounting}")
+        chrono.stop()
+        chrono.base = chronometerBaseFor(session)
+        chrono.isCountDown = !session.isCounting
+        chrono.start()
+        shownTitle = session.title
+        shownEndAt = session.endAt
+        shownStartTime = session.startTime
+        shownCounting = session.isCounting
+        // 标题（空任务名时的回落文案）可能随 mode 变了：只 setText，不动窗口（C3 同理）
+        nameView?.let { tv ->
+            val text = GuardRules.displayName(currentTaskName, session.title)
+            if (tv.text?.toString() != text) tv.text = text
+        }
+        // 终点变了 → 旧的"到点自动隐藏"定时器已经不指新终点了，必须按新 endAt 重排一次
+        scheduleHideAtEnd(session)
+        Log.i(
+            TAG,
+            "bubble retuned session=$key counting=${session.isCounting} " +
+                "endAt=${session.endAt} startTime=${session.startTime}"
+        )
+    }
+
+    /**
+     * `base` 的换算（`elapsedRealtime` 时间轴）。
+     *
+     * 正计时：`nowElapsed - (nowWall - startTime)` —— 把起点换算成"那一刻的 elapsed"；
+     * 倒计时：`nowElapsed + (endAt - nowWall)` —— 终点同理（Chronometer 自己往回数）。
+     * `startTime` 缺失（旧数据 / 网页还没填）时以"现在"为起点，不显示一个天文数字。
+     */
+    private fun chronometerBaseFor(session: SessionRecord): Long {
+        val nowElapsed = SystemClock.elapsedRealtime()
+        val nowWall = System.currentTimeMillis()
+        return if (session.isCounting) {
+            val start = if (session.startTime > 0L) session.startTime else nowWall
+            nowElapsed - (nowWall - start)
+        } else {
+            nowElapsed + (session.endAt - nowWall)
+        }
+    }
+
+    /** 倒计时到点后自动隐藏：只有这一次性 post，没有周期 Handler。 */
+    private fun scheduleHideAtEnd(session: SessionRecord) {
+        hideAtEnd?.let { main.removeCallbacks(it) }
+        hideAtEnd = null
+        if (session.isCounting) return
+        val delay = session.endAt - System.currentTimeMillis()
+        if (delay <= 0L) return
+        val r = Runnable {
+            Log.i(TAG, "countdown reached zero, hide bubble")
+            hideInternal()
+        }
+        hideAtEnd = r
+        main.postDelayed(r, delay + 800L)
     }
 
     /** 拖拽 + 松手吸附 + 单击回 App + 长按隐藏。 */
@@ -367,8 +551,15 @@ object FloatingBubble {
         }
         root = null
         chronometer = null
+        nameView = null
         params = null
         shownKey = ""
+        shownTitle = ""
+        // Bug 1：基准字段必须一起清零 —— 留着旧值会让"下一次 show 前的那次比较"
+        // 误判成"基准没变"（hide → show 之间是隔着窗口生命周期的，字段必须与窗口同寿）。
+        shownEndAt = 0L
+        shownStartTime = 0L
+        shownCounting = false
     }
 
     private fun runOnMain(block: () -> Unit) {

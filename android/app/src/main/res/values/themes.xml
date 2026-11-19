@@ -15,4 +15,27 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <!--
+      原生设置页子主题（设计 B2：纯 framework View，不引 appcompat / androidx.preference）。
+
+      深色模式选了「资源限定符 values-night」，不是运行时判断：
+      · 系统切深色 → `uiMode` 变化 → Activity 重建 → 自动取到 values-night 的配色，零代码；
+      · 运行时判断要在每个页面手动 setBackgroundColor/setTextColor，三页共 20+ 处，
+        新增一行就漏一处（正是"深色下白底白字"这种 bug 的来源）。
+      · 代价是切主题会重建 Activity（设置页无输入态，可接受）。
+
+      状态栏跟随页面底色：设置页是浅色/深色一整块，用 windowLightStatusBar 切换图标颜色。
+    -->
+    <style name="Theme.BottleFocus.Settings" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/settings_bg</item>
+        <item name="android:statusBarColor">@color/settings_bg</item>
+        <item name="android:navigationBarColor">@color/settings_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <!-- 键盘弹起时列表整体上推（应用选择页的搜索框） -->
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+
 </resources>

@@ -7,4 +7,21 @@
          会渲染出一片空白图标。现在背景层是纯色、前景层是真图，两侧都不会空。 -->
     <color name="ic_launcher_background">#FF141A30</color>
 
+    <!-- 原生设置页配色（浅色）。深色在 values-night/colors.xml 覆盖同名项，
+         两套键名必须一一对应：少一个键就会在该模式下回落到浅色，出现"深色页里白卡片"。 -->
+    <color name="settings_bg">#FFFBF6EF</color>
+    <color name="settings_card">#FFFFFFFF</color>
+    <color name="settings_text">#FF141A30</color>
+    <color name="settings_text_dim">#FF8A8172</color>
+    <color name="settings_divider">#1A141A30</color>
+    <!-- 主色取自网页 CSS 变量 primary: #E85D3A（选中竖条 / 「回到专注」按钮 / 强调文字） -->
+    <color name="settings_accent">#FFE85D3A</color>
+    <color name="settings_switch_thumb">#FFFFFFFF</color>
+
+    <!-- 遮罩（全屏拦截层）：深色半透明，能看见底下的 App 但看不清细节 -->
+    <color name="guard_overlay_bg">#E6101014</color>
+    <color name="guard_overlay_text">#FFF7F3EE</color>
+    <color name="guard_overlay_dim">#99F7F3EE</color>
+    <color name="guard_overlay_button">#FFE85D3A</color>
+
 </resources>

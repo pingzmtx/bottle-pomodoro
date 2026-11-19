@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  静态快捷方式：长按桌面图标 →「应用设置」。
+
+  为什么它是**主入口**（设计 B1）：零冲突、零注入风险。网页里的「⚙ 应用设置」
+  是辅助入口（依赖网页 DOM，网页重构即失效，已设计成 5s 超时静默放弃）；
+  通知 action 是第三个入口，只在没有悬浮窗权限时顶上。
+
+  action 用自定义串（不是 MAIN），MainActivity 在 onCreate/onNewIntent 里认它。
+-->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutId="app_settings"
+        android:shortcutLongLabel="@string/settings_title"
+        android:shortcutShortLabel="@string/settings_title">
+        <intent
+            android:action="im.bottle.focus.action.APP_SETTINGS"
+            android:targetClass="im.bottle.focus.MainActivity"
+            android:targetPackage="im.bottle.focus" />
+    </shortcut>
+</shortcuts>

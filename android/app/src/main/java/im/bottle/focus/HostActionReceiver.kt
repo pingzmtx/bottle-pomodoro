@@ -57,6 +57,18 @@ class HostActionReceiver : BroadcastReceiver() {
                 refreshSoon(ctx)
             }
 
+            ACTION_SETTINGS -> {
+                // 没有悬浮窗权限时用它顶替「小窗」（设计 B1 的第三个入口）。
+                // 这里必须用 NEW_TASK：从 Receiver 起 Activity 没有任务栈可复用。
+                Log.i(TAG, "notification action: settings")
+                runCatching {
+                    ctx.startActivity(
+                        Intent(ctx, AppSettingsActivity::class.java)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    )
+                }.onFailure { Log.w(TAG, "open settings from notification failed", it) }
+            }
+
             else -> Log.w(TAG, "unknown action: ${intent?.action}")
         }
     }
@@ -90,6 +102,9 @@ class HostActionReceiver : BroadcastReceiver() {
         const val ACTION_BUBBLE = "im.bottle.focus.action.BUBBLE"
         const val ACTION_LOCK = "im.bottle.focus.action.LOCK"
         const val ACTION_UNLOCK = "im.bottle.focus.action.UNLOCK"
+
+        /** 没有悬浮窗权限时顶替「小窗」的「设置」入口（设计 B1）。 */
+        const val ACTION_SETTINGS = "im.bottle.focus.action.SETTINGS"
 
         /**
          * 显式广播 PendingIntent。

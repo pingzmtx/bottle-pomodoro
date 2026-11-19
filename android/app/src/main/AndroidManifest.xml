@@ -1,18 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- 权限清单：原来四条 + SYSTEM_ALERT_WINDOW（小窗）。
+    <!-- 权限清单：七条 + SYSTEM_ALERT_WINDOW（小窗）。
          SYSTEM_ALERT_WINDOW 是**特殊权限**：只能在 Manifest 声明 + 用户去系统页手动授予，
          不能用 requestPermissions 申请（那样永远返回 denied）。
          仍然刻意不声明：INTERNET（资源全本地拦截，不声明=数据物理上出不了设备）、
-         FOREGROUND_SERVICE（不做前台服务）、WAKE_LOCK（setAlarmClock 自带唤醒，
-         keepScreenOn 是 View 属性，不需要该权限）、USE_EXACT_ALARM（Play 政策灰区）、
-         任何存储权限 / 无障碍服务 / DeviceAdmin（锁机用官方 startLockTask）。 -->
+         WAKE_LOCK（setAlarmClock 自带唤醒，keepScreenOn 是 View 属性，不需要该权限）、
+         USE_EXACT_ALARM（Play 政策灰区）、任何存储权限 / DeviceAdmin。
+
+         0.2.1 起多两条例：FOREGROUND_SERVICE + FOREGROUND_SERVICE_SPECIAL_USE。
+         它们只服务于 .TimerService（计时期间的前台服务）——Android 12+ 的 cached app
+         freezer 会冻结整个进程（含 WebView renderer），JS 定时器全停，网页的结算 /
+         15s 快照 / 到期判断全部停摆。前台服务是 Android 上唯一合规的"别冻结我"手段。
+         仍然没有 INTERNET：前台服务不改变"数据出不了设备"这个结论。
+
+         ⚠️ 应用锁走的是**无障碍服务声明**（下面的 <service>），它**不是** uses-permission：
+         权限由 BIND_ACCESSIBILITY_SERVICE 保护，用户必须在系统设置里手动开启。
+         所以本文件的 android.permission.* 是 7 条，没有 INTERNET。 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- 计时期间的前台服务（.TimerService）。specialUse 子类型 = "pomodoro_timer_running"：
+         我们不是在导航 / 播音乐 / 定位，只是在跑用户明确启动的番茄计时。 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <!-- 应用选择页要列"能启动的应用"。声明了 queries 这些包才对 queryIntentActivities 可见；
+         **不用 QUERY_ALL_PACKAGES**（那才是需要申报的高敏权限，设计 B3）。 -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
 
     <application
         android:name=".App"
@@ -31,17 +53,72 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- 静态快捷方式（长按桌面图标 →「应用设置」）。设置页的主入口，零注入风险。 -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
+
+        <!-- 原生设置页（一级）。exported=false：只有本 App 能起它。
+             深色模式用 values-night 覆盖配色，主题子类见 themes.xml。 -->
+        <activity
+            android:name=".AppSettingsActivity"
+            android:exported="false"
+            android:label="@string/settings_title"
+            android:theme="@style/Theme.BottleFocus.Settings" />
+
+        <!-- 应用选择（二级）。 -->
+        <activity
+            android:name=".GuardAppsActivity"
+            android:exported="false"
+            android:label="@string/guard_apps_title"
+            android:theme="@style/Theme.BottleFocus.Settings" />
+
+        <!-- 应用锁：无障碍服务。exported 必须 true（系统要绑定），
+             权限由 BIND_ACCESSIBILITY_SERVICE 保护 —— 这是 <service> 声明，不是 uses-permission，
+             所以**不会**让安装包多出一条权限，也没有 INTERNET。 -->
+        <service
+            android:name=".GuardService"
+            android:exported="true"
+            android:label="@string/guard_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- 计时期间的保活前台服务（Bug 2）。
+             ★ exported=false：只有本 App 自己能起它（没有任何外部调用者）。
+             ★ 它**不做计时**，只负责"让进程不进 cached freezer" + 持有那条计时中通知
+               （notification id 与 Notifications.ONGOING_ID 相同 → 通知栏永远只有一条）。
+             ★ foregroundServiceType=specialUse + PROPERTY_SPECIAL_USE_FGS_SUBTYPE：
+               API 34 起 startForeground 必须带类型，subtype 说明用途（番茄计时）。
+               后台场景（开机 / 闹钟广播）启动会被 Android 12+ 拒掉，
+               TimerService.ensure 会 catch 并降级成"只有通知"（闹钟照旧保底）。 -->
+        <service
+            android:name=".TimerService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="pomodoro_timer_running" />
+        </service>
 
         <receiver
             android:name=".AlarmReceiver"
             android:exported="false" />
 
-        <!-- 常驻通知上的两个 action（小窗 / 锁机）走这里。
+        <!-- 常驻通知上的 action（小窗 / 锁机 / 设置）走这里。
              exported=false：只有本 App 自己的 PendingIntent 能触发。 -->
         <receiver
             android:name=".HostActionReceiver"

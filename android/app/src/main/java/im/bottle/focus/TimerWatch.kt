@@ -19,6 +19,16 @@ import android.util.Log
  */
 class TimerWatch(private val ctx: Context) {
 
+    /**
+     * 上一次 `onReport` 的 wall clock。**只用于诊断**（Bug 2 的补强）。
+     *
+     * 正常节奏下网页的边沿上报是秒级/十秒级；如果两次上报之间隔了 > 90s，
+     * 说明中间的进程被冻结过（cached freezer）或被杀过。打一条带 `bgPause` 与
+     * `endAt` 漂移的 warn，真机一出问题就能判断是"冻结"、"bgPause 打开"还是
+     * "网页改了 endAt"，不用再靠猜。
+     */
+    private var lastReportAt = 0L
+
     sealed class ArmResult {
         data class Armed(val fireAt: Long) : ArmResult()
         data class Keep(val fireAt: Long) : ArmResult()
@@ -42,6 +52,23 @@ class TimerWatch(private val ctx: Context) {
     fun onReport(s: TimerState): ArmResult {
         val now = System.currentTimeMillis()
 
+        // ★ Bug 2 的诊断补强（成本一条日志）：上报间隔 > 90s = 中间被冻结/被杀过。
+        //   带上 bgPause 与 endAt 漂移，就能把"冻结"、"bgPause 生效"、"网页改 endAt"
+        //   三种情况在真机日志里分开 —— 否则只能看到"计时停了"这一个现象。
+        val gap = if (lastReportAt > 0L) now - lastReportAt else 0L
+        lastReportAt = now
+        // 已排闹钟的终点（下面判定还要用，这里读一次就好，避免两次读 prefs）
+        val armed = State.loadPendingAlarm(ctx)?.endAtWall ?: 0L
+        if (gap > REPORT_GAP_WARN_MS) {
+            Log.w(
+                TAG,
+                "report gap ${gap}ms (frozen or killed?), bgPause=${s.bgPause}, " +
+                    "endAt drift=${if (armed != 0L) s.endAt - armed else 0L}ms, " +
+                    "endAt=${s.endAt} armed=$armed fgs=${TimerService.isRunning()} " +
+                    "running=${s.running} paused=${s.paused} mode=${s.mode}"
+            )
+        }
+
         // ★ 先推进粘性会话键（P1-A）。必须排在任何判定之前：
         //   同一帧后面 MainActivity.onTimerState / LockGuard 就要读它（小窗按场次恢复、
         //   授权引导按场次去重、锁机按场次记账），读到旧的键就会把"同一场"当成"上一场"。
@@ -59,13 +86,26 @@ class TimerWatch(private val ctx: Context) {
 
         val running = s.running && !s.paused
 
+        // ★ 应用锁镜像（设计 A4c）：**唯一写者就是这里**。
+        //   判定是纯函数（GuardRules.isActive：running && !paused && mode ∈ {focus, free}）；
+        //   GuardService 由 system_server 绑定、生命周期与 Activity 无关，所以只能读 prefs。
+        //   放在 updateStickySession 之后：activeKey 要写"这一帧之后的键"。
+        Guard.syncActive(
+            ctx,
+            GuardRules.isActive(s.mode, s.running, s.paused),
+            s.endAt,
+            State.sessionKey(ctx)
+        )
+
+        // T05：任务名给小窗。只有真的变了才会 setText（不重建窗口、不起 Handler）。
+        if (running) FloatingBubble.updateTaskName(ctx, s.taskName)
+
         // P2-3：网页明确说"停了"（暂停 / 结束）时，小窗必须立刻消失 ——
         // 不依赖 Activity 是否还活着，也不依赖闹钟事件：**正计时没有闹钟**，
         // 旧代码里正计时小窗只能等进程死或用户手动长按才消失。
         // 这里刻意放在判定之前、无条件执行：这是"事实"而不是"判定结果"。
         if (!running) FloatingBubble.hide(ctx)
 
-        val armed = State.loadPendingAlarm(ctx)?.endAtWall ?: 0L
         val verdict = ArmRules.decide(s.toRulesInput(), now, armed)
         return when (verdict) {
             ArmRules.Verdict.CountUp -> armCounting(s, now)
@@ -75,12 +115,54 @@ class TimerWatch(private val ctx: Context) {
             is ArmRules.Verdict.Keep -> {
                 // 常驻通知可能被系统清理 / 被用户划掉（虽然 ongoing 一般划不掉）。
                 // Keep 只表示"闹钟不用重排"，不代表通知还在 —— 这里补一次重建。
-                Notifications.showOngoing(ctx, verdict.fireAt, titleFor(s.mode, s.freeType))
+                //
+                // 基准用**网页的 endAt** 而不是已排闹钟的 fireAt：两者最多差 DRIFT_OK_MS，
+                // 但通知栏要跳就必须跳到网页那个值（暂停继续 / 回前台补 gap 之后。
+                // 见 Bug 1 的通知侧检查）。
+                val title = titleFor(s.mode, s.freeType)
+                Notifications.showOngoing(ctx, s.endAt, title)
+                // ★ Bug 1：Keep 以前不写 session 记录，于是小窗从 prefs 读到的是**旧** endAt
+                //   （暂停继续 / gap 补时之后差几分钟），现在把网页最新值落进去。
+                //   只在真的变了才写，边沿上报下这是低频 IO。
+                refreshSession(s, now, title)
+                // FGS 是幂等的：已在跑就直接返回；被后台限制拒过则静默 60s。
+                TimerService.ensure(ctx, s.endAt, title, countDown = true)
                 ArmResult.Keep(verdict.fireAt)
             }
 
             is ArmRules.Verdict.Disarm -> disarm(verdict.reason)
         }
+    }
+
+    /**
+     * 把这一帧的时间基准写进 session 记录（**只写变化的部分**）。
+     *
+     * 为什么必须做：小窗 / 开机恢复 / 通知刷新都从 `State.loadSession` 读 `endAt`，
+     * 而 Keep 分支（闹钟不重排）以前完全不落盘 —— 网页在暂停继续或回前台补 gap 后
+     * 改了 `endAt`，原生这边还拿着旧值，小窗就会"越走越快"（Bug 1 的根因之一）。
+     */
+    private fun refreshSession(s: TimerState, now: Long, title: String) {
+        val prev = State.loadSession(ctx)
+        val taskName = GuardRules.normalizeTaskName(s.taskName)
+        if (prev != null &&
+            prev.mode == s.mode && prev.freeType == s.freeType &&
+            prev.endAt == s.endAt && prev.startTime == s.startTime &&
+            prev.title == title && prev.taskName == taskName
+        ) {
+            return
+        }
+        State.saveSession(
+            ctx,
+            SessionRecord(
+                mode = s.mode,
+                freeType = s.freeType,
+                endAt = s.endAt,
+                startTime = s.startTime,
+                title = title,
+                savedAt = now,
+                taskName = taskName
+            )
+        )
     }
 
     /**
@@ -107,10 +189,14 @@ class TimerWatch(private val ctx: Context) {
                 endAt = 0L,
                 startTime = startAt,
                 title = title,
-                savedAt = now
+                savedAt = now,
+                taskName = GuardRules.normalizeTaskName(s.taskName)
             )
         )
         Notifications.showOngoingCounting(ctx, startAt, title)
+        // ★ Bug 2：正计时也要 FGS —— 它没有闹钟，"冻结期间到点"这个问题不适用，
+        //   但"挂后台很久、回来发现计时停摆（快照/界面都不动）"完全一样。
+        TimerService.ensure(ctx, startAt, title, countDown = false)
         Log.i(TAG, "counting since $startAt (no alarm by design)")
         return ArmResult.Counting(startAt)
     }
@@ -124,11 +210,15 @@ class TimerWatch(private val ctx: Context) {
         // 通知栏什么都没有"，也就无从判断是权限问题还是 App 坏了。
         // 通知是"当前在计时"的陈述，不依赖闹钟是否排成功；闹钟失败由日志和下次上报重试兜底。
         Notifications.showOngoing(ctx, endAtWall, title)
+        // ★ Bug 2：让进程不进 cached freezer（否则 WebView 的 JS 定时器全停 →
+        //   冻结期间到点了网页不结算、快照滞后 15s）。幂等；被后台限制拒绝时静默降级。
+        TimerService.ensure(ctx, endAtWall, title, countDown = true)
         // s == null 的两条调用路径（时钟变更重排 / 开机恢复）手上只有 pending 的 endAt，
         // 没有 startTime。此时**绝不能**重写 session 记录：那会把 startTime 抹成 0，
         // 会话键从 `focus#<startTime>` 掉成 `focus#<endAt>`，同一场计时被换了一个身份
         // （P1-1 的键稳定性就是靠这里守住的）。已有记录原样沿用即可。
         if (s != null) {
+            // 已有记录里可能已经有任务名（同一场的后续帧），这一帧的 taskName 是同一份真源，直接覆盖。
             State.saveSession(
                 ctx,
                 SessionRecord(
@@ -137,7 +227,8 @@ class TimerWatch(private val ctx: Context) {
                     endAt = endAtWall,
                     startTime = s.startTime,
                     title = title,
-                    savedAt = System.currentTimeMillis()
+                    savedAt = System.currentTimeMillis(),
+                    taskName = GuardRules.normalizeTaskName(s.taskName)
                 )
             )
         }
@@ -179,33 +270,38 @@ class TimerWatch(private val ctx: Context) {
         }
         State.clearPendingAlarm(ctx)
         State.clearSession(ctx)
+        // ★ P2-2：FGS 持有的通知带 `FLAG_FOREGROUND_SERVICE`，`NotificationManager.cancel(1001)`
+        //   对它是**无效**的，真正撤掉的是 `stopForeground(STOP_FOREGROUND_REMOVE)`。
+        //   所以顺序只能是：① [TimerService.stop] —— 同进程里有服务实例时它**同步**走
+        //   `stopForeground(REMOVE)` + `stopSelf`，通知在 return 之前就没了；
+        //   ② [Notifications.cancelOngoing] 只作兜底（FGS 被后台限制拒过、或通知只是
+        //   `showOngoing` 发的孤儿条时才真的生效）。两条路径合起来才不会出现
+        //   「服务已停、通知还在」的幽灵条。
+        //
+        // ⚠️ 刻意**不**按 QA 的建议"web-notify-off 只撤通知、不动 FGS"：FGS 必须有可见通知，
+        //   用户把通知关掉就不能再靠 FGS 保活 —— 「关通知 = 放弃后台保活」是用户的知情选择，
+        //   不是缺陷。这里只撤通知（FGS 也随之结束），后台保活按该选择退出，行为保持不变。
+        TimerService.stop(ctx)
         Notifications.cancelOngoing(ctx)
         // ★ 小窗只在"会话结束 / 暂停"时撤（P2-4）。
         //
         // 旧代码无条件 hide：用户在网页里关掉「通知」开关（规则 4 → `web-notify-off`）时，
         // 小窗被一起撤掉，下一次上报又按 session 恢复回来 —— 屏幕上闪一下，
         // 用户以为小窗坏了。关通知不该动小窗：它是另一个开关控制的东西。
-        if (reason in BUBBLE_HIDE_REASONS) FloatingBubble.hide(ctx)
+        if (reason in BUBBLE_HIDE_REASONS) {
+            FloatingBubble.hide(ctx)
+            // 应用锁同步收工（与 hide 同一组原因：暂停 / 到点 / 冻结 —— 这三种都不该再拦）。
+            // ⚠️ 刻意**不**包含 web-notify-off：用户只是关了通知，拦截该继续。
+            Guard.clearActive(ctx)
+        }
         if (had != null) Log.i(TAG, "disarm($reason), dropped ${had.endAtWall}")
         return ArmResult.Disarmed(reason)
     }
 
-    /**
-     * 闹钟响时调用（由 AlarmReceiver 在广播里直接走 State+Notifications 流程，
-     * 这里保留给"进程内投递"场景，语义一致）。
-     */
-    fun onAlarmFired(endAtWall: Long) {
-        if (State.firedFor(ctx) == endAtWall) return // 幂等闸门
-        State.markFired(ctx, endAtWall)
-        Notifications.cancelOngoing(ctx)
-        val late = System.currentTimeMillis() - endAtWall
-        val silent = late > RING_LATE_MS
-        Notifications.showAlert(ctx, DEFAULT_TITLE, if (silent) "番茄已结束" else "时间到，休息一下", silent)
-        State.clearPendingAlarm(ctx)
-        State.clearSession(ctx)
-        // 闹钟响了 = 这一场确实结束了 → 粘性键该清（下一场必须是新键）。
-        State.clearStickySession(ctx)
-    }
+    // 注：旧版这里有一个 `TimerWatch.onAlarmFired(endAtWall)`，内容和 AlarmReceiver 的收尾
+    // 几乎逐行相同，但**全仓没有任何调用者**（闹钟唯一的投递入口是 manifest 里的
+    // AlarmReceiver）。两份"到点该清什么"各写一遍必然漂移 —— P1-1 的 `guard.active` 残留
+    // 就是 AlarmReceiver 那侧漏了三条清理。0.2.2 直接删掉，收尾只留 AlarmReceiver 一处实现。
 
     /**
      * 回前台。
@@ -227,7 +323,11 @@ class TimerWatch(private val ctx: Context) {
             // 真正的暂停/结束会走 disarm → clearSession，所以走不到这里的"假残留"。
             if (session != null && session.isCounting) {
                 Notifications.showOngoingCounting(ctx, session.startTime, session.title)
+                // 回前台是"启动 FGS"的合法时机：上次在后台被拒（或进程刚重启）的，
+                // 这里补一次 —— 否则这一整场都只能在"没有 FGS"的状态下跑。
+                TimerService.ensure(ctx, session.startTime, session.title, countDown = false)
             } else {
+                TimerService.stop(ctx)
                 Notifications.cancelOngoing(ctx)
                 if (session != null) State.clearSession(ctx)
             }
@@ -236,11 +336,16 @@ class TimerWatch(private val ctx: Context) {
         if (pending.endAtWall - now < MIN_LEAD_MS) {
             State.clearPendingAlarm(ctx)
             State.clearSession(ctx)
+            TimerService.stop(ctx)
             Notifications.cancelOngoing(ctx)
             // 闹钟早已过期 = 这一场在进程不在时就结束了 → 粘性键一并清掉，
             // 否则下一次"开一场"会沿用上一场（其实是昨天那场）的键，锁机永不触发。
             State.clearStickySession(ctx)
+            Guard.clearActive(ctx)
+            return
         }
+        // 还活着的一场倒计时：补一次 FGS（合法时机 + 幂等），顺带修掉"通知被清掉"的残留。
+        TimerService.ensure(ctx, pending.endAtWall, pending.title, countDown = true)
     }
 
     /**
@@ -347,6 +452,14 @@ class TimerWatch(private val ctx: Context) {
 
         /** 迟到超过 60s 降级为静默通知。 */
         const val RING_LATE_MS = 60_000L
+
+        /**
+         * 两次 `onReport` 间隔超过它就打一条 warn（Bug 2 的诊断）。
+         *
+         * 90s 的来由：网页是**边沿上报**（秒级），加上 Doze 下 WebView 定时器被压到
+         * 1 次/分钟，正常最长也就 60s 出头；超过 90s 只可能是进程被冻结过 / 被杀过。
+         */
+        const val REPORT_GAP_WARN_MS = 90_000L
 
         /** 非精确通道的冗余量：Doze 下 setAndAllowWhileIdle 的最小间隔约 9 分钟，这里只做兜底。 */
         private const val LATE_FALLBACK_MS = 90_000L

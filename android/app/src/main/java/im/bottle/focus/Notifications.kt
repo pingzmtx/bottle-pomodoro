@@ -30,6 +30,17 @@ object Notifications {
     const val CH_ALERT = "pomo_alert_v1"
 
     private const val ID_ONGOING = 1001
+
+    /**
+     * 计时中通知的槽位 id（与 [ID_ONGOING] 是同一个数）。
+     *
+     * 为什么要把私有常量再暴露一份：[TimerService] 必须用**同一个 id** 调
+     * `startForeground(id, notification)`，否则通知栏会出现两条（一条服务持有、
+     * 一条我们自己 notify 的）。这里用常量引用而不是再写一次 1001，
+     * 数值永远不可能漂。
+     */
+    const val ONGOING_ID: Int = ID_ONGOING
+
     private const val ID_ALERT = 1002
 
     /** 网页通知的唯一槽位 id（P1-4 a）：所有 notify.show 都覆盖这同一条。 */
@@ -152,12 +163,26 @@ object Notifications {
         }
     }
 
-    private fun showOngoingInternal(
+    /**
+     * 只构造、不发送：计时中常驻通知的**唯一** builder。
+     *
+     * 抽成公开函数是为了让 [TimerService] 能用 `startForeground(ONGOING_ID, n)` 挂上
+     * **同一条**通知 —— 前台服务的通知和这里 notify 出去的是同一个槽位、同一份内容，
+     * 任何时刻通知栏都只会有一条（见 TimerService 的路径表）。
+     */
+    fun ongoingNotification(
         ctx: Context,
         baseWall: Long,
         title: String,
         countDown: Boolean
-    ) {
+    ): Notification = buildOngoing(ctx, baseWall, title, countDown)
+
+    private fun buildOngoing(
+        ctx: Context,
+        baseWall: Long,
+        title: String,
+        countDown: Boolean
+    ): Notification {
         val builder = NotificationCompat.Builder(ctx, CH_ONGOING)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentTitle(title)
@@ -174,17 +199,46 @@ object Notifications {
             .setCategory(NotificationCompat.CATEGORY_STOPWATCH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(openAppIntent(ctx))
-            // D：纯原生动作。都走 BroadcastReceiver（exported=false），不用 Activity。
-            .addAction(
-                android.R.drawable.ic_menu_view,
-                "小窗",
-                HostActionReceiver.pending(ctx, HostActionReceiver.ACTION_BUBBLE)
-            )
+        // D：纯原生动作。都走 BroadcastReceiver（exported=false），不用 Activity。
+        //
+        // 条件化（设计 B1 的第三个入口）：有悬浮窗权限 → 「小窗」占这个位置；
+        // 没有权限 → 「设置」顶替它（位置本来就是小窗的，不额外挤掉什么）。
+        // 挂不挂由 `notify.actions` 决定，用户可以在原生设置页关掉。
+        val actions = State.notifyActions(ctx)
+        val canBubble = FloatingBubble.canDraw(ctx)
+        val first = when {
+            canBubble && "bubble" in actions ->
+                Triple(android.R.drawable.ic_menu_view, "小窗", HostActionReceiver.ACTION_BUBBLE)
+
+            !canBubble && "settings" in actions ->
+                Triple(
+                    android.R.drawable.ic_menu_preferences,
+                    "设置",
+                    HostActionReceiver.ACTION_SETTINGS
+                )
+
+            else -> null
+        }
+        if (first != null) {
+            builder.addAction(first.first, first.second, HostActionReceiver.pending(ctx, first.third))
+        }
         // 锁机动作按三态挂（最多两条：锁 / 关）
         lockActions(ctx).forEach { a ->
             builder.addAction(a.icon, a.label, HostActionReceiver.pending(ctx, a.action))
         }
-        safeNotify(ID_ONGOING, builder.build(), ctx)
+        return builder.build()
+    }
+
+    private fun showOngoingInternal(
+        ctx: Context,
+        baseWall: Long,
+        title: String,
+        countDown: Boolean
+    ) {
+        // setWhen(baseWall) 变了就整条重发一次：同 id 同 tag 的更新是"原地替换"，
+        // 不会多出一条；SystemUI 的 Chronometer 读到新的 when 会直接跳到新基准
+        // （暂停继续 / 回前台补 gap 后，通知栏的秒数必须跟着跳，见 Bug 1 的通知侧）。
+        safeNotify(ID_ONGOING, buildOngoing(ctx, baseWall, title, countDown), ctx)
     }
 
     /**

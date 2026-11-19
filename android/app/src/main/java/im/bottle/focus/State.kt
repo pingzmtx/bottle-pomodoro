@@ -31,6 +31,9 @@ object State {
     const val BRIDGE_NAME = "__bottleHost"
 
     private const val PREFS = "bottle_focus_prefs"
+
+    /** 常驻通知默认挂的 action（见 [notifyActions] 的说明）。 */
+    private val DEFAULT_NOTIFY_ACTIONS = setOf("bubble", "lock", "settings")
     private const val K_PENDING_END_AT = "pending.endAt"
     private const val K_PENDING_TITLE = "pending.title"
     private const val K_FIRED_END_AT = "fired.endAt"
@@ -44,6 +47,29 @@ object State {
     private const val K_SESSION_START_AT = "session.startTime"
     private const val K_SESSION_TITLE = "session.title"
     private const val K_SESSION_SAVED_AT = "session.savedAt"
+
+    /**
+     * 网页 `timerState.taskName`（用户内容，≤ 64 字符）。
+     *
+     * 与 `session.title` 分工：title 给通知（短、稳定），taskName 给小窗 / 遮罩（用户内容）。
+     * **不要**把 title 换成任务名 —— 通知标题会变成一长串任务名，锁屏上很丑（设计 §3.1）。
+     */
+    private const val K_SESSION_TASK_NAME = "session.taskName"
+
+    // ---- 应用锁（Guard，设计 §3.2）。与 lock.* 是两个开关：lock.* 管深度锁机（屏幕固定），
+    //      guard.* 管"分心应用拦截"（无障碍）。两者可叠加，lockTask 生效期间 GuardService 直接 return。
+    private const val K_GUARD_ENABLED = "guard.enabled"
+    private const val K_GUARD_APPS = "guard.apps"
+    private const val K_GUARD_ACTIVE = "guard.active"
+    private const val K_GUARD_ACTIVE_KEY = "guard.activeKey"
+    private const val K_GUARD_ACTIVE_END_AT = "guard.activeEndAt"
+    private const val K_GUARD_ASK_COUNT = "guard.askCount"
+    private const val K_GUARD_REVOKED_KEY = "guard.revokedKey"
+    private const val K_GUARD_OVERLAY_UNTIL = "guard.overlayUntil"
+
+    // ---- 小窗 / 通知栏按钮（设计 §3.2）----
+    private const val K_BUBBLE_SHOW_TASK_NAME = "bubble.showTaskName"
+    private const val K_NOTIFY_ACTIONS = "notify.actions"
 
     // ---- 一次计时 = 一个 session **键**（粘性键，见 [SessionKey]）。
     //      授权引导按 session 键去重：拒绝后本场不再骚扰，下一场（键不同）再问一次。
@@ -137,6 +163,7 @@ object State {
             .putLong(K_SESSION_START_AT, s.startTime)
             .putString(K_SESSION_TITLE, s.title)
             .putLong(K_SESSION_SAVED_AT, s.savedAt)
+            .putString(K_SESSION_TASK_NAME, s.taskName)
             .apply()
     }
 
@@ -149,7 +176,8 @@ object State {
             endAt = p.getLong(K_SESSION_END_AT, 0L),
             startTime = p.getLong(K_SESSION_START_AT, 0L),
             title = p.getString(K_SESSION_TITLE, "") ?: "",
-            savedAt = p.getLong(K_SESSION_SAVED_AT, 0L)
+            savedAt = p.getLong(K_SESSION_SAVED_AT, 0L),
+            taskName = p.getString(K_SESSION_TASK_NAME, "") ?: ""
         )
     }
 
@@ -169,6 +197,7 @@ object State {
             .remove(K_SESSION_START_AT)
             .remove(K_SESSION_TITLE)
             .remove(K_SESSION_SAVED_AT)
+            .remove(K_SESSION_TASK_NAME)
             .apply()
     }
 
@@ -330,6 +359,125 @@ object State {
         prefs(ctx).edit().putBoolean(K_AWAITING_PIN, on).apply()
     }
 
+    // ---------------------------------------------------------------- 应用锁 prefs
+    //
+    // ⚠️ `guard.apps` 是 `Set<String>`：`getStringSet` 返回的是 SharedPreferences 的**内部引用**，
+    //    直接 add/remove 不会落盘（还可能污染已加载的实例）—— 这是这种存储最经典的坑（设计 B4）。
+    //    所以：读出来一律 `HashSet(...)` 拷贝一份交给调用方，写回去一律再 `HashSet(...)` 一次。
+
+    /** 应用锁总开关（与 `lock.enabled` 是两个开关，默认关）。 */
+    fun guardEnabled(ctx: Context): Boolean = prefs(ctx).getBoolean(K_GUARD_ENABLED, false)
+
+    fun setGuardEnabled(ctx: Context, on: Boolean) {
+        prefs(ctx).edit().putBoolean(K_GUARD_ENABLED, on).apply()
+    }
+
+    /** 黑名单包名（**返回副本**，改它不会落盘；落盘请用 [setGuardApps] / [markGuardApp]）。 */
+    fun guardApps(ctx: Context): Set<String> {
+        val raw = prefs(ctx).getStringSet(K_GUARD_APPS, emptySet()) ?: emptySet()
+        return HashSet(raw)
+    }
+
+    fun setGuardApps(ctx: Context, apps: Set<String>) {
+        prefs(ctx).edit().putStringSet(K_GUARD_APPS, HashSet(apps)).apply()
+    }
+
+    /** 勾选 / 取消勾选一个应用。先拷贝再改，最后整份写回。 */
+    fun markGuardApp(ctx: Context, pkg: String, selected: Boolean) {
+        val next = HashSet(guardApps(ctx))
+        if (selected) next.add(pkg) else next.remove(pkg)
+        setGuardApps(ctx, next)
+    }
+
+    /** 拦截生效镜像（**唯一写者是 [TimerWatch.onReport]**，设计 A4c）。 */
+    fun guardActive(ctx: Context): Boolean = prefs(ctx).getBoolean(K_GUARD_ACTIVE, false)
+
+    fun setGuardActive(ctx: Context, on: Boolean) {
+        prefs(ctx).edit().putBoolean(K_GUARD_ACTIVE, on).apply()
+    }
+
+    /**
+     * 一次写完 `guard.active` / `guard.activeEndAt` / `guard.activeKey`。
+     *
+     * 三个字段是同一个事实的三个面，分三次 `apply()` 既多两次 IO，也会让 Service 有机会
+     * 读到"active=true 但 endAt 还是上一场的"这种中间态（遮罩倒计时会指错终点）。
+     */
+    fun setGuardActiveFrame(ctx: Context, active: Boolean, endAtWall: Long, sessionKey: String) {
+        prefs(ctx).edit()
+            .putBoolean(K_GUARD_ACTIVE, active)
+            .putLong(K_GUARD_ACTIVE_END_AT, if (active) endAtWall else 0L)
+            .putString(K_GUARD_ACTIVE_KEY, sessionKey)
+            .apply()
+    }
+
+    /** 写 `guard.active` 时的会话键（「本场不再拦」与提示去重都按它记账）。 */
+    fun guardActiveKey(ctx: Context): String = prefs(ctx).getString(K_GUARD_ACTIVE_KEY, "") ?: ""
+
+    fun setGuardActiveKey(ctx: Context, key: String) {
+        prefs(ctx).edit().putString(K_GUARD_ACTIVE_KEY, key).apply()
+    }
+
+    /** 遮罩倒计时的终点（wall clock，0 = 正计时）。 */
+    fun guardActiveEndAt(ctx: Context): Long = prefs(ctx).getLong(K_GUARD_ACTIVE_END_AT, 0L)
+
+    fun setGuardActiveEndAt(ctx: Context, endAt: Long) {
+        prefs(ctx).edit().putLong(K_GUARD_ACTIVE_END_AT, endAt).apply()
+    }
+
+    /** 无障碍授权引导次数（≥ 2 时追加 Android 13「受限制的设置」文案，设计 A6b）。 */
+    fun guardAskCount(ctx: Context): Int = prefs(ctx).getInt(K_GUARD_ASK_COUNT, 0)
+
+    fun bumpGuardAskCount(ctx: Context): Int {
+        val next = prefs(ctx).getInt(K_GUARD_ASK_COUNT, 0) + 1
+        prefs(ctx).edit().putInt(K_GUARD_ASK_COUNT, next).apply()
+        return next
+    }
+
+    /** 已经为哪一场提示过「无障碍服务掉线（应用锁失效）」。每场只提示一次。 */
+    fun guardRevokedKey(ctx: Context): String = prefs(ctx).getString(K_GUARD_REVOKED_KEY, "") ?: ""
+
+    fun markGuardRevoked(ctx: Context, key: String) {
+        prefs(ctx).edit().putString(K_GUARD_REVOKED_KEY, key).apply()
+    }
+
+    /** 遮罩到期时刻（wall clock）。进程重启后据此判定残留并立刻清账。 */
+    fun guardOverlayUntil(ctx: Context): Long = prefs(ctx).getLong(K_GUARD_OVERLAY_UNTIL, 0L)
+
+    fun setGuardOverlayUntil(ctx: Context, at: Long) {
+        prefs(ctx).edit().putLong(K_GUARD_OVERLAY_UNTIL, at).apply()
+    }
+
+    // ------------------------------------------------------------ 小窗 / 通知栏
+    // 「通知栏显示任务名」开关。小窗高度仍是 48dp，关掉只是把左侧任务名区 GONE 并收窄到 96dp。
+    fun bubbleShowTaskName(ctx: Context): Boolean =
+        prefs(ctx).getBoolean(K_BUBBLE_SHOW_TASK_NAME, true)
+
+    fun setBubbleShowTaskName(ctx: Context, on: Boolean) {
+        prefs(ctx).edit().putBoolean(K_BUBBLE_SHOW_TASK_NAME, on).apply()
+    }
+
+    /**
+     * 常驻通知挂哪些 action（`bubble` / `settings` / `lock`）。
+     *
+     * 默认三条全挂：`settings` 只在"没有悬浮窗权限、小窗按钮挂不出来"时顶上（设计 B1），
+     * 若它不在默认集合里，这条兜底路径永远不生效 —— 所以默认值比设计 §3.2 写的多一个
+     * `settings`（其余语义不变，用户仍可在设置页关掉它）。
+     */
+    fun notifyActions(ctx: Context): Set<String> {
+        val raw = prefs(ctx).getStringSet(K_NOTIFY_ACTIONS, null) ?: return HashSet(DEFAULT_NOTIFY_ACTIONS)
+        return HashSet(raw)
+    }
+
+    fun setNotifyActions(ctx: Context, actions: Set<String>) {
+        prefs(ctx).edit().putStringSet(K_NOTIFY_ACTIONS, HashSet(actions)).apply()
+    }
+
+    fun markNotifyAction(ctx: Context, action: String, on: Boolean) {
+        val next = HashSet(notifyActions(ctx))
+        if (on) next.add(action) else next.remove(action)
+        setNotifyActions(ctx, next)
+    }
+
     // -------------------------------------------------------------- 网页版本号
 
     /**
@@ -362,7 +510,9 @@ data class SessionRecord(
     val endAt: Long,
     val startTime: Long,
     val title: String,
-    val savedAt: Long
+    val savedAt: Long,
+    /** 网页 `timerState.taskName`（≤ 64 字符，可为空）。空串由显示侧回落到 [title]。 */
+    val taskName: String = ""
 ) {
     /** 正计时：只累计已过时间，没有终点。 */
     val isCounting: Boolean
@@ -375,16 +525,12 @@ data class SessionRecord(
      * 正计时：网页自身的自由专注快照有 8 小时陈旧门（`FREE_SNAP_STALE_MS`），
      * 这里用同一个上限 —— 超过就当作"用户早就不记得这回事了"，不恢复假计时。
      */
-    fun active(nowWall: Long): Boolean {
-        if (savedAt <= 0L) return false
-        if (nowWall - savedAt > MAX_AGE_MS) return false
-        if (!isCounting && endAt <= nowWall) return false
-        return true
-    }
+    fun active(nowWall: Long): Boolean =
+        GuardRules.sessionActive(savedAt, endAt, isCounting, nowWall)
 
     companion object {
-        /** 与网页 `FREE_SNAP_STALE_MS` 对齐（8 小时）。 */
-        const val MAX_AGE_MS = 8L * 60L * 60L * 1000L
+        /** 与网页 `FREE_SNAP_STALE_MS` 对齐（8 小时）。真源在 [GuardRules.MAX_SESSION_AGE_MS]。 */
+        const val MAX_AGE_MS = GuardRules.MAX_SESSION_AGE_MS
     }
 }
 
@@ -403,7 +549,9 @@ data class TimerState(
     val remaining: Int,
     val totalDuration: Int,
     val bgPause: Boolean,
-    val notify: Boolean
+    val notify: Boolean,
+    /** 网页 `timerState.taskName`（shim 侧已截断到 64 字符，原生不再二次加工）。 */
+    val taskName: String = ""
 ) {
     /** 正计时（自由专注 stopwatch）：没有终点，只累计。 */
     val isCounting: Boolean
@@ -433,7 +581,8 @@ data class TimerState(
             remaining = o.optInt("remaining", 0),
             totalDuration = o.optInt("totalDuration", 0),
             bgPause = o.optBoolean("bgPause", false),
-            notify = o.optBoolean("notify", true)
+            notify = o.optBoolean("notify", true),
+            taskName = o.optString("taskName", "")
         )
     }
 }

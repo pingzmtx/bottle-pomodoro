@@ -14,8 +14,11 @@ android {
         applicationId = "im.bottle.focus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 5
-        versionName = "0.1.4"
+        // 0.2.1 / 7：小窗时间基准重算（Bug 1）+ 计时期间的前台服务（Bug 2）
+        // 0.2.2 / 8：guard.active 残留收尾三处（P1-1）+ FGS 异常安全（P2-1）+ 通知收尾（P2-2）
+        // 0.2.3 / 9：正计时场次被进程重启后清拦截镜像（P1-2）+ finally 内 runCatching（P2）
+        versionCode = 9
+        versionName = "0.2.3"
     }
 
     // BuildConfig.VERSION_NAME / DEBUG 在代码里要用（device.info、WebView 调试开关）
@@ -65,14 +68,13 @@ dependencies {
 // 这样「拷漏一个文件 → 白屏」在构建期就会暴露，而不是装上手机才发现。
 // ---------------------------------------------------------------------------
 
-// 两种布局都认：
-//   1) 本仓库：<repo>/android + <repo>/public   （仓库根跑 python3 tools/build.py 生成 public/）
-//   2) 开发机工作区：<ws>/bottle-android + <ws>/web-src/public
-val repoRoot: File = rootProject.projectDir.parentFile
+// 两种目录布局都支持：仓库里是 <repo>/public（tools/build.py 的产物），
+// 开发机上是 <ws>/web-src/public。取第一个存在的，避免「clone 下来编译不了」。
 val webSrcDir: File = listOf(
-    repoRoot.resolve("public"),
-    repoRoot.resolve("web-src/public")
-).firstOrNull { it.isDirectory } ?: repoRoot.resolve("public")
+    rootProject.projectDir.parentFile.resolve("public"),
+    rootProject.projectDir.parentFile.resolve("web-src/public")
+).firstOrNull { it.isDirectory }
+    ?: rootProject.projectDir.parentFile.resolve("public")
 val webDstDir: File = layout.projectDirectory.dir("src/main/assets/web").asFile
 
 /** 计算文件 SHA-256（十六进制小写）。 */
@@ -142,6 +144,7 @@ val verifyWebAssets = tasks.register("verifyWebAssets") {
 tasks.named("preBuild") {
     dependsOn(verifyWebAssets)
 }
+
 
 // 允许 `gradle :app:syncWeb :app:assembleRelease` 一行连跑：
 // syncWeb 会写 assets 目录，必须排在 merge*Assets 之前，否则 Gradle 8.9 报隐式依赖冲突。

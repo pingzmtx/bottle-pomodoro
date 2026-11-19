@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 深色模式的主题：父主题也换掉（Light → 深色），否则系统控件（Switch / EditText / 滚动条）
+     仍然是浅色皮肤，和我们手绘的深色卡片拼在一起会很脏。 -->
+<resources>
+    <style name="Theme.BottleFocus.Settings" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/settings_bg</item>
+        <item name="android:statusBarColor">@color/settings_bg</item>
+        <item name="android:navigationBarColor">@color/settings_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+</resources>

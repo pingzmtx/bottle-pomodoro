@@ -97,8 +97,21 @@ class MainActivity : Activity() {
     /** 是否在前台。后台时只更新小窗，不去 startActivity / startLockTask（Android 10+ 会拒绝）。 */
     private var resumed = false
 
+    /**
+     * 「应用锁失效」提示框是否正在显示。
+     *
+     * 与 [lockIntroDialogShowing] 同理：对话框显示期间 [pumpGates] 必须停住，
+     * 否则会在我们的询问框上面再叠一张系统页 —— 用户看到的是"点了个框，屏幕上突然
+     * 出现了系统的无障碍设置页"，还以为 App 疯了。
+     */
+    private var guardDialogShowing = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 从静态快捷方式 / 通知 action 进来：直接开原生设置页，**不占门**（设计 T04）。
+        // 不占门的理由：它不是"引导"而是用户的明确请求，没有并发跳页的问题。
+        handleHostIntent(intent)
 
         // 状态栏/导航栏用网页自己声明的 theme-color（设计 §0.4），不自己挑颜色
         window.statusBarColor = CHROME_COLOR
@@ -130,9 +143,44 @@ class MainActivity : Activity() {
         host.loadApp()
     }
 
+    /**
+     * `singleTask` 的 Activity 被再次拉起（长按快捷方式 / 通知 action）走这里。
+     *
+     * 必须 `setIntent`：否则后续 `getIntent()` 拿到的还是最初那一次。
+     */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleHostIntent(intent)
+    }
+
+    /**
+     * 处理"外部请求我打开原生页"的 Intent（静态快捷方式 / 通知 action）。
+     *
+     * @return true = 认领了这个 Intent
+     */
+    private fun handleHostIntent(intent: Intent?): Boolean {
+        if (intent?.action != ACTION_APP_SETTINGS) return false
+        // 清掉 action：Activity 重建（旋转 / 深色切换）时会重新走 onCreate，
+        // 不清就会每次重建都再开一遍设置页 —— 用户按返回后又被弹回去。
+        intent.action = null
+        openAppSettings()
+        return true
+    }
+
+    /** 打开原生设置页。网页（`app.settings` 桥命令）与快捷方式共用这一个入口。 */
+    fun openAppSettings() {
+        runCatching { startActivity(Intent(this, AppSettingsActivity::class.java)) }
+            .onFailure { Log.w(TAG, "open AppSettingsActivity failed", it) }
+    }
+
     override fun onResume() {
         super.onResume()
         resumed = true
+
+        // ★ 先修残留（设计 §6 第 11 条）：`guard.active` 若在异常路径漏置 false，
+        //   用户一整天每次切 App 都被打回，且完全不知道为什么。App.onCreate 也跑一次。
+        Guard.repairResidue(this)
 
         if (clockWatcher == null) {
             val receiver = watch.createClockWatcher()
@@ -233,10 +281,61 @@ class MainActivity : Activity() {
             enqueueGate(Gate.PINNING)
         }
 
+        // ④ 应用锁失效复查（设计 A5 ③）：无障碍被 ROM 静默关掉 / 用户手动关掉时，
+        //    应用锁等于没开，而用户完全看不出来。每场只提示一次（guard.revokedKey 去重）。
+        if (live != null) notifyGuardRevoked()
+
         if (live != null) {
             enqueueStartGates(mode ?: "")
         }
         pumpGates()
+    }
+
+    /**
+     * 「应用锁没在生效」提示（每场一次）。
+     *
+     * 为什么用原生对话框而不是 toast：这是一个"你以为有保护、其实没有"的状态，
+     * 需要用户做一个决定（去开启 / 本场算了），toast 一闪而过等于没说。
+     */
+    private fun notifyGuardRevoked() {
+        if (!State.guardEnabled(this)) return
+        if (Guard.serviceEnabled(this)) return
+        val key = State.sessionKey(this)
+        val should = GuardRules.shouldPromptRevoked(
+            revokedKey = State.guardRevokedKey(this),
+            sessionKey = key,
+            serviceOn = false,
+            guardEnabled = true
+        )
+        if (!should) return
+        if (guardDialogShowing || isFinishing) return
+
+        // 先记账再弹：弹失败（Window token 失效）也不会下一帧又来一遍
+        State.markGuardRevoked(this, key)
+        guardDialogShowing = true
+        try {
+            AlertDialog.Builder(this)
+                .setTitle("应用锁没有在生效")
+                .setMessage(
+                    "系统的无障碍服务被关掉了（国产 ROM 在重启或省电清理后经常这样），" +
+                        "现在应用锁拦不住任何东西。\n\n重新开启后，本场专注会立刻恢复拦截。"
+                )
+                .setPositiveButton("去开启") { dialog, _ ->
+                    dialog.dismiss()
+                    enqueueGate(Gate.ACCESSIBILITY)
+                    pumpGates()
+                }
+                .setNegativeButton("本场先不拦") { dialog, _ -> dialog.dismiss() }
+                .setOnDismissListener {
+                    guardDialogShowing = false
+                    pumpGates()
+                }
+                .show()
+            Log.i(TAG, "guard revoked prompt shown for session $key")
+        } catch (e: Exception) {
+            guardDialogShowing = false
+            Log.w(TAG, "show guard revoked dialog failed", e)
+        }
     }
 
     /**
@@ -253,7 +352,25 @@ class MainActivity : Activity() {
         val lockable = LockGuard.isLockableMode(mode)
         if (lockable && !State.lockIntroAsked(this)) enqueueGate(Gate.LOCK_INTRO)
         if (!FloatingBubble.canDraw(this)) enqueueGate(Gate.OVERLAY)
+        // 无障碍必须排在屏幕固定**之前**：一旦 startLockTask() 生效，任务被钉住，
+        // 再拉系统页会被拒掉，用户就永远开不了应用锁（设计 T04 的顺序）。
+        enqueueAccessibilityGateIfNeeded()
         if (lockable) enqueueGate(Gate.PINNING)
+    }
+
+    /**
+     * 排「无障碍授权页」的门（应用锁开着但服务没开时才排）。
+     *
+     * 每场只排一次：`guard.revokedKey` 记的是"这一场已经提示/跳过了"。
+     * 不去重的话，一场专注里每次 `timer.report` 的首帧判断都可能把它重新塞回队列。
+     */
+    private fun enqueueAccessibilityGateIfNeeded() {
+        if (!State.guardEnabled(this)) return
+        if (Guard.serviceEnabled(this)) return
+        val key = State.sessionKey(this)
+        if (key.isEmpty()) return // 还没有会话身份就不记账（空串会和空串相等）
+        if (State.guardRevokedKey(this) == key) return
+        enqueueGate(Gate.ACCESSIBILITY)
     }
 
     /**
@@ -266,6 +383,7 @@ class MainActivity : Activity() {
         if (!resumed || gateBusy) return
         // 询问框（原生 AlertDialog）正在屏幕上：停住，不要在它上面再叠一张系统页（P2）
         if (lockIntroDialogShowing) return
+        if (guardDialogShowing) return
         while (true) {
             val gate = gateQueue.removeFirstOrNull() ?: return
             if (jumpGate(gate)) return
@@ -338,6 +456,7 @@ class MainActivity : Activity() {
         Gate.LOCK_INTRO -> launchLockIntroGate()
         Gate.OVERLAY -> launchOverlayGate()
         Gate.OVERLAY_USER -> openOverlaySettings()
+        Gate.ACCESSIBILITY -> launchAccessibilityGate()
         Gate.PINNING -> launchPinningGate()
     }
 
@@ -467,6 +586,48 @@ class MainActivity : Activity() {
             Log.w(TAG, "open overlay settings failed", e)
             false
         }
+    }
+
+    // ------------------------------------------------ 门 ④ 应用锁（无障碍）授权页
+
+    /**
+     * 应用锁授权引导（**每场最多一次**）。
+     *
+     * 无障碍**不能程序自开**（没有 API），所以只能跳系统页 + 回来复查。
+     * 记账写在跳页**之后**：ROM 没有这一页时（`ActivityNotFoundException`）不烧掉本场的标记
+     * —— 这是 P2-3 的同一条原则，小窗/锁机都按这条改过。
+     *
+     * @return true = 跳了系统页
+     */
+    private fun launchAccessibilityGate(): Boolean {
+        if (!State.guardEnabled(this)) return false
+        if (Guard.serviceEnabled(this)) return false
+        if (activeSession() == null) return false
+        val key = State.sessionKey(this)
+        if (key.isNotEmpty() && State.guardRevokedKey(this) == key) return false
+        val jumped = openAccessibilitySettings()
+        if (!jumped) return false
+        if (key.isNotEmpty()) State.markGuardRevoked(this, key)
+        val ask = State.bumpGuardAskCount(this)
+        Log.i(TAG, "opened accessibility settings (askCount=$ask)")
+        return jumped
+    }
+
+    /** @return true = 跳了系统页 */
+    private fun openAccessibilitySettings(): Boolean {
+        try {
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            return true
+        } catch (e: ActivityNotFoundException) {
+            // 个别 ROM 没有独立入口：退回设置首页，用户仍能自己翻到「无障碍」
+            Log.w(TAG, "no accessibility settings page, fallback to settings", e)
+        } catch (e: Exception) {
+            Log.w(TAG, "open accessibility settings failed", e)
+            return false
+        }
+        return runCatching { startActivity(Intent(Settings.ACTION_SETTINGS)) }
+            .onFailure { Log.w(TAG, "open settings failed", it) }
+            .isSuccess
     }
 
     // ----------------------------------------------------- 门 ③ 屏幕固定设置页
@@ -771,6 +932,13 @@ class MainActivity : Activity() {
         /** 用户主动点通知里的「小窗」但没权限：授权页，不受"每场一次"限制。 */
         OVERLAY_USER,
 
+        /**
+         * 应用锁的无障碍授权页（`ACTION_ACCESSIBILITY_SETTINGS`）。
+         *
+         * 必须排在 [PINNING] **之前**：lockTask 一生效就跳不出去了，用户就永远开不了应用锁。
+         */
+        ACCESSIBILITY,
+
         /** 「屏幕固定」设置页 / 直接上锁。 */
         PINNING
     }
@@ -778,6 +946,12 @@ class MainActivity : Activity() {
     companion object {
         private const val TAG = "BottleMain"
         private const val REQ_NOTIFICATION = 9001
+
+        /**
+         * 「打开原生设置页」的请求 action（静态快捷方式 / 通知 action 共用）。
+         * 自定义串而不是 `MAIN`：不能让它被当成"再来一次冷启动"。
+         */
+        const val ACTION_APP_SETTINGS = "im.bottle.focus.action.APP_SETTINGS"
 
         /**
          * 门看门狗：跳出去 2.5s 还没回来就强行放开队列。

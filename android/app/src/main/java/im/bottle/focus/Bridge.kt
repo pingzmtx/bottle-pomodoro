@@ -135,6 +135,17 @@ class Bridge(
 
             "timer.report" -> handleTimerReport(id, payload, proxy)
 
+            /**
+             * 打开原生设置页（设计 T04）。
+             *
+             * 它**没有任何写网页状态的能力**：不接受任何参数、不改 timerState / localStorage，
+             * 唯一副作用是把一个原生 Activity 拉到前台。网页里的「⚙ 应用设置」入口就是点它。
+             */
+            "app.settings" -> {
+                activity.openAppSettings()
+                replyOk(id, JSONObject().put("opened", true), proxy)
+            }
+
             "device.info" -> replyOk(id, buildDeviceInfo(), proxy)
 
             // ---- 导出（写文件）：三段式 + abort，见 FileExchange ----
@@ -305,6 +316,11 @@ class Bridge(
         put("manufacturer", Build.MANUFACTURER)
         put("origin", State.ORIGIN)
         put("notifyPermission", notificationPermissionState())
+        // 应用锁状态（报障用）：总开关 / 服务是否真的在线 / 拦了多少个应用。
+        // 只读投影，网页拿它只做诊断展示，不构成"原生写网页状态"。
+        put("guardEnabled", State.guardEnabled(activity))
+        put("guardServiceOn", Guard.serviceEnabled(activity))
+        put("guardApps", State.guardApps(activity).size)
     }
 
     private fun replyOk(id: String, payload: JSONObject, proxy: JavaScriptReplyProxy) {

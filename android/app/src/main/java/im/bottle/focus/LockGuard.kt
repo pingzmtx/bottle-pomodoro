@@ -53,6 +53,18 @@ object LockGuard {
     fun isLockableMode(mode: String): Boolean = mode in LOCKABLE_MODES
 
     /**
+     * 应用锁（无障碍拦截）的 mode 判据 —— **与锁机同源**（设计 A4："直接复用同一判定"）。
+     *
+     * 为什么不去引用 [GuardRules.GUARD_MODES]：那个文件必须零 Android 依赖才能离线跑表，
+     * 方向只能是 GuardRules → 本类（不能反过来）。所以两处各写一份字面量，
+     * 由 `verify.sh` 逐字断言两边完全一致 —— 口径分叉会在验收期就红，
+     * 而不是等真机上出现"锁机认为在专注、应用锁认为在休息"。
+     *
+     * 休息段不拦：休息就该走开（同 [isLockableMode]）。
+     */
+    fun isGuardableMode(mode: String): Boolean = mode in LOCKABLE_MODES
+
+    /**
      * 系统设置里的「屏幕固定」开关（没有公开常量，值是稳定的）。
      */
     private const val SECURE_LOCK_TO_APP = "lock_to_app_enabled"
