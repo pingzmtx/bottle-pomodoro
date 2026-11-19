@@ -460,24 +460,39 @@ class MainActivity : Activity() {
         Gate.PINNING -> launchPinningGate()
     }
 
+    /**
+     * 「屏幕固定」门（0.2.4 P0）：**先试再判**，不再读系统设置。
+     *
+     * 决策是异步的：`LockGuard.start()` 调完 `startLockTask()` 后要等 120ms 复核
+     * `getLockTaskModeState()`（跨进程 IPC 会滞后）。所以这里先占住门（返回 true 让
+     * [jumpGate] 保持 busy），等回调：
+     * - 需要设置页 → 跳（跳失败才放门）；
+     * - 不需要 → 放门并继续 pump（post 一帧，避免在 pumpGates 栈内递归）。
+     *
+     * 令牌比对：门可能已被看门狗 / 下一次 resume 换过，旧回调不许误放新门。
+     */
     private fun launchPinningGate(): Boolean {
         val session = activeSession() ?: return false
-        return when (LockGuard.onTimerActive(this, session.mode)) {
-            // 直接上锁成功：不占门（没有系统页）
-            LockGuard.Wants.LOCKED, LockGuard.Wants.NONE -> false
-            // 需要设置页：这是本类唯一的跳页实现，LockGuard 不再自己 startActivity
-            LockGuard.Wants.PINNING_SETTINGS -> openPinningSettings()
+        val token = gateToken
+        LockGuard.onTimerActive(this, session.mode) { wants ->
+            mainHandler.post {
+                if (token != gateToken) {
+                    Log.w(TAG, "pinning gate result dropped: gate token changed")
+                    return@post
+                }
+                if (wants == LockGuard.Wants.PINNING_SETTINGS) {
+                    if (!openPinningSettings()) {
+                        endGate()
+                        pumpGates()
+                    }
+                } else {
+                    // LOCKED / NONE：不占门（没有系统页），立刻放开继续下一个
+                    endGate()
+                    pumpGates()
+                }
+            }
         }
-    }
-
-    /**
-     * 通知栏点了「锁机」、但屏幕固定没开：由 LockGuard 回调过来排门。
-     *
-     * 用户此刻可能不在前台 —— 门会一直排着，回前台由 `onResume` 的 `pumpGates` 放出去。
-     */
-    fun requestPinningGate() {
-        enqueueGate(Gate.PINNING)
-        pumpGates()
+        return true
     }
 
     private fun activeSession(): SessionRecord? {
@@ -508,7 +523,7 @@ class MainActivity : Activity() {
                 .setTitle("专注时开启锁机？")
                 .setMessage(
                     "开启后，专注期间会用系统「屏幕固定」把瓶子钉在前台，减少中途切走。\n" +
-                        "随时可以在通知栏的「锁机」按钮一键切换；返回键长按 1.5 秒也能解开。"
+                        "随时可以在 设置页 → 深度锁机 里关掉；返回键长按 1.5 秒也能解开。"
                 )
                 .setPositiveButton("开启") { dialog, _ ->
                     // 先落状态、再 dismiss：dismiss 会触发 onDismiss → 立刻 pumpGates，

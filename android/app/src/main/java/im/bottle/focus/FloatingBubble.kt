@@ -177,12 +177,16 @@ object FloatingBubble {
         }
     }
 
-    /** 用户主动点通知里的「小窗」：即使之前手动关过也要重新出现。 */
+    /**
+     * 用户**主动**要求显示小窗：即使之前手动关过也要重新出现（`bubble.dismissSessionKey` 清掉）。
+     *
+     * 0.2.4 起通知栏不再有「小窗」按钮（用户明确要求删掉所有 action），
+     * 这条路径留给"以后从设置页 / 快捷方式触发"的入口；没有权限时仍然只记账，
+     * 由 `MainActivity.resumeHostGates` 回前台时排授权门（后台不能可靠地拉系统页）。
+     */
     fun showFromUser(ctx: Context, session: SessionRecord) {
         runOnMain {
             if (!canDraw(ctx)) {
-                // 通知 action 里不能可靠地拉起系统页（Android 10+ 后台启动限制），
-                // 记一笔，回 App 时由 MainActivity 主动跳授权页。
                 State.setOverlayPending(ctx, true)
                 Log.i(TAG, "overlay permission missing, pending request recorded")
                 return@runOnMain

@@ -59,10 +59,13 @@ printf '%s\n' "$BADGING" | grep -q "package: name='im.bottle.focus'" \
 # 0.2.1 / 7：小窗时间基准重算（Bug 1）+ 计时期间前台服务（Bug 2）。
 # 0.2.2 / 8：guard.active 残留收尾（P1-1）+ FGS 异常安全（P2-1）+ 通知收尾（P2-2）。
 # 0.2.3 / 9：正计时场次被进程重启后清拦截镜像（P1-2）+ finally 内 runCatching（P2）。
-printf '%s\n' "$BADGING" | grep -q "versionName='0.2.3'" \
-    && ok "versionName 0.2.3" || bad "versionName 不是 0.2.3"
-printf '%s\n' "$BADGING" | grep -q "versionCode='9'" \
-    && ok "versionCode 9" || bad "versionCode 不是 9"
+# 0.2.4 / 10：屏幕固定改成"先试 + 校验"（P0）+ 通知去 action（A）+ 设置页删通知分组（B）
+#             + 应用锁黑名单→白名单（C）。
+# 0.2.5 / 11：暂停→继续重新上锁（P0-1）+ 复核改多轮询（P0-2）+ 首问文案（P1-3）。
+printf '%s\n' "$BADGING" | grep -q "versionName='0.2.5'" \
+    && ok "versionName 0.2.5" || bad "versionName 不是 0.2.5"
+printf '%s\n' "$BADGING" | grep -q "versionCode='11'" \
+    && ok "versionCode 11" || bad "versionCode 不是 11"
 printf '%s\n' "$BADGING" | grep -q "^sdkVersion:'26'" \
     && ok "minSdk 26" || bad "minSdk 不是 26"
 printf '%s\n' "$BADGING" | grep -q "^targetSdkVersion:'34'" \
@@ -563,20 +566,39 @@ fi
 grep -q "LockGuard.stop(this)" "$MA_KT" \
     && ok "onDestroy 兜底解锁（否则用户卡在空白页）" || bad "onDestroy 没有解锁"
 
-# ---- D. 通知 action ----
-[ -f "$HAR_KT" ] \
-    && ok "存在 HostActionReceiver.kt" || bad "找不到 HostActionReceiver.kt"
+# ---- D. 通知栏（0.2.4 / A：只剩一条纯通知，所有 action 已删）----
+# 用户原话「通知栏那么多按钮是干啥的？开启关闭有啥用？赶紧取消那些东西」。
+# 旧断言（HostActionReceiver 存在 / 处理 ACTION_BUBBLE|LOCK|UNLOCK / getBroadcast /
+# exported=false / addAction）随功能一起删除；换成"确实没有 action"的正面断言。
+if [ -f "$HAR_KT" ]; then
+    bad "HostActionReceiver.kt 仍存在（通知 action 应整体删除）"
+else
+    ok "HostActionReceiver.kt 已删除（通知栏不再有按钮）"
+fi
+if grep -q "addAction" "$NOTIF_KT2"; then
+    bad "常驻通知仍在挂 action（用户明确要求全删）"
+else
+    ok "常驻通知没有任何 addAction（只剩图标 / 标题 / chronometer / 点击回 App）"
+fi
+grep -q "setContentIntent(openAppIntent(ctx))" "$NOTIF_KT2" \
+    && ok "通知保留 contentIntent（点通知回 App）" || bad "通知丢了 contentIntent"
+grep -q "setUsesChronometer(true)" "$NOTIF_KT2" \
+    && ok "通知保留 chronometer 秒数（SystemUI 自己走，零耗电）" \
+    || bad "通知丢了 chronometer"
+grep -q 'android:name=".HostActionReceiver"' "$MANIFEST" \
+    && bad "manifest 仍声明 HostActionReceiver" || ok "manifest 不再声明 HostActionReceiver"
 for a in ACTION_BUBBLE ACTION_LOCK ACTION_UNLOCK; do
-    grep -q "$a" "$HAR_KT" \
-        && ok "HostActionReceiver 处理 $a" || bad "缺少 $a"
+    if grep -rq "$a" "$PROJECT_DIR/app/src/main"; then
+        bad "全仓仍有孤儿引用 $a"
+    else
+        ok "孤儿引用 $a 已清（源码 + manifest + res 全无）"
+    fi
 done
-grep -q "getBroadcast" "$HAR_KT" \
-    && ok "action 用 PendingIntent.getBroadcast（不是 Activity）" \
-    || bad "action 没用 getBroadcast"
-grep -A2 'android:name=".HostActionReceiver"' "$MANIFEST" | grep -q 'android:exported="false"' \
-    && ok "HostActionReceiver exported=false" || bad "HostActionReceiver 不是 exported=false"
-grep -q "addAction" "$NOTIF_KT2" \
-    && ok "常驻通知挂了 action" || bad "常驻通知没有 action"
+if grep -rq "notifyActions\|notify\.actions" "$PROJECT_DIR/app/src/main"; then
+    bad "State/Notifications 仍在读写 notify.actions（开关无对应物）"
+else
+    ok "notify.actions 的读写已全部删除"
+fi
 grep -q "setOnlyAlertOnce(true)" "$NOTIF_KT2" \
     && ok "保持 setOnlyAlertOnce(true)（更新同一条不重复提醒）" \
     || bad "丢了 setOnlyAlertOnce(true)"
@@ -746,23 +768,15 @@ grep -q "LockGuard.setEnabled" "$MA_KT" \
 grep -q "fun isEnabled" "$LG_KT" && grep -q "fun setEnabled" "$LG_KT" \
     && ok "LockGuard.isEnabled/setEnabled 存在" \
     || bad "LockGuard 的开关方法丢失"
-# ⚠️ 这条替换了 0.1.2 的「通知 action『锁机』接到 toggleEnabled」：
-#    那个 toggle 正是 P1-B 的 bug（文案「锁机」= 开关开着但没锁，点一下却把锁机关掉）。
-#    现在断言的是「锁机」只往"开"的方向走，关闭有独立 action。
-grep -q "LockGuard.setEnabled(ctx, true)" "$HAR_KT" && grep -q "LockGuard.requestLock(ctx)" "$HAR_KT" \
-    && ok "通知 action「锁机」= setEnabled(true) + requestLock（不翻转开关）" \
-    || bad "ACTION_LOCK 没有走 setEnabled(true)+requestLock"
-grep -q "LockGuard.setEnabled(ctx, false)" "$HAR_KT" && grep -q "LockGuard.requestUnlock(ctx)" "$HAR_KT" \
-    && ok "关闭锁机走独立 action（ACTION_UNLOCK = setEnabled(false) + requestUnlock）" \
-    || bad "ACTION_UNLOCK 没有独立关闭通路"
-if grep -vE '^[[:space:]]*(\*|//|/\*)' "$LG_KT" "$HAR_KT" | grep -q "toggleEnabled"; then
-    bad "仍有 toggleEnabled（「锁机」与「关锁机」共用一个翻转，P1-B 未修）"
+# ⚠️ 0.2.4（A）删除了三条与 HostActionReceiver 直接绑定的断言：
+#    「通知 action『锁机』= setEnabled(true)+requestLock」「ACTION_UNLOCK = ... + requestUnlock」
+#    「两个方向都有 toast（锁机已开启 / 锁机已关闭）」—— 触发它们的 action 已整体删除。
+#    toggleEnabled 的意图（不许用翻转开关）保留，断言范围收到 LockGuard.kt。
+if grep -vE '^[[:space:]]*(\*|//|/\*)' "$LG_KT" | grep -q "toggleEnabled"; then
+    bad "仍有 toggleEnabled（锁机开关被翻转，P1-B 未修）"
 else
-    ok "toggleEnabled 已彻底删除（锁机 / 关锁机 各走各的 action）"
+    ok "toggleEnabled 已彻底删除（LockGuard 里只有 setEnabled(on) 单向接口）"
 fi
-grep -q "锁机已开启" "$HAR_KT" && grep -q "锁机已关闭" "$HAR_KT" \
-    && ok "两个方向都有 toast 反馈当前状态" \
-    || bad "切换后没有状态反馈"
 
 # ---- P1-3：门队列，一帧只跳一个系统页 ----
 grep -q "ArrayDeque<Gate>" "$MA_KT" \
@@ -781,15 +795,22 @@ N=$(grep -c "enqueueGate(Gate.PINNING)" "$MA_KT" || true)
     && ok "PINNING 门在 onTimerState 与 resumeHostGates 两条路径上都排（不会漏锁）" \
     || bad "PINNING 门只在一条路径上排（另一条会永远锁不上）"
 
-# ---- P1-4：没开屏幕固定就不锁，只提示 ----
-if grep -q "trying startLockTask anyway" "$LG_KT"; then
-    bad "LockGuard 仍在\"没开屏幕固定\"时硬 start（用户拒绝后照样被锁）"
+# ---- P1-4（0.2.4 P0 改写）：不再拿系统设置当门槛，失败才提示 ----
+# 旧断言「未开启屏幕固定，本次不锁机」随文案一起删除：用户已经把系统里两个开关都打开了，
+# 再说"未开启"是错的（那条路径根本不受该开关控制）。新文案 = 「本机不支持屏幕固定」。
+if grep -q "未开启屏幕固定" "$LG_KT"; then
+    bad "LockGuard 仍说「未开启屏幕固定」（用户已开，文案会误导）"
 else
-    ok "已删除\"没开也硬锁\"的分支"
+    ok "旧文案「未开启屏幕固定」已删除"
 fi
-grep -q "未开启屏幕固定，本次不锁机" "$LG_KT" \
-    && ok "没开屏幕固定时有明确 toast（不静默假装成功）" \
-    || bad "缺少\"未开启屏幕固定\"的提示"
+grep -q "锁机未生效" "$LG_KT" \
+    && ok "锁不上时提示「锁机未生效」（不静默假装成功）" \
+    || bad "缺少「锁机未生效」的降级提示"
+if grep -q "if (screenPinningEnabled(" "$LG_KT"; then
+    bad "LockGuard 仍把 screenPinningEnabled 当前置门槛（P0 未修）"
+else
+    ok "LockGuard 不再用 screenPinningEnabled 预判能不能锁（P0 的核心）"
+fi
 
 # ---- P2-1 / P2-3 / P2-4 / P2-5 ----
 grep -q "isAttachedToWindow" "$FB_KT" \
@@ -1097,9 +1118,10 @@ grep -q "Guard.syncActive" "$TW_KT" \
     || bad "TimerWatch 没有写 guard.active"
 
 # ---- H. prefs 的 Set<String> 拷贝语义 ----
-grep -q "HashSet(raw)" "$ST_KT" && grep -q "putStringSet(K_GUARD_APPS, HashSet(apps))" "$ST_KT" \
-    && ok "guard.apps 读写都做 HashSet 拷贝（B4 的经典坑）" \
-    || bad "guard.apps 没有拷贝语义（改了不落盘）"
+# 0.2.4（C）：键从 guard.apps（黑名单）换成 guard.allow（白名单），拷贝语义不变。
+grep -q "HashSet(raw)" "$ST_KT" && grep -q "putStringSet(K_GUARD_ALLOW, HashSet(apps))" "$ST_KT" \
+    && ok "guard.allow 读写都做 HashSet 拷贝（B4 的经典坑）" \
+    || bad "guard.allow 没有拷贝语义（改了不落盘）"
 
 # ---- I. 两级设置页：framework View，不引 UI 库 ----
 for f in "$SET_KT" "$SETUI_KT" "$GAPPS_KT"; do
@@ -1178,11 +1200,26 @@ grep -q "MutationObserver" "$SHIM_KT" && grep -q "GIVE_UP_MS = 5000" "$SHIM_KT" 
     && ok "shim 注入用 MutationObserver + 5s 超时静默放弃" || bad "shim 注入没有超时放弃"
 grep -q "call('app.settings')" "$SHIM_KT" \
     && ok "shim 注入行点击走 call('app.settings')" || bad "注入行没有接桥"
-grep -q 'ACTION_SETTINGS = "' "$HAR_KT" \
-    && ok "HostActionReceiver 新增 ACTION_SETTINGS" || bad "缺少通知栏「设置」action"
-grep -q 'canBubble && "bubble" in actions' "$NOTIF_KT2" \
-    && grep -q '!canBubble && "settings" in actions' "$NOTIF_KT2" \
-    && ok "通知 action 条件化（有权限→小窗，无权限→设置）" || bad "通知 action 没有条件化"
+# ---- A/0.2.4：设置入口的唯一 action 必须还在（通知 action 删了，它不能跟着丢）----
+# 两条入口：① 桌面快捷方式（shortcuts.xml 的 intent action）
+#           ② 外部 / 网页打开设置页（MainActivity.handleHostIntent 的分支字符串）
+# 静态一致性：两处字符串必须逐字相同，否则快捷方式会变成"点了没反应"。
+SHORTCUT_ACTION="$(grep -o 'android:action="[^"]*"' "$SHORTCUTS" 2>/dev/null | head -1 | sed 's/.*="//; s/"$//')"
+MA_SETTINGS_ACTION="$(grep -o 'ACTION_APP_SETTINGS = "[^"]*"' "$MA_KT" | head -1 | sed 's/.*= "//; s/"$//')"
+if [ -n "$SHORTCUT_ACTION" ] && [ "$SHORTCUT_ACTION" = "$MA_SETTINGS_ACTION" ]; then
+    ok "桌面快捷方式的 intent action 与 MainActivity.ACTION_APP_SETTINGS 逐字一致（$SHORTCUT_ACTION）"
+else
+    bad "快捷方式 action（${SHORTCUT_ACTION:-空}）≠ ACTION_APP_SETTINGS（${MA_SETTINGS_ACTION:-空}）"
+fi
+grep -q "intent?.action != ACTION_APP_SETTINGS" "$MA_KT" \
+    && ok "handleHostIntent 认领的仍是 ACTION_APP_SETTINGS（设置页入口没丢）" \
+    || bad "handleHostIntent 不再认 ACTION_APP_SETTINGS（快捷方式会失效）"
+grep -q 'data-bottle-native' "$SHIM_KT" \
+    && ok "shim 注入的节点带 data-bottle-native（去重）" || bad "shim 注入没有去重标记"
+grep -q "MutationObserver" "$SHIM_KT" && grep -q "GIVE_UP_MS = 5000" "$SHIM_KT" \
+    && ok "shim 注入用 MutationObserver + 5s 超时静默放弃" || bad "shim 注入没有超时放弃"
+grep -q "call('app.settings')" "$SHIM_KT" \
+    && ok "shim 注入行点击走 call('app.settings')" || bad "注入行没有接桥"
 
 # ---- M. T05 小窗任务名链路（网页 → 原生单向） ----
 grep -q ", taskName\].join('|')" "$SHIM_KT" \
@@ -1477,6 +1514,208 @@ if [ -x "$GUARD_SH" ]; then
             fi
         done
     fi
+fi
+
+# ================= 17. 0.2.4：屏幕固定 P0 / 通知去 action A / 设置页 B / 白名单 C
+head_ 17 "0.2.4 增量（P0 屏幕固定 · A 通知去 action · B 设置页 · C 白名单）"
+
+# ---- P0：不再拿系统设置当门槛 ----
+# 用户现场：系统「应用固定」两个开关都开着，仍然不锁 —— 因为代码读的是 Settings.Secure
+# （键其实在 Global），恒返回 false。修法是把"能不能锁"完全交给 getLockTaskModeState()。
+SP_HITS=$(grep -rc "screenPinningEnabled" "$PROJECT_DIR/app/src/main" 2>/dev/null | awk -F: '{s+=$2} END{print s+0}')
+if [ "$SP_HITS" -eq 0 ]; then
+    ok "全仓 0 处 screenPinningEnabled（读系统设置预判的代码已整体删除）"
+else
+    bad "screenPinningEnabled 仍有 $SP_HITS 处（不能再作为能否上锁的依据）"
+fi
+if grep -rq "if (screenPinningEnabled(" "$PROJECT_DIR/app/src/main"; then
+    bad "仍有 if (screenPinningEnabled( 形式的前置判断"
+else
+    ok "if (screenPinningEnabled( 出现 0 次（P0 的硬性 grep 断言）"
+fi
+grep -q "SECURE_LOCK_TO_APP" "$LG_KT" \
+    && bad "LockGuard 仍保留 Settings.Secure 的错键常量" \
+    || ok "Settings.Secure 的错键常量已删除（没有死代码残留）"
+grep -q "lockPendingStart" "$PROJECT_DIR/app/src/main/java/im/bottle/focus/State.kt" \
+    && bad "State 仍有 lock.pendingStart（通知 action 已删，写入者不存在）" \
+    || ok "lock.pendingStart 读写已清（孤儿键不会永久残留）"
+
+# ---- P0：start() 的四级返回 + 120ms 复核（行为级） ----
+LOCK_PY="$PROJECT_DIR/app/tools/qa_lock_start.py"
+if [ -f "$LOCK_PY" ]; then
+    if OUTL=$(timeout 120 python3 "$LOCK_PY" 2>&1); then
+        NL=$(printf '%s' "$OUTL" | grep -c '^PASS')
+        ok "qa_lock_start.py：$NL 条锁机行为断言全过（四级返回 / 复核 / onResume 降级）"
+        for tag in "start()：lockEnabled=false → DISABLED" \
+                   "start()：已在锁任务模式 → ALREADY" \
+                   "start()：调用成功但复核仍是 NONE → REJECTED" \
+                   "start()：调用成功 + 复核进入锁任务 → LOCKED" \
+                   "onResume：失败后 toast「锁机未生效」" \
+                   "onResume：失败后不再跳「应用固定」页" \
+                   "onResume：失败后记 asked.pinSessionKey（本场不再来）" \
+                   "暂停继续：继续后必须再次调用 startLockTask()（asked 命中不再是早退理由）" \
+                   "REJECTED 二次：第 2 次失败 → 不跳页（NONE）" \
+                   "轮询中途命中：第 3 个时间点就落定（600ms），不再等到 2000ms"; do
+            if printf '%s\n' "$OUTL" | grep -q "PASS  $tag"; then
+                ok "锁机行为：$tag"
+            else
+                bad "锁机行为缺少用例「$tag」"
+            fi
+        done
+    else
+        bad "qa_lock_start.py 有断言失败："
+        printf '%s\n' "$OUTL" | grep -E '^FAIL' | sed 's/^/       /'
+    fi
+else
+    bad "缺少 app/tools/qa_lock_start.py"
+fi
+
+# ---- C：白名单真值表（跑表输出，不只看源码） ----
+if [ -x "$GUARD_SH" ]; then
+    OUTT=$(timeout 300 "$GUARD_SH" 2>&1)
+    if printf '%s' "$OUTT" | grep -q '^ENV:'; then
+        warn "qa_guard.sh 环境不可用，跳过白名单真值表核对"
+    else
+        for tag in "白名单真值表：32 格全部符合 block = enabled ∧ active ∧ ¬系统 ∧ ¬自己 ∧ ¬允许" \
+                   "白名单真值表：active=true + 非系统 + 非自身 + 不在白名单 → 拦" \
+                   "白名单真值表：active=true + 在 allowList → 放行" \
+                   "白名单真值表：空白名单 + 普通应用 → 拦（空集合 = 全拦，与番茄 Todo 一致）" \
+                   "白名单真值表：系统白名单（设置 / 桌面 / 输入法）→ 永远放行" \
+                   "白名单真值表：自己包名 → 永远放行" \
+                   "白名单真值表：active=false → 不拦（暂停 / 休息）"; do
+            if printf '%s\n' "$OUTT" | grep -q "PASS  $tag"; then
+                ok "白名单跑表：$tag"
+            else
+                bad "白名单跑表缺少用例「$tag」"
+            fi
+        done
+    fi
+fi
+
+# ---- C：迁移 / 空集合弹窗（行为级） ----
+MIG_PY="$PROJECT_DIR/app/tools/qa_guard_migration.py"
+if [ -f "$MIG_PY" ]; then
+    if OUTM=$(timeout 120 python3 "$MIG_PY" 2>&1); then
+        NM=$(printf '%s' "$OUTM" | grep -c '^PASS')
+        ok "qa_guard_migration.py：$NM 条迁移断言全过（状态表 / 不反迁 / 幂等 / 空集弹窗）"
+        for tag in "guard.enabled：true → false（升级后不自动全拦）" \
+                   "guard.allow：不存在 → 空集" \
+                   "guard.apps：整条删除（不是留空集）" \
+                   "guard.ruleVersion：0 → 2" \
+                   "旧黑名单一个包名都没漏进 guard.allow（不反迁）" \
+                   "空白名单 + 打开 → 普通应用全拦（空集合 = 全拦）" \
+                   "设置页有「没有选择任何允许的应用」确认框" \
+                   "取消按钮不开启（只 refreshSoon，不落 guard.enabled=true）"; do
+            if printf '%s\n' "$OUTM" | grep -q "PASS  $tag"; then
+                ok "迁移行为：$tag"
+            else
+                bad "迁移行为缺少用例「$tag」"
+            fi
+        done
+    else
+        bad "qa_guard_migration.py 有断言失败："
+        printf '%s\n' "$OUTM" | grep -E '^FAIL' | sed 's/^/       /'
+    fi
+else
+    bad "缺少 app/tools/qa_guard_migration.py"
+fi
+
+# ---- C：迁移调用位置（App.onCreate 第一步）----
+MIG_LINE=$(grep -n "Guard.migrateGuardRule(this)" "$APP_KT" | head -1 | cut -d: -f1)
+ORPHAN_LINE=$(grep -n "Guard.clearOrphanCountingActive(this)" "$APP_KT" | head -1 | cut -d: -f1)
+REPAIR_LINE2=$(grep -n "Guard.repairResidue(this)" "$APP_KT" | head -1 | cut -d: -f1)
+if [ -n "$MIG_LINE" ] && [ -n "$ORPHAN_LINE" ] && [ -n "$REPAIR_LINE2" ] \
+   && [ "$MIG_LINE" -lt "$ORPHAN_LINE" ] && [ "$MIG_LINE" -lt "$REPAIR_LINE2" ]; then
+    ok "migrateGuardRule 排在 clearOrphanCountingActive / repairResidue 之前（App.onCreate 第一步）"
+else
+    bad "迁移顺序不对（migrate=$MIG_LINE orphan=$ORPHAN_LINE repair=$REPAIR_LINE2）"
+fi
+
+# ---- B：设置页不再有「通知 action」分组 ----
+if grep -q "buildNotifySection\|通知栏「" "$SET_KT"; then
+    bad "设置页仍有「通知 action」分组"
+else
+    ok "设置页已删除「通知 action」分组（无空分组、无孤立分割线）"
+fi
+SEC_COUNT=$(grep -c "SettingsUi.sectionTitle(" "$SET_KT" || true)
+if [ "$SEC_COUNT" -eq 3 ]; then
+    ok "设置页恰好 3 个分组：应用锁 / 小窗 / 关于（$SEC_COUNT）"
+else
+    bad "设置页分组数 $SEC_COUNT（应为 3，删组后可能留下空组）"
+fi
+grep -q "不需要在系统设置里开「应用固定」" "$SET_KT" \
+    && ok "深度锁机副标题写明「不需要在系统设置里开应用固定」" \
+    || bad "深度锁机副标题没改（文案仍暗示要开系统开关）"
+grep -q "选择允许使用的应用" "$PROJECT_DIR/app/src/main/res/values/strings.xml" \
+    && ok "二级页标题 = 选择允许使用的应用" || bad "二级页标题没反转"
+grep -q "已允许 \${selected.size} 个" "$GAPPS_KT" \
+    && ok "二级页计数 = 已允许 N 个" || bad "二级页计数文案没反转"
+grep -q "专注中 · 长按 2 秒本场放行" "$PROJECT_DIR/app/src/main/res/values/strings.xml" \
+    && ok "遮罩底部小字 = 专注中 · 长按 2 秒本场放行" || bad "遮罩小字没改"
+
+# ================= 18. 0.2.5：暂停→继续重新上锁 · 轮询复核 · 首问文案
+head_ 18 "0.2.5 增量（P0-1 暂停继续 · P0-2 轮询复核 · P1-3 文案）"
+
+# ---- P0-1：askedPinSession 不再兼任"不用再锁" ----
+# 先剥注释行再断言：文档里会写「旧代码有这一条」，不能被注释骗过。
+if sed -n '/fun onTimerActive/,/^    }$/p' "$LG_KT" \
+   | grep -vE '^[[:space:]]*(\*|//|/\*)' \
+   | grep -q 'askedPinSession.*==.*key.*return'; then
+    bad "onTimerActive 仍拿 askedPinSession 当早退（暂停→继续后整场不锁，P0-1 未修）"
+else
+    ok "onTimerActive 里没有 askedPinSession 早退（「已引导过」≠「已锁上」）"
+fi
+grep -q "val firstTime = State.askedPinSession(activity) != key" "$LG_KT" \
+    && ok "askedPinSession 收窄为「本场是否已跳过设置页」（只在 REJECTED 分支用）" \
+    || bad "askedPinSession 的用途没有收窄到「跳不跳页」"
+grep -q "StartResult.DISABLED -> onWants(Wants.NONE)" "$LG_KT" \
+    && ok "DISABLED 分支不记账、不跳页（用户主动关的功能不被引导）" \
+    || bad "DISABLED 分支仍在记账 / 跳页"
+
+# ---- P0-2：复核改多轮询 + token + 判失败前复查 ----
+POLL_SPEC=$(grep -oE "VERIFY_POLL_MS = longArrayOf\([^)]*\)" "$LG_KT" | head -1)
+POLL_N=$(printf '%s' "$POLL_SPEC" | grep -oE '[0-9]+' | wc -l | tr -d ' ')
+if [ -n "$POLL_SPEC" ] && [ "$POLL_N" -ge 5 ]; then
+    ok "复核是多次轮询（时间点 $POLL_N 个 ≥ 5）"
+else
+    bad "复核仍是单点 / 时间点不足（$POLL_N 个）：无 DeviceOwner 时会误判失败"
+fi
+if printf '%s' "$POLL_SPEC" | grep -q "2000"; then
+    ok "轮询最远等到 2000ms（覆盖系统「固定应用」确认框那段空窗）"
+else
+    bad "轮询没有覆盖到 2000ms（确认框还没点就被判失败）"
+fi
+grep -q "run.token != verifySeq" "$LG_KT" \
+    && ok "轮询用单调递增 token 防跨场回调（上一场的定时器不许记到这一场）" \
+    || bad "轮询没有 token 防护（会串场）"
+VERIFY_BODY=$(sed -n '/private fun verifyOnce(/,/^    }$/p' "$LG_KT")
+V_LOCK=$(printf '%s\n' "$VERIFY_BODY" | grep -n "isLockedTask(a)" | head -1 | cut -d: -f1)
+V_REJ=$(printf '%s\n' "$VERIFY_BODY" | grep -n "onResult(StartResult.REJECTED)" | tail -1 | cut -d: -f1)
+if [ -n "$V_LOCK" ] && [ -n "$V_REJ" ] && [ "$V_LOCK" -lt "$V_REJ" ]; then
+    ok "判 REJECTED 之前有一次 isLockedTask 复查（状态迟到当成功）"
+else
+    bad "REJECTED 前没有复查（lock=$V_LOCK rej=$V_REJ）"
+fi
+R_LOCK=$(sed -n '/fun onResume/,/^    }$/p' "$LG_KT" | grep -c "isLockedTask(activity)" || true)
+if [ "$R_LOCK" -ge 2 ]; then
+    ok "onResume 的失败路径也复查 isLockedTask（不在 REJECTED 上直接弹提示）"
+else
+    bad "onResume 失败路径没有复查（锁着却弹「未生效」）"
+fi
+
+# ---- P1-3：首问对话框不再指向已删除的通知栏按钮 ----
+grep -q "设置页 → 深度锁机 里关掉" "$MA_KT" \
+    && ok "首问对话框文案指向 设置页 → 深度锁机（与设置页副标题同口径）" \
+    || bad "首问对话框文案没改"
+if grep -rq "通知栏的「锁机」" "$PROJECT_DIR/app/src/main"; then
+    bad "仍有文案指向已删除的通知栏「锁机」按钮"
+else
+    ok "全仓没有「通知栏的「锁机」」文案（通知 action 本轮已全删）"
+fi
+if grep -q "通知栏按钮" "$PROJECT_DIR/app/src/main/java/im/bottle/focus/Shim.kt"; then
+    bad "设置入口副标题仍写「通知栏按钮」"
+else
+    ok "设置入口副标题不再指通知栏按钮（改成 深度锁机）"
 fi
 
 # ------------------------------------------------------------------- 汇总

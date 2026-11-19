@@ -1,6 +1,7 @@
 package im.bottle.focus
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -12,7 +13,10 @@ import android.widget.TextView
 import android.widget.Toast
 
 /**
- * 一级设置页：应用锁 / 小窗 / 通知 / 关于。
+ * 一级设置页：应用锁 / 小窗 / 关于。
+ *
+ * 0.2.4（B）：删掉「通知 action」分组 —— 通知栏不再有任何按钮（见 [Notifications]），
+ * 这一组开关已无对应物，留着只会让用户点一个没作用的开关。
  *
  * ## 为什么是原生页
  *
@@ -57,7 +61,6 @@ class AppSettingsActivity : Activity() {
         content.removeAllViews()
         buildGuardSection()
         buildBubbleSection()
-        buildNotifySection()
         buildAboutSection()
     }
 
@@ -71,7 +74,7 @@ class AppSettingsActivity : Activity() {
             SettingsUi.switchRow(
                 this,
                 title = "应用锁",
-                desc = "专注时把你打开的分心应用拉回桌面。休息和暂停时不拦。",
+                desc = "专注时只允许勾选的应用，其余一律拉回桌面。休息和暂停时不拦。",
                 checked = State.guardEnabled(this),
                 onChecked = { on -> onGuardToggled(on) }
             )
@@ -88,13 +91,18 @@ class AppSettingsActivity : Activity() {
             )
         )
 
-        val count = State.guardApps(this).size
+        // 0.2.4（C）：黑名单 → 白名单。空集 = 除系统应用外全拦（番茄 Todo / Forest 同款语义）。
+        val count = State.guardAllow(this).size
         card.addView(
             SettingsUi.valueRow(
                 this,
-                title = "选择要拦截的应用",
-                value = if (count == 0) "未选择" else "$count 个应用",
-                desc = if (count == 0) "还没选应用时应用锁不会拦任何东西" else "已选的应用在专注时会被打回",
+                title = "允许使用的应用",
+                value = if (count == 0) "未选择（全拦）" else "已允许 $count 个",
+                desc = if (count == 0) {
+                    "未选择时，专注期间只允许系统应用（桌面 / 电话 / 短信 / 设置 / 输入法）"
+                } else {
+                    "已允许的应用照常可用，其余在专注时会被拉回桌面"
+                },
                 onClick = {
                     runCatching { startActivity(Intent(this, GuardAppsActivity::class.java)) }
                         .onFailure { Log.w(TAG, "open guard apps failed", it) }
@@ -106,7 +114,8 @@ class AppSettingsActivity : Activity() {
             SettingsUi.switchRow(
                 this,
                 title = "深度锁机（屏幕固定）",
-                desc = "把瓶子钉在前台，切不出去。可与应用锁叠加；锁机生效时应用锁自动让位。",
+                desc = "把瓶子钉在前台，切不出去。不需要在系统设置里开「应用固定」；" +
+                    "如果本机不支持，会自动降级为不锁。",
                 checked = LockGuard.isEnabled(this),
                 onChecked = { on -> LockGuard.setEnabled(this, on) },
                 showDivider = false
@@ -132,15 +141,71 @@ class AppSettingsActivity : Activity() {
             "服务被系统清理掉后应用锁会静默失效，回 App 时会提示一次。"
         }
 
+    /**
+     * 应用锁总开关（0.2.4 / C：白名单语义）。
+     *
+     * **空名单 = 全拦**，这是个会让人措手不及的默认：用户第一次打开开关时可能一个应用都没勾，
+     * 专注期间连微信、备忘录都打不开。所以这里用原生 `AlertDialog` 明确问一次，
+     * 取消就**不开启**（开关回到 off，页面重建）。
+     */
     private fun onGuardToggled(on: Boolean) {
-        State.setGuardEnabled(this, on)
         if (!on) {
+            State.setGuardEnabled(this, false)
             // 关掉就立刻收工，别让用户看到"关掉了还在拦"
             Guard.clearActive(this)
             toast("应用锁已关闭")
             refreshSoon()
             return
         }
+        if (State.guardAllow(this).isEmpty()) {
+            confirmEnableWithEmptyAllowList()
+            return
+        }
+        enableGuard()
+    }
+
+    /**
+     * 「一个允许的应用都没选」的确认框。
+     *
+     * 文案必须把后果说全：**除系统应用外全部拦截**。默认按钮是「取消」（负向），
+     * 因为"什么都没选就全拦"是高风险默认，用户不小心点一下会以为 App 坏了。
+     */
+    private fun confirmEnableWithEmptyAllowList() {
+        if (isFinishing) return
+        try {
+            AlertDialog.Builder(this)
+                .setTitle("没有选择任何允许的应用")
+                .setMessage(
+                    "没有选择任何允许的应用，专注期间除系统应用外将全部拦截。确定开启？\n\n" +
+                        "（桌面 / 电话 / 短信 / 设置 / 输入法始终可用，可以随时回来勾选允许的应用）"
+                )
+                .setPositiveButton("确定开启") { dialog, _ ->
+                    dialog.dismiss()
+                    enableGuard()
+                }
+                .setNegativeButton("取消") { dialog, _ ->
+                    // 取消 = 不开启：prefs 里本来就是 false，只需要把开关视觉还原
+                    dialog.dismiss()
+                    refreshSoon()
+                }
+                .setOnCancelListener {
+                    // 返回键 / 点外部取消：同上，不开启
+                    refreshSoon()
+                }
+                .show()
+            Log.i(TAG, "confirm empty allow list before enabling guard")
+        } catch (e: Exception) {
+            // 弹不出来（Window token 失效）：按"不开启"处理（安全侧），别静默全拦
+            Log.w(TAG, "show empty allow list dialog failed", e)
+            State.setGuardEnabled(this, false)
+            toast("请先选择允许使用的应用")
+            refreshSoon()
+        }
+    }
+
+    /** 真正落地"开启应用锁"（确认框通过之后走这里）。 */
+    private fun enableGuard() {
+        State.setGuardEnabled(this, true)
         if (Guard.serviceEnabled(this)) {
             toast("应用锁已开启")
         } else {
@@ -223,49 +288,6 @@ class AppSettingsActivity : Activity() {
             Log.w(TAG, "open overlay settings failed", e)
             toast("这台设备没有悬浮窗授权页")
         }
-    }
-
-    // ---------------------------------------------------------------- 通知
-
-    private fun buildNotifySection() {
-        content.addView(SettingsUi.sectionTitle(this, "通知"))
-
-        val actions = State.notifyActions(this)
-        val card = SettingsUi.card(this)
-        card.addView(
-            SettingsUi.switchRow(
-                this,
-                title = "通知栏「小窗」按钮",
-                desc = "计时中点一下就显示 / 恢复小窗",
-                checked = "bubble" in actions,
-                onChecked = { on ->
-                    State.markNotifyAction(this, "bubble", on)
-                    Notifications.refreshOngoing(this)
-                }
-            )
-        )
-        card.addView(
-            SettingsUi.switchRow(
-                this,
-                title = "通知栏「设置」按钮",
-                desc = "没有悬浮窗权限时，用它顶替「小窗」的位置",
-                checked = "settings" in actions,
-                onChecked = { on ->
-                    State.markNotifyAction(this, "settings", on)
-                    Notifications.refreshOngoing(this)
-                }
-            )
-        )
-        card.addView(
-            SettingsUi.valueRow(
-                this,
-                title = "通知栏「锁机」按钮",
-                value = "常驻",
-                desc = "屏幕固定期间通知栏不可见，返回键长按 1.5 秒也能解",
-                showDivider = false
-            )
-        )
-        content.addView(card)
     }
 
     // ---------------------------------------------------------------- 关于

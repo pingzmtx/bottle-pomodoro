@@ -11,9 +11,11 @@
 
     <!-- 原生设置页 -->
     <string name="settings_title">应用设置</string>
-    <string name="guard_apps_title">选择要拦截的应用</string>
+    <!-- 0.2.4（C）：黑名单 → 白名单。勾上 = 允许使用。 -->
+    <string name="guard_apps_title">选择允许使用的应用</string>
+    <string name="guard_allow_hint">勾上 = 专注期间允许使用；一个都不勾 = 除桌面 / 电话 / 短信 / 设置 / 输入法外全部拦截</string>
 
     <!-- 遮罩（全屏拦截页） -->
     <string name="guard_overlay_back">回到专注</string>
-    <string name="guard_overlay_hint">专注中 · 长按此处 2 秒本场不再拦截</string>
+    <string name="guard_overlay_hint">专注中 · 长按 2 秒本场放行</string>
 </resources>

@@ -82,7 +82,7 @@ object GuardCheck {
         check("闹钟放行（否则用户以为闹钟坏了）", GuardRules.isWhitelisted("com.android.deskclock", SELF, LAUNCHERS, IMES))
 
         check("相机**不**放行（典型分心源）", !GuardRules.isWhitelisted("com.android.camera", SELF, LAUNCHERS, IMES))
-        check("微信不放行（普通黑名单逻辑）", !GuardRules.isWhitelisted("com.tencent.mm", SELF, LAUNCHERS, IMES))
+        check("微信不在系统白名单（能否使用取决于 allowList）", !GuardRules.isWhitelisted("com.tencent.mm", SELF, LAUNCHERS, IMES))
         check(
             "包名带空白 / 大小写也能正确比对",
             GuardRules.isWhitelisted("  COM.MIUI.HOME  ", SELF, LAUNCHERS, IMES)
@@ -109,6 +109,7 @@ object GuardCheck {
         check("free 暂停 → 不拦", !GuardRules.isActive("free", running = true, paused = true))
 
         val wechat = "com.tencent.mm"
+        // 0.2.4（C）：语义反转 —— `allowList` 是"允许使用"，空白名单 = 全拦。
         val base = GuardRules.Input(
             enabled = true,
             active = true,
@@ -116,19 +117,22 @@ object GuardCheck {
             mode = "focus",
             pkg = wechat,
             selfPkg = SELF,
-            apps = setOf(wechat),
+            allowList = emptySet(),
             launchers = LAUNCHERS,
             imes = IMES,
             sessionKey = "focus#7",
             unlockedKey = ""
         )
-        check("命中黑名单 + 专注中 → 拦", GuardRules.shouldBlock(base))
+        check("空白名单 + 普通应用 + 专注中 → 拦（空 = 全拦）", GuardRules.shouldBlock(base))
         check("总开关关 → 不拦", !GuardRules.shouldBlock(base.copy(enabled = false)))
         check("active 镜像为 false（暂停/休息）→ 不拦", !GuardRules.shouldBlock(base.copy(active = false)))
         check("深度锁机生效 → 不拦（A1b：钉住了就别再耗电）", !GuardRules.shouldBlock(base.copy(lockTask = true)))
         check("休息段 → 不拦", !GuardRules.shouldBlock(base.copy(mode = "shortBreak")))
-        check("不在黑名单 → 不拦", !GuardRules.shouldBlock(base.copy(apps = setOf("com.other.app"))))
-        check("黑名单里但属于白名单（设置）→ 不拦", !GuardRules.shouldBlock(base.copy(pkg = "com.android.settings", apps = setOf("com.android.settings"))))
+        check("在白名单里 → 不拦", !GuardRules.shouldBlock(base.copy(allowList = setOf(wechat))))
+        check(
+            "系统应用即使在 allowList 里也放行（两条白名单幂等）",
+            !GuardRules.shouldBlock(base.copy(pkg = "com.android.settings", allowList = setOf("com.android.settings")))
+        )
         check("空包名 → 不拦（事件异常时宁可不动）", !GuardRules.shouldBlock(base.copy(pkg = "  ")))
         check(
             "本场已「不再拦」（会话键相同）→ 不拦",
@@ -139,8 +143,140 @@ object GuardCheck {
             GuardRules.shouldBlock(base.copy(unlockedKey = "focus#6"))
         )
         check(
-            "黑名单集合大小写 / 空白不影响判定",
-            GuardRules.shouldBlock(base.copy(apps = setOf("  COM.Tencent.MM ")))
+            "白名单集合大小写 / 空白不影响判定",
+            !GuardRules.shouldBlock(base.copy(allowList = setOf("  COM.Tencent.MM ")))
+        )
+
+        allowTruthTable()
+    }
+
+    // ------------------------------------------- ②b 白名单真值表（C 的验收口径）
+
+    /**
+     * `active × ALWAYS_ALLOWED × self × allowList` 的**完整真值表**（32 格，含 enabled 两档）。
+     *
+     * 期望值只有一条公式：
+     * ```
+     * block = enabled && active && !系统白名单 && !自己 && !在白名单里
+     * ```
+     * 打印出来的每一格都带输入，真红的时候一眼能看出是哪一格错了
+     * （而不是"某条断言失败"）。
+     */
+    private fun allowTruthTable() {
+        section("②b 白名单真值表（enabled × active × 系统白名单 × 自己 × allowList）")
+
+        val normal = "com.tencent.mm"
+        val system = "com.android.settings"
+        var combos = 0
+        var wrong = 0
+        for (enabled in booleanArrayOf(true, false)) {
+            for (active in booleanArrayOf(true, false)) {
+                for (isSystem in booleanArrayOf(true, false)) {
+                    for (isSelf in booleanArrayOf(true, false)) {
+                        for (inAllow in booleanArrayOf(true, false)) {
+                            val pkg = when {
+                                isSelf -> SELF
+                                isSystem -> system
+                                else -> normal
+                            }
+                            val allow = if (inAllow) setOf(pkg) else emptySet()
+                            val input = GuardRules.Input(
+                                enabled = enabled,
+                                active = active,
+                                lockTask = false,
+                                mode = "focus",
+                                pkg = pkg,
+                                selfPkg = SELF,
+                                allowList = allow,
+                                launchers = LAUNCHERS,
+                                imes = IMES,
+                                sessionKey = "focus#1",
+                                unlockedKey = ""
+                            )
+                            val expected = enabled && active && !isSystem && !isSelf && !inAllow
+                            val actual = GuardRules.shouldBlock(input)
+                            combos++
+                            if (actual != expected) {
+                                wrong++
+                                check(
+                                    "真值表[enabled=$enabled active=$active 系统=$isSystem " +
+                                        "自己=$isSelf 允许=$inAllow] 期望 $expected 实际 $actual",
+                                    false
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (wrong == 0) {
+            check("白名单真值表：$combos 格全部符合 block = enabled ∧ active ∧ ¬系统 ∧ ¬自己 ∧ ¬允许", true)
+        } else {
+            check("白名单真值表：$combos 格里有 $wrong 格不符", false)
+        }
+
+        // 四条可读的口径（也是 verify.sh 逐条 grep 的标签）
+        check(
+            "白名单真值表：active=true + 非系统 + 非自身 + 不在白名单 → 拦",
+            GuardRules.shouldBlock(
+                GuardRules.Input(
+                    enabled = true, active = true, lockTask = false, mode = "focus",
+                    pkg = normal, selfPkg = SELF, allowList = emptySet(),
+                    launchers = LAUNCHERS, imes = IMES
+                )
+            )
+        )
+        check(
+            "白名单真值表：active=true + 在 allowList → 放行",
+            !GuardRules.shouldBlock(
+                GuardRules.Input(
+                    enabled = true, active = true, lockTask = false, mode = "focus",
+                    pkg = normal, selfPkg = SELF, allowList = setOf(normal),
+                    launchers = LAUNCHERS, imes = IMES
+                )
+            )
+        )
+        check(
+            "白名单真值表：空白名单 + 普通应用 → 拦（空集合 = 全拦，与番茄 Todo 一致）",
+            GuardRules.shouldBlock(
+                GuardRules.Input(
+                    enabled = true, active = true, lockTask = false, mode = "free",
+                    pkg = "com.android.camera", selfPkg = SELF, allowList = emptySet(),
+                    launchers = LAUNCHERS, imes = IMES
+                )
+            )
+        )
+        check(
+            "白名单真值表：系统白名单（设置 / 桌面 / 输入法）→ 永远放行",
+            listOf("com.android.settings", "com.miui.home", "com.sohu.inputmethod.sogou").none {
+                GuardRules.shouldBlock(
+                    GuardRules.Input(
+                        enabled = true, active = true, lockTask = false, mode = "focus",
+                        pkg = it, selfPkg = SELF, allowList = emptySet(),
+                        launchers = LAUNCHERS, imes = IMES
+                    )
+                )
+            }
+        )
+        check(
+            "白名单真值表：自己包名 → 永远放行",
+            !GuardRules.shouldBlock(
+                GuardRules.Input(
+                    enabled = true, active = true, lockTask = false, mode = "focus",
+                    pkg = SELF, selfPkg = SELF, allowList = emptySet(),
+                    launchers = LAUNCHERS, imes = IMES
+                )
+            )
+        )
+        check(
+            "白名单真值表：active=false → 不拦（暂停 / 休息）",
+            !GuardRules.shouldBlock(
+                GuardRules.Input(
+                    enabled = true, active = false, lockTask = false, mode = "shortBreak",
+                    pkg = normal, selfPkg = SELF, allowList = emptySet(),
+                    launchers = LAUNCHERS, imes = IMES
+                )
+            )
         )
     }
 
@@ -221,7 +357,7 @@ object GuardCheck {
      * session / 粘性键 / `guard.active` 清掉。
      *
      * 这里跑的是**四种状态 × 边界**（now 前后各 1ms、8h 边界）——
-     * 真机上"清早了"= 正在专注却不再拦，"清晚了"= 黑名单 App 被永久拦，两个方向都是事故。
+     * 真机上"清早了"= 正在专注却不再拦，"清晚了"= 分心 App 被永久拦，两个方向都是事故。
      */
     private fun recheckExpired() {
         section("⑥ recheckExpired（30s 时间复核）")
@@ -333,7 +469,7 @@ object GuardCheck {
      * 0.2.3 P1-2：`App.onCreate` 里那条**前置**清账（跑在 `repairResidue` 之前）。
      *
      * 现场（QA 逐帧推演）：正计时（`endAt=0`，`savedAt=T0`）、`guard.active=true`、
-     * 黑名单含微信 → LMK 杀进程（prefs 全留）→ 重绑。`repairResidue` 与
+     * 白名单为空（全拦）→ LMK 杀进程（prefs 全留）→ 重绑。`repairResidue` 与
      * `recheckExpired` 都只看 `savedAt + 8h`，于是判"还活着"，用户开微信照旧被遮罩 + 打回，
      * 一直要到 `savedAt + 8h` 之后的第一条窗口事件才放行。
      *
@@ -398,7 +534,7 @@ object GuardCheck {
         val wechat = "com.tencent.mm"
         val before = GuardRules.Input(
             enabled = true, active = true, lockTask = false, mode = "free",
-            pkg = wechat, selfPkg = SELF, apps = setOf(wechat),
+            pkg = wechat, selfPkg = SELF, allowList = emptySet(),
             launchers = LAUNCHERS, imes = IMES, sessionKey = "free#2", unlockedKey = ""
         )
         check("清账前：正计时中开微信 → 拦（这是缺陷现状）", GuardRules.shouldBlock(before))

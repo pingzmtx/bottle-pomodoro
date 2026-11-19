@@ -43,6 +43,19 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <!-- 0.2.4（C）：白名单语义说明。常驻在顶部，因为"一个都不勾 = 全拦"这个默认
+         如果用户不知道，会以为应用锁坏了。 -->
+    <TextView
+        android:id="@+id/allowHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="8dp"
+        android:text="@string/guard_allow_hint"
+        android:textColor="@color/settings_text_dim"
+        android:textSize="12sp" />
+
     <!-- 搜索行：输入框 + 清空「✕」 -->
     <LinearLayout
         android:layout_width="match_parent"

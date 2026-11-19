@@ -574,7 +574,7 @@ object Shim {
         label.appendChild(document.createTextNode('⚙ 应用设置'));
         var desc = document.createElement('div');
         desc.className = 'setting-desc';
-        desc.appendChild(document.createTextNode('应用锁 / 小窗 / 通知栏按钮（原生页面）'));
+        desc.appendChild(document.createTextNode('应用锁 / 小窗 / 深度锁机（原生页面）'));
         label.appendChild(desc);
         row.appendChild(label);
         var go = document.createElement('span');

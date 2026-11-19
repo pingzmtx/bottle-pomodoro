@@ -320,7 +320,9 @@ class Bridge(
         // 只读投影，网页拿它只做诊断展示，不构成"原生写网页状态"。
         put("guardEnabled", State.guardEnabled(activity))
         put("guardServiceOn", Guard.serviceEnabled(activity))
-        put("guardApps", State.guardApps(activity).size)
+        // 0.2.4（C）：黑名单 → 白名单。键名同步改成 guardAllow（网页没有读它，见 verify 断言的
+        // device.info 字段清单）。语义是"允许使用的应用数量"，0 = 除系统应用外全拦。
+        put("guardAllow", State.guardAllow(activity).size)
     }
 
     private fun replyOk(id: String, payload: JSONObject, proxy: JavaScriptReplyProxy) {

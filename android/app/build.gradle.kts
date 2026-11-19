@@ -17,8 +17,11 @@ android {
         // 0.2.1 / 7：小窗时间基准重算（Bug 1）+ 计时期间的前台服务（Bug 2）
         // 0.2.2 / 8：guard.active 残留收尾三处（P1-1）+ FGS 异常安全（P2-1）+ 通知收尾（P2-2）
         // 0.2.3 / 9：正计时场次被进程重启后清拦截镜像（P1-2）+ finally 内 runCatching（P2）
-        versionCode = 9
-        versionName = "0.2.3"
+        // 0.2.4 / 10：屏幕固定改成"先试再校验"（P0）+ 通知去 action（A）
+        //             + 设置页删通知分组（B）+ 应用锁黑名单→白名单（C）
+        // 0.2.5 / 11：暂停→继续重新上锁（P0-1）+ 复核改轮询（P0-2）+ 首问文案（P1-3）
+        versionCode = 11
+        versionName = "0.2.5"
     }
 
     // BuildConfig.VERSION_NAME / DEBUG 在代码里要用（device.info、WebView 调试开关）

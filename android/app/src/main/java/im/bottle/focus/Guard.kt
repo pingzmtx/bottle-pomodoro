@@ -89,6 +89,47 @@ object Guard {
         }
     }
 
+    // ---------------------------------------------------------------- 规则迁移
+
+    /**
+     * 0.2.3（黑名单）→ 0.2.4（白名单）的**一次性迁移**。
+     *
+     * ## 为什么必须迁移，而不是"让新代码直接读空集"
+     *
+     * 语义反了：旧代码是"命中 `guard.apps` 才拦"，新代码是"不在 `guard.allow` 里就拦"。
+     * 从 0.2.3 升级上来的用户，`guard.enabled` 可能还是 true —— 如果不处理，
+     * 升级后第一次专注会**除系统应用外全拦**（连微信、备忘录、相机都拦），
+     * 而用户从没选过任何"允许"的应用。那是升级事故，不是功能。
+     *
+     * ## 迁移动作（只做这四步）
+     *
+     * 1. `guard.enabled = false`（关闭，让用户在设置页自己重新打开并选应用）；
+     * 2. `guard.allow = {}`（空集，语义上"全拦"，但因为开关是关的所以不生效）；
+     * 3. **删除**旧 `guard.apps`（绝不反迁：黑名单是"要拦的"，搬进白名单就成了"允许的"）；
+     * 4. `guard.ruleVersion = 2`（幂等：第二次启动直接 return）。
+     *
+     * ## 调用位置
+     *
+     * `App.onCreate` 的**第一步**（排在 `clearOrphanCountingActive` / `repairResidue` 之前）：
+     * 迁移会改 `guard.enabled` / 清空名单，任何"按旧语义做的判定"都不该先跑一遍。
+     *
+     * @return true = 这次真的迁移了（调用方只用于日志）
+     */
+    fun migrateGuardRule(ctx: Context): Boolean {
+        val from = State.guardRuleVersion(ctx)
+        if (from >= State.GUARD_RULE_VERSION) return false
+        State.setGuardEnabled(ctx, false)
+        State.setGuardAllow(ctx, emptySet())
+        State.removeLegacyGuardApps(ctx)
+        State.setGuardRuleVersion(ctx, State.GUARD_RULE_VERSION)
+        Log.i(
+            TAG,
+            "guard rule migrated: blacklist(ruleVersion=$from) -> allowlist(ruleVersion=" +
+                "${State.GUARD_RULE_VERSION}); guard disabled, allow list empty, legacy guard.apps removed"
+        )
+        return true
+    }
+
     // ---------------------------------------------------------------- 拦截判定
 
     /** 该不该拦这个包（策略全在 [GuardRules.shouldBlock]）。 */
@@ -102,7 +143,7 @@ object Guard {
                 mode = currentMode(ctx),
                 pkg = pkg,
                 selfPkg = ctx.packageName,
-                apps = State.guardApps(ctx),
+                allowList = State.guardAllow(ctx),
                 launchers = launchers,
                 imes = imes,
                 sessionKey = State.sessionKey(ctx),
@@ -229,8 +270,8 @@ object Guard {
 
     /** 服务连上了（`onServiceConnected`）：只记日志 —— 守卫不主动开打，等网页下一帧写 active。 */
     fun noteServiceConnected(ctx: Context) {
-        val n = State.guardApps(ctx).size
-        Log.i(TAG, "service connected (guard.enabled=${State.guardEnabled(ctx)} apps=$n)")
+        val n = State.guardAllow(ctx).size
+        Log.i(TAG, "service connected (guard.enabled=${State.guardEnabled(ctx)} allow=$n)")
         invalidateWhitelist()
     }
 

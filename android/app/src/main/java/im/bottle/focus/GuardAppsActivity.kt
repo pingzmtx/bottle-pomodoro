@@ -21,7 +21,11 @@ import android.widget.Toast
 import java.util.concurrent.Executors
 
 /**
- * 二级页：选择要拦截的应用（多选）。
+ * 二级页：选择**允许使用**的应用（多选）。
+ *
+ * 0.2.4（C）：语义从"要拦截的"反转成"允许使用的" —— 勾上 = 专注期间可以用；
+ * **一个都不勾 = 除系统应用外全拦**。所以顶部常驻一句说明（`allowHint`），
+ * 计数文案是「已允许 N 个」。
  *
  * ## 列应用的方式（设计 B3）
  *
@@ -76,7 +80,7 @@ class GuardAppsActivity : Activity() {
         findViewById<TextView>(R.id.btnBack).setOnClickListener { finish() }
         findViewById<TextView>(R.id.btnDone).setOnClickListener { finish() }
 
-        selected.addAll(State.guardApps(this))
+        selected.addAll(State.guardAllow(this))
 
         searchInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) = Unit
@@ -214,7 +218,7 @@ class GuardAppsActivity : Activity() {
     private fun setSelected(pkg: String, checked: Boolean, bar: View) {
         if (checked) selected.add(pkg) else selected.remove(pkg)
         bar.visibility = if (checked) View.VISIBLE else View.INVISIBLE
-        State.markGuardApp(this, pkg, checked) // 立刻落盘（HashSet 拷贝由 State 负责）
+        State.markGuardAllow(this, pkg, checked) // 立刻落盘（HashSet 拷贝由 State 负责）
         updateCount()
     }
 
@@ -234,7 +238,7 @@ class GuardAppsActivity : Activity() {
             countLabel.text = "正在读取应用列表…"
             return
         }
-        val base = "已选 ${selected.size} 个"
+        val base = "已允许 ${selected.size} 个"
         countLabel.text = if (query.isEmpty()) {
             "$base · 共 ${rows.size} 个应用"
         } else {

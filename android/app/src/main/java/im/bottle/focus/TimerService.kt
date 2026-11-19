@@ -77,9 +77,9 @@ class TimerService : Service() {
         }
 
         // ★ P2-1：通知的**构造**必须和 startForeground 在同一个 try 里。
-        //   `Notifications.ongoingNotification(...)` 会读 prefs（notify.actions）、
-        //   问 `LockGuard.isLockedTask`（`Settings.canDrawOverlays`）、取 `State.notifyActions`
-        //   —— 任何一处抛（prefs 类型污染、ROM 的 AppOps 异常、通知被禁）都会让
+        //   `Notifications.ongoingNotification(...)` 会读 prefs（会话记录）、
+        //   问 `LockGuard.isLockedTask`（`ActivityManager`）—— 任何一处抛
+        //   （prefs 类型污染、ROM 的 AppOps 异常、通知被禁）都会让
         //   onStartCommand **带着"已 startForegroundService、却从未 startForeground"的账**退出，
         //   系统 10s 后直接 RemoteServiceException 杀进程，用户看到「应用停止运行」。
         //   这里保证二选一：成功 → 真的进了前台；失败 → 撤前台 + stopSelf + 一条 error。

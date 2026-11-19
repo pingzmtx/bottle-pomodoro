@@ -4,9 +4,14 @@ import android.app.Application
 import android.util.Log
 
 /**
- * Application：三件事 —— 幂等建通知渠道 + 正计时场次清拦截镜像 + 修应用锁残留。
+ * Application：四件事 —— 幂等建通知渠道 + 规则迁移 + 正计时场次清拦截镜像 + 修应用锁残留。
  *
  * 渠道必须在任何通知之前建好（包括 AlarmReceiver 在新进程里醒来时），所以放在这里，而不是 Activity。
+ *
+ * ⓪ `Guard.migrateGuardRule`（0.2.4 / C）**排在最前**：0.2.3 的 `guard.apps` 是黑名单，
+ *    0.2.4 改成白名单 `guard.allow`。语义相反，升级后若不处理，`guard.enabled=true` 的老用户
+ *    会"除系统应用外全拦"。迁移只做四步（关开关 / 清名单 / 删旧键 / 写 ruleVersion=2），
+ *    放在 `repairResidue` 之前 —— 任何按旧语义做的判定都不该先跑一遍。
  *
  * ① `Guard.clearOrphanCountingActive`（0.2.3 P1-2）**必须排在 `repairResidue` 之前**：
  *    进程被 LMK 杀 → 重绑时正计时（`endAt == 0`）在 prefs 里仍然"活着"（唯一判据 `savedAt + 8h`
@@ -25,6 +30,13 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         Notifications.ensureChannels(this)
+        try {
+            // ⓪ 规则迁移（黑名单 → 白名单）。必须最先跑：它会改 guard.enabled 与名单。
+            Guard.migrateGuardRule(this)
+        } catch (e: Exception) {
+            // Application.onCreate 抛异常 = 整个进程起不来（用户看到的是"点了图标没反应"）
+            Log.w("BottleApp", "migrateGuardRule failed", e)
+        }
         try {
             // ① 先清"被进程重启留下的正计时场次"的拦截镜像（只清 active，不动 session）
             Guard.clearOrphanCountingActive(this)

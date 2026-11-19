@@ -135,40 +135,15 @@ object Notifications {
     }
 
     /**
-     * 锁机按钮的三态（P1-B）。
-     *
-     * 旧代码把「锁机」两件事混在一个 toggle 上：文案三态 + 点击翻转，于是
-     * "开关开着但当前没锁"（文案正是「锁机」）点一下就变成**关掉锁机**。
-     * 新规则：**点哪个文案就做哪件事**，两个方向各用各的 action。
-     */
-    private data class LockAction(val label: String, val action: String, val icon: Int)
-
-    private fun lockActions(ctx: Context): List<LockAction> {
-        val locked = LockGuard.isLockedTask(ctx)
-        val enabled = LockGuard.isEnabled(ctx)
-        return when {
-            // 已经锁着：只有"解除"这一个方向
-            locked -> listOf(
-                LockAction("解除锁机", HostActionReceiver.ACTION_UNLOCK, android.R.drawable.ic_lock_lock)
-            )
-            // 开关开着但没锁（没开屏幕固定 / 已手动解锁）：能锁、也能明确关掉开关
-            enabled -> listOf(
-                LockAction("锁机", HostActionReceiver.ACTION_LOCK, android.R.drawable.ic_lock_lock),
-                LockAction("锁机·关", HostActionReceiver.ACTION_UNLOCK, android.R.drawable.ic_lock_idle_lock)
-            )
-            // 开关关着：点它就是打开并上锁（不再"关掉一个本来关着的东西"）
-            else -> listOf(
-                LockAction("开启锁机", HostActionReceiver.ACTION_LOCK, android.R.drawable.ic_lock_idle_lock)
-            )
-        }
-    }
-
-    /**
      * 只构造、不发送：计时中常驻通知的**唯一** builder。
      *
      * 抽成公开函数是为了让 [TimerService] 能用 `startForeground(ONGOING_ID, n)` 挂上
      * **同一条**通知 —— 前台服务的通知和这里 notify 出去的是同一个槽位、同一份内容，
      * 任何时刻通知栏都只会有一条（见 TimerService 的路径表）。
+     *
+     * 0.2.4（A）：通知上**不挂任何 action**。用户原话"通知栏那么多按钮是干啥的？
+     * 开启关闭有啥用？赶紧取消那些东西"。现在只剩：小图标 + 标题 + chronometer 秒数
+     * + 点击回 App（`contentIntent`）。锁机 / 小窗 / 设置全部回到 App 里操作。
      */
     fun ongoingNotification(
         ctx: Context,
@@ -183,7 +158,7 @@ object Notifications {
         title: String,
         countDown: Boolean
     ): Notification {
-        val builder = NotificationCompat.Builder(ctx, CH_ONGOING)
+        return NotificationCompat.Builder(ctx, CH_ONGOING)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
             .setContentTitle(title)
             .setContentText(if (countDown) "剩余时间" else "已计时")
@@ -199,34 +174,7 @@ object Notifications {
             .setCategory(NotificationCompat.CATEGORY_STOPWATCH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setContentIntent(openAppIntent(ctx))
-        // D：纯原生动作。都走 BroadcastReceiver（exported=false），不用 Activity。
-        //
-        // 条件化（设计 B1 的第三个入口）：有悬浮窗权限 → 「小窗」占这个位置；
-        // 没有权限 → 「设置」顶替它（位置本来就是小窗的，不额外挤掉什么）。
-        // 挂不挂由 `notify.actions` 决定，用户可以在原生设置页关掉。
-        val actions = State.notifyActions(ctx)
-        val canBubble = FloatingBubble.canDraw(ctx)
-        val first = when {
-            canBubble && "bubble" in actions ->
-                Triple(android.R.drawable.ic_menu_view, "小窗", HostActionReceiver.ACTION_BUBBLE)
-
-            !canBubble && "settings" in actions ->
-                Triple(
-                    android.R.drawable.ic_menu_preferences,
-                    "设置",
-                    HostActionReceiver.ACTION_SETTINGS
-                )
-
-            else -> null
-        }
-        if (first != null) {
-            builder.addAction(first.first, first.second, HostActionReceiver.pending(ctx, first.third))
-        }
-        // 锁机动作按三态挂（最多两条：锁 / 关）
-        lockActions(ctx).forEach { a ->
-            builder.addAction(a.icon, a.label, HostActionReceiver.pending(ctx, a.action))
-        }
-        return builder.build()
+            .build()
     }
 
     private fun showOngoingInternal(
@@ -241,20 +189,8 @@ object Notifications {
         safeNotify(ID_ONGOING, buildOngoing(ctx, baseWall, title, countDown), ctx)
     }
 
-    /**
-     * 按已落盘的 session 重建常驻通知（切换锁机开关后刷一次 action 文案用）。
-     *
-     * 只读 session、不猜状态：没有活跃会话就什么都不做。
-     */
-    fun refreshOngoing(ctx: Context) {
-        val session = State.loadSession(ctx) ?: return
-        if (!session.active(System.currentTimeMillis())) return
-        if (session.isCounting) {
-            showOngoingCounting(ctx, session.startTime, session.title)
-        } else {
-            showOngoing(ctx, session.endAt, session.title)
-        }
-    }
+    // 注：0.2.4（A）删掉 `refreshOngoing()` —— 它唯一的用途是"切换锁机开关后刷一次
+    // 通知上 action 的文案"，而 action 已经整体删除，留着就是一个没人调的死函数。
 
     fun cancelOngoing(ctx: Context) {
         runCatching {

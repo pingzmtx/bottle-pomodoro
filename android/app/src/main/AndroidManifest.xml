@@ -118,11 +118,9 @@
             android:name=".AlarmReceiver"
             android:exported="false" />
 
-        <!-- 常驻通知上的 action（小窗 / 锁机 / 设置）走这里。
-             exported=false：只有本 App 自己的 PendingIntent 能触发。 -->
-        <receiver
-            android:name=".HostActionReceiver"
-            android:exported="false" />
+        <!-- 0.2.4（A）：通知栏不再有任何 action → HostActionReceiver 整条删除。
+             静态快捷方式（长按图标 →「应用设置」）与网页里的注入行仍走
+             MainActivity 的 ACTION_APP_SETTINGS，不需要 receiver。 -->
 
         <receiver
             android:name=".BootReceiver"

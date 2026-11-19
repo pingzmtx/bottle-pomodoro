@@ -72,7 +72,7 @@ object GuardRules {
      * @param mode      这一场的 mode（`focus` / `free` / `shortBreak` / `longBreak` / `idle`）
      * @param pkg       事件里的前台包名
      * @param selfPkg   本 App 包名（遮罩点击要回得来）
-     * @param apps      用户勾选的黑名单
+     * @param allowList 用户勾选的**白名单**（「允许使用」；空集 = 除系统应用外全拦）
      * @param launchers 动态取到的 launcher 包名集合
      * @param imes      动态取到的输入法包名集合
      * @param sessionKey    当前会话键（与 [unlockedKey] 比对）
@@ -85,7 +85,7 @@ object GuardRules {
         val mode: String,
         val pkg: String,
         val selfPkg: String,
-        val apps: Set<String>,
+        val allowList: Set<String>,
         val launchers: Set<String>,
         val imes: Set<String>,
         val sessionKey: String = "",
@@ -123,11 +123,23 @@ object GuardRules {
     }
 
     /**
-     * 该不该拦这个包。
+     * 该不该拦这个包（**0.2.4 起是白名单语义**）。
      *
-     * 顺序即优先级：总开关 → 生效镜像 → 深度锁机 → mode → 黑名单 → 白名单 → 本场已解锁。
-     * 最后一条（`unlockedKey`）放在白名单之后：它只影响"是不是本场还拦"，与包名无关，
-     * 但放最后可以让前六条在跑表里独立取到 false，不会互相掩盖。
+     * ```
+     * 总开关 → 生效镜像 → 深度锁机 → mode
+     *   → ALWAYS_ALLOWED / 自己 / launcher / IME（系统白名单）
+     *   → 用户勾选的「允许使用」
+     *   → 本场已解锁
+     *   → 拦
+     * ```
+     *
+     * **空的白名单 = 全拦**（除系统白名单与自己）。这是番茄 Todo / Forest 的既有语义：
+     * 用户打开"应用锁"时的期望是"专注期间只能干正事"，而不是"什么都不发生"。
+     * 防误伤由 UI 负责（首次开启且空集时弹原生确认框，见 AppSettingsActivity）。
+     *
+     * 顺序即优先级：白名单（系统 + 用户）都返回 false，其余一律 true。
+     * `unlockedKey` 放最后：它只影响"是不是本场还拦"，与包名无关，
+     * 放最后可以让前面几条在跑表里独立取到 false，不会互相掩盖。
      */
     fun shouldBlock(i: Input): Boolean {
         if (!i.enabled) return false
@@ -136,8 +148,11 @@ object GuardRules {
         if (i.mode !in GUARD_MODES) return false
         val p = normalizePkg(i.pkg)
         if (p.isEmpty()) return false
-        if (i.apps.none { normalizePkg(it) == p }) return false
+        // ① 系统硬白名单（桌面 / 系统 UI / 输入法 / 电话短信闹钟 / 设置）
         if (isWhitelisted(p, i.selfPkg, i.launchers, i.imes)) return false
+        // ② 用户勾选的「允许使用」
+        if (i.allowList.any { normalizePkg(it) == p }) return false
+        // ③ 其余全拦（含空白名单的情形）
         if (i.sessionKey.isNotEmpty() && i.unlockedKey == i.sessionKey) return false
         return true
     }

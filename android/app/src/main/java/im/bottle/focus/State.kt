@@ -32,8 +32,6 @@ object State {
 
     private const val PREFS = "bottle_focus_prefs"
 
-    /** 常驻通知默认挂的 action（见 [notifyActions] 的说明）。 */
-    private val DEFAULT_NOTIFY_ACTIONS = setOf("bubble", "lock", "settings")
     private const val K_PENDING_END_AT = "pending.endAt"
     private const val K_PENDING_TITLE = "pending.title"
     private const val K_FIRED_END_AT = "fired.endAt"
@@ -59,7 +57,23 @@ object State {
     // ---- 应用锁（Guard，设计 §3.2）。与 lock.* 是两个开关：lock.* 管深度锁机（屏幕固定），
     //      guard.* 管"分心应用拦截"（无障碍）。两者可叠加，lockTask 生效期间 GuardService 直接 return。
     private const val K_GUARD_ENABLED = "guard.enabled"
+
+    /**
+     * 旧键：0.2.3 及以前的**黑名单**（命中就拦）。
+     *
+     * 0.2.4 起语义反转成白名单（[K_GUARD_ALLOW]），这个键**只用于升级时删除**。
+     * ⚠️ 绝不能把旧值反迁成白名单：语义相反，把"要拦的"变成"允许的" = 除了那几个 App 全拦。
+     */
     private const val K_GUARD_APPS = "guard.apps"
+
+    /** 白名单：用户勾选「允许使用」的应用。空集 = 除系统应用外全拦。 */
+    private const val K_GUARD_ALLOW = "guard.allow"
+
+    /** 规则版本。1（缺省）= 黑名单时代；2 = 白名单时代。 */
+    private const val K_GUARD_RULE_VERSION = "guard.ruleVersion"
+
+    /** 当前规则版本（写进 [K_GUARD_RULE_VERSION] 的值）。 */
+    const val GUARD_RULE_VERSION = 2
     private const val K_GUARD_ACTIVE = "guard.active"
     private const val K_GUARD_ACTIVE_KEY = "guard.activeKey"
     private const val K_GUARD_ACTIVE_END_AT = "guard.activeEndAt"
@@ -67,9 +81,8 @@ object State {
     private const val K_GUARD_REVOKED_KEY = "guard.revokedKey"
     private const val K_GUARD_OVERLAY_UNTIL = "guard.overlayUntil"
 
-    // ---- 小窗 / 通知栏按钮（设计 §3.2）----
+    // ---- 小窗（设计 §3.2）----
     private const val K_BUBBLE_SHOW_TASK_NAME = "bubble.showTaskName"
-    private const val K_NOTIFY_ACTIONS = "notify.actions"
 
     // ---- 一次计时 = 一个 session **键**（粘性键，见 [SessionKey]）。
     //      授权引导按 session 键去重：拒绝后本场不再骚扰，下一场（键不同）再问一次。
@@ -85,7 +98,6 @@ object State {
     private const val K_ASKED_PIN_SESSION = "asked.pinSessionKey"
     private const val K_ASKED_OVERLAY_SESSION = "asked.overlaySessionKey"
     private const val K_OVERLAY_PENDING = "overlay.pendingRequest"
-    private const val K_LOCK_PENDING_START = "lock.pendingStart"
     private const val K_LOCK_PENDING_RELEASE = "lock.pendingRelease"
     private const val K_LOCK_ENABLED = "lock.enabled"
     private const val K_LOCK_INTRO_ASKED = "lock.introAsked"
@@ -305,12 +317,6 @@ object State {
         prefs(ctx).edit().putBoolean(K_OVERLAY_PENDING, on).apply()
     }
 
-    fun lockPendingStart(ctx: Context): Boolean = prefs(ctx).getBoolean(K_LOCK_PENDING_START, false)
-
-    fun setLockPendingStart(ctx: Context, on: Boolean) {
-        prefs(ctx).edit().putBoolean(K_LOCK_PENDING_START, on).apply()
-    }
-
     fun lockPendingRelease(ctx: Context): Boolean = prefs(ctx).getBoolean(K_LOCK_PENDING_RELEASE, false)
 
     fun setLockPendingRelease(ctx: Context, on: Boolean) {
@@ -319,7 +325,7 @@ object State {
 
     /**
      * 锁机开关。**默认关**：锁机把用户钉在前台，属于"要用户点头"的能力，
-     * 静默上锁是不可接受的（P1-2）。首次进入计时时问一次，之后由用户在通知栏随时切换。
+     * 静默上锁是不可接受的（P1-2）。首次进入计时时问一次，之后在 设置页 → 深度锁机 里切换。
      */
     fun lockEnabled(ctx: Context): Boolean = prefs(ctx).getBoolean(K_LOCK_ENABLED, false)
 
@@ -361,7 +367,7 @@ object State {
 
     // ---------------------------------------------------------------- 应用锁 prefs
     //
-    // ⚠️ `guard.apps` 是 `Set<String>`：`getStringSet` 返回的是 SharedPreferences 的**内部引用**，
+    // ⚠️ `guard.allow` 是 `Set<String>`：`getStringSet` 返回的是 SharedPreferences 的**内部引用**，
     //    直接 add/remove 不会落盘（还可能污染已加载的实例）—— 这是这种存储最经典的坑（设计 B4）。
     //    所以：读出来一律 `HashSet(...)` 拷贝一份交给调用方，写回去一律再 `HashSet(...)` 一次。
 
@@ -372,21 +378,42 @@ object State {
         prefs(ctx).edit().putBoolean(K_GUARD_ENABLED, on).apply()
     }
 
-    /** 黑名单包名（**返回副本**，改它不会落盘；落盘请用 [setGuardApps] / [markGuardApp]）。 */
-    fun guardApps(ctx: Context): Set<String> {
-        val raw = prefs(ctx).getStringSet(K_GUARD_APPS, emptySet()) ?: emptySet()
+    /**
+     * **白名单**：用户勾选「允许使用」的包名（返回副本；落盘请用 [setGuardAllow] / [markGuardAllow]）。
+     *
+     * 空集 = 除系统白名单与自己以外**全部拦截**（番茄 Todo / Forest 同款语义）。
+     */
+    fun guardAllow(ctx: Context): Set<String> {
+        val raw = prefs(ctx).getStringSet(K_GUARD_ALLOW, emptySet()) ?: emptySet()
         return HashSet(raw)
     }
 
-    fun setGuardApps(ctx: Context, apps: Set<String>) {
-        prefs(ctx).edit().putStringSet(K_GUARD_APPS, HashSet(apps)).apply()
+    fun setGuardAllow(ctx: Context, apps: Set<String>) {
+        prefs(ctx).edit().putStringSet(K_GUARD_ALLOW, HashSet(apps)).apply()
     }
 
     /** 勾选 / 取消勾选一个应用。先拷贝再改，最后整份写回。 */
-    fun markGuardApp(ctx: Context, pkg: String, selected: Boolean) {
-        val next = HashSet(guardApps(ctx))
+    fun markGuardAllow(ctx: Context, pkg: String, selected: Boolean) {
+        val next = HashSet(guardAllow(ctx))
         if (selected) next.add(pkg) else next.remove(pkg)
-        setGuardApps(ctx, next)
+        setGuardAllow(ctx, next)
+    }
+
+    /** 应用锁规则版本（缺省 0 = 从没写过 = 黑名单时代的老用户）。 */
+    fun guardRuleVersion(ctx: Context): Int = prefs(ctx).getInt(K_GUARD_RULE_VERSION, 0)
+
+    fun setGuardRuleVersion(ctx: Context, version: Int) {
+        prefs(ctx).edit().putInt(K_GUARD_RULE_VERSION, version).apply()
+    }
+
+    /**
+     * 迁移用：把旧黑名单键**整条删掉**（连同它的值）。
+     *
+     * 只删不迁：黑名单里的是"要拦的"，白名单里的是"要放行的"，语义相反 ——
+     * 把旧集合搬进 `guard.allow` 等于"除了这几个 App 全都拦"，升级后第一次专注就是灾难。
+     */
+    fun removeLegacyGuardApps(ctx: Context) {
+        prefs(ctx).edit().remove(K_GUARD_APPS).apply()
     }
 
     /** 拦截生效镜像（**唯一写者是 [TimerWatch.onReport]**，设计 A4c）。 */
@@ -447,35 +474,13 @@ object State {
         prefs(ctx).edit().putLong(K_GUARD_OVERLAY_UNTIL, at).apply()
     }
 
-    // ------------------------------------------------------------ 小窗 / 通知栏
-    // 「通知栏显示任务名」开关。小窗高度仍是 48dp，关掉只是把左侧任务名区 GONE 并收窄到 96dp。
+    // ------------------------------------------------------------ 小窗
+    // 「小窗显示任务名」开关。小窗高度仍是 48dp，关掉只是把左侧任务名区 GONE 并收窄到 96dp。
     fun bubbleShowTaskName(ctx: Context): Boolean =
         prefs(ctx).getBoolean(K_BUBBLE_SHOW_TASK_NAME, true)
 
     fun setBubbleShowTaskName(ctx: Context, on: Boolean) {
         prefs(ctx).edit().putBoolean(K_BUBBLE_SHOW_TASK_NAME, on).apply()
-    }
-
-    /**
-     * 常驻通知挂哪些 action（`bubble` / `settings` / `lock`）。
-     *
-     * 默认三条全挂：`settings` 只在"没有悬浮窗权限、小窗按钮挂不出来"时顶上（设计 B1），
-     * 若它不在默认集合里，这条兜底路径永远不生效 —— 所以默认值比设计 §3.2 写的多一个
-     * `settings`（其余语义不变，用户仍可在设置页关掉它）。
-     */
-    fun notifyActions(ctx: Context): Set<String> {
-        val raw = prefs(ctx).getStringSet(K_NOTIFY_ACTIONS, null) ?: return HashSet(DEFAULT_NOTIFY_ACTIONS)
-        return HashSet(raw)
-    }
-
-    fun setNotifyActions(ctx: Context, actions: Set<String>) {
-        prefs(ctx).edit().putStringSet(K_NOTIFY_ACTIONS, HashSet(actions)).apply()
-    }
-
-    fun markNotifyAction(ctx: Context, action: String, on: Boolean) {
-        val next = HashSet(notifyActions(ctx))
-        if (on) next.add(action) else next.remove(action)
-        setNotifyActions(ctx, next)
     }
 
     // -------------------------------------------------------------- 网页版本号
