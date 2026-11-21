@@ -1295,6 +1295,55 @@ test('dispatcher-covers-native-events', function () {
   eq('dispatcher-covers-native-events 原生事件名全部有分支', got, []);
 });
 
+/* 原生 `jsOk` 认的是 `data.ok === true`（缺省即失败）。成功响应不写 ok 的话，
+   第一个成功事件就会被判成 E_JS_ERROR —— 0.6.9 真机现场：tomb 分支补上后
+   立刻改报 `tomb · E_JS_ERROR`。门面必须统一补 ok:true。 */
+test('envelope-ok-on-success', function () {
+  const w = fresh();
+  const got = R(w, `(function () {
+    _p2pOnEvent({ ev: 'begin', args: { sid: 'S2', peerId: 'p2' } });
+    var bad = [];
+    /* commit 例外：它是 thenable，ok 在 resolve 之后才补（见 commit-replies-after-async） */
+    ['tomb', 'build', 'collect', 'fingerprint', 'compare', 'abort'].forEach(function (n) {
+      var r = window.BottleSync.onEvent({ ev: n, args: { sid: 'S2', peerId: 'p2' } });
+      if (!r || r.ok !== true) bad.push(n + ':' + String(r && r.ok));
+    });
+    return bad;
+  })()`);
+  eq('envelope-ok-on-success 成功响应必须显式 ok:true', got, []);
+  /* 反向：错误响应必须保留 ok:false 且带 error，不能被门面「补」成 true */
+  const err = R(w, `window.BottleSync.onEvent({ ev: 'build', args: { sid: '不匹配', peerId: 'p2' } })`);
+  eq('envelope-ok-on-success 错误响应不被误补', { ok: err.ok, error: err.error }, { ok: false, error: 'E_STALE_SID' });
+});
+
+/* `commit` 是唯一异步事件（等 IDB 队列兑现）。旧实现把 Promise 直接丢给
+   JSON.stringify → `{}` → 原生读不到 committed → 判 false → 同步最后一步
+   报「存储空间不足」。回包必须等 resolve 之后。 */
+test('commit-replies-after-async', async function () {
+  const w = fresh();
+  const r = R(w, `(function () {
+    window.__replies = [];
+    window.__bottleBridge = { call: function (cmd, p) {
+      if (cmd === 'sync.reply') window.__replies.push(p);
+      return null;
+    } };
+    _p2pOnEvent({ ev: 'begin', args: { sid: 'C9', peerId: 'p9' } });
+    var ret = window.__bottleSyncEvent(JSON.stringify({
+      ev: 'commit', token: 'tk', args: { sid: 'C9', peerId: 'p9', wm: 1 }
+    }));
+    return { retIsNull: ret === null, before: window.__replies.length };
+  })()`);
+  eq('commit-replies-after-async 未 resolve 前不回包', r, { retIsNull: true, before: 0 });
+  await new Promise(function (res) { setTimeout(res, 600); });
+  const late = R(w, `(function () {
+    var p = window.__replies[0];
+    if (!p) return null;
+    return { ok: p.ok, committed: p.data && p.data.committed, status: p.data && p.data.status };
+  })()`);
+  ok('commit-replies-after-async resolve 后确实回包', !!late, JSON.stringify(late));
+  eq('commit-replies-after-async 回包 committed=true', late && late.committed, true);
+});
+
 /* ── 子结构 / 墓碑通道（C41）──────────────────────────────────────── */
 
 test('merge-subtask-only-change', function () {

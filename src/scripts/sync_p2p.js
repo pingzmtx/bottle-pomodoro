@@ -757,7 +757,19 @@ function _p2pSessBeginEndAt(v) {
      误判成「L2 反向依赖 L3 的 component_registry.ready」。语义与 getter 完全相同。 */
 window.BottleSync = {
   paired: function () { return _p2pPairedCount(); },
-  onEvent: function (ev) { return _p2pOnEvent(ev); },
+  /* 对原生的唯一门面。**成功也必须显式带 `ok:true`** —— 原生 `SyncSession.jsOk`
+     的判据是 `optBoolean("ok", false)`，缺省即失败。旧实现只有出错才写 ok，
+     于是 begin 之后的第一个成功事件（tomb）被当成失败、error 又是空的，
+     界面上兜底成 E_JS_ERROR，链路从这一步整个断掉。在这里统一补齐，
+     比在 8 个 case 里各写一遍可靠。 */
+  onEvent: function (ev) {
+    var r = _p2pOnEvent(ev);
+    /* `commit` 是唯一返回 Promise 的事件（要等 IDB 落盘确认）。
+       对 thenable 不补 ok，交给 __bottleSyncEvent 等 resolve 后再回包。 */
+    if (r && typeof r === 'object' && !Array.isArray(r) && typeof r.then !== 'function'
+      && r.ok === undefined) r.ok = true;
+    return r;
+  },
   /* 诊断用途（sync.diag / 长按标题 5 次）：不参与协议 */
   diag: function () { return _p2pDiag(); },
   fp: function () { return _p2pFingerprint(); }
@@ -775,18 +787,33 @@ window.__bottleSyncEvent = function (evJson) {
   try { ev = (typeof evJson === 'string') ? JSON.parse(evJson) : evJson; } catch (e) { ev = null; }
   var token = ev && ev.token ? String(ev.token) : '';
   var sid = ev && ev.args && ev.args.sid !== undefined ? String(ev.args.sid) : '';
+  /* 回包只有这一个出口：同步结果立刻发，异步结果（commit 等落盘）resolve 后再发。 */
+  function reply(data) {
+    var r = { token: token, sid: sid, ok: !(data && data.ok === false), data: data };
+    try {
+      var br = window.__bottleBridge;
+      if (br && typeof br.call === 'function') br.call('sync.reply', r);
+    } catch (e3) { if (window.__silent) window.__silent(e3, 'p2p:reply'); }
+    return r;
+  }
   var data;
   try {
-    data = _p2pOnEvent(ev || {});
+    /* 走门面而不是直接调 _p2pOnEvent：门面负责给成功响应补 `ok:true`（见上）。 */
+    data = window.BottleSync.onEvent(ev || {});
   } catch (e2) {
-    data = { ok: false, error: String((e2 && e2.message) || e2) };
+    return reply({ ok: false, error: String((e2 && e2.message) || e2) });
   }
-  var reply = { token: token, sid: sid, ok: !(data && data.ok === false), data: data };
-  try {
-    var br = window.__bottleBridge;
-    if (br && typeof br.call === 'function') br.call('sync.reply', reply);
-  } catch (e3) { if (window.__silent) window.__silent(e3, 'p2p:reply'); }
-  return reply;
+  /* `commit` 返回 Promise（要等 IDB 队列兑现才叫「落盘成功」）。
+     旧实现直接把 Promise 丢给 JSON.stringify → 变成 `{}` → 原生读不到
+     `committed` → 判定为 false → 同步在最后一步报「存储空间不足」（必然发生）。
+     原生 `SyncJs.request` 本来就在等回包（最多 20s），所以这里延后回复即可。 */
+  if (data && typeof data.then === 'function') {
+    data.then(function (v) { reply(v); }, function (e4) {
+      reply({ ok: false, error: String((e4 && e4.message) || e4) });
+    });
+    return null;
+  }
+  return reply(data);
 };
 
 /* 数据加载完成后问一次 sync.info（pairedCount 的唯一来源；拿不到就保持 -1 未知） */
