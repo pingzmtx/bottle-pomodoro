@@ -458,6 +458,11 @@ function saveMustDos() {
     return;
   }
   appData.mustDos[date] = items;
+  /* 必做清单整天重写，条目没有自己的时间戳 → 打「这一天最后一次改」的戳并入队。
+     ★ enqueueChange 定义在 L2 的 sync.js，本文件是 L1 → 必须写成防御式调用（typeof 守卫），
+       否则层级门禁判「下层反向依赖上层」。运行期 sync.js 一定先于本文件加载，守卫恒真。 */
+  _touchMustDos(date);
+  if (typeof enqueueChange === 'function') enqueueChange('must_' + date, 'mustdos', 'upsert');
   /* 「明日必做」打上预设标记：次日自动进「计划」列表并显示「🌙 昨晚预设」；改成今日则取消该标记 */
   if (!appData.mustDoFromPrev) appData.mustDoFromPrev = {};
   const today = getTodayStr();
@@ -479,6 +484,9 @@ function clearMustDos(dateStr) {
   var _doClearMust = function () {
     delete appData.mustDos[date];
     if (appData.mustDoFromPrev) delete appData.mustDoFromPrev[date];
+    /* 清空 = 这一天的一次写操作：打戳 + 入队（墓碑由同步层按 must_<date> 判定） */
+    _touchMustDos(date);
+    if (typeof enqueueChange === 'function') enqueueChange('must_' + date, 'mustdos', 'upsert');
     saveData();
     UIFX.closeModal('mustDoModal');
     UIFX.renderMustDoSection();

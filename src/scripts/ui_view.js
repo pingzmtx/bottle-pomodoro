@@ -329,9 +329,11 @@ function applySettingsToUI() {
   if (_bgp) _bgp.checked = !!s.bgPause;
   const _sv = document.getElementById('setSfxVolume');
   if (_sv) {
-    _sv.value = s.sfxVolume != null ? s.sfxVolume : 1.0;
+    /* 兜底 0.55（不是 1.0）：与 DEFAULT_SETTINGS / ui_fx 的 NaN 兜底同一口径，
+       否则滑条会显示 100% 而实际播的是 55%（0.2.6 / P0-3 核对过的三处之一）。 */
+    _sv.value = s.sfxVolume != null ? s.sfxVolume : 0.55;
     const _lb = document.getElementById('sfxVolLabel');
-    if (_lb) _lb.textContent = Math.round((s.sfxVolume != null ? s.sfxVolume : 1.0) * 100) + '%';
+    if (_lb) _lb.textContent = Math.round((s.sfxVolume != null ? s.sfxVolume : 0.55) * 100) + '%';
   }
   applyFreeModeBtn();
 }
@@ -387,7 +389,7 @@ function saveSettings() {
         ? document.getElementById('setSfxVolume').value
         : appData.settings.sfxVolume != null
           ? appData.settings.sfxVolume
-          : 1.0
+          : 0.55
     ),
     difficulty: appData.settings.difficulty || 'medium',
     /* 字号只由设置页的下拉驱动（没有 select 时保留旧值，别在别处把它洗掉） */
@@ -655,6 +657,16 @@ function toggleDarkMode(on) {
   var _dm = document.getElementById('setDarkMode');
   if (_dm) _dm.dataset.toastOwned = '1';
   showToast(on ? '🌙 蓝调模式已开启' : '☀️ 已切回浅色', true);
+  /* ★ 0.3.1 修补（主路径）：用户点网页里的深浅切换走的就是这里，而这条路径
+     **不经过** themeEngine.applyTheme（它只管 data-theme，不管 dark-mode）。
+     applyTheme 里那次上报因此覆盖不到这里 → 切完深色立刻杀进程，下次冷启动
+     原生仍拿旧底色铺窗口底板，还是白闪一片。
+     所以必须在改完 body.dark-mode 之后补一次同款上报：复用 themeEngine.reportTint
+     （唯一实现，不复制第二份）。class 刚改完 getComputedStyle 会强制重算，
+     读到的是改完之后的值。只上报：不改样式 / 不改 DOM / 不碰业务状态。 */
+  try {
+    if (window.themeEngine && typeof themeEngine.reportTint === 'function') themeEngine.reportTint();
+  } catch (e) { if (window.__silent) window.__silent(e, '01e:toggleDarkMode:tint'); }
 }
 function toggleGroup(name) {
   const group = document.querySelector(`.settings-group[data-group="${name}"]`);

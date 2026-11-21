@@ -1039,7 +1039,7 @@ function toggleTodo(id) {
     renderTimerRankStrip();
     if (timerState.linkedTodoId === id) renderTimerSubs();
     /* 任务完成微庆祝（音效 + 触感 + 轻量 toast），仅未完成→完成触发 */ if (!_wasDone && t.done) {
-      playSound('taskDone');
+      playSound('taskDone'); window.__bottleBubble && window.__bottleBubble.notify({ type: 'taskDone' });
       if (navigator.vibrate) navigator.vibrate(45);
       showToast('✅ ' + t.title);
     } else if (_wasDone && !t.done) {
@@ -1326,6 +1326,8 @@ function toggleTodoSub(id, si) {
   else delete t.subs[si].doneAt;
   /* 整条计划没打勾、只勾了里面一步，也要在日志「今天完成」里留痕（见 _syncTodoPartialLog） */
   _syncTodoPartialLog(t);
+  /* 子结构改动 → 父待办打戳 + 入队（同步只认父的 uid+updatedAt） */
+  touchParentOfSub(t, t.subs[si].uid);
   saveData();
   renderTodos();
   if (timerState.linkedTodoId === id) renderTimerSubs();
@@ -1343,6 +1345,8 @@ function addTodoSub(id) {
   }
   if (!t.subs) t.subs = [];
   t.subs.push({ id: Date.now() + Math.floor(Math.random() * 999), uid: newUid('sub'), updatedAt: Date.now(), title: v, done: false, pomodoros: null });
+  /* 新子任务自己带 uid（保持不动）；父待办必须同时打戳入队，否则这条子任务发不出去 */
+  touchParentOfSub(t, t.subs[t.subs.length - 1].uid);
   saveData();
   renderTodos();
   if (timerState.linkedTodoId === id) renderTimerSubs();
@@ -1358,6 +1362,8 @@ function deleteTodoSub(id, si) {
   });
   if (!t || !(t.subs || [])[si]) return;
   t.subs.splice(si, 1);
+  /* 删子任务也要让父待办「变过」：父戳不变 = 对端永远看不到这次删除 */
+  touchParentOfSub(t);
   saveData();
   renderTodos();
   if (timerState.linkedTodoId === id) renderTimerSubs();
@@ -1388,6 +1394,8 @@ function toggleAllTodoSubs(id, on) {
   if (window.__todoAutoSubs) delete window.__todoAutoSubs[String(t.id)];
   if (!changed) return;
   _syncTodoPartialLog(t);
+  /* ★ 循环外只打一次戳：批量勾 10 条子任务，父 updatedAt 只该变一次 */
+  touchParentOfSub(t);
   saveData();
   renderTodos();
   if (timerState.linkedTodoId === id) renderTimerSubs();

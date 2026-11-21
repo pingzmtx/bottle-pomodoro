@@ -20,8 +20,16 @@
  *   第 1 批 —— 骨架（零外观变化，证基础设施无害）
  *   第 2 批 —— Nord 主题 CSS 令牌 + 顶栏渐变令牌化
  *   第 3 批 —— 本文件：主题注册表 + 设置页色卡网格 + 点击实时切换
+ *   第 4 批 —— 0.3.1：applyTheme 末尾上报一次首屏底色（window.__bottleTint → 原生 ui.tint），
+ *              零外观变化；只解决 App 冷启动时"窗口底板是旧色"的白闪。
+ *   第 4b 批 —— 0.3.1 修补：把上报抽成唯一实现 reportTint() 并挂到 themeEngine，
+ *              「改底色的入口」全部补齐：applyTheme（启动/切主题）、
+ *              toggleDarkMode（切深色开关，主路径）、_applyAutoDark（跟随系统明暗）、
+ *              applyBackupData（还原备份）。原先只有 applyTheme 上报，
+ *              切完深色立刻杀进程重进仍会白闪 —— 那条路径根本不经过 applyTheme。
+ *              依旧零外观变化：只上报，不写样式、不改 DOM、不碰业务状态。
  *
- * 函数索引（TOC）：_norm/current/applyTheme/getTheme/setTheme/_esc/_cardHTML/renderCards/pick/init
+ * 函数索引（TOC）：_norm/current/reportTint/applyTheme/getTheme/setTheme/_esc/_cardHTML/renderCards/pick/init
  * ========================================================================== */
 (function () {
   'use strict';
@@ -65,6 +73,33 @@
   }
 
   /* --------------------------------------------------------------------
+   * 0.3.1：底色上报 —— **全项目唯一实现**（其它文件一律调 themeEngine.reportTint，
+   * 不许复制第二份；改口径只改这里）。
+   *
+   * 干什么：把「当前第一屏底色」= body 的计算背景色 + 是否深色，交给原生存下来。
+   *         原生存着它，下次冷启动先用它铺窗口底板 —— 否则深色用户重进 App
+   *         会先看到一片近白（windowBackground 是旧的写死值）再跳成深色。
+   * 为什么运行期读计算值：颜色只有一个真相源（CSS 变量），JS 不写死任何色值；
+   *         主题 × 明暗 12 种组合，这里读到的永远等于 CSS 此刻真正画出来的那个颜色。
+   * 为什么用 getComputedStyle 当场读：class / data-theme 刚改完时它会强制一次
+   *         样式重算，拿到的是**改完之后**的值（body 上没有 background 过渡，不会读到中间态）。
+   * 安全性：只上报，不写样式 / 不改 DOM / 不碰业务状态。浏览器 / PWA / 无桥时
+   *         __bottleTint 不存在 → 直接短路；任何异常都在 try 里静默吞掉，
+   *         上报永远不许影响主题与开关本身。
+   * 返回：true = 确实交给桥了；false = 无桥或异常（仅供自检/调试，调用方可忽略）。
+   * ------------------------------------------------------------------ */
+  function reportTint() {
+    try {
+      if (!window.__bottleTint || !document.body) return false;
+      /* 调用写成一行是有意的：verify.sh 靠「桥名紧跟 getComputedStyle」这条 grep 数上报
+         调用点，拆行会让那条判据数出 0 处（门禁静默失效比门禁报错更危险）。
+         注意这段注释里也不要出现那个连续串，否则 grep 会把它当成第 2 处调用。 */
+      window.__bottleTint(getComputedStyle(document.body).backgroundColor, document.body.classList.contains('dark-mode'));
+      return true;
+    } catch (e) { return false; }
+  }
+
+  /* --------------------------------------------------------------------
    * 应用主题：只做一件事 —— 把 id 写到 body[data-theme]。
    * 颜色全部由 CSS 里的 body[data-theme="x"] 规则块负责，JS 不注入任何样式。
    * 这样"主题定义"永远只有 CSS 一个真相源，JS 不会和 CSS 打架。
@@ -75,6 +110,11 @@
       if (!document.body) return key;
       document.body.setAttribute(ATTR, key);
     } catch (e) { /* 静默：主题失败绝不影响主流程 */ if (window.__silent) window.__silent(e, '0E:applyTheme'); }
+    /* 0.3.1：换完主题立刻上报一次当前底色（走上面那份唯一实现）。
+       注意：applyTheme 只覆盖「启动」与「切主题」两条路径，**不覆盖**切深色开关
+       （toggleDarkMode）、跟随系统明暗（_applyAutoDark）、还原备份（applyBackupData），
+       那三处各自在改完 body.dark-mode 之后调 reportTint，谁也不许漏。 */
+    reportTint();
     return key;
   }
 
@@ -181,7 +221,10 @@
     current: current,
     renderCards: renderCards,
     pick: pick,
-    init: init
+    init: init,
+    /* 0.3.1：底色上报的唯一出口。凡是不经过 applyTheme 就改了底色的地方
+       （切深色开关 / 跟随系统明暗 / 还原备份）都调它，不再各自写一遍。 */
+    reportTint: reportTint
   };
 
   /* 自启：DOM 就绪后应用一次（幂等，重复调用无副作用） */

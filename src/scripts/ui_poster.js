@@ -165,10 +165,22 @@ function savePoster() {
   const c = document.getElementById('posterCanvas');
   if (!c) return;
 /* JPEG 高压缩：海报无透明需求，1080×1440 PNG 的 dataURL 约 2-3MB，Via 长按查看/下载会卡死，JPEG 0.92 约 300KB 且观感无损 */
-  const url = c.toDataURL('image/jpeg', 0.92);
+  let url = c.toDataURL('image/jpeg', 0.92);
+  const name = '瓶子番茄-打卡海报-' + new Date().toISOString().slice(0, 10) + '.jpg';
+  /* ★ 0.6.3：原生环境走桥。WebView 不实现 <a download>（FileExchange.kt 已记录），
+     原来那条 a.click() 在 App 里是纯空操作 —— 用户看到的就是"按钮是死的"。
+     桥存在时把字节交给原生：写相册 + 拉系统分享面板，一步覆盖"保存"和"分享"。
+     base64 经 WebMessage 传输有体积上限，超过 900KB 时降一档质量重编码（视觉上仍是高清）。 */
+  if (window.__bottleShare && typeof window.__bottleShare.poster === 'function') {
+    if (url.length > 900000) url = c.toDataURL('image/jpeg', 0.78);
+    window.__bottleShare.poster(url, name);
+    showToast('📤 正在打开分享…');
+    return;
+  }
+  /* 浏览器回落：保持原有下载行为 */
   const a = document.createElement('a');
   a.href = url;
-  a.download = '瓶子番茄-打卡海报-' + new Date().toISOString().slice(0, 10) + '.jpg';
+  a.download = name;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -288,7 +300,11 @@ function drawPosterAll(ctx, W, H, th, C, _q) {
       ['⭐', '上星累计', _pBig(rd.stars || 0), th.accent],
       ['📅', '活跃天数', _pBig(C.activeDays || 0), th.accent],
       ['🏆', '单日最高', _pBig(C.maxDayFull || 0), th.accent],
-      ['💯', '专注效率', (C.efficiency !== undefined ? C.efficiency : 0) + '%', th.accent],
+      /* 0.6.3：engine_stats 在今天没有番茄记录时给的是 null（不是 undefined），
+         旧写法 `!== undefined` 放过了 null → 海报上出现「null%」。
+         这里用 `== null` 一次盖住 null 与 undefined；显示「—」而不是 0%，因为
+         「今天一个番茄都没做」和「效率为零」是两件事。 */
+      ['💯', '专注效率', (C.efficiency == null ? '—' : C.efficiency + '%'), th.accent],
       ['📈', '本周番茄', _pBig((C.weekNow && C.weekNow.full) || 0), '#FFFFFF'],
       ['🎯', '完美周', _pBig(C.perfectWeekCount || 0), '#FFFFFF']
     ];

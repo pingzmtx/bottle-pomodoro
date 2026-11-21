@@ -247,9 +247,12 @@
 <!-- 内容安全策略（纵深防御）。单文件全内联架构下 script/style 必须 'unsafe-inline'，
      本 CSP 的核心价值在【防数据外泄与外部执行面】而非阻止注入执行：
      connect-src 'self' 封死 XSS 后 fetch/XHR 外发；default-src 'self' 禁外部脚本/iframe；
-     img-src 放行 https:（用户自定义远程皮肤图 + 网易云封面需要）；media-src 仅网易两域（音频 302 至 126.net CDN）；
+     img-src 放行 https:（用户自定义远程皮肤图 + 网易云封面需要）；
+     media-src 仅网易两域（音频 302 至 126.net CDN）；必须同时写 http 与 https ——
+     网易云的 302 落点是明文 http://mNN.music.126.net/...，只写 https 会让 18 首全部被
+     CSP 拦掉（表现为"曲目全部失效"，实际音源是好的）。
      修复转义漏洞是第一道防线，本策略为第二道。 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: https://music.163.com https://*.126.net; connect-src 'self' blob: data:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' blob: https://music.163.com https://*.126.net http://music.163.com http://*.126.net; connect-src 'self' blob: data:; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'self'">
 
 <meta data-page-node-id="SzTtkrrYPQe5PQd6TouW47" content="#141A30" name="theme-color">
 <meta data-page-node-id="4GqPqwN062YhIYww4AZrnk" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
@@ -8019,6 +8022,32 @@ body.dark-mode .theme-card { background: var(--surface-1); }
   -webkit-tap-highlight-color: transparent;
 }
 .noise-tab.active { color: var(--primary-ink); border-bottom-color: var(--primary); background: rgba(var(--primary-rgb),0.06); }
+/* 0.4.1（D）：白噪音弹窗顶部的「打开白噪音空间 · 小眠」——本轮**只新增这一个类**。
+   0.4.0 它是一段 .noise-tab 纯文字，用户反馈"看起来就像一行字，不知道能点"。
+   现在做成按钮：浅底 + 描边 + 右侧 ›，最小高度 44px（手指点得准）。
+   布局仍是弹窗里的一行、位置不变；不动 .noise-tab / .noise-tabs 的任何样式。 */
+.noise-embedded-entry {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  width: 100%;
+  min-height: 44px;
+  margin-bottom: var(--sp-10);
+  padding: var(--sp-10) var(--sp-12);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-title);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.noise-embedded-entry > span:nth-child(2) { flex: 1; min-width: 0; }
+.noise-embedded-entry > span:last-child { flex-shrink: 0; color: var(--text-light); line-height: 1; }
+.noise-embedded-entry:active { opacity: .7; }
 .noise-builtin { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--sp-12) var(--sp-10); }
 .noise-now { font-size:var(--fs-title); font-weight: 700; text-align: center; margin: var(--sp-4) 0 var(--sp-10); color: var(--text); }
 .noise-now .now-icon { font-size: calc(26px * var(--fs-boost)); margin-right: var(--sp-6); }
@@ -11105,9 +11134,9 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
         <div data-page-node-id="sdrFP5XU2mo2sdjrJElsxH" class="setting-row" style="flex-direction:column; align-items:stretch; gap:var(--sp-6)">
           <div data-page-node-id="TxltZqG8jKJXjP4V0U8P04" style="display:flex; justify-content:space-between; align-items:center">
             <div data-page-node-id="0SN5Lmu60scNodjpfEktkG" class="setting-label" style="padding:0"><!--pnid:Rtj7bE9ElPs5lt0pXZGZF5-->音效音量</div>
-            <span data-page-node-id="pw9ZPc3zPpSEAMCeznNda2" id="sfxVolLabel" style="font-size:var(--fs-note); color:var(--text-light)"><!--pnid:t202ehFvlE4hHPgdEkZyOL-->80%</span>
+            <span data-page-node-id="pw9ZPc3zPpSEAMCeznNda2" id="sfxVolLabel" style="font-size:var(--fs-note); color:var(--text-light)"><!--pnid:t202ehFvlE4hHPgdEkZyOL-->55%</span>
           </div>
-          <input data-page-node-id="OS73i3Sl36ydYLffN2md24" id="setSfxVolume" max="1" min="0" data-input="updateSfxVolume" data-input-args='["@value"]' step="0.05" type="range" value="1" style="width:100%; accent-color:var(--primary)">
+          <input data-page-node-id="OS73i3Sl36ydYLffN2md24" id="setSfxVolume" max="1" min="0" data-input="updateSfxVolume" data-input-args='["@value"]' step="0.05" type="range" value="0.55" style="width:100%; accent-color:var(--primary)">
         </div>
       </div>
     </div>
@@ -11126,10 +11155,11 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
       <h3 data-page-node-id="DnCemgw54TOKOiBjqrHJba" class="group-header" data-act="toggleGroup" data-act-args='["backup"]'><!--pnid:lS0hCLXNnQV5YODthu6DsZ-->📦 数据备份与重置 <span data-page-node-id="p60jdrF5QHsMHPT5K6ZDsN" class="group-arrow"><!--pnid:EP2T1TYuPjRlFg1pnhQhGt-->▼</span></h3>
       <div data-page-node-id="drvA8BJYQPG3pTsH5nHYE8" class="group-body">
         <div data-page-node-id="RngK6n8lLQXeCbIWbzMm98" id="backupReminderBar" style="margin-bottom:var(--sp-10); padding:var(--sp-10) var(--sp-12); border-radius:var(--radius); font-size:var(--fs-title); font-weight:700; display:none; line-height:1.5"></div>
-        <button data-page-node-id="qC520xVoANXDAZX1vPVlUQ" class="save-btn" data-act="exportData" style="margin-bottom:var(--sp-8)"><!--pnid:KboS9gpbqpfcmsXWfnYogh-->导出全部数据（JSON）</button>
+        <button data-page-node-id="qC520xVoANXDAZX1vPVlUQ" class="save-btn" data-act="exportData" style="margin-bottom:var(--sp-8)"><!--pnid:KboS9gpbqpfcmsXWfnYogh-->导出全部数据（ZIP）</button>
         <div style="font-size:var(--fs-note); color:var(--text-light); line-height:1.5; margin:-2px 0 var(--sp-8); opacity:.85">导出的文件名若显示为一串乱码，是浏览器的下载方式所致，改名为 tomato_backup_当天日期.json 即可，内容不受影响。</div>
-        <button data-page-node-id="szNa9JKPGJl1l89Dy2pmNV" class="save-btn" data-act="__clickId" data-act-args='["importFile"]' style="margin-bottom:var(--sp-8); background:var(--blue)"><!--pnid:FV3FpRUUXIN6TA9O5hmFAR-->导入数据（JSON）</button>
-        <input data-page-node-id="3uHPA1pvfoX9Mx82wgKhmi" accept=".json" id="importFile" data-change="importData" data-change-args='["@event"]' type="file" style="display:none">
+        <button data-page-node-id="szNa9JKPGJl1l89Dy2pmNV" class="save-btn" data-act="__clickId" data-act-args='["importFile"]' style="margin-bottom:var(--sp-8); background:var(--blue)"><!--pnid:FV3FpRUUXIN6TA9O5hmFAR-->导入数据（ZIP / JSON）</button>
+        <!-- 一次可选多份：ZIP（新格式）与老 JSON 都认，按魔数 PK\x03\x04 分流 -->
+        <input data-page-node-id="3uHPA1pvfoX9Mx82wgKhmi" accept=".zip,.json" id="importFile" data-change="importData" data-change-args='["@event"]' type="file" multiple style="display:none">
         <div data-page-node-id="fhJKhrzwtlEfl70CFW6SpZ" style="margin-top:var(--sp-12); padding:var(--sp-10); background:var(--bg); border:1px solid var(--hairline); border-radius:var(--radius)">
           <div data-page-node-id="dXFCbPDZMPNcX0bkRTVH84" style="font-size:var(--fs-title); font-weight:700; color:var(--text); margin-bottom:var(--sp-4)"><!--pnid:Lusd0QQSstoZVJBs1gDaPN-->🛟 自动备份与恢复</div>
           <div data-page-node-id="ZGCcfkHpcVEKXwyLfyJ1wd" id="autoBackupInfo" style="font-size:var(--fs-title); color:var(--text-light); line-height:1.5; margin-bottom:var(--sp-8)"><!--pnid:YMBjBcNT3JwCRwbnrPOSfL-->暂无自动备份</div>
@@ -11156,6 +11186,23 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
     <div class="settings-group foldable" data-group="more">
       <h3 class="group-header" data-act="toggleGroup" data-act-args='["more"]'>🧩 更多 <span class="group-arrow">▼</span></h3>
       <div class="group-body">
+        <!-- 0.4.1：这一组只剩「小眠」一行。
+             ★「内在微风 · 呼吸」整项移除（用起来很糟糕）；
+             ★「开源致谢」这一行也删掉了 —— 下面「关于 → 关于借鉴」里已经有同一份列表，
+               重复了（用户原话："里面就有那个关于借鉴，那个就是用来开源致谢的"）。
+             ★ 这一行要**看得出来能点**：左侧图标 + 右侧 ›。两者都用行内样式，
+               复用页面已有令牌（--fs-sub / --text-light），不新增 CSS 类、不动别的行 ——
+               设置页原本没有"图标 + 箭头"的 setting-row 可照抄（grep 确认过）。
+             ★ 它只是**入口**：真正打开的是原生独立页面（自己的 origin，与网页存储隔离），
+               所以这里不写任何 URL，只传一个 id（xmsleep）。 -->
+        <div class="setting-row" data-act="openEmbeddedSpace" data-act-args='["xmsleep"]' style="cursor:pointer">
+          <span style="flex-shrink:0; align-self:flex-start; width:22px; text-align:center; font-size:var(--fs-sub); line-height:1.5">🎧</span>
+          <div class="setting-label">小眠 · 白噪音
+            <div class="setting-desc">离线白噪音空间 · 界面来自开源项目 XMSLEEP</div>
+          </div>
+          <span style="flex-shrink:0; color:var(--text-light); font-size:var(--fs-title); line-height:1">›</span>
+        </div>
+
         <div class="setting-row">
           <div class="setting-label">关于
             <div class="setting-desc">番茄专注 · 由 B 站「瓶子满天星」制作 · MIT 协议开源</div>
@@ -11169,6 +11216,10 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
                 <ul class="about-ref-list">
                   <li><b>Super Productivity</b></li>
                   <li><b>HabitTrove</b></li>
+                  <!-- 0.4.1：小眠（XMSLEEP）的署名并进这份列表 —— 原来它只在「开源致谢」
+                       那个重复入口里有一份。结构与上面几条完全一致（b + .about-ref-desc），
+                       不新造视觉。许可证原文留在 vendor/xmsleep/LICENSE（合规留档）。 -->
+                  <li><b>XMSLEEP</b><span class="about-ref-desc">离线白噪音空间（内嵌）。作者 Tosencen，MIT 协议</span></li>
                 </ul>
                 <div class="about-ref-title">其它参考</div>
                 <ul class="about-ref-list">
@@ -12336,6 +12387,14 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
     <div data-page-node-id="VZ1NI8uWN8TyrgvwZCmDqR" class="modal-overlay" id="noiseModal">
   <div data-page-node-id="HLY7CEd5sxhXftmCaparUj" class="modal" style="max-height:85vh; overflow-y:auto">
     <h3 data-page-node-id="iu0F5uzHr3ziooJwD1YePB" style="text-align:center; margin-bottom:var(--sp-8)"><!--pnid:uvUzAEBqu0zpNmj1ITN3kc-->🎵 白噪音</h3>
+    <!-- 0.4.1（D）：弹窗顶部那条「去白噪音空间」的入口。
+         0.4.0 时它是 .noise-tab 的一段纯文字 —— "看起来就像一行字，你都不知道能点进去"。
+         现在改成一颗**明确的按钮**：🎧 + 浅底描边 + 右侧 ›，最小高度 44px。
+         ★ 只新增 .noise-embedded-entry 这一个类（样式在 18_settings.css 里紧跟 .noise-tab）；
+           弹窗整体布局不变，它仍然只占一行、位置不变。 -->
+    <button type="button" class="noise-embedded-entry" data-act="openEmbeddedSpace" data-act-args='["xmsleep"]'>
+      <span>🎧</span><span>打开白噪音空间 · 小眠</span><span>›</span>
+    </button>
     <div data-page-node-id="HQGJSOToOaLUQp3aotopoS" class="noise-tabs">
       <div data-page-node-id="W8VTYM17ZPHEYI3c7amctL" class="noise-tab active" data-tab="builtin" data-act="switchNoiseTab" data-act-args='["builtin"]'>🎧 内置白噪音</div>
       <div data-page-node-id="MyPlTabBtn001" class="noise-tab" data-tab="mypl" data-act="switchNoiseTab" data-act-args='["mypl"]'>📋 我的歌单</div>
@@ -12409,6 +12468,10 @@ body.dark-mode .setting-row { border-bottom-color: var(--border); }
 
 <!--pnid:zdfAR35t1y1lJkb3OGKqdq--><!-- ===== 模块化脚本：按 数据 → 计时 → 功能 → 界面 → 启动 顺序加载，请勿调整顺序 ===== -->
 <!--pnid:BRN6wFpHoLZ3pqOsPPcea8--><!-- ===== 模板结束 ===== -->
+
+<!-- 第三方库（用户已授权）：JSZip 3.10.1 · 备份导出/导入的 ZIP 编解码。
+     单文件产物（--single）由 build.py 内联；多产物按 assets/vendor/ 原样拷贝。 -->
+<script src="assets/vendor/jszip.min.js"></script>
 
 <!--@@__JSS_9__@@-->
 
@@ -13055,6 +13118,10 @@ body.dark-mode[data-theme="catppuccin"] {
 .review-hero { display: flex; align-items: center; gap: var(--sp-12); background: var(--card); border: 1px solid var(--primary); border-radius: var(--radius-md); padding: var(--sp-12); margin-bottom: var(--sp-12); }
 /* 内容自己滚，弹窗本体不再滚：标题与「关闭」始终留在屏幕上，不用翻到底 */
 .review-body { max-height: 66vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+/* 回顾与回顾设置这两个弹窗的内容天生比别人长（一天一张卡 / 一年几百条归档）：
+   抬高上限，让列表一屏能多放两三行。其余弹窗仍按 66vh，不改通用值。 */
+#reviewModal .modal, #reviewSettingsModal .modal { max-height: 92vh; }
+#reviewModal .review-body, #reviewSettingsModal .review-body { max-height: 74vh; }
 .review-hero--done { border-color: var(--border); }
 .review-hero-num { font-size: var(--fs-h1); font-weight: 800; color: var(--primary-ink); line-height: 1; }
 .review-hero--done .review-hero-num { color: var(--text-light); }
@@ -13134,6 +13201,41 @@ body.dark-mode[data-theme="catppuccin"] {
 .rs-day-main b { font-size: var(--fs-note); color: var(--text); }
 .rs-day-sub { font-size: var(--fs-caption); color: var(--text-light); }
 .rs-empty { padding: var(--sp-14) 0; text-align: center; font-size: var(--fs-note); color: var(--text-light); }
+
+/* ===== 「不再复习」列表（0.6.4）：搜索 + 两类折叠 + 年月折叠 =====
+   列表会无限长（复习走到最后一级都会毕业），所以给它四招收敛。视觉照 .review-up-wrap /
+   .review-h 那套 <details> 的写法来：去三角、cursor:pointer、不动默认间距。 */
+.rs-grad { margin-top: var(--sp-10); }
+.rs-search-wrap { margin-bottom: var(--sp-10); }
+.rs-search { width: 100%; box-sizing: border-box; padding: var(--sp-8) var(--sp-10); font-size: var(--fs-note); color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none; }
+.rs-search::placeholder { color: var(--text-light); }
+.rs-cat { margin-top: var(--sp-10); }
+/* 两类切换：常驻一行，各自报份数 —— 上下叠着放时，展开的一类会把另一类挤到看不见 */
+.rs-tabs { display: flex; gap: var(--sp-6); margin-bottom: var(--sp-10); }
+.rs-tab {
+  flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; gap: var(--sp-4);
+  padding: var(--sp-8) var(--sp-6); font-size: var(--fs-caption); color: var(--text-light);
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  cursor: pointer; white-space: nowrap;
+}
+.rs-tab.on { color: var(--primary-ink); border-color: var(--primary); font-weight: 600; background: color-mix(in srgb, var(--primary) 10%, transparent); }
+.rs-tab b { font-size: var(--fs-caption); font-weight: 600; color: inherit; }
+.rs-month-head { display: flex; align-items: center; gap: var(--sp-6); cursor: pointer; list-style: none; }
+.rs-month-head::-webkit-details-marker { display: none; }
+/* 折叠指示：三角在 summary 上是浏览器默认样式，各家长得不一样（有的还带缩进）。
+   统一改成右端一个「›」，展开时转 90°。 */
+.rs-month-head::after {
+  content: '›'; flex: 0 0 auto; margin-left: auto; font-size: var(--fs-note);
+  color: var(--text-light); transform: rotate(90deg); transition: transform .15s;
+}
+details[open] > .rs-month-head::after { transform: rotate(-90deg); }
+.rs-month-n { font-weight: 400; font-size: var(--fs-caption); color: var(--text-light); }
+/* 缩进一级，让「月份 → 日子」两层在视觉上真的分得开 */
+.rs-grad .rs-month { margin-top: var(--sp-6); padding-left: var(--sp-6); }
+.rs-month-head { font-size: var(--fs-caption); color: var(--text-light); padding: var(--sp-6) 0; }
+.rs-month .rs-days { margin-top: var(--sp-6); }
+/* 副标题一行放不下时省略，不要把行撑高 */
+.rs-day-sub { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ---------- 习惯：统计 / 热力条 / 归档区 ---------- */
 .habit-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-6); text-align: center; margin-bottom: var(--sp-10); }

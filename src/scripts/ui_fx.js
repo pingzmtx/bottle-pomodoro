@@ -72,7 +72,9 @@ function playSound(type) {
   const ctx = getSfxCtx();
   if (!ctx) return;
   let vol = Number(appData.settings.sfxVolume);
-  if (!isFinite(vol)) vol = 0.3; /* 音量被写成 NaN 会让整条链路抛错被 catch 吞掉 => 全部静默，这里兜底 */
+  if (!isFinite(vol)) vol = 0.55; /* 音量被写成 NaN 会让整条链路抛错被 catch 吞掉 => 全部静默，这里兜底。
+                                     0.55 = 新用户默认音量（2026-11：用户反馈 0.3 下「微休息听不见」）；
+                                     与 engine_data 的 DEFAULT_SETTINGS.sfxVolume、原生 Bridge/Sfx 兜底同值。 */
   vol = Math.max(0, Math.min(1, vol));
   if (vol <= 0) return;
   try {

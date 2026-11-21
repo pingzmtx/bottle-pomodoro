@@ -2574,4 +2574,3 @@ function renderTreeShopAura(tr) {
     }).join('');
   }
 }
-

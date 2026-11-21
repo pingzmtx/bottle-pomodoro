@@ -11,7 +11,7 @@
  * 新增纯函数优先放这里 + tests/unit_pure.js 补用例。
  * @see ARCHITECTURE-DECISIONS.md #2（番茄单一口径）#5（金币账本）#6（收益乘数链）#7（依赖方向单向）
  * ES5/ES6 保守语法（雷区：老浏览器）。
- * 函数索引（TOC）：getTodayStr/todoEyesOff/coinTxTypeLabel/coinTxNewId/coinTxMake/coinLedgerSum/coinLedgerDiff/coinTxUndoable/coinLedgerTrim/coinDurBase/coinStreakMult/coinEarnFinal（+183 更多）
+ * 函数索引（TOC）：getTodayStr/todoEyesOff/coinTxTypeLabel/coinTxNewId/coinTxMake/coinLedgerSum/coinLedgerDiff/coinTxUndoable/coinLedgerTrim/coinDurBase/coinStreakMult/coinEarnFinal（+187 更多）
  * ============================================================ */
 function getTodayStr() {
   const d = new Date();
@@ -3207,8 +3207,12 @@ const DIARY_FIELD_SPEC = [
 ];
 /* 这些顶层键**不算「没登记的新字段」**：它们不是给人看的正文，
    或者已经由 rows / feedback 表达过了。planSnapshot 是当天的计划快照，
-   feedback 拆成了一行，review / gratitude 走 rows。 */
-const DIARY_NON_TEXT_KEYS = ['plan', 'planSnapshot', 'review', 'feedback', 'gratitude'];
+   feedback 拆成了一行，review / gratitude 走 rows。
+   ★ uid / updatedAt 是同步用的元数据（2026-11 多端同步新增）：**必须登记在这里**，
+     否则 diaryOverviewParts 的兜底分支会把它们当正文，日记总览每条下面多出两行
+     「uid: diary_2026-11-21」「updatedAt: 1763…」—— 这是本轮唯一一处
+     「数据层改动会漏到界面」的地方。 */
+const DIARY_NON_TEXT_KEYS = ['plan', 'planSnapshot', 'review', 'feedback', 'gratitude', 'uid', 'updatedAt'];
 /* 反馈栏的字段顺序与中文名（压成一行显示） */
 const DIARY_FEEDBACK_SPEC = [
   { key: 'sleepTime', label: '睡' },
@@ -3317,23 +3321,68 @@ function newUid(prefix) {
  * ========================================================================= */
 
 /* 单条比较：'local' | 'remote' | 'same'
-   local/remote 任一方缺失时，另一方直接胜（新增 / 删除后的残留）。 */
-function lwwPick(localRec, remoteRec) {
+   local/remote 任一方缺失时，另一方直接胜（新增 / 删除后的残留）。
+   skewMs（可选第 3 参）：`skewMs = 我的时钟域 − 对方的时钟域`（符号写死，不许第二种解释）。
+   于是 `remote.updatedAt + skewMs` = 「对方那条记录的时刻，在我的时间轴上」。
+   ★ 与 sinceInPeerDomain 的 offset **方向相反、不可互换**：把「我域的水位」搬到对端域用加 offset，
+     把「对端的记录」搬到我的域用减 offset。缺省 0 时行为与两参版本逐字相同。 */
+function lwwPick(localRec, remoteRec, skewMs) {
   var hasL = !!(localRec && typeof localRec === 'object');
   var hasR = !!(remoteRec && typeof remoteRec === 'object');
   if (!hasL && !hasR) return 'same';
   if (!hasL) return 'remote';
   if (!hasR) return 'local';
-  var tl = Number(localRec.updatedAt) || 0;
-  var tr = Number(remoteRec.updatedAt) || 0;
-  if (tl === tr) return 'same';
+  var tl = Math.floor(Number(localRec.updatedAt) || 0);
+  var tr = Math.floor(Number(remoteRec.updatedAt) || 0) + Math.floor(Number(skewMs) || 0);
+  if (tl === tr) return _tiePick(localRec, remoteRec);   /* 平局：内容决胜，两端必然一致 */
   return tr > tl ? 'remote' : 'local';
+}
+
+/* 平局判定：对「稳定序列化后的整条记录」做字典序比较，取更大的那条。
+   为什么必须确定：两端各算一次，若规则含随机/时钟/对象键序，就会各留各的 → 永久分歧。
+   触发概率极低（同毫秒 + 同一 uid 且两端都改），但一旦触发不处理就是「指纹永远不等」
+   —— 指纹只含 uid:updatedAt，这种分歧它看不见。 */
+function _tiePick(localRec, remoteRec) {
+  var a = _canon(localRec), b = _canon(remoteRec);
+  if (a === b) return 'same';
+  return b > a ? 'remote' : 'local';
+}
+
+/* 稳定序列化（只用于比较，不用于存储）。
+   ★ 必须递归：todos[].subs / reminds 是数组（元素是对象），旧实现用 String(o[k])
+     会把整个数组压成 "[object Object]" → 「只有子任务不同」的两条记录 _canon 相等
+     → 判 'same' → 两端各留各的 → 永久分歧，而指纹（只含 uid:updatedAt）永远发现不了。
+   ★ 类型标记：null→'z'、undefined→'u'（两者在 JSON 里不可区分，但在 _canon 里必须不同，
+     canon-type-tags 用例就是这么断言的）；数字归一（1 与 1.0 不能算出两个串）；
+     字符串带长度前缀（'a|b' 与 'a'+'|b' 不能撞车）；对象键排序（键序无关）。 */
+function _canon(o) {
+  if (o === null) return 'z';
+  if (o === undefined) return 'u';
+  var t = typeof o;
+  if (t === 'number') return 'n' + String(Number(o));
+  if (t === 'boolean') return 'b' + (o ? '1' : '0');
+  if (t === 'string') return 's' + o.length + ':' + o;
+  if (Array.isArray(o)) {
+    var av = [];
+    for (var i = 0; i < o.length; i++) av.push(_canon(o[i]));
+    return '[' + av.join(',') + ']';
+  }
+  var ks = [];
+  for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ks.push(k);
+  ks.sort();
+  var out = [];
+  for (var j = 0; j < ks.length; j++) out.push(ks[j].length + ':' + ks[j] + '=' + _canon(o[ks[j]]));
+  return '{' + out.join('\u0001') + '}';
 }
 
 /* 把远端一批记录并进本地列表。返回 { list, added, updated, skipped }。
    ★ 不修改入参（纯函数）：调用方拿到新数组再替换 appData 里的字段，
-     这样「合并失败」永远不会把本地数据搞成半截状态。 */
-function mergeRemoteRecords(localList, remoteList, tombstones) {
+     这样「合并失败」永远不会把本地数据搞成半截状态。
+   opts（可选第 4 参）：{ skewMs }。skewMs 原样透传给 lwwPick，
+   存下来的仍是胜者的**原始对象（原始 updatedAt）** —— 绝不写回校正后的值，
+   否则两端对同一条记录存了两个不同的 updatedAt，指纹永远对不上。 */
+function mergeRemoteRecords(localList, remoteList, tombstones, opts) {
+  var skewMs = Math.floor(Number((opts && opts.skewMs) || 0)) || 0;
   var locals = Array.isArray(localList) ? localList : [];
   var remotes = Array.isArray(remoteList) ? remoteList : [];
   var tombs = Array.isArray(tombstones) ? tombstones : [];
@@ -3370,8 +3419,8 @@ function mergeRemoteRecords(localList, remoteList, tombstones) {
     if (tombOf[k] !== undefined) { skipped++; return; }
     var cur = byUid[k];
     if (!cur) { byUid[k] = r; order.push(k); added++; return; }
-    /* ② 记录级 LWW */
-    if (lwwPick(cur, r) === 'remote') { byUid[k] = r; updated++; }
+    /* ② 记录级 LWW（skewMs 缺省 0 → 与三参老调用逐字相同） */
+    if (lwwPick(cur, r, skewMs) === 'remote') { byUid[k] = r; updated++; }
     else skipped++;
   });
 
@@ -3387,6 +3436,71 @@ function mergeRemoteRecords(localList, remoteList, tombstones) {
      本函数不该假设「调用方一定已经迁移过」。丢一条就是丢一条用户数据，
      而它只会出现在「迁移之前就被同步触发」的窄窗口里 —— 越难复现越不能赌。 */
   return { list: kept.concat(out), added: added, updated: updated, skipped: skipped };
+}
+
+/* ===== 映射集合（{key: 值}）的合并：日记 / 必做 / 打卡 / 跳过 =====
+ * 为什么单独两条：mergeRemoteRecords 吃的是数组 + uid，而 diaries / mustDos 是
+ * {日期: …}、habitLogs / habitSkips 是 {习惯key: [日期]} —— 按 key 不按 uid，
+ * 塞进 mergeRemoteRecords 会被「缺 uid 丢弃」整批静默丢掉（100% 用户会撞上）。
+ *
+ * ① 按日期 key，逐日 LWW（diaries / mustDos）
+ *    uidOf(k)  → 该 key 对应的 uid（'diary_'+date / 'must_'+date），用于查墓碑
+ *    tsOf(v,k) → 该条目的时间戳（diary 取自身 updatedAt；mustDos 取「必做时间戳旁表」那一天的读数）
+ *    tombSet   → Object.create(null)，键是 uid，必须与 mergeRemoteRecords 里那份
+ *                tombOf 是**同一份推导**（各建一份就会「记录集合删了、日记没删」）
+ * ② 集合并集（habitLogs / habitSkips）：打卡只有「有/没有」，天然 CRDT，不需要 LWW。
+ *    并集天然幂等：跑两次 changed === 0。
+ * 两条都返回 { map, changed }，都**不改入参**。
+ * ========================================================================== */
+function mergeKeyedMap(localMap, remoteMap, uidOf, tsOf, tombSet) {
+  var out = Object.create(null), k;
+  var src = localMap && typeof localMap === 'object' ? localMap : {};
+  for (k in src) if (Object.prototype.hasOwnProperty.call(src, k)) out[k] = src[k];
+  if (!remoteMap || typeof remoteMap !== 'object') return { map: out, changed: 0 };
+  /* 两个取值的钩子都做防御：少传一个不该让整次合并抛错（远端数据进来时
+     「抛一次」= 这一批全丢，比「按 0 时间戳合并」糟得多）。 */
+  var _ts = typeof tsOf === 'function' ? tsOf : function () { return 0; };
+  var changed = 0;
+  for (k in remoteMap) {
+    if (!Object.prototype.hasOwnProperty.call(remoteMap, k)) continue;
+    var r = remoteMap[k];
+    if (!r) continue;
+    var _uid = typeof uidOf === 'function' ? String(uidOf(k)) : '';
+    if (tombSet && _uid && tombSet[_uid]) {            /* 对端删过这一天 → 本地也删掉 */
+      if (out[k] !== undefined) { delete out[k]; changed++; }
+      continue;
+    }
+    var cur = out[k];
+    if (!cur) { out[k] = r; changed++; continue; }
+    if ((_ts(r, k) || 0) > (_ts(cur, k) || 0)) { out[k] = r; changed++; }
+  }
+  return { map: out, changed: changed };
+}
+
+/* 集合并集：字符串数组按「前 10 位日期」归一后去重、升序。
+   为什么归一：两端可能一个存 'YYYY-MM-DD'、一个存完整 ISO 串；不归一会同一天算两条。 */
+function mergeSetMap(localMap, remoteMap) {
+  var out = Object.create(null), k;
+  var src = localMap && typeof localMap === 'object' ? localMap : {};
+  for (k in src) {
+    if (!Object.prototype.hasOwnProperty.call(src, k)) continue;
+    out[k] = Array.isArray(src[k]) ? src[k].slice() : [];
+  }
+  if (!remoteMap || typeof remoteMap !== 'object') return { map: out, changed: 0 };
+  var changed = 0;
+  for (k in remoteMap) {
+    if (!Object.prototype.hasOwnProperty.call(remoteMap, k)) continue;
+    var rv = Array.isArray(remoteMap[k]) ? remoteMap[k] : [];
+    var lv = Array.isArray(out[k]) ? out[k] : (out[k] = []);
+    var set = Object.create(null);
+    lv.forEach(function (d) { set[String(d).slice(0, 10)] = 1; });
+    for (var i = 0; i < rv.length; i++) {
+      var d = String(rv[i]).slice(0, 10);
+      if (!set[d]) { set[d] = 1; lv.push(d); changed++; }
+    }
+    if (lv.length) { lv.sort(); out[k] = lv; }
+  }
+  return { map: out, changed: changed };
 }
 
 /* 墓碑并集（与 01b 的 mergeTombstones 同语义，纯函数版供单测与同步层共用）：
@@ -3673,7 +3787,14 @@ function outboxMerge(list, uid, kind, op, at, cap) {
     lwwPick: lwwPick,
     mergeRemoteRecords: mergeRemoteRecords,
     mergeTombstoneLists: mergeTombstoneLists,
-    outboxMerge: outboxMerge
+    outboxMerge: outboxMerge,
+    /* 映射集合合并 + 平局/稳定序列化（同步与单测共用同一份实现） */
+    mergeKeyedMap: mergeKeyedMap,
+    mergeSetMap: mergeSetMap,
+    _canon: _canon,
+    _tiePick: _tiePick,
+    DIARY_NON_TEXT_KEYS: DIARY_NON_TEXT_KEYS,
+    diaryOverviewParts: diaryOverviewParts
   };
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;

@@ -460,9 +460,16 @@ function forceSaveDiary(date) {
     d.feedback.mentalState ||
     grItems.length;
   if (hasContent) {
+    /* 日记在同步里是「按天 LWW」的映射集合：每天必须自带 uid + updatedAt，
+       否则另一端拿不到「这天改过」的依据（uid 就是 diary_<date>，跨设备天然一致）。 */
+    d.uid = 'diary_' + date;
+    d.updatedAt = Date.now();
     appData.diaries[date] = d;
+    if (typeof enqueueChange === 'function') enqueueChange('diary_' + date, 'diary', 'upsert');
   } else if (appData.diaries[date] && !hasContent) {
     delete appData.diaries[date];
+    /* 用户把这一天的内容全清了 = 删除，必须留墓碑，否则对端那天的内容会被重新合并回来 */
+    if (typeof tombstone === 'function') tombstone('diary_' + date, 'diary');
   }
   saveData();
 }

@@ -39,13 +39,12 @@ const BUILTIN_TRACKS = [
   { id: 1500796783, name: '遥不可及（催眠曲）', icon: '🌌' },
   { id: 1483503842, name: '晚安月亮（催眠曲）', icon: '🌕' },
   { id: 1855497161, name: '树林雨声+雷声 Rainstorm', icon: '🌧️' },
-  { id: 1903108309, name: '雨中鸟鸣 Bird in Rain', icon: '🐦' },
   { id: 1842353138, name: '壁炉篝火 Fireplace', icon: '🔥' },
   { id: 1858413645, name: '山林雷雨 Forest Storm', icon: '⚡' },
-  { id: 1907424363, name: '颂钵疗愈 Singing Bowl', icon: '🧘' },
   { id: 2110024517, name: '森林雨滴 Forest Rain', icon: '🌲' },
-  { id: 1918022756, name: '鸟鸣 Bird Song', icon: '🐦' },
-  { id: 1908899777, name: '雷雨白噪音 Thunder Rain', icon: '⛈️' }
+  { id: 1918022756, name: '鸟鸣 Bird Song', icon: '🐦' }
+  /* 0.6.2：删掉 1903108309 / 1907424363 / 1908899777 —— 实测这三首已返回 404（107KB 错误页），
+     其余 15 首 HTTP 200 且为 1~7MB 真实音频。不是全部音源挂了，是 CSP 拦了 http 跳转。 */
 ];
 function getNoiseAudio() {
   if (!_noiseAudio) _noiseAudio = document.getElementById('noiseAudio');
@@ -56,11 +55,15 @@ function initNoiseAudio() {
   _noiseInited = true;
   const a = getNoiseAudio();
   if (!a) return;
-  /* 单曲失效自动跳下一首（连续跳过次数封顶，避免死循环） */
+  /* 单曲失效自动跳下一首（连续跳过次数封顶，避免死循环）。
+     ⚠️ 跳过计数**只能**在这里累加、只能被"真的播出声"（play 事件）或用户手动切歌清零。
+     0.5.1 之前 playNoise() 里无条件 `_noiseSkipGuard = 0`，错误回调里再调 playNoise
+     就把计数清了 → 封顶永远到不了 → 一次网络故障会无限跳歌，界面上就是曲名疯狂闪。
+     现在把"这是错误触发的跳转"作为参数传进去，那条路径不清零。 */
   a.addEventListener('error', function () {
     _noiseSkipGuard = (_noiseSkipGuard || 0) + 1;
     if (_noiseSkipGuard < BUILTIN_TRACKS.length) {
-      playNoise(_noiseIdx + 1);
+      playNoise(_noiseIdx + 1, true);
     } else {
       _noiseSkipGuard = 0;
       _noisePlaying = false;
@@ -69,6 +72,7 @@ function initNoiseAudio() {
     }
   });
   a.addEventListener('play', function () {
+    _noiseSkipGuard = 0; /* 真的播出声了才算这首成功 */
     _noisePlaying = true;
     updateNoiseUI();
   });
@@ -80,14 +84,15 @@ function initNoiseAudio() {
     nextNoise();
   });
 }
-function playNoise(idx) {
+function playNoise(idx, fromError) {
   if (idx !== null && idx !== undefined) {
     _noiseIdx = ((idx % BUILTIN_TRACKS.length) + BUILTIN_TRACKS.length) % BUILTIN_TRACKS.length;
   }
   initNoiseAudio();
   const a = getNoiseAudio();
   if (!a) return;
-  _noiseSkipGuard = 0; /* 切歌成功重置跳过计数 */
+  /* 用户主动切歌（点 ▶ / 上一首 / 下一首）才算"重新开始"，错误触发的连锁跳转不清零 */
+  if (!fromError) _noiseSkipGuard = 0;
   const t = BUILTIN_TRACKS[_noiseIdx];
   a.src = 'https://music.163.com/song/media/outer/url?id=' + t.id + '.mp3';
   a.volume = _noiseVol;

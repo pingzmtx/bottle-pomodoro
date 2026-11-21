@@ -16,12 +16,14 @@
    ② 提醒与声音
       - 语音播报：开始/结束/休息节点 中文朗读（系统 TTS）
       - 自定义提示音：6 类音色可上传音频（存 IndexedDB），试听/还原
+        （0.2.9：上传后同一份字节会同步一份本地副本给原生，后台提醒播的就是它 ——
+          原生侧没有独立音色、没有上传入口，见 §③b 的说明）
       - 滴答声：专注/休息分别开关
       - 结束前 N 秒（30/60）浏览器通知预提醒
    ③ 统计可视化
       - 今日逐小时专注分布
       - GitHub 风格 52 周专注热力图（月份 + 悬浮详情）
- * 函数索引（TOC）：_defaults/enhGet/_ensure/_save/_num/_el/hookGlobals/_strictOn/_strictBlock/_voiceStat/_refreshVoices/_hookVoices（+48 更多）
+ * 函数索引（TOC）：_defaults/enhGet/_ensure/_save/_num/_el/hookGlobals/_strictOn/_strictBlock/_voiceStat/_refreshVoices/_hookVoices（+51 更多）
    ════════════════════════════════════════════════════════════════════ */
 (function () {
   let ENH_KEY = 'enhSettings';
@@ -168,7 +170,7 @@
         let tone = alias[type] || type;
         let s = enhGet();
         if (!s || !s.customAudio || !s.customAudio[tone]) return _orig.playSound(type);
-        let vol = _num(appData.settings.sfxVolume, 0.3);
+        let vol = _num(appData.settings.sfxVolume, 0.55);
         vol = Math.max(0, Math.min(1, vol));
         if (vol <= 0) return;
         _playCustom(tone, vol).catch(function () {
@@ -850,6 +852,10 @@
           UIFX.showToast('✅ 「' + _toneLabel(tone) + '」自定义提示音已生效');
         } catch (e) { if (window.__silent) window.__silent(e, '02:_uploadCustom'); }
       } catch (e) { if (window.__silent) window.__silent(e, '02:_uploadCustom'); }
+      /* 0.2.9 · 调用时机 ②：上传成功 → 把**同一份字节**同步一份给原生。
+         setTimeout(0) 是为了不抢 UI 反馈那一帧（IndexedDB 读盘 + 分块上传都是异步的）；
+         失败也不影响前台播放 —— 前台永远是这里自己的 blob URL。 */
+      setTimeout(function () { _bottleSyncCustomSfx(tone); }, 0);
     });
   }
   function _clearCustom(tone) {
@@ -865,7 +871,97 @@
     try {
       UIFX.showToast('↩️ 「' + _toneLabel(tone) + '」已还原为内置提示音');
     } catch (e) { if (window.__silent) window.__silent(e, '02:_clearCustom'); }
+    /* 0.2.9 · 调用时机 ③：还原 / 删除成功 → 让原生把那一份副本删掉。
+       不同步就等于"网页已经放内置了，后台还在放用户删掉的歌"，用户会当成 bug。 */
+    setTimeout(function () { _bottleSyncCustomSfx(tone); }, 0);
   }
+
+  /* ============ ③b 自定义提示音 → 原生副本（0.2.9） ============ */
+  /* ══════════════════════════════════════════════════════════════════
+     ★ 先把设计写死，防止以后有人把它误解成"两套音效"
+
+     用户原话：「你前台放什么，你后台就播放什么。你为什么要重新弄一个？」
+
+     结论：**网页是唯一的音色来源，也是唯一的上传入口** —— 6 类音色、IndexedDB 里
+     的 Blob、试听、还原，全部留在这个文件里，一行都不改。原生只做一件事：把用户上传
+     的那**同一份字节**存一份本地副本，在自己的进程里播。原因只有一个：
+     WebView 在后台会被 Android 12+ 的 cached app freezer 冻结、被 Chromium 节流，
+     网页的 `new Audio().play()` 在后台**不保证发生**（AudioContext 无可见页时会被挂起）。
+
+     所以这不是"两套音效"，是"同一份内容的离线执行副本"（等价于离线缓存）。
+     由此推出原生侧的三条禁令，写在 [Shim] / SfxStore 的注释里一起守：
+       · 不做原生上传入口；· 不做原生音效列表；· 不做原生试听；
+       · 不写网页任何状态（timerState / localStorage / IndexedDB 一个字节都不碰）。
+     原生设置页只有一行只读的「已同步 N/6」。
+
+     数据链路（一句话链）：
+       IndexedDB(Blob) → ArrayBuffer → base64 分块(48KB) → 桥 → `<tone>.part`
+       → 长度校验通过才 rename → SoundPool 按 path+mtime 缓存 soundId
+
+     ★ PWA / 浏览器里 `window.__bottleSfxCustom` 根本不存在 → 整段跳过，零副作用。
+     ══════════════════════════════════════════════════════════════════ */
+  function _bottleCustomBuf(blob) {
+    /* Blob.arrayBuffer() 是 Chrome 76+ 才有的；少部分老 WebView 更老，留 FileReader 兜底。
+       注意这里只读**字节**：不做 TextDecoder、不碰编码，音频原样搬运。 */
+    return new Promise(function (res, rej) {
+      try {
+        if (blob && typeof blob.arrayBuffer === 'function') {
+          blob.arrayBuffer().then(res, rej);
+          return;
+        }
+        let fr = new FileReader();
+        fr.onload = function () { res(fr.result); };
+        fr.onerror = function () { rej(fr.error || new Error('blob read failed')); };
+        fr.readAsArrayBuffer(blob);
+      } catch (e) {
+        rej(e);
+      }
+    });
+  }
+  /* 单个音色：有 Blob 就 put（原生覆盖写整份），没有就 clear（把上一份副本删掉）。
+     "有没有"由这里判断，原生不猜 —— 桥这一层永远只搬字节。 */
+  function _bottleSyncTone(api, tone) {
+    return idbGet(CUSTOM_PREFIX + tone).then(function (blob) {
+      if (!blob || !blob.size) {
+        api.clear(tone);
+        return null;
+      }
+      return _bottleCustomBuf(blob).then(function (buf) {
+        /* mime 只给原生记日志用：SoundPool 按**内容**解码，不看扩展名也不看 mime */
+        api.put(tone, blob.type || 'audio/mpeg', buf);
+        return null;
+      });
+    });
+  }
+  /**
+   * 把 6 类音色（或指定的那一类）的自定义音频同步给原生。
+   *
+   * @param {string} [only] 只同步这一个音色（上传 / 还原时用，避免把另外 5 个几 MB
+   *        的文件也重传一遍）。省略 = 全部 6 类，原生设置页的「重新同步」就是这种。
+   */
+  function _bottleSyncCustomSfx(only) {
+    let api = null;
+    try { api = window.__bottleSfxCustom || null; } catch (e) { api = null; }
+    if (!api) return;   /* PWA / 浏览器：没有"原生副本"这回事，直接跳过 */
+    let tones = [];
+    if (only) {
+      tones = [String(only)];
+    } else {
+      for (let i = 0; i < ENH_TONES.length; i++) { tones.push(ENH_TONES[i].k); }
+    }
+    for (let i = 0; i < tones.length; i++) {
+      try {
+        _bottleSyncTone(api, tones[i]).catch(function (e) {
+          if (window.__silent) window.__silent(e, '02:_bottleSyncCustomSfx');
+        });
+      } catch (e) { if (window.__silent) window.__silent(e, '02:_bottleSyncCustomSfx'); }
+    }
+  }
+  /* 原生设置页的「重新同步」用 evaluateJavascript('_bottleSyncCustomSfx&&_bottleSyncCustomSfx()')
+     点这里 —— 那是全局作用域求值，所以必须挂到 window 上（IIFE 里的名字外面看不见）。 */
+  try {
+    window._bottleSyncCustomSfx = _bottleSyncCustomSfx;
+  } catch (e) { if (window.__silent) window.__silent(e, '02:_bottleSyncCustomSfx'); }
 
   /* ============ ④ 滴答声 ============ */
   let _tickCtx = null,
@@ -1731,7 +1827,7 @@
     box.querySelectorAll('[data-cs-play]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         let k = btn.getAttribute('data-cs-play');
-        let vol = _num(appData && appData.settings ? appData.settings.sfxVolume : 1.0, 1.0);
+        let vol = _num(appData && appData.settings ? appData.settings.sfxVolume : 0.55, 0.55);
         let meta2 = enhGet() && enhGet().customAudio ? enhGet().customAudio[k] : null;
         if (meta2) {
           _playCustom(k, vol).catch(function () {
@@ -1822,4 +1918,15 @@
       }, 80);
     }, 'after');
   } catch (e) { if (window.__silent) window.__silent(e, '02:wait'); }
+
+  /* 0.2.9 · 调用时机 ①：脚本末尾兜底同步一次（setTimeout 1500ms）。
+    为什么延后 1.5s：IndexedDB 打开 + 6 个 Blob 读盘都在别的模块里异步做，
+     太早调会读到空；太晚又赶不上"用户打开 App 就切后台"的那一次到点提醒。
+     1500ms 是"appData 一定已就绪、用户通常还在前台"的经验值，且它只跑一次。
+     整段 try/catch：同步失败最坏结果只是后台放内置音，绝不许影响网页自己的任何功能。 */
+  setTimeout(function () {
+    try {
+      _bottleSyncCustomSfx();
+    } catch (e) { if (window.__silent) window.__silent(e, '02:_bottleSyncCustomSfx.tail'); }
+  }, 1500);
 })();

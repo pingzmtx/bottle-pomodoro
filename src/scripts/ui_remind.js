@@ -118,6 +118,8 @@ function addRemind() {
     return;
   }
   s.reminds.push({ id: Date.now(), uid: newUid('remind'), updatedAt: Date.now(), on: true, t: t, label: l, repeat: rep, date: rep === 'once' ? dateVal : '' });
+  /* 子结构（提醒列表）变了 → 父对象打戳 + 入队，否则这次新增同步不出去 */
+  touchParentOfSub(s, s.reminds[s.reminds.length - 1].uid);
   if (li) li.value = '';
   saveData();
   renderPlanBreakView();
@@ -136,6 +138,8 @@ function delRemind(id) {
   s.reminds = s.reminds.filter(function (x) {
     return x && !idEq(x.id, id);
   });
+  /* 删除同增删子任务：父必须「变过」，否则对端看不到这次删除 */
+  touchParentOfSub(s, id);
   saveData();
   renderPlanBreakView();
 }
@@ -419,7 +423,10 @@ function remindCheckTime(nowArg) {
   }
   /* 循环结束后统一摘除标记删除的一次提醒（循环中直接 splice 会打乱下标） */
   if (s.reminds && s.reminds.some(function (x) { return x && x.__del; })) {
+    /* 到期自动摘除是「用户看不见的写入口」：不打戳的话这条删除永远同步不出去 */
+    var _gone = s.reminds.filter(function (x) { return x && x.__del; })[0];
     s.reminds = s.reminds.filter(function (x) { return !(x && x.__del); });
+    touchParentOfSub(s, _gone && _gone.uid);
     dirty = true;
     try { renderRemindPage(); } catch (e) { if (window.__silent) window.__silent(e, '01e:remindPrune'); }
   }

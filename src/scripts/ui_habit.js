@@ -57,6 +57,9 @@ function toggleHabit(id, dateStr) {
      手工加减是「打开 App 重复扣分」那个 bug 能存在的前提（一边乱扣一边乱加）。
      重算还顺带把「补打卡补到过去某天」的连击一并算对。 */
   syncHabitGrowth(h);
+  /* 打卡改的是 habitLogs（映射集合），但推送按「习惯」走：
+     入队这条 habit，PUSH 时才会把它的打卡切片一起带出去。 */
+  if (h.uid && typeof enqueueChange === 'function') enqueueChange(h.uid, 'habit', 'upsert');
   saveData();
   renderHabits();
   renderRankSystem();
@@ -265,6 +268,8 @@ function _habitSetSkip(h, ds, on) {
   else delete appData.habitSkips[k];
   if (on) h.skipOn = ds;
   else if (h.skipOn && String(h.skipOn).slice(0, 10) === ds) delete h.skipOn;
+  /* 跳过日也住在 habitSkips 映射里：入队这条 habit 才能把它带出去 */
+  if (h && h.uid && typeof enqueueChange === 'function') enqueueChange(h.uid, 'habit', 'upsert');
 }
 /* 逐条「今天先不看」/ 放回。
    ★ 2026-11-04 改口径（用户原话：「假如今天没完成，我就想不看了，把眼睛一关闭。
@@ -280,7 +285,7 @@ function toggleHabitSkip(id) {
   if (habitSkippedOn(h, today, habitSkipsOf(h))) {
     _habitSetSkip(h, today, false);
     delete h.skipOn;
-    h.updatedAt = Date.now();
+    touchParentOfSub(h);
     syncHabitGrowth(h);
     saveData();
     renderHabits();
@@ -295,7 +300,7 @@ function toggleHabitSkip(id) {
   }
   /* 只写眼睛，不写跳过：account（分母/连续数）里这一天照常算「该做没做」 */
   h.skipOn = today;
-  h.updatedAt = Date.now();
+  touchParentOfSub(h);
   saveData();
   /* 藏起来必须给回执：不自动展开的话，用户会以为习惯被删了 */
   _habitOffOpen = true;
@@ -307,7 +312,7 @@ function restoreHabitSkips() {
   const today = getTodayStr();
   let n = 0;
   (appData.habits || []).forEach(function (h) {
-    if (h && habitSkippedOn(h, today, habitSkipsOf(h))) { _habitSetSkip(h, today, false); delete h.skipOn; h.updatedAt = Date.now(); n++; }
+    if (h && habitSkippedOn(h, today, habitSkipsOf(h))) { _habitSetSkip(h, today, false); delete h.skipOn; touchParentOfSub(h); n++; }
   });
   if (!n) { showToast('今天没有被收起来的习惯'); return; }
   saveData();
@@ -637,7 +642,7 @@ function saveHabitEdit() {
     if (!h) { closeModal('habitEditModal'); showToast('这个习惯已经不在了'); return; }
     h.name = name;
     h.note = note;
-    h.updatedAt = Date.now();
+    touchParentOfSub(h);
   }
   h.catId = catEl && catEl.value ? catEl.value : null;
   h.polarity = polEl && polEl.value === 'bad' ? 'bad' : 'good';
@@ -1075,7 +1080,7 @@ function toggleHabitSub(habitId, subId) {
   const today = getTodayStr();
   const wasOn = normHabitSubDate(sub.doneOn) === today;
   sub.doneOn = wasOn ? '' : today;
-  h.updatedAt = Date.now();
+  touchParentOfSub(h, subId);
   saveData();
   renderHabits();
   /* 详情弹窗开着就一起刷新（同一份数据，两处显示不能对不上） */
@@ -1116,7 +1121,7 @@ function rollHabitSubs(today) {
       });
       if (keep.length !== subs.length) {
         if (keep.length) h.subs = keep; else delete h.subs;
-        h.updatedAt = Date.now();
+        touchParentOfSub(h);
       }
     }
     h.subsRolledOn = ds;
@@ -1135,7 +1140,7 @@ function toggleAllHabitSubs(habitId, on) {
   const list = habitSubsOn(h, today);
   if (!list.length) { showToast('今天没有要做的子计划'); return; }
   list.forEach(function (s) { s.doneOn = on ? today : ''; });
-  h.updatedAt = Date.now();
+  touchParentOfSub(h);
   saveData();
   renderHabits();
   const det = document.getElementById('habitDetailModal');
@@ -1159,7 +1164,7 @@ function addHabitSubQuick(habitId, text, date, time) {
     time: normHabitSubTime(time),
     doneOn: ''
   });
-  h.updatedAt = Date.now();
+  touchParentOfSub(h);
   saveData();
   renderHabits();   /* 习惯页 + 计划页 dock 一起刷新 */
   showToast('✓ 加了一步：' + t);
@@ -1173,7 +1178,7 @@ function setHabitSubDate(habitId, subId, val) {
   const sub = _habitSubById(h, subId);
   if (!sub) return;
   sub.date = normHabitSubDate(val);
-  h.updatedAt = Date.now();
+  touchParentOfSub(h, subId);
   saveData();
   renderHabits();
   openHabitDetail(h.id);
@@ -1185,7 +1190,7 @@ function setHabitSubTime(habitId, subId, val) {
   const sub = _habitSubById(h, subId);
   if (!sub) return;
   sub.time = normHabitSubTime(val);
-  h.updatedAt = Date.now();
+  touchParentOfSub(h, subId);
   saveData();
   renderHabits();
   openHabitDetail(h.id);
@@ -1203,7 +1208,7 @@ function habitSetBlocks(habitId, list) {
   const next = normHabitBlocks(list);
   if (next.length) h.timeBlocks = next;
   else delete h.timeBlocks;
-  h.updatedAt = Date.now();
+  touchParentOfSub(h);
   saveData();
   renderHabits();
   renderHabitBlockBox();
@@ -1284,7 +1289,7 @@ function habitDayPlanSet(habitId, ds, segs) {
   next[d] = clean;
   const norm = dayPlanNormAll(next, HABIT_DAYPLAN_MAX_DAYS);
   if (norm[d]) h.dayPlan = next; else delete h.dayPlan;
-  h.updatedAt = Date.now();
+  touchParentOfSub(h);
   saveData();
   renderHabits();
   renderHabitDayPlanBox();
@@ -1298,7 +1303,7 @@ function habitDayPlanClear(habitId, ds) {
   if (!h.dayPlan || typeof h.dayPlan !== 'object' || !h.dayPlan[d]) return false;
   delete h.dayPlan[d];
   if (!Object.keys(h.dayPlan).length) delete h.dayPlan;
-  h.updatedAt = Date.now();
+  touchParentOfSub(h);
   saveData();
   renderHabits();
   renderHabitDayPlanBox();
@@ -1486,7 +1491,7 @@ function delHabitSub(habitId, subId) {
   if (!sub) return;
   const doDel = function () {
     h.subs = (Array.isArray(h.subs) ? h.subs : []).filter(function (s) { return s !== sub; });
-    h.updatedAt = Date.now();
+    touchParentOfSub(h, subId);
     saveData();
     renderHabits();
     openHabitDetail(habitId);

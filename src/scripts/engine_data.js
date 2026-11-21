@@ -18,7 +18,7 @@
  *   - 数据健康：数值防御 sanitizeNumericSettings、sanitizeTreeData、runDataHealthCheck
  *   - 沉浸式专注：immersiveFocus 冒险存档字段与老数据兼容（剧本库/随机剧本已迁移至 06-immersive.js）
  *   - 白帽优化：极简模式/难度档位（档位=时长：简单10/中等25/沉浸式50/大师90分钟）/休息仪式/人机排行榜 的数据字段、词库池与 BOT 玩家配置
- * 函数索引（TOC）：_dataScale/sanitizeNumericSettings/volumeBonusShould/createDefaultAppData/createTimerState/idbGetDb/idbSet/idbGet/_w55Retry/idbWrite/ensureTreeExtras/applyCompanionDefaultGuard（+56 更多）
+ * 函数索引（TOC）：__set__saveCtx/_dataScale/sanitizeNumericSettings/volumeBonusShould/createDefaultAppData/createTimerState/idbGetDb/idbSet/idbGet/_w55Retry/idbWrite/ensureTreeExtras（+61 更多）
  * ============================================================ */
 
 const STORAGE_KEY = 'tomato_focus_v3';
@@ -50,6 +50,21 @@ window.__staleHooks = {
 };
 /* 清除数据流程标志：清除期间禁止任何保存写回，防止旧数据被防抖定时器重新写入导致清除"失效" */
 let _dataClearing = false;
+/* 本次写盘的来源上下文：只有 'sync'（P2P 会话的提交点）会放行「守卫 2 的同步删除例外」。
+   ★ 只允许 sync.js / sync_p2p.js 置位，UI 路径永不设它 —— 否则用户的一次误清空
+     就能拿到那条例外，把全部数据写成空。 */
+let _saveCtx = null;
+/* 写 `_saveCtx` 的唯一入口（只给同步侧用）。
+   ★ 为什么不能直接赋值：构建产物是 **ES 模块**，跨文件引用走 import，而 import 绑定
+     只读 —— 在 sync.js / sync_p2p.js 里写 `_saveCtx = 'sync'` 会在运行时抛
+     「Assignment to constant variable」（tools/check_implicit_globals.js 会拦）。
+     所以置位/复位一律走这个函数；读仍然是直接读（读只读绑定完全合法）。
+   ★ 返回值给调用方顺手取旧值：`var prev = __set__saveCtx('sync')`。 */
+function __set__saveCtx(v) {
+  var prev = _saveCtx;
+  _saveCtx = v;
+  return prev;
+}
 /* ★ 数据是否已从存储读回来。
    页面刚打开时 appData 还是 createDefaultAppData() 的空壳，而 loadData() 是异步的。
    若在这个窗口内触发 saveDataNow()（beforeunload / pagehide / freeze 都会，
@@ -122,9 +137,9 @@ const defaultSettings = {
   difficulty: 'medium',
   difficultyTouched: false,
   sfxEnabled: true,
-  /* ★ 2026-10-23：默认音量 0.8 → 1.0。峰值最高的音效是 finish 的 0.35 倍，
-     1.0 也只是 0.35 振幅，离削波（1.0）还差很远，开到顶不会破音。 */
-  sfxVolume: 1.0,
+  /* ★ 2026-11（0.2.6/P0-3）：默认 1.0 → 0.55（"微休息听不见"；口径 = vol × 系数，
+     峰值最高的 finish 也只有 0.35×0.55≈0.19，离削波很远。只影响新用户，老值不动）。 */
+  sfxVolume: 0.55,
   flowDuration: 50,
   /* 全站字号缩放倍率（1 = 标准）；档位定义见 00_pure_core 的 FONT_SCALE_STEPS */
   fontScale: 1,
@@ -365,6 +380,13 @@ function createDefaultAppData() {
     /* 离线变更队列：{uid, kind, op:'upsert'|'delete', at}。接后端后由 01b3_sync 推送；
        没接后端时它只是一份"最近改过什么"的日志（有上限，不会无限长）。 */
     outbox: [],
+    /* 同步自身状态（不参与同步，每端各存各的，§3.2.1 的 C 表）：
+       syncPeers = { [对端 did]: {watermark, offset, lastAt, tombLossy} }，水位永远是本机时钟域；
+       mustDosAt = { 'YYYY-MM-DD': ms }，必做清单按日 LWW 的时间戳旁表。
+       ★ 必须在这里给默认值：缺了它，`appData.syncPeers[p]` 第一次读就抛 TypeError，
+         而这条路径只在「用户点了同步」时走到 —— 最晚发现、最难查。 */
+    syncPeers: {},
+    mustDosAt: {},
     diaries: {},
     /* ===== 设备级 UI 状态收编单状态树 =====
      * 目标：消灭「同一状态存两份」与散键各自落盘，统一随主键持久化（saveData 单通道）。
@@ -987,10 +1009,10 @@ async function loadData() {
       if (!Array.isArray(appData.pendingAchRewards)) appData.pendingAchRewards = [];
       if (!appData.signIn) appData.signIn = { lastDate: null, totalDays: 0 };
       if (typeof appData.signIn.totalDays !== 'number' || isNaN(appData.signIn.totalDays)) appData.signIn.totalDays = 0;
-      /* 音效：老数据补默认（开 + 默认音量 100%，见 DEFAULT_SETTINGS.sfxVolume 的说明） */
+      /* 音效：老数据补默认（开 + 0.55，见 DEFAULT_SETTINGS.sfxVolume）；只在非数字/NaN 时补 */
       if (typeof appData.settings.sfxEnabled !== 'boolean') appData.settings.sfxEnabled = true;
       if (typeof appData.settings.sfxVolume !== 'number' || isNaN(appData.settings.sfxVolume))
-        appData.settings.sfxVolume = 1.0;
+        appData.settings.sfxVolume = 0.55;
       if (!Array.isArray(appData.selfRewards)) appData.selfRewards = [];
       /* 自由专注（正计时/倒计时）：老数据补默认（轻量历史，不污染番茄统计口径） */
       if (!appData.freeFocus) appData.freeFocus = { today: null, minutes: 0, count: 0, history: [] };
@@ -1238,6 +1260,87 @@ function touchRecord(obj) {
   return obj;
 }
 
+/* 子结构（todos[].subs / todos[].reminds / habits[].subs）改动的唯一写入口。
+   ★ 为什么必须打在父上：子结构不是顶层集合，同步只认父的 uid+updatedAt；
+     子任务改了自己有戳也没用 —— 报文里发的是「父待办快照」。
+   ★ 为什么必须入队：没有 outbox 条目，PUSH 方向根本不会带上这条父待办。
+   ★ 为什么不能只打戳不入队：父戳变了但没入队 = 本次同步不发它；
+     等下一条无关记录把它带出去时，父戳已经比对方的旧，合并按 LWW 判 local 胜，
+     对端永远收不到子任务 —— 这就是「连发起方都丢」那一类。
+   childUid 只用于诊断日志（哪个子任务引起的），不参与任何判断。 */
+function touchParentOfSub(parent, childUid) {
+  if (!parent || typeof parent !== 'object') return parent;
+  parent.updatedAt = Date.now();
+  if (parent.uid && typeof enqueueChange === 'function') {
+    enqueueChange(parent.uid, _kindOfUid(parent.uid), 'upsert');
+  }
+  return parent;
+}
+
+/* 必做清单的「这一天最后一次改」时间戳。mustDos 是 {日期: [条目]} 的映射，
+   条目里没有时间戳，按日 LWW 只能靠这张旁表（mustDosAt）。
+   ★ 这里**不入队**：出队由调用点自己的 enqueueChange('must_'+date,'mustdos','upsert') 负责，
+     一个函数一件事 —— 两处都入队会让一次修改产生两条 outbox 记录。 */
+function _touchMustDos(date) {
+  if (!date) return 0;
+  if (!appData.mustDosAt || typeof appData.mustDosAt !== 'object' || Array.isArray(appData.mustDosAt)) {
+    appData.mustDosAt = {};
+  }
+  appData.mustDosAt[String(date)] = Date.now();
+  return appData.mustDosAt[String(date)];
+}
+
+/* 墓碑裁剪：**先裁谁都不需要的**，不是一律按时间裁。
+   为什么（第二轮评审 P1-8）：墓碑是「我跟对端说我删过这条」的唯一凭据。
+   按时间裁 → 一台时钟快的设备（或一次批量删除）会把另一台设备还没收到的凭据挤掉，
+   那一端于是永远不知道这条被删了 → 记录复活，而且**指纹看不出来**（墓碑不参与 equal）。
+   规则（三档，写死）：
+     ① 需要的 = 至少有一个已配对 peer 的 watermark 还没越过它（wm < deletedAt）；
+     ② 不需要的（所有 peer 都越过了）先裁，裁多少都安全 —— 没人还要听这条消息；
+     ③ 裁完仍超 TOMBSTONE_MAX：**一个需要的也不裁**（宁可暂时超上限，也不制造永久丢删除）；
+        只有超过硬上限（4×）才回落成按时间裁 + 标记 tombLossy（给 UI 一个提示出口）。
+   ★ 时钟域：watermark 是本机域、deletedAt 是本机写墓碑时的读数，同域直接比大小；
+     从对端合并来的墓碑 deletedAt 属于对端域（§11.4 的已知混域问题，本轮不换算）。 */
+const TOMBSTONE_HARD_MAX = TOMBSTONE_MAX * 4;
+function _pruneTombstones() {
+  var list = appData.tombstones;
+  if (!Array.isArray(list) || list.length <= TOMBSTONE_MAX) return;
+  var peers = (appData.syncPeers && typeof appData.syncPeers === 'object') ? appData.syncPeers : {};
+  var wms = [];
+  Object.keys(peers).forEach(function (k) {
+    var p = peers[k];
+    if (p && typeof p === 'object') wms.push(Number(p.watermark) || 0);
+  });
+  var needed = [], unneeded = [];
+  for (var i = 0; i < list.length; i++) {
+    var t = list[i];
+    if (!t) continue;
+    var d = Number(t.deletedAt) || 0;
+    var stillNeeded = wms.some(function (w) { return w < d; });
+    (stillNeeded ? needed : unneeded).push(t);
+  }
+  /* 没有配对设备时「谁都不需要」，但备份回灌仍然要靠墓碑挡住已删记录
+     → 这一档必须保持改动前的行为（按时间保留最新 TOMBSTONE_MAX 条），
+       否则用户一次大扫除后的下一次启动会把墓碑清空，旧备份一导入就复活。 */
+  var out;
+  if (!wms.length) {
+    out = list.slice();
+    out.sort(function (a, b) { return (a.deletedAt || 0) - (b.deletedAt || 0); });
+    out = out.slice(-TOMBSTONE_MAX);
+  } else {
+    out = needed;                               /* ② 不需要的（所有 peer 都越过了）先裁掉 */
+  }
+  if (out.length > TOMBSTONE_HARD_MAX) {
+    /* 硬上限兜底：说明有 peer 长期不同步。按时间裁，并把「丢删除」这件事记在案。 */
+    out.sort(function (a, b) { return (a.deletedAt || 0) - (b.deletedAt || 0); });
+    out = out.slice(-TOMBSTONE_MAX);
+    try {
+      if (window.__errRep) window.__errRep.warn('sync', 'tombs hard-trim n=' + list.length + ' keep=' + out.length);
+    } catch (e) { if (window.__silent) window.__silent(e, '01b:tombstone'); }
+  }
+  appData.tombstones = out;
+}
+
 /* 写墓碑。同一条重复删除只更新时间，不重复追加（幂等：重复导入同一份备份不会膨胀）。 */
 function tombstone(uid, kind) {
   if (!uid) return;
@@ -1251,10 +1354,7 @@ function tombstone(uid, kind) {
   else appData.tombstones.push({ uid: String(uid), kind: kind || 'record', deletedAt: now });
   /* 删除同样入队：服务端要知道「这条没了」，而不是「这边少一条」。 */
   if (typeof enqueueChange === 'function') enqueueChange(uid, kind || _kindOfUid(uid), 'delete');
-  if (appData.tombstones.length > TOMBSTONE_MAX) {
-    appData.tombstones.sort(function (a, b) { return (a.deletedAt || 0) - (b.deletedAt || 0); });
-    appData.tombstones = appData.tombstones.slice(-TOMBSTONE_MAX);
-  }
+  _pruneTombstones();
 }
 
 /* 墓碑并集：同 uid 保留更晚的 deletedAt。导入/合并时用 ——
@@ -1297,7 +1397,7 @@ function _ensureContract(o, prefix, seen) {
        ★ 但 id 本身**不保证唯一**（补记用 Date.now()+rand(1000)，同毫秒有 1/1000 概率撞），
          撞了的 legacy uid 会让两条不同记录在合并时被当成一条 —— 丢数据且无报错。
          所以这里按「首次出现占原名，后续加序号」去重：同一份数据重复迁移仍然稳定。 */
-    var base = prefix + '_' + String(o.id != null ? o.id : 'x') + '_legacy';
+    var base = prefix + '_' + String(o.id != null ? o.id : 'x') + '_legacy_' + _deviceTag();
     var uid = base, n = 1;
     while (seen && seen[uid]) { n++; uid = base + '_' + n; }
     if (seen) seen[uid] = 1;
@@ -1324,6 +1424,10 @@ function migrateDataContract() {
   var n = 0;
   if (!Array.isArray(appData.tombstones)) appData.tombstones = [];
   if (!Array.isArray(appData.outbox)) appData.outbox = [];
+  /* 同步自身状态的两个新键：老存档里没有 → 补空对象（形状兜底用 if !== 对象，
+     不用 `??`：备份里写成 null / 数组时也能纠正回来）。 */
+  if (!appData.syncPeers || typeof appData.syncPeers !== 'object' || Array.isArray(appData.syncPeers)) appData.syncPeers = {};
+  if (!appData.mustDosAt || typeof appData.mustDosAt !== 'object' || Array.isArray(appData.mustDosAt)) appData.mustDosAt = {};
   /* seen 是全局去重表：不同集合的前缀不同，本来不会互相撞；
      共用一张表还能顺手挡住「导入两份数据导致前缀相同」的情况。 */
   var seen = Object.create(null);   /* uid 来自备份，用户可控：避免 __proto__ 键 */
@@ -1420,6 +1524,30 @@ function migrateDataContract() {
   /* 周重点也要 uid：同步池按 wf_ 前缀认它（01b3 的 pool），
      没有 uid 的老数据会在第一次合并时被丢掉。 */
   appData.weekFocus.forEach(function (w) { if (_ensureContract(w, 'wf', seen)) n++; });
+  /* ===== 同步口径补齐的四类（2026-11 多端同步）=====
+     这四类都是**用户自己敲的文本**，按 §3.2.1 的裁决必须进同步；
+     没有 uid 就会被 mergeRemoteRecords 的「缺 uid 丢弃」规则静默跳过
+     —— 表现是「同步完成，但目标分区/习惯分类/奖励/愿望一条都没过来」。
+     前缀必须与 _kindOfUid 切出来的完全一致：area / hcat / reward / wish。 */
+  if (!Array.isArray(appData.habitCats)) appData.habitCats = [];
+  if (!Array.isArray(appData.selfRewards)) appData.selfRewards = [];
+  appData.habitCats.forEach(function (c) { if (_ensureContract(c, 'hcat', seen)) n++; });
+  appData.selfRewards.forEach(function (w) { if (_ensureContract(w, 'reward', seen)) n++; });
+  /* wishes 是懒创建键（ui_lifewish.js 第一次写入才建）：这里**不替它建**，
+     只在它已经是数组时补 uid —— 否则新存档会凭空多出一个顶层键，
+     「新装后 Object.keys(appData).length === 48」这条迁移断言就不成立了。 */
+  if (Array.isArray(appData.wishes)) appData.wishes.forEach(function (w) { if (_ensureContract(w, 'wish', seen)) n++; });
+  /* diaries：{日期: {…}}，key 就是日期串（跨设备天然一致），
+     每天补 uid(=diary_<date>) + updatedAt（缺失时取 0：确定性、幂等，
+     不用 Date.now() —— 否则每次启动都改一遍戳，会把对端更新的那天压回去）。 */
+  if (appData.diaries && typeof appData.diaries === 'object' && !Array.isArray(appData.diaries)) {
+    Object.keys(appData.diaries).forEach(function (date) {
+      var d = appData.diaries[date];
+      if (!d || typeof d !== 'object' || Array.isArray(d)) return;
+      if (d.uid !== 'diary_' + date) { d.uid = 'diary_' + date; n++; }
+      if (typeof d.updatedAt !== 'number' || !isFinite(d.updatedAt)) { d.updatedAt = 0; n++; }
+    });
+  }
   /* 排序表里可能残留已删目标的 uid：只保留仍然存在的，否则拖拽下标会错位。
      ★ 比的是 **uid**，不是 id —— lifeGoalOrder 里存的一直是 uid
        （lifeGoalSorted 的 rank 用 order.indexOf(g.uid)）。这里原来写成 g.id === id，
@@ -1443,7 +1571,7 @@ function saveData() {
   }, 300);
 }
 function saveDataNow() {
-  if (_dataClearing) return;
+  if (_dataClearing) return 'clearing';
   /* 兜底失效段落索引（定义在 01d，本文件先于它加载 → 用 typeof 防守）：
      任何一次落盘都当作"记录可能变过"，宁可重建一次也别让界面读到陈旧段落。 */
   if (typeof tbInvalidateSegIndex === 'function') tbInvalidateSegIndex();
@@ -1451,7 +1579,24 @@ function saveDataNow() {
     clearTimeout(_saveTimer);
     _saveTimer = null;
   }
-  _saveDataImmediate();
+  /* 返回值 = 这次写盘的结果。既有调用方全都忽略它 → 行为与改动前完全一致；
+     只有同步的提交点会读它（§9.5 第 3 步）。 */
+  return _saveDataImmediate();
+}
+/* 等「IDB 写入队列」兑现 —— 提交点唯一能用来证明「数据真的落了」的手段。
+   idbWrite 是 fire-and-forget + 失败入队重试（_w55Pending），所以 saveDataNow() 返回时
+   IDB 可能还在队列里；进程此刻被杀 = 一次基线整份丢，而水位已经提交了。
+   ★ 永不 reject、永不抛错：超时返回 false，上层据此降级成 'idb-pending'（仍算提交成功）。 */
+function waitSaveQueue(timeoutMs) {
+  var ms = Number(timeoutMs);
+  if (!isFinite(ms) || ms < 0) ms = 0;
+  var p = (_saveQueue || Promise.resolve()).then(function () { return !_w55Pending; });
+  /* Promise.race 里的超时定时器必须 unref 不掉（浏览器没有 unref）：这里用 0ms 兜底
+     保证 ms=0 时立刻返回 false，而不是等一个永不来的事件。 */
+  return Promise.race([
+    p,
+    new Promise(function (res) { setTimeout(function () { res(false); }, ms); })
+  ]);
 }
 /* ===== 守卫 3：另一个窗口写过盘 → 本窗口的内存是旧的，绝不覆盖 =====
    实测丢失：App 和浏览器里打开的同一份 html 各持一份内存。早上那个从昨晚
@@ -1512,10 +1657,14 @@ function _guardStaleWrite() {
   return true;
 }
 function _saveDataImmediate() {
-  if (_dataClearing) return;
+  /* 返回值的唯一用途是「同步的提交点」：saveDataNow() 把它原样交给 sync_p2p.js，
+     只有 'ok'/'quota'/'idb-pending' 才算「这次真落了盘」。UI 路径忽略返回值，行为不变。
+     5 个提前 return 各带一个状态名，末尾 'ok' —— 一共 6 个出口，一个都不能是裸 return
+     （裸 return → undefined → 上层把一次正常写盘判成失败，水位回滚）。 */
+  if (_dataClearing) return 'clearing';
   /* 守卫 1（根因修复）：数据还没从存储读回来，绝不写盘 —— 否则写的是空壳。
      这条同时保护防抖路径与 saveDataNow()，且不受调用来源影响。 */
-  if (!_dataLoaded) return;
+  if (!_dataLoaded) return 'not-ready';
   try {
     appData.__fingerprint = 'bottle-pomodoro-fingerprint-2026';
   } catch (e) { if (window.__silent) window.__silent(e, '01b:_saveDataImmediate'); }
@@ -1534,30 +1683,44 @@ function _saveDataImmediate() {
         UIFX.toast('⚠️ 数据保存失败，请尽快导出备份');
       } catch (e2) { if (window.__silent) window.__silent(e2, '01b:_saveDataImmediate'); }
     }
-    return;
+    return 'json-fail';
   }
   if (json) {
     /* 守卫 2（兜底）：把「本该有数据」的存储写成全空，几乎必然是异常（竞态、误操作、
        外部清空了存储）。唯一的合法清空路径是设置页的「清除所有数据」——
        那条路会先置 _dataClearing 并在上面直接 return，走不到这里。
        阈值取 3：删最后 1~2 条时放行（用户确实可能清空到只剩一两条），
-       而「几十上百条一次归零」一律拦下。宁可让用户删不掉，也不能让他丢掉全部。 */
+       而「几十上百条一次归零」一律拦下。宁可让用户删不掉，也不能让他丢掉全部。
+       ★ 唯一的例外（同步删除）：另一端把记录删光了 → 本端 records 归零也是**正确结果**。
+         只放行 _saveCtx==='sync' 是不安全的（同步逻辑一旦有 bug 就会把本地数据写成空），
+         所以还要求 _tombGrew：消失的每一条都必须有一条删除凭据（墓碑数 ≥ 清空前的规模）。
+         本地误清空不写墓碑，永远不满足这一条。 */
     if (_dataScale(appData) === 0 && _lastNonEmptyScale >= 3) {
-      if (!_emptyWriteBlocked) {
-        _emptyWriteBlocked = true;
-        try {
-          if (window.__errRep) window.__errRep.warn('save', '检测到数据被清空，已阻止写入（防误删）。当前规模基线 ' + _lastNonEmptyScale);
-        } catch (e2) { if (window.__silent) window.__silent(e2, '01b:_saveDataImmediate'); }
-        try {
-          UIFX.toast('⚠️ 检测到数据被清空，已阻止保存以免丢失。若确实要清空，请用设置页的「清除所有数据」');
-        } catch (e2) { if (window.__silent) window.__silent(e2, '01b:_saveDataImmediate'); }
+      const _tombGrew = (Array.isArray(appData.tombstones) ? appData.tombstones.length : 0) >= _lastNonEmptyScale;
+      if (!(_saveCtx === 'sync' && _tombGrew)) {
+        if (!_emptyWriteBlocked) {
+          _emptyWriteBlocked = true;
+          try {
+            if (window.__errRep) window.__errRep.warn('save', '检测到数据被清空，已阻止写入（防误删）。当前规模基线 ' + _lastNonEmptyScale);
+          } catch (e2) { if (window.__silent) window.__silent(e2, '01b:_saveDataImmediate'); }
+          try {
+            UIFX.toast('⚠️ 检测到数据被清空，已阻止保存以免丢失。若确实要清空，请用设置页的「清除所有数据」');
+          } catch (e2) { if (window.__silent) window.__silent(e2, '01b:_saveDataImmediate'); }
+        }
+        return 'empty-blocked';
       }
-      return;
+      /* 放行时记一条诊断：同步删除是「对端权威」，不该被误当成本地异常 */
+      try {
+        if (window.__errRep) window.__errRep.warn('sync', 'empty-write-allowed tombs=' + (appData.tombstones || []).length + ' base=' + _lastNonEmptyScale);
+      } catch (e2) { if (window.__silent) window.__silent(e2, '01b:_saveDataImmediate'); }
     }
     const _writeT = Date.now();
     const payload = JSON.stringify({ t: _writeT, d: json });
     /* 守卫 3：另一个窗口在我们之后写过盘 → 本窗口内存是旧的，这次写盘作废 */
-    if (_guardStaleWrite()) return;
+    if (_guardStaleWrite()) return 'stale';
+    /* 镜像写失败（多半是配额爆满）在下面的 catch 里置位；出口状态用 'quota'。
+       ★ 不能直接在 catch 里 return：那样会跳过 idbWrite，而 IDB 才是数据真源。 */
+    let _mirrorFailed = false;
     try {
       TFStorage.write(STORAGE_KEY, payload);
       /* 写盘成功才更新写入戳：镜子写失败时戳也停在旧值，别让别的窗口误以为我们成功了 */
@@ -1568,6 +1731,7 @@ function _saveDataImmediate() {
     } catch (e) {
       /* 镜像写失败（多半是配额爆满）：保留上一次成功的镜像作为冷备份，绝不删除——
        删除会造成「local 无镜像 + IndexedDB 异步尚未落盘」的极端窗口下两份数据皆失。 */
+      _mirrorFailed = true;
       if (!_lsMirrorWarned) {
         _lsMirrorWarned = true;
         console.warn('[存储] localStorage 镜像写入失败：保留旧镜像兜底，数据以 IndexedDB 为准');
@@ -1579,8 +1743,13 @@ function _saveDataImmediate() {
     idbWrite(payload);
     const _sc = _dataScale(appData);
     if (_sc > 0) _lastNonEmptyScale = _sc;
+    checkStorageUsage(json);
+    /* 'quota' 在同步口径里**算提交成功**（数据以 IndexedDB 为准）：
+       镜像失败只影响冷备份，不影响这次数据落不落盘。 */
+    return _mirrorFailed ? 'quota' : 'ok';
   }
   checkStorageUsage(json);
+  return 'ok';
 }
 /* ===== 容量监控 + 旧记录精简（数据量保险，IndexedDB 容量已大幅提升） ===== */
 let _lastStorageWarn = 0;
@@ -1623,80 +1792,8 @@ function checkStorageUsage(json) {
     }
   } catch (e) { if (window.__silent) window.__silent(e, '01b:checkStorageUsage'); }
 }
-function exportData() {
-  try {
-    /* 通用规则：不做字段白名单 —— 手写清单必然遗漏（此前的实现漏了 freeFocus、
-       signIn、journey、幽灵挑战、奖励等 17 个字段，「全部数据」名不副实）。
-       改为「appData 的每个顶层字段原样导出 + audit 自检」，以后加新字段自动带上。 */
-    const backup = {};
-    let copied = 0;
-    Object.keys(appData).forEach(function (k) {
-      try {
-        backup[k] = appData[k];
-        copied++;
-      } catch (e) { if (window.__silent) window.__silent(e, '01b:exportData'); }
-    });
-    backup.version = DATA_VERSION;
-    backup.exportSchema = EXPORT_SCHEMA_VERSION;
-    backup.exportDate = getTodayStr();
-    backup.exportTime = new Date().toISOString();
-    backup.audit = { appDataKeys: Object.keys(appData).length, exportedKeys: copied };
-    const data = JSON.stringify(backup, null, 2);
-    const fileName = 'tomato_backup_' + getTodayStr() + '.json';
-    /* 导出副作用（下载与系统分享共用）：刷新备份提醒 + 记录导出日 */
-    const exportDone = function () {
-      /* 部分浏览器（WebView 内核）下载 blob 时会丢掉下面指定的文件名，
-         改用随机串命名。把建议文件名一并显示出来，便于用户重命名。 */
-      UIFX.toast('已导出 · 建议保存为 ' + fileName);
-      appData.lastExportDate = getTodayStr();
-      saveData();
-      updateBackupReminder();
-    };
-    /* 浏览器下载（默认路径） */
-    const downloadExport = function () {
-      const blob = new Blob([data], { type: 'application/json;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function () {
-        try {
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-        } catch (e) { if (window.__silent) window.__silent(e, '01b:exportData'); }
-      }, 100);
-    };
-/* 移动端优先走系统分享面板（可「存储到文件 / 发给自己」，换机闭环更顺）；
-   能力不可用 / 用户取消 / 分享失败 → 自动回退浏览器下载 */
-    if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare && typeof File !== 'undefined') {
-      try {
-        const shareFile = new File([data], fileName, { type: 'application/json;charset=utf-8' });
-        if (navigator.canShare({ files: [shareFile] })) {
-          navigator
-            .share({ files: [shareFile], title: '🍅 番茄专注数据备份', text: '番茄专注数据备份（JSON，可重新导入）' })
-            .then(exportDone)
-            .catch(function (err) {
-              if (err && err.name === 'AbortError') return; /* 用户取消分享：不打扰、不落下载 */
-              try {
-                downloadExport();
-                exportDone();
-              } catch (e2) {
-                exportDone();
-              }
-            });
-          return;
-        }
-      } catch (eShare) { if (window.__silent) window.__silent(eShare, '01b:exportData'); }
-    }
-    downloadExport();
-    exportDone();
-  } catch (e) {
-    UIFX.toast('导出失败：' + e.message);
-  }
-}
+/* 备份导出（ZIP + 自动分片）已迁到 backup_zip.js：格式与 I/O 归它，
+   写 appData 的副作用（lastExportDate / 备份提醒）仍留在本层 _backupMarkExported。 */
 /* ===== 数据备份与恢复（安全加固） ===== */
 /* 自动备份：导入/清除数据前，把当前数据存一份（含时间），供误操作兜底恢复（低频操作，不卡顿） */
 function saveAutoBackup() {
@@ -1965,6 +2062,11 @@ function applyBackupData(data, successMsg) {
   keepLongerLease(_keepLease);
   keepMonotonicLottery(_keepUsed);
   saveData();
+  _refreshDataViews(successMsg || '✅ 数据已应用');
+}
+/* 数据变更后的统一刷新：覆盖式还原（applyBackupData）与合并式导入（_backupFinishMerge）
+   共用这一份实现 —— 两处各写一遍必然漂移，而漂移的表现是「导入后某一页不刷新」。 */
+function _refreshDataViews(successMsg) {
   UIFX.applySettingsToUI();
   UIFX.applyGroupStates();
   UIFX.renderTodos();
@@ -1977,9 +2079,208 @@ function applyBackupData(data, successMsg) {
   if (appData.settings.darkMode) document.body.classList.add('dark-mode');
   else document.body.classList.remove('dark-mode');
   UIFX.updateChromeTheme();
+  /* 0.3.1 修补：上面这行才真正把 dark-mode 改成备份里的模式，
+     而更上面的 applySettingsToUI 已经先按**旧**模式上报过一次底色
+     （它只加不减，且上报发生在这次增删之前）→ 不补这一下，还原成深色后
+     杀进程重进仍会白闪。复用主题引擎里那份唯一实现（主题引擎不存在时静默跳过）。 */
+  try {
+    if (window.themeEngine && typeof themeEngine.reportTint === 'function') themeEngine.reportTint();
+  } catch (e) { if (window.__silent) window.__silent(e, '0E:applyBackupData:tint'); }
   updateAutoBackupInfo();
-  UIFX.toast(successMsg || '✅ 数据已应用');
+  if (successMsg) UIFX.toast(successMsg);
 }
+/* ===== 备份合并（导入）：与多端同步同一套合并器 =====
+ * 为什么不再是「覆盖」：用户的数据可能积累十几年、几十万条。一次「导入旧备份」= 整包覆盖
+ * = 备份之后新增的一切全没了 —— 而这恰恰是用户最不敢点的按钮。合并语义与 sync.js 的
+ * applyRemoteBatch 逐条对齐：墓碑优先 → 记录级 LWW（updatedAt 新者胜）→ 缺 uid 丢弃，
+ * 因此「同一份备份导两次」第二次必然是 新增 0 / 更新 0（幂等）。
+ * 写 appData 的职责留在数据层（本文件）；backup_zip.js 只负责 ZIP/分片格式与 I/O。 */
+/* 12 个数组集合 + 各自的 uid 前缀（前缀必须与 _kindOfUid / 同步池的键一致） */
+const BACKUP_MERGE_LISTS = [
+  ['records', 'rec'], ['todos', 'todo'], ['habits', 'habit'], ['memos', 'memo'],
+  ['countdowns', 'cd'], ['lifeGoals', 'lg'], ['reviews', 'rv'], ['weekFocus', 'wf'],
+  ['lifeAreas', 'area'], ['habitCats', 'hcat'], ['selfRewards', 'reward'], ['wishes', 'wish']
+];
+/* 不参与「其余顶层字段」整块覆盖的键：
+   · 上面 12 个集合 + 日记/必做/打卡/墓碑：走合并器，整块覆盖会丢本地新增；
+   · syncPeers / outbox / __migration：本机设备状态，备份里那份不代表本机现状；
+   · version / export* / audit / __shard：导出元信息，不是业务数据。 */
+const BACKUP_MERGE_SKIP = {
+  records: 1, todos: 1, habits: 1, memos: 1, countdowns: 1, lifeGoals: 1, reviews: 1,
+  weekFocus: 1, lifeAreas: 1, habitCats: 1, selfRewards: 1, wishes: 1,
+  tombstones: 1, diaries: 1, mustDos: 1, mustDosAt: 1, habitLogs: 1, habitSkips: 1,
+  syncPeers: 1, outbox: 1, __migration: 1,
+  version: 1, dataVersion: 1, exportSchema: 1, exportDate: 1, exportTime: 1, audit: 1, __shard: 1
+};
+/* 导入上下文：租期 / 抽奖次数的「导入前快照」必须在合并之前拍下来 ——
+   合并后 appData 已经是备份里的值，再比较就等于自己比自己（保护失效）。 */
+function _backupNewMergeCtx() {
+  return {
+    keepLease: {
+      decor: Object.assign({}, (appData.tree && appData.tree.decorExpires) || {}),
+      scene: Object.assign({}, (appData.tree && appData.tree.sceneExpires) || {})
+    },
+    keepUsed: (appData.tree && appData.tree.lotteryUsed) || 0,
+    fromVer: null
+  };
+}
+/* 把一份备份对象（整包 / 一个分片）并进 appData。就地修改，累加 stats.added/updated。
+   ★ 抛错时已经并进去的部分保留：合并是增量的、幂等的，回滚反而会丢掉合法分片。 */
+function _backupMergeShard(src, ctx, stats) {
+  if (!src || typeof src !== 'object' || Array.isArray(src)) throw new Error('备份内容不是对象');
+  const out = stats || { added: 0, updated: 0 };
+  const ver = src.version || src.dataVersion;
+  if (ver && !ctx.fromVer) ctx.fromVer = String(ver);
+  /* 老备份没有 uid：合入前先补契约。不补的话 mergeRemoteRecords 按「缺 uid 丢弃」
+     整批静默跳过 —— 表现是「导入成功，但一条记录都没进来」。
+     seen 每次合并新建：同一份文件重复导入得到同一个 uid（确定性），第二次才可能 0/0。 */
+  const seen = Object.create(null);
+  const remoteTombs = Array.isArray(src.tombstones) ? src.tombstones : [];
+  const tombs = mergeTombstoneLists(appData.tombstones, remoteTombs, TOMBSTONE_MAX);
+  appData.tombstones = tombs;
+  const tombSet = Object.create(null);
+  tombs.forEach(function (t) { if (t && t.uid) tombSet[String(t.uid)] = 1; });
+
+  for (let i = 0; i < BACKUP_MERGE_LISTS.length; i++) {
+    const key = BACKUP_MERGE_LISTS[i][0];
+    const prefix = BACKUP_MERGE_LISTS[i][1];
+    const list = src[key];
+    if (list === undefined) continue;
+    if (!Array.isArray(list)) throw new Error('字段 ' + key + ' 不是数组');
+    for (let j = 0; j < list.length; j++) {
+      const it = list[j];
+      if (it && typeof it === 'object' && !Array.isArray(it)) {
+        _ensureContract(it, prefix, seen);
+        /* 待办的子任务 / 提醒也是「可变记录」：migrateDataContract 会给本机那份补
+           uid + updatedAt。合入前不补，两边 _canon 就不相等 —— updatedAt 同为 0 时
+           并列判定按内容取「更大」的一方，于是每次导入都报「更新 50 条」（内容其实一样）。
+           补上后第二次导入才是真正的 新增 0 / 更新 0。 */
+        if (key === 'todos') {
+          const subs = Array.isArray(it.subs) ? it.subs : null;
+          if (subs) {
+            for (let s = 0; s < subs.length; s++) {
+              if (subs[s] && typeof subs[s] === 'object' && !Array.isArray(subs[s])) {
+                _ensureContract(subs[s], 'sub', seen);
+              }
+            }
+          }
+          const reminds = Array.isArray(it.reminds) ? it.reminds : null;
+          if (reminds) {
+            for (let s = 0; s < reminds.length; s++) {
+              if (reminds[s] && typeof reminds[s] === 'object' && !Array.isArray(reminds[s])) {
+                _ensureContract(reminds[s], 'remind', seen);
+              }
+            }
+          }
+        }
+      }
+    }
+    const r = mergeRemoteRecords(appData[key], list, tombs, {});
+    appData[key] = r.list;
+    out.added += r.added;
+    out.updated += r.updated;
+  }
+
+  /* 日记：key 是日期串，uid 固定为 diary_<date>（与 migrateDataContract 同一口径） */
+  if (src.diaries !== undefined) {
+    const rd = src.diaries;
+    if (!rd || typeof rd !== 'object' || Array.isArray(rd)) throw new Error('字段 diaries 结构异常');
+    if (!appData.diaries || typeof appData.diaries !== 'object' || Array.isArray(appData.diaries)) appData.diaries = {};
+    Object.keys(rd).forEach(function (date) {
+      const d = rd[date];
+      if (!d || typeof d !== 'object' || Array.isArray(d)) return;
+      if (!d.uid) d.uid = 'diary_' + date;
+      if (typeof d.updatedAt !== 'number' || !isFinite(d.updatedAt)) d.updatedAt = 0;
+    });
+    let dAdd = 0;
+    let dUpd = 0;
+    Object.keys(rd).forEach(function (date) {
+      if (tombSet['diary_' + date]) return;
+      const cur = appData.diaries[date];
+      if (!cur) dAdd++;
+      else if ((Number(rd[date].updatedAt) || 0) > (Number(cur.updatedAt) || 0)) dUpd++;
+    });
+    const dy = mergeKeyedMap(
+      appData.diaries,
+      rd,
+      function (k) { return 'diary_' + k; },
+      function (v) { return (v && Number(v.updatedAt)) || 0; },
+      tombSet
+    );
+    appData.diaries = dy.map;
+    out.added += dAdd;
+    out.updated += dUpd;
+  }
+
+  /* 必做清单：时间戳在旁表 mustDosAt 里，先取两边的较大值（与 sync 同一顺序） */
+  if (src.mustDos !== undefined) {
+    if (!src.mustDos || typeof src.mustDos !== 'object' || Array.isArray(src.mustDos)) {
+      throw new Error('字段 mustDos 结构异常');
+    }
+    if (!appData.mustDos || typeof appData.mustDos !== 'object' || Array.isArray(appData.mustDos)) appData.mustDos = {};
+    if (!appData.mustDosAt || typeof appData.mustDosAt !== 'object' || Array.isArray(appData.mustDosAt)) {
+      appData.mustDosAt = {};
+    }
+    if (src.mustDosAt && typeof src.mustDosAt === 'object' && !Array.isArray(src.mustDosAt)) {
+      Object.keys(src.mustDosAt).forEach(function (k) {
+        const remoteT = Number(src.mustDosAt[k]) || 0;
+        const localT = Number(appData.mustDosAt[k]) || 0;
+        if (remoteT > localT) appData.mustDosAt[k] = remoteT;
+      });
+    }
+    const md = mergeKeyedMap(
+      appData.mustDos,
+      src.mustDos,
+      function (k) { return 'must_' + k; },
+      function (v, k) { return Number(appData.mustDosAt[k]) || 0; },
+      tombSet
+    );
+    appData.mustDos = md.map;
+    out.updated += md.changed;
+  }
+
+  /* 打卡 / 跳过：天然 CRDT（只有「有/没有」），并集即合并，跑两次 changed = 0 */
+  if (src.habitLogs !== undefined || src.habitSkips !== undefined) {
+    const l1 = mergeSetMap(appData.habitLogs, src.habitLogs);
+    const l2 = mergeSetMap(appData.habitSkips, src.habitSkips);
+    appData.habitLogs = l1.map;
+    appData.habitSkips = l2.map;
+    out.updated += l1.changed + l2.changed;
+  }
+
+  /* 其余顶层字段（设置 / 树 / 段位 / 成就 / 自由专注…）：备份为准（还原语义）。
+     只覆盖备份里确实有的键，本机独有的键保持不动。 */
+  Object.keys(src).forEach(function (k) {
+    if (BACKUP_MERGE_SKIP[k]) return;
+    appData[k] = src[k];
+  });
+  return out;
+}
+
+/* 合并完成：归一 → 补默认值 → 租期/抽奖保护 → 落盘 → 一次性刷新。
+   mode = 'ok' 时提示导入结果；空串用于「导入中途失败」——由调用方弹错误明细，
+   这时不能同时弹「已导入」的自相矛盾提示。 */
+function _backupFinishMerge(ctx, added, updated, mode) {
+  /* 版本迁移链：先把「备份的版本」写回，normalizeBackupData 才会按 fromVer 跑迁移 */
+  if (ctx && ctx.fromVer) appData.version = ctx.fromVer;
+  normalizeBackupData(appData);
+  keepLongerLease(ctx && ctx.keepLease);
+  keepMonotonicLottery(ctx && ctx.keepUsed);
+  saveData();
+  if (mode !== 'ok') return '';
+  const msg = '✅ 已导入 · 新增 ' + (added || 0) + ' 条 / 更新 ' + (updated || 0) + ' 条';
+  _refreshDataViews(msg);
+  return msg;
+}
+
+/* 导出成功的副作用：记录导出日 + 刷新备份提醒（写 appData 的职责留在数据层） */
+function _backupMarkExported(shardCount) {
+  UIFX.toast('已导出备份（含 ' + shardCount + ' 个分片）');
+  appData.lastExportDate = getTodayStr();
+  saveData();
+  updateBackupReminder();
+}
+
 /* 设置页显示最近自动备份时间 */
 /* 备份提醒提示条：在设置页持久显示距上次导出的天数 */
 function updateBackupReminder() {
@@ -2088,52 +2389,6 @@ function restoreAutoBackup() {
   };
   if (typeof window.rsAsk === 'function') window.rsAsk(_restoreMsg, { title: '恢复自动备份', okText: '恢复' }, _doRestore);
   else if (confirm(_restoreMsg)) _doRestore();
-}
-function importData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const parsed = JSON.parse(e.target.result);
-      const _vb = validateBackup(parsed);
-      if (!_vb.ok) {
-        /* 导入失败的原因常常很长（要让用户照着排查），而 toast 一闪而过根本读不完 ——
-           实测用户只能记住「说缺少某部分什么数组」这种半句，没法据此定位。
-           改用应用内弹窗：能读、能截图、能复制。 */
-        const _failMsg = '导入失败：\n\n' + _vb.reason;
-        if (typeof window.rsAlert === 'function') window.rsAlert(_failMsg, { title: '导入失败', okText: '知道了' });
-        else if (typeof window.rsInfo === 'function') window.rsInfo(_failMsg, { title: '导入失败' });
-        else UIFX.toast('导入失败：' + _vb.reason);
-        event.target.value = '';
-        return;
-      }
-      if (_vb.warns && _vb.warns.length) {
-        try {
-          console.warn('[导入] 旧格式兼容提示：', _vb.warns);
-          if (window.__errRep) window.__errRep.warn('import', _vb.warns.join('；'));
-        } catch (e2) { if (window.__silent) window.__silent(e2, '01b:importData'); }
-      }
-      /* 版本号口径：本项目**用源码日期当版本号**（见 00_head.html 顶部说明）。
-         DATA_VERSION（'3.9'）是**数据结构版本**、纯内部机制，不面向用户 ——
-         把它显示成「导入（版本 3.9）」会让人以为产品版本号又变成了 3.9。
-         所以这里显示**备份日期**，与全站版本号口径一致。 */
-      const versionInfo = parsed.exportDate ? '（备份日期 ' + parsed.exportDate + '）' : '';
-      const _importMsg = '导入' + versionInfo + '将覆盖当前所有数据，确定继续吗？\n（导入前数据会自动备份，可恢复）';
-      const _doImport = function () {
-        _autoBackupGuard('导入数据').then(function (ok) {
-          if (!ok) return;
-          applyBackupData(parsed, '✅ 数据已导入' + versionInfo + '，导入前数据已自动备份');
-        });
-      };
-      if (typeof window.rsAsk === 'function') window.rsAsk(_importMsg, { title: '导入数据', okText: '继续导入' }, _doImport);
-      else if (confirm(_importMsg)) _doImport();
-    } catch (err) {
-      UIFX.toast('导入失败：文件格式错误');
-    }
-    event.target.value = '';
-  };
-  reader.readAsText(file);
 }
 /* 打开清除确认弹窗（用应用内弹窗替代原生 prompt：PWA/WebView 环境常静默拦截 prompt，导致按钮"点了没反应"） */
 function clearAllData() {

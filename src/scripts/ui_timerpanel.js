@@ -192,6 +192,8 @@ function toggleTimerSub(si) {
   else delete lt.subs[si].doneAt;
   /* 与计划卡同一口径：只勾子计划也要进日志「今天完成」 */
   try { if (typeof _syncTodoPartialLog === 'function') _syncTodoPartialLog(lt); } catch (e) { if (window.__silent) window.__silent(e, '01e:toggleTimerSub:log'); }
+  /* 计时面板勾子任务 = 与计划卡同一件事 → 同样要父打戳 + 入队，漏这处就是「勾了同步不到」 */
+  touchParentOfSub(lt, lt.subs[si].uid);
   saveData();
   renderTimerSubs();
   renderTodos();
@@ -714,6 +716,7 @@ function renderPlanBreakView() {
         rcbs[idx].addEventListener('change', function (ev) {
           let s2 = enhBreakDefaults();
           if (s2.reminds[idx]) s2.reminds[idx].on = ev.target.checked;
+          touchParentOfSub(s2, s2.reminds[idx] && s2.reminds[idx].uid);
           remindRearm(id); /* 关掉 → 撤掉待确认；再打开 → 今天重新算 */
           saveData();
         });
@@ -721,6 +724,7 @@ function renderPlanBreakView() {
         rtis[idx].addEventListener('change', function (ev) {
           let s2 = enhBreakDefaults();
           if (s2.reminds[idx]) s2.reminds[idx].t = ev.target.value || '';
+          touchParentOfSub(s2, s2.reminds[idx] && s2.reminds[idx].uid);
           remindRearm(id); /* 改了时间 → 重新武装这一天 */
           saveData();
         });
@@ -728,6 +732,7 @@ function renderPlanBreakView() {
         rlis[idx].addEventListener('input', function (ev) {
           let s2 = enhBreakDefaults();
           if (s2.reminds[idx]) s2.reminds[idx].label = ev.target.value || '';
+          touchParentOfSub(s2, s2.reminds[idx] && s2.reminds[idx].uid);
           saveData();
         });
     })(k, arr2[k].id);

@@ -574,7 +574,7 @@ async function init() {
   }
 }
 document.addEventListener('visibilitychange', function () {
-  const bgPause = appData.settings && appData.settings.bgPause;
+  const bgPause = !window.__bottleNative && appData.settings && appData.settings.bgPause; /* 0.2.6 M2：原生有 FGS+精确闹钟兜底，后台暂停=白送时间 */
   if (document.hidden) {
     if (bgPause && timerState.running && timerState.mode === 'focus') {
       timerState._bgPausedAt = Date.now();

@@ -47,6 +47,10 @@ TPL_ORDER = os.path.join(TPL_DIR, "_order.json")  # 片段顺序清单
 PRECACHE_LIMIT = 600 * 1024
 MANI = os.path.join(SRC, "manifest.json")
 MARK = "<!--@@__JSS_{n}__@@-->"
+# 第三方库目录（目前只有 JSZip）：多产物原样拷到 assets/vendor/，单文件产物内联。
+# ★ 为什么单独放 vendor：它们不是本项目的源文件，不进 manifest（否则会被当成槽内脚本
+#   参与拼接/压缩/层级检查），只作为静态资源随构建一起发布。
+VENDOR_DIR = os.path.join(ROOT, "assets", "vendor")
 
 
 def tag_end(s, i):
@@ -258,6 +262,28 @@ def minify_style_blocks(text):
     return re.sub(r"(<style[^>]*>)(.*?)(</style>)", _repl, text, flags=re.S)
 
 
+def _vendor_js_files():
+    """vendor 目录里的 .js（按名排序，保证构建确定性）。"""
+    if not os.path.isdir(VENDOR_DIR):
+        return []
+    return sorted(f for f in os.listdir(VENDOR_DIR) if f.endswith(".js"))
+
+
+def _inline_vendor_scripts(html):
+    """单文件产物（--single）把 assets/vendor/*.js 内联：它要能 file:// 双击打开，
+    外链 assets/ 会 404。多产物走 _emit_multi 的原样拷贝，不进这里。"""
+    for name in _vendor_js_files():
+        tag = '<script src="assets/vendor/%s"></script>' % name
+        if tag not in html:
+            continue
+        code = open(os.path.join(VENDOR_DIR, name), encoding="utf-8").read()
+        if "</script>" in code:
+            print("✗ vendor %s 含 </script> 字面量，无法内联" % name)
+            sys.exit(1)
+        html = html.replace(tag, "<script>" + code + "</script>")
+    return html
+
+
 def assemble(ver=None):
     """按 src/manifest.json 合并 template.html + scripts → index.html 全文。
 
@@ -334,6 +360,8 @@ def assemble(ver=None):
             return datetime.date.fromtimestamp(newest).strftime("%Y.%m.%d")
         return datetime.date.today().strftime("%Y.%m.%d")
 
+    # 第三方 vendor：单文件产物在这里内联（多产物保持外链，见 _emit_multi）
+    out = _inline_vendor_scripts(out)
     _h = hashlib.sha256()
     _h.update(tpl.encode("utf-8"))
     for _f in sorted(os.listdir(SCRIPTS)):
@@ -897,6 +925,9 @@ def _emit_multi(dest=PUB, module=False):
     # 字体走**静态文件名**，不加内容哈希：它们已经按站点字符集裁过，改动极少（见 tools/fonts/README）
     if os.path.isdir(os.path.join(WEB_DIR, "fonts")):
         shutil.copytree(os.path.join(WEB_DIR, "fonts"), os.path.join(dest, "fonts"))
+    # 第三方 vendor（JSZip）：原样拷贝，文件名不变 —— SW 预缓存与排错都按这个名字找
+    if os.path.isdir(VENDOR_DIR):
+        shutil.copytree(VENDOR_DIR, os.path.join(assets, "vendor"))
 
     build_id = _site_build_id(idx_path, assets)
     sw = open(os.path.join(WEB_DIR, "sw.js"), encoding="utf-8").read().replace("__BUILD_ID__", build_id)
@@ -905,6 +936,9 @@ def _emit_multi(dest=PUB, module=False):
     #   站点入口与 manifest.start_url 都写死 "./"，所以只留 "./" 就够；
     #   sw.js 的离线回落里仍保留 cache.match('./index.html')，命中不了会落到 './'。
     precache = ["./", "./manifest.webmanifest", "assets/" + css_name] + written
+    # 第三方 vendor 进预缓存：离线时「导出备份」是仅剩的救命功能，缺 JSZip 就只能干看着。
+    # 它们很小（JSZip ≈ 97KB）且极少变化，但换版后仍要跟着 BUILD_ID 换代重新落地。
+    precache += ["assets/vendor/" + n for n in _vendor_js_files()]
     # 字体 / 图标不进按版本换代的 PRECACHE：它们**永不变化**，但每次发版换代都要重下
     # 一遍（光是文楷首屏块就 488 KB）。放进 STATIC_CACHE，跨版本共用，只在缺的时候补。
     # ★ 超过 PRECACHE_LIMIT 的单个字体**不预缓存**：文楷备用块有 1.15 MB，装 SW 时下它

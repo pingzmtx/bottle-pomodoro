@@ -147,9 +147,9 @@
         <div data-page-node-id="sdrFP5XU2mo2sdjrJElsxH" class="setting-row" style="flex-direction:column; align-items:stretch; gap:var(--sp-6)">
           <div data-page-node-id="TxltZqG8jKJXjP4V0U8P04" style="display:flex; justify-content:space-between; align-items:center">
             <div data-page-node-id="0SN5Lmu60scNodjpfEktkG" class="setting-label" style="padding:0"><!--pnid:Rtj7bE9ElPs5lt0pXZGZF5-->音效音量</div>
-            <span data-page-node-id="pw9ZPc3zPpSEAMCeznNda2" id="sfxVolLabel" style="font-size:var(--fs-note); color:var(--text-light)"><!--pnid:t202ehFvlE4hHPgdEkZyOL-->80%</span>
+            <span data-page-node-id="pw9ZPc3zPpSEAMCeznNda2" id="sfxVolLabel" style="font-size:var(--fs-note); color:var(--text-light)"><!--pnid:t202ehFvlE4hHPgdEkZyOL-->55%</span>
           </div>
-          <input data-page-node-id="OS73i3Sl36ydYLffN2md24" id="setSfxVolume" max="1" min="0" data-input="updateSfxVolume" data-input-args='["@value"]' step="0.05" type="range" value="1" style="width:100%; accent-color:var(--primary)">
+          <input data-page-node-id="OS73i3Sl36ydYLffN2md24" id="setSfxVolume" max="1" min="0" data-input="updateSfxVolume" data-input-args='["@value"]' step="0.05" type="range" value="0.55" style="width:100%; accent-color:var(--primary)">
         </div>
       </div>
     </div>
@@ -168,10 +168,11 @@
       <h3 data-page-node-id="DnCemgw54TOKOiBjqrHJba" class="group-header" data-act="toggleGroup" data-act-args='["backup"]'><!--pnid:lS0hCLXNnQV5YODthu6DsZ-->📦 数据备份与重置 <span data-page-node-id="p60jdrF5QHsMHPT5K6ZDsN" class="group-arrow"><!--pnid:EP2T1TYuPjRlFg1pnhQhGt-->▼</span></h3>
       <div data-page-node-id="drvA8BJYQPG3pTsH5nHYE8" class="group-body">
         <div data-page-node-id="RngK6n8lLQXeCbIWbzMm98" id="backupReminderBar" style="margin-bottom:var(--sp-10); padding:var(--sp-10) var(--sp-12); border-radius:var(--radius); font-size:var(--fs-title); font-weight:700; display:none; line-height:1.5"></div>
-        <button data-page-node-id="qC520xVoANXDAZX1vPVlUQ" class="save-btn" data-act="exportData" style="margin-bottom:var(--sp-8)"><!--pnid:KboS9gpbqpfcmsXWfnYogh-->导出全部数据（JSON）</button>
+        <button data-page-node-id="qC520xVoANXDAZX1vPVlUQ" class="save-btn" data-act="exportData" style="margin-bottom:var(--sp-8)"><!--pnid:KboS9gpbqpfcmsXWfnYogh-->导出全部数据（ZIP）</button>
         <div style="font-size:var(--fs-note); color:var(--text-light); line-height:1.5; margin:-2px 0 var(--sp-8); opacity:.85">导出的文件名若显示为一串乱码，是浏览器的下载方式所致，改名为 tomato_backup_当天日期.json 即可，内容不受影响。</div>
-        <button data-page-node-id="szNa9JKPGJl1l89Dy2pmNV" class="save-btn" data-act="__clickId" data-act-args='["importFile"]' style="margin-bottom:var(--sp-8); background:var(--blue)"><!--pnid:FV3FpRUUXIN6TA9O5hmFAR-->导入数据（JSON）</button>
-        <input data-page-node-id="3uHPA1pvfoX9Mx82wgKhmi" accept=".json" id="importFile" data-change="importData" data-change-args='["@event"]' type="file" style="display:none">
+        <button data-page-node-id="szNa9JKPGJl1l89Dy2pmNV" class="save-btn" data-act="__clickId" data-act-args='["importFile"]' style="margin-bottom:var(--sp-8); background:var(--blue)"><!--pnid:FV3FpRUUXIN6TA9O5hmFAR-->导入数据（ZIP / JSON）</button>
+        <!-- 一次可选多份：ZIP（新格式）与老 JSON 都认，按魔数 PK\x03\x04 分流 -->
+        <input data-page-node-id="3uHPA1pvfoX9Mx82wgKhmi" accept=".zip,.json" id="importFile" data-change="importData" data-change-args='["@event"]' type="file" multiple style="display:none">
         <div data-page-node-id="fhJKhrzwtlEfl70CFW6SpZ" style="margin-top:var(--sp-12); padding:var(--sp-10); background:var(--bg); border:1px solid var(--hairline); border-radius:var(--radius)">
           <div data-page-node-id="dXFCbPDZMPNcX0bkRTVH84" style="font-size:var(--fs-title); font-weight:700; color:var(--text); margin-bottom:var(--sp-4)"><!--pnid:Lusd0QQSstoZVJBs1gDaPN-->🛟 自动备份与恢复</div>
           <div data-page-node-id="ZGCcfkHpcVEKXwyLfyJ1wd" id="autoBackupInfo" style="font-size:var(--fs-title); color:var(--text-light); line-height:1.5; margin-bottom:var(--sp-8)"><!--pnid:YMBjBcNT3JwCRwbnrPOSfL-->暂无自动备份</div>
@@ -198,6 +199,23 @@
     <div class="settings-group foldable" data-group="more">
       <h3 class="group-header" data-act="toggleGroup" data-act-args='["more"]'>🧩 更多 <span class="group-arrow">▼</span></h3>
       <div class="group-body">
+        <!-- 0.4.1：这一组只剩「小眠」一行。
+             ★「内在微风 · 呼吸」整项移除（用起来很糟糕）；
+             ★「开源致谢」这一行也删掉了 —— 下面「关于 → 关于借鉴」里已经有同一份列表，
+               重复了（用户原话："里面就有那个关于借鉴，那个就是用来开源致谢的"）。
+             ★ 这一行要**看得出来能点**：左侧图标 + 右侧 ›。两者都用行内样式，
+               复用页面已有令牌（--fs-sub / --text-light），不新增 CSS 类、不动别的行 ——
+               设置页原本没有"图标 + 箭头"的 setting-row 可照抄（grep 确认过）。
+             ★ 它只是**入口**：真正打开的是原生独立页面（自己的 origin，与网页存储隔离），
+               所以这里不写任何 URL，只传一个 id（xmsleep）。 -->
+        <div class="setting-row" data-act="openEmbeddedSpace" data-act-args='["xmsleep"]' style="cursor:pointer">
+          <span style="flex-shrink:0; align-self:flex-start; width:22px; text-align:center; font-size:var(--fs-sub); line-height:1.5">🎧</span>
+          <div class="setting-label">小眠 · 白噪音
+            <div class="setting-desc">离线白噪音空间 · 界面来自开源项目 XMSLEEP</div>
+          </div>
+          <span style="flex-shrink:0; color:var(--text-light); font-size:var(--fs-title); line-height:1">›</span>
+        </div>
+
         <div class="setting-row">
           <div class="setting-label">关于
             <div class="setting-desc">番茄专注 · 由 B 站「瓶子满天星」制作 · MIT 协议开源</div>
@@ -211,6 +229,10 @@
                 <ul class="about-ref-list">
                   <li><b>Super Productivity</b></li>
                   <li><b>HabitTrove</b></li>
+                  <!-- 0.4.1：小眠（XMSLEEP）的署名并进这份列表 —— 原来它只在「开源致谢」
+                       那个重复入口里有一份。结构与上面几条完全一致（b + .about-ref-desc），
+                       不新造视觉。许可证原文留在 vendor/xmsleep/LICENSE（合规留档）。 -->
+                  <li><b>XMSLEEP</b><span class="about-ref-desc">离线白噪音空间（内嵌）。作者 Tosencen，MIT 协议</span></li>
                 </ul>
                 <div class="about-ref-title">其它参考</div>
                 <ul class="about-ref-list">

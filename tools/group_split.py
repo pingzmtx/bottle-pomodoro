@@ -196,6 +196,10 @@ def transform(pub):
     #   key —— 同一份 292 KB 存两遍，且首访时预缓存的那个必然再下一次（它没进 HTTP 缓存）。
     #   站点入口与 manifest.start_url 都是 "./"，保留它就够；离线回落里仍试 './index.html'。
     precache = ["./", "./manifest.webmanifest"] + ["assets/" + c for c in css] + files
+    # 第三方 vendor 也要预缓存（build.py 的 _emit_multi 已经加过一次，这里重算清单时不能丢）
+    vdir = os.path.join(pub, "assets", "vendor")
+    if os.path.isdir(vdir):
+        precache += ["assets/vendor/" + f for f in sorted(os.listdir(vdir)) if f.endswith(".js")]
     # ★ 字体 / 图标不放这里：它们跨版本不变，放进按 BUILD_ID 换代的预缓存 = 每次发版
     #   重下 1.9 MB（文楷 1.5 MB）。它们归 STATIC_CACHE，见 web/sw.js 的 STATIC_ASSETS。
     #   这里同时写 STATIC_ASSETS，是为了加/删字体文件时不用手改两处。

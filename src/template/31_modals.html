@@ -821,6 +821,14 @@
     <div data-page-node-id="VZ1NI8uWN8TyrgvwZCmDqR" class="modal-overlay" id="noiseModal">
   <div data-page-node-id="HLY7CEd5sxhXftmCaparUj" class="modal" style="max-height:85vh; overflow-y:auto">
     <h3 data-page-node-id="iu0F5uzHr3ziooJwD1YePB" style="text-align:center; margin-bottom:var(--sp-8)"><!--pnid:uvUzAEBqu0zpNmj1ITN3kc-->🎵 白噪音</h3>
+    <!-- 0.4.1（D）：弹窗顶部那条「去白噪音空间」的入口。
+         0.4.0 时它是 .noise-tab 的一段纯文字 —— "看起来就像一行字，你都不知道能点进去"。
+         现在改成一颗**明确的按钮**：🎧 + 浅底描边 + 右侧 ›，最小高度 44px。
+         ★ 只新增 .noise-embedded-entry 这一个类（样式在 18_settings.css 里紧跟 .noise-tab）；
+           弹窗整体布局不变，它仍然只占一行、位置不变。 -->
+    <button type="button" class="noise-embedded-entry" data-act="openEmbeddedSpace" data-act-args='["xmsleep"]'>
+      <span>🎧</span><span>打开白噪音空间 · 小眠</span><span>›</span>
+    </button>
     <div data-page-node-id="HQGJSOToOaLUQp3aotopoS" class="noise-tabs">
       <div data-page-node-id="W8VTYM17ZPHEYI3c7amctL" class="noise-tab active" data-tab="builtin" data-act="switchNoiseTab" data-act-args='["builtin"]'>🎧 内置白噪音</div>
       <div data-page-node-id="MyPlTabBtn001" class="noise-tab" data-tab="mypl" data-act="switchNoiseTab" data-act-args='["mypl"]'>📋 我的歌单</div>

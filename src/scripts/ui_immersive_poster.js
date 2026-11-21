@@ -177,9 +177,19 @@ function saveImmersivePoster() {
     showToast('❌ 没有可保存的海报');
     return;
   }
+  const name = '番茄钟-冒险总结海报-' + new Date().toISOString().slice(0, 10) + '.jpg';
+  /* ★ 0.6.3：与 savePoster() 同一条路 —— WebView 不实现 <a download>，
+     原来那条 click() 在 App 里是空操作。桥在就走原生：写相册 + 系统分享面板。 */
+  if (window.__bottleShare && typeof window.__bottleShare.poster === 'function') {
+    let send = url;
+    if (send.length > 900000) send = c ? c.toDataURL('image/jpeg', 0.78) : send;
+    window.__bottleShare.poster(send, name);
+    showToast('📤 正在打开分享…');
+    return;
+  }
   const a = document.createElement('a');
   a.href = url;
-  a.download = '番茄钟-冒险总结海报-' + new Date().toISOString().slice(0, 10) + '.jpg';
+  a.download = name;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

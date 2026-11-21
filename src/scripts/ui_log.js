@@ -25,7 +25,7 @@
  *     let/const，故本刀改用「按函数声明块精确抽取」而非按行号切段。
  *   · 回退方式：把本文件内容按 TOC 顺序粘回 01e 对应位置，并删掉 src/manifest.json
  *     里本文件那一行。
- * 函数索引（TOC）：switchLogTab/jumpLogDay/logRangeValue/setLogRange/logRangeLabel/logRangeAll/logRangeThisMonth/logRangeToday/openLogCalendar/changeLogCalendarMonth/pomoHeatLevel/renderLogCalendar（+60 更多）
+ * 函数索引（TOC）：switchLogTab/jumpLogDay/logRangeValue/setLogRange/logRangeLabel/logRangeAll/logRangeThisMonth/logRangeToday/openLogCalendar/changeLogCalendarMonth/pomoHeatLevel/renderLogCalendar（+70 更多）
  * ============================================================ */
 
 function switchLogTab(tab) {
@@ -1008,12 +1008,32 @@ function dayLogBlockHtml(date, dayRecs, opts) {
  * 算法全在 pure_core.js（EBBINGHAUS_INTERVALS / ebReview / ebIsDue / ebStageName），
  * 这里只负责「读 appData → 算待办 → 画界面」，不含任何间隔常数。 */
 function reviewDatesWithRecords() {
+  const only = isReviewPomodoroOnly();
   const set = {};
   (appData.records || []).forEach(function (r) {
     if (!r || !r.startTime) return;
+    /* ★ 0.6.4：「只看有番茄」开启时，这一天整条不进来 —— 而不是进来了再在详情页过滤空。
+       原来是「日期全收、详情才滤」，于是只有「仅记录/未完成」的天会出现在待回顾里，
+       点进去一片空白：他本来就不需要回顾那一天。 */
+    if (only && !isPomodoroRecord(r)) return;
     set[getDateStr(r.startTime)] = true;
   });
   return Object.keys(set).sort().reverse();
+}
+
+/* 「只看有番茄」开启时，有多少天因为没有任何番茄记录而被整条隐藏（0.6.4）。
+   只用于空状态说人话 —— 否则列表空了，用户会以为记录丢了。 */
+function reviewHiddenDayCount() {
+  if (!isReviewPomodoroOnly()) return 0;
+  const any = {};
+  const withPomo = {};
+  (appData.records || []).forEach(function (r) {
+    if (!r || !r.startTime) return;
+    const d = getDateStr(r.startTime);
+    any[d] = true;
+    if (isPomodoroRecord(r)) withPomo[d] = true;
+  });
+  return Object.keys(any).filter(function (d) { return !withPomo[d]; }).length;
 }
 
 function reviewState(date) {
@@ -1040,7 +1060,8 @@ function reviewDayRecords(date) {
 function reviewDaySummary(date) {
   const names = [];
   let planLine = '';
-  reviewDayRecords(date).forEach(function (r) {
+  /* ★ 0.6.4：与列表同口径 —— 开关开着时，被隐藏的记录不许还在卡片上露名字。 */
+  reviewRecsFor(date).forEach(function (r) {
     /* 芯片用任务名（= 计划名）优先，子任务名只作兜底 —— 之前把子任务名顶上来，
        结果回顾里全是「XX（子任务）」，反而看不出那天做的是哪个计划。 */
     const n = r.taskName || r.subTitle || r.note || '未命名';
@@ -1181,9 +1202,13 @@ function renderReviewModal() {
   }
   const all = reviewDatesWithRecords();
   if (!all.length) {
-    box.innerHTML =
-      '<div class="empty-state"><span class="empty-icon">🧠</span><div class="empty-title">还没有可回顾的记录</div>' +
-      '<div class="empty-desc">专注记录几天后，这里会自动排出回顾计划</div></div>';
+    const hidden = reviewHiddenDayCount();
+    box.innerHTML = hidden
+      ? '<div class="empty-state"><span class="empty-icon">🍅</span><div class="empty-title">没有可回顾的番茄</div>' +
+        '<div class="empty-desc">「只看有番茄的记录」已开启，另有 ' + hidden + ' 天因为没有番茄被隐藏' +
+        '<br>想要那些天也出现，去设置里关掉这个开关</div></div>'
+      : '<div class="empty-state"><span class="empty-icon">🧠</span><div class="empty-title">还没有可回顾的记录</div>' +
+        '<div class="empty-desc">专注记录几天后，这里会自动排出回顾计划</div></div>';
     return;
   }
   const due = dueReviewDates(today);
@@ -1273,7 +1298,7 @@ const upcomingAll = all
 function reviewCardHtml(date, today) {
   const st = reviewState(date);
   const isNew = !st;
-  const recs = reviewDayRecords(date);
+  const recs = reviewRecsFor(date);
   const stats = logDayStats(recs);
   return (
     '<div class="review-card' + (isNew ? ' review-card--new' : '') + '" data-date="' + date + '">' +
@@ -1357,6 +1382,10 @@ function gradeReview(date, gradeKey) {
 
 /* 日志日期头上的回顾状态徽标（空串 = 不显示） */
 function reviewBadgeHtml(date, today) {
+  /* ★ 0.6.4：开关开着时，没有番茄的天已经不参与回顾了 —— 日志页就不该再给他挂
+     「待回顾」，那是把他引到一个找不到这一天的地方。日志页的记录本身照常显示
+     （日志页用类型下拉筛选，不受这条设置管）。 */
+  if (isReviewPomodoroOnly() && !reviewDayRecords(date).some(isPomodoroRecord)) return '';
   const st = reviewState(date);
   if (!st) return date < today ? '<span class="log-review-badge due">🧠 待回顾</span>' : '';
   if (ebIsDue(st, today)) return '<span class="log-review-badge due">🧠 待回顾</span>';
@@ -1369,19 +1398,70 @@ function reviewBadgeHtml(date, today) {
    · 已斩掉的天数：从 appData.reviewStages 里挑出「不再排期」的（判据在纯核心 ebIsGraduated），
      恢复只是把它放回「今天该复习」——不改复习算法本身；
    · 只看番茄：**只影响回顾页**，落盘在 appData.settings.reviewPomodoroOnly（随全部数据导出/导入）。 */
+/* ===== 「不再复习」列表的浏览状态（0.6.4）=====
+   这个列表会无限长：复习走到最后一级都会毕业，一年 300+ 条，只能一直往下滑。
+   四招收敛：分类（我斩的 / 练到顶的）、年月折叠、行内显示当天做了什么、搜索。
+   ★ 这些只是**浏览状态**，不落盘：关掉弹窗就重置，不污染 appData。 */
+var _rsSearch = '';
+var _rsOpen = {};                      /* { '2026-11': true } 用户手动改过展开状态的月份 */
+var _rsCat = 'mastered';               /* 当前看哪一类：'mastered'（我斩的）| 'auto'（练到顶的） */
+
 function graduatedReviewDates() {
   const m = appData.reviewStages || {};
-  /* 只列「至今仍有记录」的日期。记录被删或被清之后，appData.reviewStages 里对应的键
-     就成了孤儿——继续列出来会让「恢复」去排期一个已经不存在的日子（点完什么也看不到），
-     份数也会虚高。这里按 records 现算一次白名单，只放有记录的进来。 */
-  const hasRec = {};
-  (appData.records || []).forEach(function (r) {
-    if (r && r.startTime) hasRec[getDateStr(r.startTime)] = true;
-  });
+  const only = isReviewPomodoroOnly();
   return Object.keys(m)
-    .filter(function (d) { return ebIsGraduated(m[d]) && hasRec[d]; })
+    .filter(function (d) {
+      if (!ebIsGraduated(m[d])) return false;
+      /* 记录被删或被清之后，reviewStages 里对应的键就成了孤儿 —— 继续列出来会让
+         「恢复」去排期一个已经不存在的日子（点完什么也看不到），份数也会虚高。 */
+      const recs = reviewDayRecords(d);
+      if (!recs.length) return false;
+      /* ★ 0.6.4：与列表同口径 —— 只看番茄时，那天没有番茄就整条不列。 */
+      if (only && !recs.some(isPomodoroRecord)) return false;
+      return true;
+    })
     .sort()
     .reverse();
+}
+
+/* 这一天做了什么：任务名去重，最多 max 个，多余的用「+N」收尾。 */
+function gradDayNames(date, max) {
+  const names = [];
+  reviewRecsFor(date).forEach(function (r) {
+    const n = r.taskName || r.subTitle || r.note || '未命名';
+    if (names.indexOf(n) < 0) names.push(n);
+  });
+  if (!names.length) return '';
+  const shown = names.slice(0, max);
+  return shown.join('、') + (names.length > max ? ' +' + (names.length - max) : '');
+}
+
+/* 搜索匹配：日期片段、中文日标签、当天任务名，任一命中即保留。
+   他记得的是「上个月写方案那次」，不是「2026-10-17」—— 所以任务名必须参与匹配。 */
+function gradMatches(d, kw) {
+  const k = String(kw || '').trim().toLowerCase();
+  if (!k) return true;
+  if (d.indexOf(k) >= 0) return true;
+  if (fmtDayLabel(d).toLowerCase().indexOf(k) >= 0) return true;
+  return gradDayNames(d, 20).toLowerCase().indexOf(k) >= 0;
+}
+
+/* 月份键 → 「2026 年 11 月」 */
+function gradMonthLabel(d) {
+  return d.slice(0, 4) + ' 年 ' + Number(d.slice(5, 7)) + ' 月';
+}
+
+/* 归档列表里的日期：去掉 fmtDayLabel 的「今天 / 昨天」前缀。
+   这是一份历史清单，按日期倒序排，相对词夹在一片具体日期里只是噪音
+   （而且往下翻十行看到「昨天」，读的人要愣一下才反应过来是哪天）。 */
+function gradDayLabel(d) {
+  return fmtDayLabel(d).replace(/^(今天|昨天) · /, '');
+}
+
+/* 默认展开哪些月：只看最近 3 个月；用户手动改过就以他为准（_rsOpen）。 */
+function gradMonthOpen(mk, defaultOpen) {
+  if (Object.prototype.hasOwnProperty.call(_rsOpen, mk)) return _rsOpen[mk];
+  return defaultOpen;
 }
 
 /* 「回顾时只看番茄」的读与写：**只作用于回顾页**，不动日志页。
@@ -1397,10 +1477,17 @@ function toggleReviewPomodoroOnly(on) {
   appData.settings.reviewPomodoroOnly = !!on;
   saveData();
   renderReviewModal();
+  /* 开关一改，「已到顶 / 已斩掉」的名单口径也跟着变 —— 只重绘那一块列表，
+     不重绘整个设置弹窗（否则刚点的复选框会闪一下、焦点也丢）。 */
+  renderGradList();
   showToast(on ? '回顾时只看有番茄的记录' : '回顾时显示全部记录');
 }
 
 function openReviewSettingsModal() {
+  /* 每次打开都从默认视图开始：搜索词清空、折叠回默认（浏览状态不跨次保留） */
+  _rsSearch = '';
+  _rsOpen = {};
+  _rsCat = 'mastered';
   renderReviewSettingsModal();
   showModal('reviewSettingsModal');
 }
@@ -1408,28 +1495,6 @@ function openReviewSettingsModal() {
 function renderReviewSettingsModal() {
   const box = document.getElementById('reviewSettingsBody');
   if (!box) return;
-  const dates = graduatedReviewDates();
-  const rowsOf = function (list) {
-    return list
-      .map(function (d) {
-        const recs = reviewDayRecords(d);
-        let pomos = 0;
-        recs.forEach(function (r) { pomos += getPomos(r); });
-        return (
-          '<div class="rs-day"><div class="rs-day-main"><b>' + escapeHtml(d) + '</b>' +
-          '<span class="rs-day-sub">' + recs.length + ' 条记录 · ' + fmtTomatoNum(pomos) + ' 🍅</span></div>' +
-          '<button class="btn-small" onclick="restoreReviewDate(\'' + escapeHtml(d) + '\')">恢复</button></div>'
-        );
-      })
-      .join('');
-  };
-  const sec = function (title, list, empty) {
-    return (
-      '<div class="rs-sec"><div class="rs-sec-title">' + title + ' · ' + list.length + ' 天</div>' +
-      (list.length ? '<div class="rs-days">' + rowsOf(list) + '</div>' : '<div class="rs-empty">' + empty + '</div>') +
-      '</div>'
-    );
-  };
   box.innerHTML =
     '<div class="rs-sec">' +
     '<div class="rs-sec-title">每天回顾几天</div>' +
@@ -1453,19 +1518,164 @@ function renderReviewSettingsModal() {
     ' onchange="toggleReviewPomodoroOnly(this.checked)">' +
     '<span>回顾时只显示有番茄的记录<em>只在「回顾」里生效，隐藏「仅记录」和「未完成」；日志页不受影响</em></span></label>' +
     '</div>' +
-    /* 合并成一组：不再区分「斩掉」与「练到顶」—— 老数据没存这个原因，
-       分两组反而把以前斩掉的误归到「已掌握」（用户点名），合并最省事 */
-    sec('✅ 已到顶 / 已斩掉（不再复习）', dates, '还没有不再复习的日子');
+    /* ★ 0.6.4：原来的「✅ 已到顶 / 已斩掉」是一整段平铺列表，一年 300+ 条只能一直往下滑。
+       现在拆成「搜 + 两类 + 年月折叠」，而且交给 renderGradList() 单独重绘 ——
+       搜索、折叠、恢复都只动这一块，上面两块设置不受影响（输入框不丢焦点）。
+       ★ 不再套一层「已到顶 / 已斩掉」的标题：下面两个分类头各自带边框，本身就是分区，
+         再顶一个标题只会和「我斩掉的」重复（截图里两行标题挨着，读起来像两个开关）。 */
+    '<div class="rs-sec"><div id="rsGradList"></div></div>';
+  renderGradList();
 }
 
-/* 恢复被斩掉的一天：放回待回顾队列（级别退回初学），日志页的徽标随之刷新 */
+/* ===== 「不再复习」列表（0.6.4）：搜索 + 两类切换 + 年月折叠 + 行内显示当天做了什么 =====
+   只重绘 #rsGradList 这一块，不动上面「每天回顾几天 / 只看番茄」两块设置。
+
+   ★ 搜索框与列表分成两层：input 只创建一次，打字时只重绘它下面的 #rsGradBody。
+     整个 innerHTML 替换会把 input 元素换掉 —— Android 软键盘当场收起、中文输入法的
+     候选条一起消失，等于每打一个字就要重新点一次输入框。 */
+function renderGradList() {
+  const box = document.getElementById('rsGradList');
+  if (!box) return;
+  if (!document.getElementById('rsGradSearch')) {
+    box.innerHTML =
+      '<div class="rs-grad">' +
+      '<div class="rs-search-wrap">' +
+      '<input class="rs-search" id="rsGradSearch" type="search" placeholder="搜任务名或日期" ' +
+      'oninput="onGradSearch(this.value)" aria-label="搜索不再复习的日子">' +
+      '</div>' +
+      '<div id="rsGradBody"></div>' +
+      '</div>';
+    const el = document.getElementById('rsGradSearch');
+    if (el) el.value = _rsSearch;
+  }
+  renderGradBody();
+}
+
+/* 列表主体：切换、搜索、恢复都只重绘这里。 */
+function renderGradBody() {
+  const box = document.getElementById('rsGradBody');
+  if (!box) return;
+  const kw = String(_rsSearch || '').trim();
+  const all = graduatedReviewDates();
+  /* 分类判据：'mastered' = 我亲手斩掉的；其余（'solid-top'）= 练到顶自然毕业的。
+     ★ 老数据没有 reason 字段，ebGraduateReason 一律兜底成 solid-top，
+       不会把当年练到顶的日子误报成「我斩掉的」。 */
+  const totals = { mastered: 0, auto: 0 };
+  const cat = { mastered: [], auto: [] };
+  all.forEach(function (d) {
+    const key = ebGraduateReason(reviewState(d)) === 'mastered' ? 'mastered' : 'auto';
+    totals[key]++;
+    if (gradMatches(d, kw)) cat[key].push(d);
+  });
+
+  /* 一个月一组：按 d.slice(0,7) 聚合，月份倒序；默认只开最近 3 个月。 */
+  const monthBlocks = function (list) {
+    const byMonth = {};
+    const months = [];
+    list.forEach(function (d) {
+      const mk = d.slice(0, 7);
+      if (!byMonth[mk]) {
+        byMonth[mk] = [];
+        months.push(mk);
+      }
+      byMonth[mk].push(d);
+    });
+    months.sort().reverse();
+    return months
+      .map(function (mk, i) {
+        /* 搜索时月份必须全展开 —— 否则搜到了却藏在折叠里，等于没搜到。 */
+        const open = kw ? true : gradMonthOpen(mk, i < 3);
+        const rows = byMonth[mk]
+          .map(function (d) {
+            const recs = reviewRecsFor(d);
+            let pomos = 0;
+            recs.forEach(function (r) { pomos += getPomos(r); });
+            const names = gradDayNames(d, 2);
+            const sub = fmtTomatoNum(pomos) + '🍅' + (names ? ' · ' + names : '');
+            /* 行内只写「11月5日 · 周三」—— 年份在分组头上，不必重复；完整日期放 title。 */
+            return (
+              '<div class="rs-day"><div class="rs-day-main">' +
+              '<b title="' + escapeHtml(d) + '">' + escapeHtml(gradDayLabel(d)) + '</b>' +
+              '<span class="rs-day-sub">' + escapeHtml(sub) + '</span></div>' +
+              '<button class="btn-small" onclick="restoreReviewDate(\'' + escapeHtml(d) + '\')">恢复</button></div>'
+            );
+          })
+          .join('');
+        return (
+          '<details class="rs-month" data-m="' + escapeHtml(mk) + '"' + (open ? ' open' : '') + '>' +
+          '<summary class="rs-month-head">' + escapeHtml(gradMonthLabel(mk)) +
+          '<span class="rs-month-n">· ' + byMonth[mk].length + ' 天</span></summary>' +
+          '<div class="rs-days">' + rows + '</div></details>'
+        );
+      })
+      .join('');
+  };
+
+  /* 两类做成顶部切换，而不是两个上下叠的折叠块：
+     叠着放时「我斩掉的」一展开，就把「练到顶的」那一行挤到看不见 —— 用户以为只有一类。
+     切换后两类各自的份数常驻在顶部一行，一次只铺一类，天然不会互相挤。 */
+  const tabBar = function () {
+    const one = function (key, icon, label) {
+      const n = kw ? cat[key].length : totals[key];
+      return (
+        '<button type="button" class="rs-tab' + (key === _rsCat ? ' on' : '') +
+        '" onclick="switchGradCat(\'' + key + '\')">' + icon + ' ' + label +
+        '<b>' + n + '</b></button>'
+      );
+    };
+    return '<div class="rs-tabs">' + one('mastered', '✂️', '我斩掉的') + one('auto', '🌱', '练到顶的') + '</div>';
+  };
+
+  const empty = !cat.mastered.length && !cat.auto.length;
+  /* 搜索时当前这一类 0 命中、另一类有：自动切过去。否则用户搜了个词，只看到
+     「这一类没有匹配的」，会以为真的没有 —— 其实结果在另一个标签底下。 */
+  if (kw && !cat[_rsCat].length) {
+    const other = _rsCat === 'mastered' ? 'auto' : 'mastered';
+    if (cat[other].length) _rsCat = other;
+  }
+  const curList = cat[_rsCat] || cat.mastered;
+  box.innerHTML =
+    (empty
+      ? '<div class="rs-empty">' + (kw ? '没有匹配的日子' : '还没有不再复习的日子') + '</div>'
+      : tabBar() +
+        (curList.length
+          ? monthBlocks(curList)
+          : '<div class="rs-empty">' + (kw ? '这一类没有匹配的' : '这一类还没有') + '</div>'));
+
+  /* 记住用户手动展开/收起了哪个月 —— 恢复一天后重绘列表时不会又缩回去。
+     ★ 初始 open 属性在插入 DOM 时不会触发 toggle，所以不会把默认值写脏。 */
+  box.querySelectorAll('.rs-month').forEach(function (el) {
+    el.addEventListener('toggle', function () { _rsOpen[el.dataset.m] = el.open; });
+  });
+}
+
+/* 切换「我斩掉的 / 练到顶的」：只换当前展示的那一类，搜索词与月份展开状态都保留。 */
+function switchGradCat(k) {
+  _rsCat = k === 'auto' ? 'auto' : 'mastered';
+  renderGradBody();
+}
+
+/* 搜索：只重绘列表主体，input 原地不动 —— 软键盘不会收起，中文输入法的候选条也不会被打断。 */
+function onGradSearch(v) {
+  _rsSearch = String(v || '');
+  renderGradBody();
+}
+
+/* 恢复被斩掉的一天：放回待回顾队列（级别退回初学），日志页的徽标随之刷新。
+   ★ 0.6.4：只重绘列表块（renderGradList），**不要**重调 renderReviewSettingsModal ——
+     那会把搜索词和折叠状态一起重置，恢复完一天列表突然跳回顶部默认视图。 */
 function restoreReviewDate(date) {
   if (!appData.reviewStages) appData.reviewStages = {};
   appData.reviewStages[date] = ebRestoreState(getTodayStr());
   saveData();
-  renderReviewSettingsModal();
+  const body = document.getElementById('reviewSettingsBody');
+  const top = body ? body.scrollTop : 0;
+  renderGradList();
+  renderReviewModal();      /* 待回顾列表要跟着更新 */
   renderLogs();
-  showToast('已恢复 ' + date + '，可以重新回顾了');
+  /* 恢复一天后列表变短，滚动位置可能超出内容高度 —— 浏览器会自己夹住，不用额外处理 */
+  if (body) body.scrollTop = top;
+  showToast('已恢复 ' + fmtDayLabel(date) + '，可以重新回顾了');
 }
 
 function renderLogs() {

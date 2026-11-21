@@ -216,6 +216,32 @@ body.dark-mode .theme-card { background: var(--surface-1); }
   -webkit-tap-highlight-color: transparent;
 }
 .noise-tab.active { color: var(--primary-ink); border-bottom-color: var(--primary); background: rgba(var(--primary-rgb),0.06); }
+/* 0.4.1（D）：白噪音弹窗顶部的「打开白噪音空间 · 小眠」——本轮**只新增这一个类**。
+   0.4.0 它是一段 .noise-tab 纯文字，用户反馈"看起来就像一行字，不知道能点"。
+   现在做成按钮：浅底 + 描边 + 右侧 ›，最小高度 44px（手指点得准）。
+   布局仍是弹窗里的一行、位置不变；不动 .noise-tab / .noise-tabs 的任何样式。 */
+.noise-embedded-entry {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  width: 100%;
+  min-height: 44px;
+  margin-bottom: var(--sp-10);
+  padding: var(--sp-10) var(--sp-12);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-title);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.noise-embedded-entry > span:nth-child(2) { flex: 1; min-width: 0; }
+.noise-embedded-entry > span:last-child { flex-shrink: 0; color: var(--text-light); line-height: 1; }
+.noise-embedded-entry:active { opacity: .7; }
 .noise-builtin { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--sp-12) var(--sp-10); }
 .noise-now { font-size:var(--fs-title); font-weight: 700; text-align: center; margin: var(--sp-4) 0 var(--sp-10); color: var(--text); }
 .noise-now .now-icon { font-size: calc(26px * var(--fs-boost)); margin-right: var(--sp-6); }

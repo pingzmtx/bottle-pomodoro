@@ -32,7 +32,8 @@ TESTS = os.path.join(ROOT, "tools", "tests")
 RUNNER = os.path.join(ROOT, "tools", "run_smoke.py")
 
 # 不是"用例"的文件：公共契约、探针、临时脚本、Node 单测（自己 assert，不走 R 契约）
-NOT_CASES = {"_contract.js", "_probe.js", "_tmp_block.js", "unit_pure.js"}
+NOT_CASES = {"_contract.js", "_probe.js", "_tmp_block.js", "unit_pure.js",
+              "sync_p2p_unit.js"}  # 多端同步：Node 直跑（verify.py 的 syncunit 段）
 
 fails = []
 notes = []

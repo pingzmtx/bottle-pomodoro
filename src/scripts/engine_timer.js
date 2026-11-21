@@ -18,7 +18,7 @@
  *   - 番茄掉落动效与通知：showTomatoDropAnimation / notify / WakeLock 保持亮屏（playSound 定义在 04-ui.js，本模块只负责调用）
  *   - 沉浸式专注：开始专注抽角色卡入口（startPomodoro 拆分）、短休触发章节过渡页、冒险期抑制长休
  *   - 白帽游戏化：心流推荐时长应用 / 疲劳检测提示 / 可变休息时长 / 休息冷知识 / 结束仪式鼓励语
- * 函数索引（TOC）：__replaceApplyTimerModeUI/toggleTimer/strategyOfFreeType/timerStrategy/isFreeMode/toggleFreeMode/switchTimerMode/applyTimerModeUI/resolveFreeLink/refillTimerInputs/toggleFreeTimer/finishFreeTimer（+80 更多）
+ * 函数索引（TOC）：__replaceApplyTimerModeUI/toggleTimer/strategyOfFreeType/timerStrategy/isFreeMode/toggleFreeMode/switchTimerMode/applyTimerModeUI/resolveFreeLink/refillTimerInputs/toggleFreeTimer/finishFreeTimer（+86 更多）
  * ============================================================ */
 
 /* 跨模块函数替换的唯一入口（01g 用它包一层同步 UI） */
@@ -317,7 +317,7 @@ function toggleFreeTimer() {
        不能只靠 15s 心跳 —— 切到后台时 JS 定时器会被冻结、心跳根本不跑，
        自由专注就永远没写进磁盘，页面被回收/重载回来就全没了。 */
     saveTimerSnapshot();
-    UIFX.playSound('start');
+    UIFX.playSound('start'); window.__bottleBubble && window.__bottleBubble.notify({ type: 'start', title: timerState.taskName || '专注' });
     UIFX.showFocusQuote('start');
     startTimerLoop();
     scheduleNextMicroBreak();
@@ -366,7 +366,7 @@ function toggleFreeTimer() {
     }
     const bS = document.getElementById('btnStart');
     bS.innerHTML = '<span>⏸ 暂停</span><span class="btn-sub">pause</span>';
-    UIFX.playSound('start');
+    UIFX.playSound('start'); window.__bottleBubble && window.__bottleBubble.notify({ type: 'start', title: timerState.taskName || '专注' });
     startTimerLoop();
     scheduleNextMicroBreak();
     requestWakeLock();
@@ -652,7 +652,20 @@ function saveRunningSnapshotNow() {
   }
 }
 document.addEventListener('visibilitychange', function () {
-  if (document.hidden) saveRunningSnapshotNow();
+  if (document.hidden) { saveRunningSnapshotNow(); return; }
+  /* 回前台立刻对账：隐藏期间 tick 被冻住，已超时的微休息不等下一个 tick 直接静默结算 */
+  if (timerState.microActive && _microOverdue()) { settleMicroBreak(); return; }
+  /* ★ 0.6.2：隐藏期间**到点该发生的那一次**只有原生知道答案（它有没有替我响）。
+     先挂对账锁问一句，回执回来再决定弹不弹；1.5 秒没回执就自己按老规则处理，
+     绝不能让锁卡住整条微休息链路。 */
+  if (timerState.microNextAt && Date.now() >= timerState.microNextAt) {
+    _microReconciling = true;
+    try { window.__bottleMicro && window.__bottleMicro.claim(timerState.microNextAt); }
+    catch (e) { _microReconciling = false; }
+    setTimeout(function () {
+      if (_microReconciling) { _microReconciling = false; checkMicroBreak(); }
+    }, 1500);
+  }
 });
 window.addEventListener('pagehide', saveRunningSnapshotNow);
 /* 恢复未结算的完成弹窗（Bug4）：页面重开后补弹，确认后番茄与冒险结算不丢 */
@@ -1183,7 +1196,7 @@ function startPomodoroCore() {
   _lastSnapshotAt = Date.now(); /* 与启动快照同步，避免 tick 立即重复落盘 */
   hideBreakDice();
   UIFX.renderTimerSubs(); /* + 音效：开始专注时"低嘟"音 + 屏幕中央滑入一条短引言（3 秒后淡出） */
-  UIFX.playSound('start');
+  UIFX.playSound('start'); window.__bottleBubble && window.__bottleBubble.notify({ type: 'start', title: timerState.taskName || '专注' });
   UIFX.showFocusQuote('start');
 }
 function startTimerLoop() {
@@ -1491,7 +1504,7 @@ function onTimerComplete() {
   updateTimerDisplay();
   if (timerState.mode === 'focus') {
     // 仅在专注结束时响，休息结束走下面的 breakEnd，避免两种声音叠在一起
-    UIFX.playSound('focusEnd');
+    UIFX.playSound('focusEnd'); window.__bottleBubble && window.__bottleBubble.notify({ type: 'finish' });
     UIFX.showFocusQuote('finish');
     if (navigator.vibrate) navigator.vibrate(200);
     notify('番茄结束', '专注时间到！', { kind: 'pomo-end', sticky: true });
@@ -1516,7 +1529,7 @@ function onTimerComplete() {
     saveDataNow();
     showFinishModal('natural');
   } else {
-    UIFX.playSound('breakEnd');
+    UIFX.playSound('breakEnd'); window.__bottleBubble && window.__bottleBubble.notify({ type: 'breakEnd' });
     if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
     notify('休息结束', '该继续专注了！', { kind: 'break-end', sticky: true });
     UIFX.hideImmersiveTransition(); /* 沉浸式专注：休息结束收起章节过渡页与环境音 */
@@ -1993,10 +2006,16 @@ function startBreak(mode) {
   document.getElementById('timerTodo').textContent = '';
   document.getElementById('btnStart').disabled = true;
   document.getElementById('btnFinish').disabled = true;
+  /* ★ 0.6.2：自由专注结束后进休息，这里的按钮是给「跳过休息」用的，
+     但 applyTimerModeUI() 在 free 模式里把 btnInterrupt 设成了 display:none
+     （因为正计时运行中不需要「打断」这个动作），而 resetToIdle() 先于本函数执行，
+     没人再把它放出来 —— 结果就是正计时的 5 分钟休息没有任何跳过出口。
+     休息是独立状态，与 timerMode 无关，这里必须显式恢复可见。 */
+  document.getElementById('btnInterrupt').style.display = '';
   document.getElementById('btnInterrupt').disabled = false;
   document.getElementById('btnInterrupt').innerHTML = '<span>跳过休息</span><span class="btn-sub">skip</span>';
   document.getElementById('btnInterrupt').onclick = skipBreak;
-  UIFX.playSound('breakStart');
+  UIFX.playSound('breakStart'); window.__bottleBubble && window.__bottleBubble.notify({ type: 'breakStart', title: '休息开始 · ' + dur + ' 分钟', eventMs: dur * 60 * 1000 });
   startTimerLoop();
   updateTimerDisplay();
   showBreakDice();
@@ -2242,31 +2261,70 @@ const MICRO_SKIP_MAX = 1.8;       /* 最多放长到 1.8 倍，免得直接变�
      再早的判断（比如 45 秒）会误杀「切出去回一条消息」这种正常情况。 */
 const MICRO_OVERDUE_SEC = 90;
 
-/* ④ 分段节奏：长场次的「中段」把间隔拉长。
-   依据是「警觉性衰减」的反面 —— 长任务里正确率随时间下降，但中段恰恰是深度思考
-   真正发生的时候，这时候频繁打断的代价最高；到了末段人已经疲了，反而需要提醒把
-   注意力拽回来。所以形状是「两头正常、中间稀疏」，而不是全程均匀。
-   ★ 只在「知道总时长、且总时长够长」的时候启用：
-     25 分钟的番茄整场都算入场期，分段没有意义；正计时没有终点，也就没有「末段」。
-   ★ 不额外加密末段。对 3~5 分钟这个基准密度来说，中段 ×1.5 之后再回到基准，
-     本身就已经是一次「变密」了，再加码等于把人推回被盯着的感觉。 */
-const MICRO_PHASE_MIN_TOTAL_MIN = 60; /* 总时长不到这个数就不分段（分钟） */
-const MICRO_PHASE_MID_FROM = 0.30;    /* 中段起点：已过总时长的 30% */
-const MICRO_PHASE_MID_TO = 0.85;      /* 中段终点：过了 85% 就回到基准密度 */
-const MICRO_PHASE_MID_STRETCH = 1.5;  /* 中段间隔放大倍数 */
+/* ④ 分段节奏：间隔倍数跟着「这一场已经专注了多少分钟」走，而不是「占了几成」。
 
-/* 当前这一抽该不该按「中段」拉长（返回倍数，1 = 不变） */
+   ## 形状：平 → 疏 → 密（保留原来的中段拉长，补上前段基准、后段加密）
+
+   · 0~30 分：×1.0，就是用户设的基准 3~5 分钟。这一段**不加密** ——
+     基准本身就已经很密（比「每 15~20 分钟一次」密 4 倍），再乘 0.75 就变成
+     每 3 分钟踹一脚，正好踩在心流跑道上：进入深度专注需要十几分钟不被打断的跑道，
+     跑道内每断一次，整段要重来。所以「前段密集」不是再加密，而是**保持基准、不打扰**。
+   · 30~50 分：1.0 → 1.35 渐变。深水区，大块思考真正发生在这里；每次打断的代价是
+     数分钟的注意力残留（切换后旧任务会持续抢占注意力），所以把间隔拉长。
+   · 50~70 分：1.35 → 0.78 渐变。过了 60 分钟，主观投入还在，但正确率与深度已经在掉
+     （就是「你还很专注，但效率在不知不觉下降」），靠更频繁的短暂离屏把效率续住。
+   · 70 分以后：×0.72 封顶，约每 2.2~3.6 分钟一次，直到场次结束。
+
+   ## 为什么按绝对分钟，不按百分比
+   百分比口径下 50 分钟的场次在第 15 分钟就开始变稀，可那时人刚进状态；
+   25 分钟的番茄整场都不到 30%，永远进不了任何分段，等于曲线对它完全不生效。
+   「前 20~40 分钟」「60~90 分钟」这些说法本来就是绝对时长。
+
+   ## 为什么用插值而不是三段硬切
+   硬切在边界上会突变：54 分钟间隔 7 分钟，55 分钟突然变 2.4 分钟，
+   用户体感是「算法换了」而不是「节奏变了」。控制点 + 线性插值让倍数连续变化，
+   曲线上没有一个能被指认出来的「台阶」。
+
+   ## 系数是乘在「随机抽出来的间隔」上的
+   所以每次看到的数字仍然不一样，算不出「第几分钟一定响」——曲线只改分布的中心，
+   不改「随机」这件事本身。 */
+
+/* [已专注分钟, 间隔倍数] —— 倍数越小越密；1.0 就是用户设的基准区间 */
+const MICRO_DENSITY = [
+  [0, 1.0],    /* 开局：基准密度 */
+  [30, 1.0],   /* 前 30 分钟保持基准：心流跑道期，不额外加密 */
+  [50, 1.35],  /* 30→50 渐变到最疏：深水区让出大块时间 */
+  [70, 0.78],  /* 50→70 渐变收回：效率下降期，靠微休息续命 */
+  [120, 0.72]  /* 70 分钟以后维持最密档 */
+];
+/* 乘法之后的绝对下限（分钟）：用户把基准设成 1 分钟时，0.72 倍会变成 43 秒，
+   那不叫微休息叫骚扰。1.5 分钟与「迟到上限 90 秒」同量级，比它还短就没有意义。 */
+const MICRO_DENSITY_FLOOR_MIN = 1.5;
+
+/* 曲线取值：给「已专注分钟」，返回该点的间隔倍数（线性插值，两端外推取端点值）。
+   纯函数，不读任何状态 —— 能被直接喂数字验证。 */
+function _microDensityAt(min) {
+  const pts = MICRO_DENSITY;
+  const m = Math.max(0, min || 0);
+  if (m <= pts[0][0]) return pts[0][1];
+  for (let i = 1; i < pts.length; i++) {
+    if (m <= pts[i][0]) {
+      const a = pts[i - 1];
+      const b = pts[i];
+      const span = b[0] - a[0];
+      if (span <= 0) return b[1];
+      return a[1] + (b[1] - a[1]) * ((m - a[0]) / span);
+    }
+  }
+  return pts[pts.length - 1][1];
+}
+
+/* 当前这一抽的间隔倍数。
+   函数名保留 _microPhaseStretch —— 测试钩子 __microHooks.phase() 还在用它；
+   语义从「只在长场次、只拉中段」升级为「所有场次、三段连续曲线」。
+   正计时同样生效（elapsed 一直增长，会平滑走进最密档），不需要额外分支。 */
 function _microPhaseStretch() {
-  /* 正计时没有总时长，取不到「占了几成」——直接不分段，靠跳过自适应兜着 */
-  const countsDown =
-    timerState.mode === 'focus' || strategyOfFreeType(timerState.freeType).countsDown;
-  if (!countsDown) return 1;
-  const total = timerState.totalDuration || 0;
-  if (!(total > 0)) return 1;
-  if (total / 60 < MICRO_PHASE_MIN_TOTAL_MIN) return 1;
-  const frac = _microFocusElapsedSec() / total;
-  if (frac >= MICRO_PHASE_MID_FROM && frac < MICRO_PHASE_MID_TO) return MICRO_PHASE_MID_STRETCH;
-  return 1;
+  return _microDensityAt(_microFocusElapsedSec() / 60);
 }
 
 /* 这一场专注已经跑了多少秒（三种模式的「已用」口径不一样，别混） */
@@ -2297,17 +2355,44 @@ function _microDrawIntervalMin() {
   if (streak >= MICRO_SKIP_STREAK_FROM) {
     v *= Math.min(MICRO_SKIP_MAX, 1 + MICRO_SKIP_STEP * (streak - 1));
   }
-  /* 分段节奏：长场次的中段拉长间隔（乘在抽出来的值上，不乘入场保护那个数） */
+  /* 分段节奏：按「已专注分钟」取倍数（乘在抽出来的值上，不乘入场保护那个数） */
   v *= _microPhaseStretch();
+  /* 乘完之后再兜一次绝对下限：后段 ×0.72 会把「用户设的 1~2 分钟」压到 43~86 秒，
+     那不是微休息而是骚扰，也短于睫状肌放松需要的 18~20 秒。 */
+  if (v < MICRO_DENSITY_FLOOR_MIN) v = MICRO_DENSITY_FLOOR_MIN;
   return v;
 }
 
+/* ===== 0.6.2：微休息的时钟交给原生 =====
+   背景：WebView 的 renderer 是独立进程，前台服务保不住它。切到别的 App 后
+   setInterval 全停 → checkMicroBreak() 不跑 → 微休息既不响、悬浮窗也不展开，
+   回前台才补一次（用户看到的就是「我点小窗回来，它才刚开始」）。
+   分工（与「网页唯一写者」不冲突）：
+     · 决策仍在本文档：什么时候该休息由密度曲线算，算完得到一个**绝对时刻**；
+     · 时钟交给原生 MicroClock：把这个时刻推过去，由它在后台准时响；
+     · 原生不写任何网页状态，只回一个「我替你响过了」的时刻。
+   owner 规则：**可见 → 网页自己弹；隐藏 → 原生替你弹**，两条互斥，不会双响。 */
+function _microDurationMs() {
+  return (Number(appData.settings.microDuration) || 0) * 1000;
+}
+function _pushMicroPlan(nextAt) {
+  try {
+    window.__bottleMicro && window.__bottleMicro.plan(nextAt || 0, _microDurationMs());
+  } catch (e) { if (window.__silent) window.__silent(e, '01c:microPlan'); }
+}
 function scheduleNextMicroBreak() {
+  timerState.microNextAt = _computeMicroNextAt();
+  _pushMicroPlan(timerState.microNextAt);
+}
+/* 纯计算：只返回「下一次闭眼的绝对时刻」，0 = 这一次不排。
+   ★ 本函数**绝不写 timerState.microNextAt** —— 写它的只有外层 scheduleNextMicroBreak，
+     这样「算」与「推送原生」永远成对发生，不会出现「排了但没告诉原生」。 */
+function _computeMicroNextAt() {
   /* 自由专注（正计时/流式）也要有微休息。
      原先两处守卫都写死 mode !== 'focus'，把自由专注整条路排除了（键在调度与检查两处）。
      现在只认「在专注里」：番茄 focus 与自由专注 free 一视同仁；休息/待机不排。 */
-  if (!appData.settings.microBreak) return;
-  if (timerState.mode !== 'focus' && timerState.mode !== 'free') return;
+  if (!appData.settings.microBreak) return 0;
+  if (timerState.mode !== 'focus' && timerState.mode !== 'free') return 0;
   let intervalMin;
   if (appData.settings.microMode === 'fixed') {
     intervalMin = appData.settings.microInterval;
@@ -2344,12 +2429,11 @@ function scheduleNextMicroBreak() {
   if (hasBudget) {
     const needMs = intervalMs + Math.max(0, appData.settings.microDuration || 0) * 1000;
     if (needMs > timerState.remaining * 1000) {
-      timerState.microNextAt = 0;
-      return;
+      return 0;
     }
   }
   timerState.microLastInterval = intervalMin;
-  timerState.microNextAt = Date.now() + intervalMs;
+  return Date.now() + intervalMs;
 }
 /* 测试钩子：排程相关的内部状态外面只有只读快照（window.timerState），
    写不进去 —— 想验证「中段拉长」这类分段行为，必须能改内部状态并直接看抽样结果。
@@ -2448,78 +2532,104 @@ window.__liveNotifyHooks = { tick: _maybeLiveNotify, clear: _clearLiveNotify, st
 } };
 
 function checkMicroBreak() {
+  /* ★ 0.6.2：页面隐藏时**网页不再自己触发** —— 交给原生 MicroClock。
+     两条路由必须互斥，否则后台还没被冻住的那几秒会双响。
+     对账期间（_microReconciling）也先别动，等原生回执。 */
+  if (typeof document !== 'undefined' && document.hidden) return;
+  if (_microReconciling) return;
   if (!appData.settings.microBreak) return;
   if (timerState.mode !== 'focus' && timerState.mode !== 'free') return;
   if (!timerState.microNextAt) return;
   const now = Date.now();
   if (now < timerState.microNextAt) return;
-  /* 见 MICRO_OVERDUE_SEC 的说明：迟太多就不补这一次，重排即可。
-     ★ 重排走 scheduleNextMicroBreak 而不是「microNextAt = now + 一个间隔」：
-       重排会重新走一遍入场保护 / 抗连短 / 跳过自适应 / 分段节奏，直接加间隔会绕过它们。 */
+  /* 见 MICRO_OVERDUE_SEC 的说明：迟太多就不补这一次，重排即可。重排必须走 scheduleNextMicroBreak
+     而不是「microNextAt = now + 间隔」—— 重排会重新走入场保护 / 抗连短 / 跳过自适应 / 分段节奏。 */
   const lateSec = (now - timerState.microNextAt) / 1000;
   if (lateSec > MICRO_OVERDUE_SEC) {
     timerState.microNextAt = 0;
-    /* 迟到的这一次不计入 microSkipStreak：它不是用户主动跳过，是浏览器把页面挂起了，
-       算进去会让「跳过自适应」误以为用户不想要提醒，反而把间隔越拉越长。 */
+    /* 迟到的这次不计入 microSkipStreak：它不算用户主动跳过，算进去会让跳过自适应把间隔越拉越长。 */
     scheduleNextMicroBreak();
     return;
   }
   triggerMicroBreak();
 }
+/* ★ 2026-11-30：微休息倒计时改「绝对时刻」（microStartedAt 唯一时间源，剩余由墙上时钟算）。
+   旧写法是每秒把剩余秒数减一（相对计数）：后台 WebView 被冻结、setInterval 全停，回前台顺着停住的
+   位置接着数 →「悬浮窗已报结束、App 里还在倒数」。超过 时长+MICRO_GRACE_SEC 即静默结算。 */
+var MICRO_GRACE_SEC = 2;
+/* 0.6.2：对账锁 —— 回前台时「原生有没有替我响过」这件事必须等一个回执，
+   期间 tick 里的 checkMicroBreak 一律让开（见 visibilitychange 的说明）。 */
+var _microReconciling = false;
+function _microLeftSec() { return timerState.microStartedAt ? Math.max(0, (Number(appData.settings.microDuration) || 0) - Math.floor((Date.now() - timerState.microStartedAt) / 1000)) : 0; }
+function _microOverdue() { if (!timerState.microStartedAt) return false; return (Date.now() - timerState.microStartedAt) > ((Number(appData.settings.microDuration) || 0) + MICRO_GRACE_SEC) * 1000; }
+/* 结算共用入口（倒计时到点 / 回前台对账都走它）：静默与否只看墙上时钟是否已远超时长 */
+function settleMicroBreak() {
+  if (timerState.microIv) { clearInterval(timerState.microIv); timerState.microIv = null; }
+  finishMicroBreak(false, _microOverdue());
+}
+/* 原生回执（0.6.2）：它在后台替我们响过一次，或者它没管。
+   对不上 at 就丢弃 —— 中间已经重排过，这条回执说的是上一次的事。
+   @param at        网页当时排的那个绝对时刻
+   @param startedAt 原生开始这一次的墙上时刻；0 = 原生没管 */
+window.__bottleMicroAck = function (at, startedAt) {
+  /* 先解锁再比对：回执对不上（中间重排过）也要把锁放掉，否则要等 1.5 秒兜底才恢复。 */
+  _microReconciling = false;
+  if (!at || at !== timerState.microNextAt) { return; }
+  if (!startedAt) { checkMicroBreak(); return; }
+  const dur = _microDurationMs();
+  /* 还在休息窗口里：把 UI 接着放出来。倒计时按 microStartedAt 算（0.6.1 已改成绝对时刻），
+     所以这里天然连续，不需要任何补帧。**不播音**：后台已经响过了。 */
+  if (startedAt + dur > Date.now()) {
+    timerState.microActive = true;
+    timerState.microStartedAt = startedAt;
+    timerState.microNextAt = 0;
+    document.getElementById('microBreakTimer').textContent =
+      Math.max(0, Math.ceil((startedAt + dur - Date.now()) / 1000));
+    UIFX.showModal('microBreakModal');
+    if (timerState.microIv) { clearInterval(timerState.microIv); timerState.microIv = null; }
+    timerState.microIv = setInterval(() => {
+      const left = _microLeftSec();
+      document.getElementById('microBreakTimer').textContent = left;
+      if (left <= 0) settleMicroBreak();
+    }, 1000);
+    return;
+  }
+  /* 已经过完了：静默结算（不播音、不展开），然后按新节奏重排 */
+  finishMicroBreak(false, true);
+};
 function triggerMicroBreak() {
   timerState.microActive = true;
   timerState.microStartedAt = Date.now();
   timerState.microNextAt = 0;
-  UIFX.playSound('microStart');
-  /* 微休息**只在你实际看不到弹窗时**才发系统通知。
-     ★ 2026-10-25：原来无条件发，等于是同一件事说两遍 —— 页面里已经弹窗了，
-       再推一条通知栏消息纯属重复打扰；而微休息每 3~5 分钟一次，通知栏会被刷得很难受。
-       但也确实有非发不可的情况：页面切到后台 / 手机锁屏时，弹窗用户根本看不见，
-       那时候一条通知才是唯一能让 ta 知道的通道。
-       所以判据是「页面是否可见」：看得见 → 靠弹窗，不发通知；看不见 → 才发。 */
+  UIFX.playSound('microStart'); window.__bottleBubble && window.__bottleBubble.notify({ type: 'microStart', title: '微休息 · ' + appData.settings.microDuration + ' 秒', eventMs: appData.settings.microDuration * 1000 });
+  /* 微休息只在「页面看不到弹窗」时才发系统通知（2026-10-25）：看得见 → 靠弹窗，再推一条
+     通知纯属重复打扰；切后台 / 锁屏时弹窗看不见，那条通知才是唯一能让他知道的通道。 */
   try {
     var _vis = (typeof document !== 'undefined' && document.visibilityState === 'visible');
     if (!_vis) notify('微休息', '闭眼，感受呼吸', { kind: 'micro' });
   } catch (e) { if (window.__silent) window.__silent(e, '01c:microNotify'); }
   document.getElementById('microBreakTimer').textContent = appData.settings.microDuration;
   UIFX.showModal('microBreakModal');
-  /* 微休息只提示「闭眼观察呼吸」。
-     曾有一段 4-2-6 节律的跟随文案，还逐秒刷新（"吸气…数到 4（1/4）"）——
-     可闭着眼根本看不见，反倒逼人盯着屏幕跟着数，与「闭眼」自相矛盾，已删。
-     现在屏幕上只剩一句话 + 倒计时，数完自动关闭。 */
-  let remaining = appData.settings.microDuration;
+  /* 文案只有一句「闭眼观察呼吸」（曾有 4-2-6 节律逐秒文案，闭着眼看不见，已删）。 */
   /* 受控轮询 · 微休息倒计时（有 clear 生命周期，不挂 __ivGov） */
   timerState.microIv = setInterval(() => {
-    remaining--;
-    document.getElementById('microBreakTimer').textContent = remaining;
-    if (remaining <= 0) {
-      clearInterval(timerState.microIv);
-      finishMicroBreak();
-    }
+    const left = _microLeftSec();
+    document.getElementById('microBreakTimer').textContent = left;
+    if (left <= 0) settleMicroBreak();
   }, 1000);
 }
-/* ★ 微休息不该算进专注时长：正计时/停表的累计口径是墙钟（结束 - startTime），而 tick
-   在 microActive 期间直接 return（不清零也不扣），闭眼那几十秒会被全额记成「实际专注」，
-   结算窗口、bumpFreeStats 的 minutes、日志记录一起虚高。结束时把起点整体推后这么多。
-   倒计时类（番茄 / 流式）口径是 endAt，不是墙钟，不受影响，不动。 */
-function _microShiftFocusStart() {
-  const t0 = timerState.microStartedAt || 0;
-  timerState.microStartedAt = 0;
-  if (!t0) return;
-  const gap = Date.now() - t0;
-  if (gap <= 0) return;
-  if (
-    timerState.mode === 'free' &&
-    strategyOfFreeType(timerState.freeType).elapsedIsRemaining &&
-    timerState.startTime
-  ) {
-    timerState.startTime += gap;
-  }
-}
-function finishMicroBreak(skipped) {
-  UIFX.playSound('microEnd');
+/* 微休息**计入**专注时长（2026-11-21 改）。
+   闭眼那几十秒人还坐在那儿专注，从账上抹掉没有道理 —— 旧写法是在这里把起点整体推后 gap，
+   等于把微休息的时间从专注记录里减掉。现在只清时间源，不动 startTime。
+   两种口径本来就一致：正计时 / 停表是墙钟（elapsed = now - startTime），tick 在 microActive
+   期间 return 只影响刷新判断，不影响账；倒计时 / 流式是 endAt，更加没动过。 */
+function finishMicroBreak(skipped, silent) {
+  /* silent：后台被冻过，原生已提示过「结束」→ 跳过播音 / notify / 展开，其余照做。 */
+  if (!silent) { UIFX.playSound('microEnd'); window.__bottleBubble && window.__bottleBubble.notify({ type: 'microEnd' }); }
   UIFX.closeModal('microBreakModal');
-  _microShiftFocusStart();
+  /* microStartedAt 只服务于微休息倒计时，收尾必须清掉，否则 _microOverdue 会拿它误判。
+     除此之外**不碰 startTime** —— 微休息的时间照常记在专注里。 */
+  timerState.microStartedAt = 0;
   timerState.microActive = false;
   timerState.lastTickTime = Date.now();
   /* 完整休息完了 → 清零「连续跳过」计数。跳过代表相反的意思（用户现在不需要被打断），

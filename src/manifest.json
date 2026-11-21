@@ -18,6 +18,8 @@
         "engine_data.js",
         "achievements.js",
         "sync.js",
+        "sync_p2p.js",
+        "sync_p2p_payload.js",
         "engine_timer.js",
         "engine_features.js",
         "engine_record_link.js",
@@ -52,6 +54,7 @@
         "ui_biocal_map.js",
         "ui_summary.js",
         "ui_misc.js",
+        "ui_embedded.js",
         "ui_skin.js",
         "ui_memo.js",
         "ui_timeblock.js",
@@ -65,6 +68,7 @@
         "ui_ux.js",
         "engine_immersive.js",
         "ui_script_import.js",
+        "backup_zip.js",
         "engine_init.js"
       ],
       "parts": 32

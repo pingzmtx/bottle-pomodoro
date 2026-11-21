@@ -605,6 +605,10 @@ body.dark-mode[data-theme="catppuccin"] {
 .review-hero { display: flex; align-items: center; gap: var(--sp-12); background: var(--card); border: 1px solid var(--primary); border-radius: var(--radius-md); padding: var(--sp-12); margin-bottom: var(--sp-12); }
 /* 内容自己滚，弹窗本体不再滚：标题与「关闭」始终留在屏幕上，不用翻到底 */
 .review-body { max-height: 66vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+/* 回顾与回顾设置这两个弹窗的内容天生比别人长（一天一张卡 / 一年几百条归档）：
+   抬高上限，让列表一屏能多放两三行。其余弹窗仍按 66vh，不改通用值。 */
+#reviewModal .modal, #reviewSettingsModal .modal { max-height: 92vh; }
+#reviewModal .review-body, #reviewSettingsModal .review-body { max-height: 74vh; }
 .review-hero--done { border-color: var(--border); }
 .review-hero-num { font-size: var(--fs-h1); font-weight: 800; color: var(--primary-ink); line-height: 1; }
 .review-hero--done .review-hero-num { color: var(--text-light); }
@@ -684,6 +688,41 @@ body.dark-mode[data-theme="catppuccin"] {
 .rs-day-main b { font-size: var(--fs-note); color: var(--text); }
 .rs-day-sub { font-size: var(--fs-caption); color: var(--text-light); }
 .rs-empty { padding: var(--sp-14) 0; text-align: center; font-size: var(--fs-note); color: var(--text-light); }
+
+/* ===== 「不再复习」列表（0.6.4）：搜索 + 两类折叠 + 年月折叠 =====
+   列表会无限长（复习走到最后一级都会毕业），所以给它四招收敛。视觉照 .review-up-wrap /
+   .review-h 那套 <details> 的写法来：去三角、cursor:pointer、不动默认间距。 */
+.rs-grad { margin-top: var(--sp-10); }
+.rs-search-wrap { margin-bottom: var(--sp-10); }
+.rs-search { width: 100%; box-sizing: border-box; padding: var(--sp-8) var(--sp-10); font-size: var(--fs-note); color: var(--text); background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none; }
+.rs-search::placeholder { color: var(--text-light); }
+.rs-cat { margin-top: var(--sp-10); }
+/* 两类切换：常驻一行，各自报份数 —— 上下叠着放时，展开的一类会把另一类挤到看不见 */
+.rs-tabs { display: flex; gap: var(--sp-6); margin-bottom: var(--sp-10); }
+.rs-tab {
+  flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; gap: var(--sp-4);
+  padding: var(--sp-8) var(--sp-6); font-size: var(--fs-caption); color: var(--text-light);
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  cursor: pointer; white-space: nowrap;
+}
+.rs-tab.on { color: var(--primary-ink); border-color: var(--primary); font-weight: 600; background: color-mix(in srgb, var(--primary) 10%, transparent); }
+.rs-tab b { font-size: var(--fs-caption); font-weight: 600; color: inherit; }
+.rs-month-head { display: flex; align-items: center; gap: var(--sp-6); cursor: pointer; list-style: none; }
+.rs-month-head::-webkit-details-marker { display: none; }
+/* 折叠指示：三角在 summary 上是浏览器默认样式，各家长得不一样（有的还带缩进）。
+   统一改成右端一个「›」，展开时转 90°。 */
+.rs-month-head::after {
+  content: '›'; flex: 0 0 auto; margin-left: auto; font-size: var(--fs-note);
+  color: var(--text-light); transform: rotate(90deg); transition: transform .15s;
+}
+details[open] > .rs-month-head::after { transform: rotate(-90deg); }
+.rs-month-n { font-weight: 400; font-size: var(--fs-caption); color: var(--text-light); }
+/* 缩进一级，让「月份 → 日子」两层在视觉上真的分得开 */
+.rs-grad .rs-month { margin-top: var(--sp-6); padding-left: var(--sp-6); }
+.rs-month-head { font-size: var(--fs-caption); color: var(--text-light); padding: var(--sp-6) 0; }
+.rs-month .rs-days { margin-top: var(--sp-6); }
+/* 副标题一行放不下时省略，不要把行撑高 */
+.rs-day-sub { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ---------- 习惯：统计 / 热力条 / 归档区 ---------- */
 .habit-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-6); text-align: center; margin-bottom: var(--sp-10); }

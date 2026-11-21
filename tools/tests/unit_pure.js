@@ -2129,5 +2129,158 @@ eq('成长点·today 是脏值 → 0（不抛错）',
     Object.keys(P.dayPlanNormAll({ [D]: [{ start: D + ' 06:00', end: D + ' 06:30' }] }, 'abc')), [D]);
 }
 
+/* —— 映射集合合并（多端同步 S1/S2，2026-11）：mergeKeyedMap / mergeSetMap ——
+   为什么放在纯函数单测里：它们是 pure_core 的新导出，且**分支多**（墓碑命中、只在
+   一侧的 key、时间戳相等、并集幂等）。覆盖率门禁按「未进入分支块」卡棘轮，
+   这里每条分支都要踩一次，否则 sync 层接上去时没人知道这些分支对不对。 */
+{
+  const uidOf = (k) => 'diary_' + k;
+  const tsOf = (v) => (v && Number(v.updatedAt)) || 0;
+  /* ① 逐 key LWW：远端更新 → 取远端 */
+  eq('mergeKeyedMap 远端更新 → 取远端',
+    P.mergeKeyedMap({ d1: { plan: '本地', updatedAt: 1000 } },
+      { d1: { plan: '远端', updatedAt: 2000 } }, uidOf, tsOf, null).map.d1.plan, '远端');
+  /* ② 本地更新 → 保留本地（不能把新数据压回去） */
+  eq('mergeKeyedMap 本地更新 → 保留本地',
+    P.mergeKeyedMap({ d1: { plan: '本地', updatedAt: 3000 } },
+      { d1: { plan: '远端', updatedAt: 2000 } }, uidOf, tsOf, null).map.d1.plan, '本地');
+  /* ③ key 只在一侧：远端独有 → 新增；本地独有 → 原样留着 */
+  const onlyRemote = P.mergeKeyedMap({}, { d2: { plan: '只有远端', updatedAt: 1 } }, uidOf, tsOf, null);
+  eq('mergeKeyedMap 远端独有 → 新增', [Object.keys(onlyRemote.map), onlyRemote.changed], [['d2'], 1]);
+  const onlyLocal = P.mergeKeyedMap({ d3: { plan: '只有本地', updatedAt: 1 } }, {}, uidOf, tsOf, null);
+  eq('mergeKeyedMap 本地独有 → 不动', [Object.keys(onlyLocal.map), onlyLocal.changed], [['d3'], 0]);
+  /* ④ 墓碑命中：对端删过这一天 → 本地也删（changed++） */
+  const tombSet = Object.create(null); tombSet.diary_d1 = 1;
+  eq('mergeKeyedMap 墓碑命中 → 本地删掉',
+    P.mergeKeyedMap({ d1: { plan: 'x', updatedAt: 9 } }, { d1: { plan: 'x', updatedAt: 9 } }, uidOf, tsOf, tombSet),
+    { map: {}, changed: 1 });
+  /* ⑤ 墓碑命中一个本地没有的 key → changed 不变（不虚报） */
+  eq('mergeKeyedMap 墓碑命中但本地没有 → changed 0',
+    P.mergeKeyedMap({}, { d1: { plan: 'x', updatedAt: 1 } }, uidOf, tsOf, tombSet).changed, 0);
+  /* ⑥ 入参兜底：远端不是对象 / null 本地 */
+  eq('mergeKeyedMap 远端不是对象 → 原样返回', P.mergeKeyedMap({ d1: 1 }, null, uidOf, tsOf, null),
+    { map: { d1: 1 }, changed: 0 });
+  eq('mergeKeyedMap 本地是 null → 空表', P.mergeKeyedMap(null, { d1: { updatedAt: 1 } }, uidOf, tsOf, null).changed, 1);
+
+  /* ⑦ 集合并集：两段合并成三段 */
+  const u = P.mergeSetMap({ 1: ['2026-11-19', '2026-11-20'] }, { 1: ['2026-11-20', '2026-11-21'] });
+  eq('mergeSetMap 并集去重升序', u.map[1], ['2026-11-19', '2026-11-20', '2026-11-21']);
+  eq('mergeSetMap changed = 新增条数', u.changed, 1);
+  /* ⑧ 幂等：同一份再并一次 → changed 0 */
+  eq('mergeSetMap 幂等', P.mergeSetMap(u.map, { 1: ['2026-11-20', '2026-11-21'] }).changed, 0);
+  /* ⑨ 归一：一端存完整 ISO 串、一端存日期 → 同一天算一条 */
+  eq('mergeSetMap 按前 10 位归一去重',
+    P.mergeSetMap({ 1: ['2026-11-20'] }, { 1: ['2026-11-20T08:00:00.000Z'] }).map[1], ['2026-11-20']);
+  /* ⑩ 入参兜底 */
+  eq('mergeSetMap 远端 null → 原样', P.mergeSetMap({ 1: ['a'] }, null).changed, 0);
+  eq('mergeSetMap 本地 null → 只留远端', P.mergeSetMap(null, { 1: ['2026-11-19'] }).map[1], ['2026-11-19']);
+  eq('mergeSetMap 本地值不是数组 → 当空数组', P.mergeSetMap({ 1: 'x' }, { 1: ['2026-11-19'] }).map[1], ['2026-11-19']);
+  /* ⑪ 远端值不是数组 / 两边都空 → 不动（这两条分支不测就会留在「未进入」里） */
+  eq('mergeSetMap 远端值不是数组 → 当空数组', P.mergeSetMap({ 1: ['2026-11-19'] }, { 1: 'x' }).changed, 0);
+  eq('mergeSetMap 两边都空 → 不写 key', Object.keys(P.mergeSetMap({ 1: [] }, { 1: [] }).map), ['1']);
+  /* ⑫ 远端某个 key 的值是假值 → 跳过（changed 不虚报） */
+  eq('mergeKeyedMap 远端值是 null → 跳过', P.mergeKeyedMap({}, { d1: null }, uidOf, tsOf, null).changed, 0);
+  /* ⑬ uidOf 不是函数 → 不做墓碑判定（防御式分支） */
+  eq('mergeKeyedMap uidOf 缺失 → 仍能合并',
+    P.mergeKeyedMap({}, { d1: { plan: 'x', updatedAt: 1 } }, null, tsOf, null).changed, 1);
+}
+
+/* —— lwwPick 的 skew/平局（§10.2）：纯函数层的两条新分支 —— */
+{
+  eq('lwwPick 两参 = skew 0（老调用行为不变）',
+    P.lwwPick({ updatedAt: 100 }, { updatedAt: 200 }), 'remote');
+  eq('lwwPick 只有一侧 → 取那一侧', [P.lwwPick(null, { updatedAt: 1 }), P.lwwPick({ updatedAt: 1 }, null)],
+    ['remote', 'local']);
+  eq('lwwPick 两侧都空 → same', P.lwwPick(null, null), 'same');
+  eq('lwwPick skew 把远端往旧里算', P.lwwPick({ updatedAt: 1000 }, { updatedAt: 1300 }, -200), 'remote');
+  eq('lwwPick skew 把远端往新里算', P.lwwPick({ updatedAt: 1000 }, { updatedAt: 700 }, 200), 'local');
+  ok('_canon 递归（数组不再塌成 [object Object]）',
+    P._canon({ a: [{ x: 1 }] }) !== P._canon({ a: [{ x: 2 }] }));
+  eq('_canon 类型标记 null ≠ undefined', [P._canon(null), P._canon(undefined)], ['z', 'u']);
+  /* 其余标量分支：数字归一 / 布尔 / 字符串带长度前缀（各自一条，覆盖率门禁按块数卡） */
+  eq('_canon 数字归一（1 与 1.0 同串）', [P._canon(1), P._canon(1.0)], ['n1', 'n1']);
+  eq('_canon 布尔', [P._canon(true), P._canon(false)], ['b1', 'b0']);
+  eq('_canon 字符串带长度前缀', P._canon('ab'), 's2:ab');
+  /* 平局的第三种结局：两端内容完全相同 → 'same'（不是 local/remote） */
+  eq('lwwPick 平局且内容相同 → same',
+    P.lwwPick({ uid: 'r', updatedAt: 5, t: 'x' }, { uid: 'r', updatedAt: 5, t: 'x' }), 'same');
+  /* 平局但内容不同：两个方向都要走到（`b > a` 与 `b < a` 各一条） */
+  eq('lwwPick 平局按内容决胜（A）',
+    P.lwwPick({ uid: 'r', updatedAt: 5, t: 'a' }, { uid: 'r', updatedAt: 5, t: 'b' }), 'remote');
+  eq('lwwPick 平局按内容决胜（B）',
+    P.lwwPick({ uid: 'r', updatedAt: 5, t: 'b' }, { uid: 'r', updatedAt: 5, t: 'a' }), 'local');
+  /* _tiePick 直接调用：两端算出的结果必须互逆（否则就是「各留各的」） */
+  eq('_tiePick 两方向互逆',
+    [P._tiePick({ t: 'a' }, { t: 'b' }), P._tiePick({ t: 'b' }, { t: 'a' })], ['remote', 'local']);
+  /* mergeRemoteRecords 的两条边界：缺 uid 的远端被丢弃；无 uid 的本地原样保留 */
+  eq('mergeRemoteRecords 远端缺 uid → skipped',
+    P.mergeRemoteRecords([], [{ title: '没有 uid' }], []), { list: [], added: 0, updated: 0, skipped: 1 });
+  eq('mergeRemoteRecords 本地无 uid → 原样保留',
+    P.mergeRemoteRecords([{ title: '老本地' }], [], []).list, [{ title: '老本地' }]);
+  /* opts.skewMs 透传（第 4 参）：对端钟快 200 → 它的 1300 实际是 1100 */
+  eq('mergeRemoteRecords opts.skewMs 透传',
+    P.mergeRemoteRecords([{ uid: 'r', t: 'A', updatedAt: 1000 }],
+      [{ uid: 'r', t: 'B', updatedAt: 1300 }], [], { skewMs: -200 }).updated, 1);
+  /* 已删记录：本地被墓碑标记 → 输出里也不留（活着的时候被删掉的那条） */
+  eq('mergeRemoteRecords 本地这条已被墓碑 → 从输出移除',
+    P.mergeRemoteRecords([{ uid: 'r', updatedAt: 1 }], [], [{ uid: 'r', deletedAt: 9 }]).list, []);
+  /* 远端那条已被墓碑 → skipped，绝不复活 */
+  eq('mergeRemoteRecords 远端被墓碑 → skipped',
+    P.mergeRemoteRecords([], [{ uid: 'r', updatedAt: 99 }], [{ uid: 'r', deletedAt: 1 }]),
+    { list: [], added: 0, updated: 0, skipped: 1 });
+  /* 本地同 uid 出现两次 → 只留一条（界面上不能显示两条、改一处两处都变） */
+  eq('mergeRemoteRecords 本地同 uid 去重',
+    P.mergeRemoteRecords([{ uid: 'r', t: 1, updatedAt: 1 }, { uid: 'r', t: 2, updatedAt: 2 }], [], []).list.length, 1);
+  /* opts 是空对象（老调用方传 {}）→ 与三参逐字相同 */
+  eq('mergeRemoteRecords opts 空对象 == 三参',
+    P.mergeRemoteRecords([{ uid: 'r', updatedAt: 1 }], [{ uid: 'r', updatedAt: 2 }], [], {}).updated, 1);
+  /* mergeKeyedMap：两侧时间戳相等 → 保留本地（不抖） */
+  eq('mergeKeyedMap 时间戳相等 → 保留本地',
+    P.mergeKeyedMap({ d1: { plan: '本地', updatedAt: 5 } }, { d1: { plan: '远端', updatedAt: 5 } },
+      (k) => 'diary_' + k, (v) => (v && Number(v.updatedAt)) || 0, null).changed, 0);
+  /* mergeSetMap：远端数组里有重复日期 → 只加一次 */
+  eq('mergeSetMap 远端重复日期只加一次',
+    P.mergeSetMap({ 1: ['2026-11-19'] }, { 1: ['2026-11-20', '2026-11-20'] }).map[1], ['2026-11-19', '2026-11-20']);
+}
+
+/* —— 形状穷举（覆盖率收尾）：两个新合并函数的每个 if 两侧都必须走到 ——
+   为什么要穷举而不是只挑几条：覆盖率门禁按「未进入分支块」卡棘轮，这不是形式主义 ——
+   合并路径的稀疏分支（值缺失 / 时间戳相等 / 墓碑命中一个本地没有的 key）正是
+   「同步没报错但少了一条」的发生地。这里 4×6×2 与 5×5 组合一次扫完。 */
+{
+  const uidOf = (k) => 'diary_' + k;
+  const tsOf = (v) => (v && Number(v.updatedAt)) || 0;
+  const tomb = Object.create(null); tomb.diary_d1 = 1;
+  const locals = [{}, null, { d1: { updatedAt: 1 } }, { d1: { updatedAt: 9 } }];
+  const remotes = [null, {}, { d1: { updatedAt: 1 } }, { d1: { updatedAt: 9 } }, { d1: null }, { d2: { updatedAt: 2 } }];
+  const tombs = [null, tomb];
+  let bad = 0;
+  locals.forEach((l) => remotes.forEach((r) => tombs.forEach((tb) => {
+    const res = P.mergeKeyedMap(l, r, uidOf, tsOf, tb);
+    if (!res || typeof res.changed !== 'number' || typeof res.map !== 'object') bad++;
+  })));
+  eq('mergeKeyedMap 形状穷举 48 组都不炸', [bad, locals.length * remotes.length * tombs.length], [0, 48]);
+  /* 无 uidOf（防御分支）、无 tsOf 时也不炸 */
+  eq('mergeKeyedMap 缺 uidOf/tsOf 不炸',
+    typeof P.mergeKeyedMap({ d1: { updatedAt: 1 } }, { d1: { updatedAt: 2 } }, null, null, null).changed, 'number');
+
+  const mapLocals = [null, {}, { 1: ['2026-11-19'] }, { 1: [] }, { 1: '脏值' }];
+  const mapRemotes = [null, {}, { 1: ['2026-11-19'] }, { 1: ['2026-11-20'] }, { 1: '脏值' }];
+  let bad2 = 0;
+  mapLocals.forEach((l) => mapRemotes.forEach((r) => {
+    const res = P.mergeSetMap(l, r);
+    if (!res || typeof res.changed !== 'number' || typeof res.map !== 'object') bad2++;
+  }));
+  eq('mergeSetMap 形状穷举 25 组都不炸', [bad2, mapLocals.length * mapRemotes.length], [0, 25]);
+}
+
+/* —— skewMs 脏值（undefined / null / 非数字串）→ 按 0 处理，不许把 NaN 传染进比较 —— */
+{
+  eq('lwwPick skewMs 脏值按 0 处理',
+    [P.lwwPick({ updatedAt: 100 }, { updatedAt: 200 }, 'abc'),
+      P.lwwPick({ updatedAt: 100 }, { updatedAt: 200 }, null),
+      P.lwwPick({ updatedAt: 100 }, { updatedAt: 200 }, undefined)], ['remote', 'remote', 'remote']);
+}
+
 console.log(`\nunit_pure: PASS ${pass}  FAIL ${fail}`);
 process.exit(fail ? 1 : 0);

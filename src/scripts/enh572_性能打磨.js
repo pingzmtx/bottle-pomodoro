@@ -14,7 +14,7 @@
    ⑤ 休息时保持屏幕常亮开关（锁屏/熄屏不截断休息倒计时）。
    ⑥ 自动跟随系统深色（prefers-color-scheme，可与手动蓝调模式共存）。
    ⑦ 记录 CSV 导出（Excel/WPS 可直接打开）。
- * 函数索引（TOC）：enhGet/_ensure2/_save/_el/_num/_recs/todayPomos/_goal/_fmtClock/updateTitle/ensureGoalChip/refreshGoalChip（+24 更多）
+ * 函数索引（TOC）：enhGet/_ensure2/_save/_el/_num/_recs/todayPomos/_goal/_fmtClock/updateTitle/ensureGoalChip/refreshGoalChip（+25 更多）
    ════════════════════════════════════════════════════════════════════ */
 (function () {
   let _orig2 = {};
@@ -453,6 +453,14 @@
       return !!(_mqDark.matches || _mqLight.matches);
     } catch (e) { return false; }
   }
+  /* 0.3.1 修补：这里**直接改 body.dark-mode**（跟随系统明暗 / 回前台对账），
+     同样不经过 applyTheme，所以三处 toggle 之后各补一次同一份上报。
+     实现只有一份（themeEngine.reportTint），这里只是套一层存在性判断。 */
+  function _flushTint() {
+    try {
+      if (window.themeEngine && typeof themeEngine.reportTint === 'function') themeEngine.reportTint();
+    } catch (e) { if (window.__silent) window.__silent(e, '03:_flushTint'); }
+  }
   function _applyAutoDark() {
     try {
       let s = _ensure2();
@@ -464,6 +472,7 @@
           document.body.classList.toggle('dark-mode', dark);
           let sw = _el('setDarkMode');
           if (sw) sw.checked = dark;
+          _flushTint();
           return;
         }
         /* 环境检测不到系统外观：绝不擅自切换（否则深色用户会被闪白）。
@@ -472,12 +481,14 @@
         document.body.classList.toggle('dark-mode', manual);
         let sw2 = _el('setDarkMode');
         if (sw2) sw2.checked = manual;
+        _flushTint();
         return;
       }
       let manual2 = !!(appData && appData.settings && appData.settings.darkMode);
       document.body.classList.toggle('dark-mode', manual2);
       let sw3 = _el('setDarkMode');
       if (sw3) sw3.checked = manual2;
+      _flushTint();
     } catch (e) { if (window.__silent) window.__silent(e, '03:_applyAutoDark'); }
   }
   function hookDark() {

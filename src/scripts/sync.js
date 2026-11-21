@@ -26,10 +26,21 @@ const OUTBOX_MAX_IDLE = 200;          /* 未启用同步时只留最近 200 条�
                                          它此时只是"最近改过什么"的日志，留 2000 条等于
                                          每次 saveData 多序列化 ~120KB（localStorage 是同步 API）。 */
 
-/* 当前该用哪个上限：适配器真的能推时才放开到 2000。 */
+/* 当前该用哪个上限：适配器真的能推 或 有配对设备（/台数未知）时才放开到 2000。
+   ★ 为什么「未知」也放开：pairedCount 来自原生回包（sync.info）。页面刚重载、
+     回包还没到时它是 -1 —— 若此时按 200 算，用户一次大扫除改 300 条，
+     最早的 100 条变更被静默裁掉（下一次只能靠指纹+全量补差捞回来）。
+     裁掉的是**变更记录**而不是数据，所以宁可乐观留多。 */
 function _outboxCap() {
   const ad = window.SyncAdapter;
-  return (ad && ad.enabled !== false && ad.name !== 'noop') ? OUTBOX_MAX : OUTBOX_MAX_IDLE;
+  if (ad && ad.enabled !== false && ad.name !== 'noop') return OUTBOX_MAX;
+  const bs = window.BottleSync;
+  if (bs && typeof bs.paired === 'function') {
+    const n = Number(bs.paired());
+    if (!isFinite(n)) return OUTBOX_MAX;
+    if (n === -1 || n > 0) return OUTBOX_MAX;
+  }
+  return OUTBOX_MAX_IDLE;
 }
 const SYNC_CURSOR_KEY = 'tomato_sync_cursor';
 
@@ -115,9 +126,16 @@ function _parentTodoOfChild(uid) {
 function syncPayload() {
   const box = Array.isArray(appData.outbox) ? appData.outbox : [];
   /* 键名必须和 _kindOfUid 切出来的前缀一致：`lg_xxx` → 'lg'、`rv_xxx` → 'rv'。
-     写成 'lifeGoal' / 'review' 永远命中不到，下面 `if (!pool) return;` 会静默丢弃，
-     而且 setSyncAdapter 目前无调用，一期测不出来，会潜伏到同步真正上线。 */
-  const byKind = { record: [], todo: [], habit: [], memo: [], cd: [], lg: [], rv: [] };
+     写成 'lifeGoal' / 'review' 永远命中不到，下面 `if (!pool) return;` 会静默丢弃。 */
+  const byKind = {
+    record: [], todo: [], habit: [], memo: [], cd: [], lg: [], rv: [],
+    /* 2026-11 多端同步补齐的 5 类。漏一个的症状不是报错，而是「按另一种记录发出去」
+       （下面没有回落分支了，所以现在是「静默不发」）：
+         wf     → 周重点（旧代码把它塞进 records，对端会多出一条假专注记录）
+         area   → 人生目标的分区       hcat → 习惯分类
+         reward → 自定义奖励           wish → 愿望清单 */
+    wf: [], area: [], hcat: [], reward: [], wish: []
+  };
   const seen = { todo: Object.create(null) };
   const changes = [];
 
@@ -143,15 +161,22 @@ function syncPayload() {
         : k === 'habit' ? appData.habits
           : k === 'memo' ? appData.memos
             : k === 'cd' ? appData.countdowns
-                : k === 'lg' ? appData.lifeGoals
-                  : k === 'rv' ? appData.reviews
-                    : k === 'wf' ? appData.weekFocus
-                      : null;
-    if (!pool) return;
+              : k === 'lg' ? appData.lifeGoals
+                : k === 'rv' ? appData.reviews
+                  : k === 'wf' ? appData.weekFocus
+                    : k === 'area' ? appData.lifeAreas
+                      : k === 'hcat' ? appData.habitCats
+                        : k === 'reward' ? appData.selfRewards
+                          : k === 'wish' ? appData.wishes
+                            : null;
+    /* ★ 未知 kind 一律不发：旧版这里是 `(byKind[k] || byKind.record)`，
+       于是 area_xxx 这种没登记的集合会被当成**专注记录**发给对端
+       （多一条假记录，两端一致、无报错、指纹也看不出来）。 */
+    if (!pool || !byKind[k]) return;
     for (let i = 0; i < pool.length; i++) {
       if (idEq(pool[i] && pool[i].uid, c.uid)) {
         if (k === 'todo') takeTodo(pool[i]);
-        else (byKind[k] || byKind.record).push(pool[i]);
+        else byKind[k].push(pool[i]);
         break;
       }
     }
@@ -166,45 +191,140 @@ function syncPayload() {
     countdowns: byKind.cd,
     lifeGoals: byKind.lg,
     reviews: byKind.rv,
-    tombstones: Array.isArray(appData.tombstones) ? appData.tombstones : [],
+    weekFocus: byKind.wf,
+    lifeAreas: byKind.area,
+    habitCats: byKind.hcat,
+    selfRewards: byKind.reward,
+    wishes: byKind.wish,
+    /* 墓碑不再整表带：P2P 走会话快照（sync_p2p 的 _p2pTombBatch），
+       整表带上会让 42 批基线多传 5.9MB。字段保留（空数组）以兼容未来的后端适配器，
+       那边仍可按需自己填。 */
+    tombstones: [],
     cursor: _syncCursor()
   };
 }
 
-/* 合并远端一批数据。规则全部在纯函数层（mergeRemoteRecords / mergeTombstoneLists）：
-   墓碑优先 → 记录级 LWW → 缺 uid 丢弃。这里只负责「落到 appData 上 + 保存 + 刷界面」。 */
-function applyRemoteBatch(batch) {
-  if (!batch || typeof batch !== 'object') return { records: 0, todos: 0, tombs: 0 };
-  const tombs = mergeTombstoneLists(appData.tombstones, batch.tombstones, TOMBSTONE_MAX);
-  const r = mergeRemoteRecords(appData.records, batch.records, tombs);
-  const t = mergeRemoteRecords(appData.todos, batch.todos, tombs);
-  /* 生活习惯 / 备忘 / 倒计时同样是顶层集合：漏一个，那一类就永远同步不过来 */
-  const h = mergeRemoteRecords(appData.habits, batch.habits, tombs);
-  const m = mergeRemoteRecords(appData.memos, batch.memos, tombs);
-  const c = mergeRemoteRecords(appData.countdowns, batch.countdowns, tombs);
-  appData.tombstones = tombs;
-  appData.records = r.list;
-  appData.todos = t.list;
-  appData.habits = h.list;
-  appData.memos = m.list;
-  appData.countdowns = c.list;
-  const changed = r.added + r.updated + t.added + t.updated
-    + h.added + h.updated + m.added + m.updated + c.added + c.updated;
-  if (changed || (batch.tombstones && batch.tombstones.length)) {
-    saveData();
-    try {
-      invalidateStatsCache();
-      if (typeof UIFX.renderTodos === 'function') UIFX.renderTodos();
-      if (typeof UIFX.renderLogs === 'function') UIFX.renderLogs();
-      if (typeof UIFX.updateTodayStats === 'function') UIFX.updateTodayStats();
-      if (typeof UIFX.renderHabits === 'function') UIFX.renderHabits();
-    } catch (e) { if (window.__silent) window.__silent(e, '01b3:render'); }
+/* 合并远端一批数据。规则全部在纯函数层（mergeRemoteRecords / mergeKeyedMap / mergeSetMap /
+   mergeTombstoneLists）：墓碑优先 → 记录级 LWW → 缺 uid 丢弃。这里只负责
+   「落到 appData 上 + 保存 + 刷界面」。
+   opts（第 2 参，可选）：{ skewMs, deferSave, deferRender, saveCtx }
+     · skewMs     = 我的时钟域 − 对方的时钟域，透传给 mergeRemoteRecords（§10.2）
+     · deferSave  = true 时不调 saveData()（分块同步每块都存一次 20MB 会卡死）
+     · deferRender= true 时不重绘（会话内一次都不渲染，commit 时统一一次）
+     · saveCtx    = 'sync' 时把 _saveCtx 置位，仅供「空写守卫的同步删除例外」
+   ★ 三个开关互相独立；三个都缺省 = 与改动前逐字相同的行为。 */
+function applyRemoteBatch(batch, opts) {
+  if (!batch || typeof batch !== 'object') {
+    return { records: 0, todos: 0, habits: 0, memos: 0, countdowns: 0, tombs: 0 };
   }
-  return {
-    records: r.added + r.updated, todos: t.added + t.updated,
-    habits: h.added + h.updated, memos: m.added + m.updated, countdowns: c.added + c.updated,
-    tombs: tombs.length, skipped: r.skipped + t.skipped + h.skipped + m.skipped + c.skipped
-  };
+  const o = opts || {};
+  const _saveCtxPrev = (typeof __set__saveCtx === 'function') ? _saveCtx : null;
+  if (o.saveCtx === 'sync' && typeof __set__saveCtx === 'function') __set__saveCtx('sync');
+  try {
+    const tombs = mergeTombstoneLists(appData.tombstones, batch.tombstones, TOMBSTONE_MAX);
+    const mopts = { skewMs: Number(o.skewMs) || 0 };
+    /* ① 12 个数组集合：同一个合并器，逐个落地（漏一个 = 那一类永远同步不过来） */
+    const r = mergeRemoteRecords(appData.records, batch.records, tombs, mopts);
+    const t = mergeRemoteRecords(appData.todos, batch.todos, tombs, mopts);
+    const h = mergeRemoteRecords(appData.habits, batch.habits, tombs, mopts);
+    const m = mergeRemoteRecords(appData.memos, batch.memos, tombs, mopts);
+    const c = mergeRemoteRecords(appData.countdowns, batch.countdowns, tombs, mopts);
+    const lg = mergeRemoteRecords(appData.lifeGoals, batch.lifeGoals, tombs, mopts);
+    const rv = mergeRemoteRecords(appData.reviews, batch.reviews, tombs, mopts);
+    const wf = mergeRemoteRecords(appData.weekFocus, batch.weekFocus, tombs, mopts);
+    const ar = mergeRemoteRecords(appData.lifeAreas, batch.lifeAreas, tombs, mopts);
+    const hc = mergeRemoteRecords(appData.habitCats, batch.habitCats, tombs, mopts);
+    const sr = mergeRemoteRecords(appData.selfRewards, batch.selfRewards, tombs, mopts);
+    const wi = mergeRemoteRecords(appData.wishes, batch.wishes, tombs, mopts);
+
+    appData.tombstones = tombs;
+    appData.records = r.list;
+    appData.todos = t.list;
+    appData.habits = h.list;
+    appData.memos = m.list;
+    appData.countdowns = c.list;
+    appData.lifeGoals = lg.list;
+    appData.reviews = rv.list;
+    appData.weekFocus = wf.list;
+    appData.lifeAreas = ar.list;
+    appData.habitCats = hc.list;
+    appData.selfRewards = sr.list;
+    if (Array.isArray(appData.wishes) || Array.isArray(batch.wishes)) appData.wishes = wi.list;
+
+    /* ② 4 个映射集合。tombSet 必须与 mergeRemoteRecords 里那份 tombOf 同一份推导
+       （各建一份一旦不同步，就会出现「记录集合删了、日记没删」的对不齐）。 */
+    const tombSet = Object.create(null);
+    tombs.forEach(function (x) { if (x && x.uid) tombSet[String(x.uid)] = 1; });
+
+    if (!appData.mustDos || typeof appData.mustDos !== 'object' || Array.isArray(appData.mustDos)) appData.mustDos = {};
+    if (!appData.mustDosAt || typeof appData.mustDosAt !== 'object' || Array.isArray(appData.mustDosAt)) appData.mustDosAt = {};
+    if (!appData.diaries || typeof appData.diaries !== 'object' || Array.isArray(appData.diaries)) appData.diaries = {};
+
+    /* mustDosAt 取两者的较大值：否则「本机改过一次」会被对端的旧时间戳盖回去 */
+    if (batch.mustDosAt && typeof batch.mustDosAt === 'object' && !Array.isArray(batch.mustDosAt)) {
+      Object.keys(batch.mustDosAt).forEach(function (k) {
+        const remoteT = Number(batch.mustDosAt[k]) || 0;
+        const localT = Number(appData.mustDosAt[k]) || 0;
+        if (remoteT > localT) appData.mustDosAt[k] = remoteT;
+      });
+    }
+    const dy = mergeKeyedMap(appData.diaries, batch.diaries,
+      function (k) { return 'diary_' + k; },
+      function (v) { return (v && Number(v.updatedAt)) || 0; }, tombSet);
+    const md = mergeKeyedMap(appData.mustDos, batch.mustDos,
+      function (k) { return 'must_' + k; },
+      function (v, k) { return Number(appData.mustDosAt[k]) || 0; }, tombSet);
+    appData.diaries = dy.map;
+    appData.mustDos = md.map;
+
+    /* 打卡 / 跳过：key 在负载里是习惯 uid，本机是 h.id —— 换 key 的活儿由
+       sync_p2p 的 _p2pApplyHabitMap 统一负责（它还要处理「习惯还没到」的缓冲）。
+       网页侧没有它时（例如只有 sync.js 的单测）退回并集，不静默丢数据。 */
+    let hl = 0, hs = 0;
+    if (typeof _p2pApplyHabitMap === 'function' && (batch.habitLogs || batch.habitSkips)) {
+      hl = _p2pApplyHabitMap(batch.habitLogs, batch.habitSkips);
+      hs = 0;
+    } else {
+      const l1 = mergeSetMap(appData.habitLogs, batch.habitLogs);
+      const l2 = mergeSetMap(appData.habitSkips, batch.habitSkips);
+      appData.habitLogs = l1.map;
+      appData.habitSkips = l2.map;
+      hl = l1.changed;
+      hs = l2.changed;
+    }
+
+    const changed = r.added + r.updated + t.added + t.updated
+      + h.added + h.updated + m.added + m.updated + c.added + c.updated
+      + lg.added + lg.updated + rv.added + rv.updated + wf.added + wf.updated
+      + ar.added + ar.updated + hc.added + hc.updated + sr.added + sr.updated + wi.added + wi.updated
+      + dy.changed + md.changed + hl + hs;
+    if (changed || (batch.tombstones && batch.tombstones.length)) {
+      if (!o.deferSave) saveData();
+      if (!o.deferRender) {
+        try {
+          invalidateStatsCache();
+          if (typeof UIFX.renderTodos === 'function') UIFX.renderTodos();
+          if (typeof UIFX.renderLogs === 'function') UIFX.renderLogs();
+          if (typeof UIFX.updateTodayStats === 'function') UIFX.updateTodayStats();
+          if (typeof UIFX.renderHabits === 'function') UIFX.renderHabits();
+        } catch (e) { if (window.__silent) window.__silent(e, '01b3:render'); }
+      }
+    }
+    return {
+      records: r.added + r.updated, todos: t.added + t.updated,
+      habits: h.added + h.updated, memos: m.added + m.updated, countdowns: c.added + c.updated,
+      lifeGoals: lg.added + lg.updated, reviews: rv.added + rv.updated, weekFocus: wf.added + wf.updated,
+      lifeAreas: ar.added + ar.updated, habitCats: hc.added + hc.updated,
+      selfRewards: sr.added + sr.updated, wishes: wi.added + wi.updated,
+      diaries: dy.changed, mustDos: md.changed, habitMaps: hl + hs,
+      tombs: tombs.length,
+      skipped: r.skipped + t.skipped + h.skipped + m.skipped + c.skipped + lg.skipped + rv.skipped
+        + wf.skipped + ar.skipped + hc.skipped + sr.skipped + wi.skipped
+    };
+  } finally {
+    /* _saveCtx 只在这一小段里是 'sync'：绝不外溢到 UI 路径（否则一次误清空能拿到例外） */
+    if (o.saveCtx === 'sync' && typeof __set__saveCtx === 'function') __set__saveCtx(_saveCtxPrev);
+  }
 }
 
 /* 同步一次：推 → ack 出队 → 拉 → 合并 → 存游标。

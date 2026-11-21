@@ -201,6 +201,9 @@ def main():
         # 现在阈值/主题清单/测量原语收敛在 tools/tests/_contract.js，存量 19 处只减不增。
         ("casefix", "python3 tools/check_case_fragility.py"),
         ("unit", "node tools/tests/unit_pure.js"),
+        # 多端同步（S0–S2）的 60 条 Node 用例：自己 assert、不走浏览器 R 契约。
+        # 组成：SYNC_DESIGN §17.1 的 50 条 + §21 清单点名的 10 条（每条对应一个 C 编号）。
+        ("syncunit", "node tools/tests/sync_p2p_unit.js"),
         # 空 catch 棘轮：存量 464 处只减不增，新增必须显式登记基线
         ("catch", "python3 tools/empty_catch_audit.py"),
         # 对非 Promise 取 .catch（点了就抛 TypeError，且 catch 处理器从未生效）

@@ -82,7 +82,8 @@
       "owner": "ui_addrecord",
       "writers": [
         "ui_addrecord",
-        "ui_biography"
+        "ui_biography",
+        "sync"
       ],
       "note": "日记"
     },
@@ -142,15 +143,27 @@
       "owner": "ui_habit",
       "writers": [
         "engine_data",
-        "ui_habit"
+        "ui_habit",
+        "sync"
       ],
       "note": "习惯分类（展开的文件夹）"
+    },
+    "habitLogs": {
+      "owner": "ui_habit",
+      "writers": [
+        "sync",
+        "sync_p2p_payload",
+        "ui_habit"
+      ],
+      "note": "打卡日志 {habitId: [YYYY-MM-DD,...]}。本机 key 是 h.id（30+ 处 UI 在读），只在负载里换成习惯 uid；写入口是 ui_habit 的打卡/取消，同步侧只做并集落地。"
     },
     "habitSkips": {
       "owner": "ui_habit",
       "writers": [
         "engine_data",
-        "ui_habit"
+        "ui_habit",
+        "sync",
+        "sync_p2p_payload"
       ],
       "note": "习惯跳过日 { habitId: ['YYYY-MM-DD', ...] }。Loop 的 `-` 语义：这天既不加分也不减分、不算破链。与 habitLogs 分开存 —— 跳过不是打卡，混进日志会让「打了几个」虚高。写入口只有 _habitSetSkip 一处。"
     },
@@ -215,7 +228,8 @@
       "owner": "engine_data",
       "writers": [
         "engine_data",
-        "ui_lifegoal"
+        "ui_lifegoal",
+        "sync"
       ],
       "note": "人生领域（健康/事业/关系/成长，四条固定）。首次进目标页时自动补齐，之后只读。"
     },
@@ -238,7 +252,8 @@
       "owner": "engine_data",
       "writers": [
         "engine_data",
-        "ui_lifegoal"
+        "ui_lifegoal",
+        "sync"
       ],
       "note": "人生目标（年/月/愿望）。进度**不存**在这里，由 goal_progress.js 现算 —— 存了就会出现卡片和复盘两套数字。01eF 只写 status / checkpoints / lastReviewedAt（收尾与季度检查点）。"
     },
@@ -296,15 +311,25 @@
     "mustDos": {
       "owner": "engine_data",
       "writers": [
-        "engine_data"
+        "engine_data",
+        "sync"
       ],
       "note": "「今日必做三件事」（含每日领奖标记）"
+    },
+    "mustDosAt": {
+      "owner": "engine_data",
+      "writers": [
+        "engine_data",
+        "sync"
+      ],
+      "note": "必做清单「这一天最后一次改」的时间戳旁表 {YYYY-MM-DD: ms}。mustDos 的条目里没有时间戳，按日 LWW 只能靠它；engine_data 打戳，sync 合并远端时取较大值。"
     },
     "outbox": {
       "owner": "sync",
       "writers": [
         "engine_data",
-        "sync"
+        "sync",
+        "sync_p2p"
       ],
       "note": "离线变更队列 [{uid,kind,op,at}]：编辑/删除自动入队，同步后按 ack 出队；同 uid 合并、超 2000 条裁旧"
     },
@@ -366,7 +391,8 @@
       "owner": "engine_data",
       "writers": [
         "engine_data",
-        "ui_lifereview"
+        "ui_lifereview",
+        "sync"
       ],
       "note": "复盘（三期 + 五期周复盘）。存的是**当时的快照**（pct/measured/habitPct），不是目标本身 —— 以后改目标、删目标，历史数字不能变。周复盘（cadence:week）只有 focus/next 两句话，不分领域、快照为空。"
     },
@@ -382,7 +408,8 @@
       "owner": "ui_tree",
       "writers": [
         "engine_data",
-        "ui_tree"
+        "ui_tree",
+        "sync"
       ],
       "note": "自我奖励愿望清单（自己给自己设的兑换项）"
     },
@@ -419,6 +446,14 @@
         "engine_plan_analysis"
       ],
       "note": "（待补：这个域是什么？给未来的自己留一句）"
+    },
+    "syncPeers": {
+      "owner": "sync_p2p",
+      "writers": [
+        "engine_data",
+        "sync_p2p"
+      ],
+      "note": "每台已配对设备的同步状态 {did: {watermark, offset, lastAt, tombLossy}}。watermark 永远由本机 Date.now() 派生（不持久化别人的时钟），engine_data 建默认键，sync_p2p 负责读写与回滚。"
     },
     "teamSystem": {
       "owner": "engine_team",
@@ -529,7 +564,8 @@
       "owner": "engine_data",
       "writers": [
         "engine_data",
-        "ui_lifecycle"
+        "ui_lifecycle",
+        "sync"
       ],
       "note": "本周重点（二期）。刻意不进 todos：塞进去会牵连日历、时间块、统计的口径。按 weekKey（ISO 周）归组，不按日期，跨年那一周也不会裂开。"
     },
@@ -544,7 +580,8 @@
     "wishes": {
       "owner": "engine_data",
       "writers": [
-        "ui_lifewish"
+        "ui_lifewish",
+        "sync"
       ],
       "note": "人生愿望清单（Bucket List）。★ 刻意不参与任何进度计算：不进九宫格、不进进度一览、没有完成率。写 30 条实现 3 条，那 3 条是成就，不是 10%。也没有截止日期/分类/优先级 —— 一加就变成第四个待办列表。"
     }
