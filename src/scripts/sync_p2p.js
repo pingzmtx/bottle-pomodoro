@@ -714,6 +714,11 @@ function _p2pOnEvent(ev) {
       }
       case 'build':
         return _p2pBuildOutboxBatch(a.peerId, a.cursor, a.maxBytes);
+      /* 墓碑帧（§7.3）。原生 `SyncSession.doPush` 的第一步就是发 `tomb`：
+         漏掉这个分支会让会话在握手后立刻停在 default → E_NO_EV，
+         两端表现为「一台报错、一台连接中断」。 */
+      case 'tomb':
+        return _p2pTombBatch(a.cursor);
       case 'collect':
         return _p2pCollectSince(a.peerId, a.since, a.cols, a.cursor, a.maxBytes);
       case 'apply':

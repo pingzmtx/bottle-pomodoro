@@ -1276,6 +1276,25 @@ test('sid-stale-rejected', function () {
   eq('sid-stale-rejected 全仓 _resetAllCursors 出现 0 次', hits, []);
 });
 
+/* 原生 `SyncSession.doPush` 的第一步就是发 `ev=tomb`。分发器漏这个 case 不会报错，
+   而是静默落 default → E_NO_EV，会话在握手后第一个动作就死（0.6.8 真机现场：
+   一台显示「tomb · E_NO_EV」，另一台显示「连接中断」）。
+   这里把原生会发的**全部**事件名打一遍，任何一个落到 default 都算红。 */
+test('dispatcher-covers-native-events', function () {
+  const w = fresh();
+  const names = ['begin', 'tomb', 'build', 'collect', 'apply', 'fingerprint', 'compare', 'commit', 'abort'];
+  const got = R(w, `(function (names) {
+    _p2pOnEvent({ ev: 'begin', args: { sid: 'S1', peerId: 'p1' } });
+    var bad = [];
+    names.forEach(function (n) {
+      var r = _p2pOnEvent({ ev: n, args: { sid: 'S1', peerId: 'p1' } });
+      if (r && r.error === 'E_NO_EV') bad.push(n);
+    });
+    return bad;
+  })(${J(names)})`);
+  eq('dispatcher-covers-native-events 原生事件名全部有分支', got, []);
+});
+
 /* ── 子结构 / 墓碑通道（C41）──────────────────────────────────────── */
 
 test('merge-subtask-only-change', function () {
