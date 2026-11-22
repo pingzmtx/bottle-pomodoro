@@ -40,6 +40,17 @@ var P2P_TOMB_BATCH_MAX_BYTES = 64 * 1024; /* 墓碑帧单片上限，超了分�
    （那正是「删不掉的记录 → 指纹永久不等」）。超出预算时保留**最新的**，
    剩下的等水位推进后下一轮再带（`deletedAt > since` 会自然缩小）。 */
 var P2P_TOMB_IN_PULL_MAX_BYTES = 2 * 1024 * 1024;
+
+/* 0.6.16（真机第四次 FAILED_DIVERGED，diff 只有 habitCats）：
+   **配置类小集合每轮都全量带，不受水位约束。**
+   为什么：水位是「本机最后一次变更」的全局时间戳，一旦推进到今天，另一端
+   几个月前建的分类（t < since）就永远进不了扫描范围 —— 它既不会被 push
+   （不在 outbox 里），也不会被 pull（早于水位），补差又只做「发起方→应答方」
+   一个方向，于是那一端的分类永远补不过来，指纹永久不等。
+   这几类的量极小（分类几十、分区 9、奖励/愿望/目标几十、倒计时几十），
+   每轮全量带也就几十 KB；换取的是「无论水位多新都能自愈」。 */
+var P2P_ALWAYS_FULL = ['countdowns', 'memos', 'lifeGoals', 'weekFocus',
+  'lifeAreas', 'habitCats', 'selfRewards', 'wishes'];
 var P2P_COMMIT_WAIT_MS = 3000;        /* 等 IDB 队列兑现的上限（§9.5 第 5 步） */
 var P2P_DIAG_RING = 80;               /* 诊断环形缓冲条数 */
 var P2P_INFO_RETRY_MAX = 60;          /* 数据就绪后向原生问 sync.info 的轮询次数上限 */
@@ -426,8 +437,10 @@ function _p2pNormalizeCols(cols) {
 function _p2pScanSince(since, endAt, cols) {
   var out = [];
   var unlimited = (endAt === -1 || endAt === null || endAt === undefined);
-  function inRange(ts) {
+  function inRange(ts, force) {
     var t = Number(ts) || 0;
+    /* force = 该集合属于「配置类小集合」，不看水位；但仍有未来数据上界 */
+    if (force) return unlimited || t <= Number(endAt);
     /* 0.6.14（真机第三次 FAILED_DIVERGED）：**没有编辑时间的老记录**（t===0）。
        倒计时、习惯分类、日记、今日必做这几类，用户十年前建完就没再改过，
        库里根本没有 updatedAt / mustDosAt → 迁移补成 0。
@@ -444,11 +457,12 @@ function _p2pScanSince(since, endAt, cols) {
   cols.forEach(function (name) {
     if (FP_ARRAYS.indexOf(name) >= 0) {
       var list = Array.isArray(appData[name]) ? appData[name] : [];
+      var fullCol = P2P_ALWAYS_FULL.indexOf(name) >= 0;
       var tmp = [];
       for (var i = 0; i < list.length; i++) {
         var r = list[i];
         if (!r || !r.uid) continue;
-        if (!inRange(r.updatedAt)) continue;
+        if (!inRange(r.updatedAt, fullCol)) continue;
         tmp.push({ type: 'array', kind: _p2pKindOfColl(name), uid: String(r.uid) });
       }
       tmp.sort(function (a, b) { return a.uid < b.uid ? -1 : a.uid > b.uid ? 1 : 0; });

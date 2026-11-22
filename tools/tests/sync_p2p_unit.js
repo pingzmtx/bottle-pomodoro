@@ -2009,8 +2009,10 @@ function mkRec(uid, title, up) {
  *   A.begin → B.begin → A.tomb/build → B.apply → B.collect → A.apply → 双方指纹 → B.compare
  * 返回每步的观测值，供用例断言。
  */
-function syncOnce(A, B, sidA, sidB, didA, didB, t1) {
-  const seen = { steps: [], appliedA: 0, appliedB: 0 };
+function syncOnce(A, B, sidA, sidB, didA, didB, t1, opts) {
+  const o = opts || {};
+  const sinceA = Number(o.since || 0);       /* 真机：发起方用 per-peer 水位，不是 0 */
+  const seen = { steps: [], appliedA: 0, appliedB: 0, pullCount: 0, pullApplied: 0 };
 
   const ba = call(A, 'begin', { peerId: didB, sid: sidA, endAt: t1 });
   const bb = call(B, 'begin', { peerId: didA, sid: sidB, endAt: 0 });
@@ -2053,14 +2055,22 @@ function syncOnce(A, B, sidA, sidB, didA, didB, t1) {
   let pcur = { kind: 'pull', idx: 0, part: 0, endAt: t1 }, ppart = 0, pulled = 0;
   for (let i = 0; i < 500; i++) {
     const c = call(B, 'collect', {
-      sid: sidB, peerId: didA, since: 0, cols: null, maxBytes: 512 * 1024, cursor: pcur
+      sid: sidB, peerId: didA, since: sinceA, cols: null, maxBytes: 512 * 1024, cursor: pcur
     });
     const ap = call(A, 'apply', {
       sid: sidA, peerId: didB, part: 500 + ppart, payload: J(c.payload || {}),
       last: !!c.last, skewMs: 0, deferSave: true, deferRender: true
     });
     if (ap && ap.ok === false) seen.steps.push(['pull.apply', false, ap.error]);
+    if (ap && ap.applied) {
+      Object.keys(ap.applied).forEach(function (kk) {
+        if (kk === 'skipped' || kk === 'tombs') return;   /* 与原生同口径 */
+        seen.pullApplied += Number(ap.applied[kk]) || 0;
+      });
+    }
+
     pulled += Number(c.count) || 0;
+    seen.pullCount += Number(c.count) || 0;
     ppart++;
     pcur = c.nextCursor;
     if (c.last) break;
@@ -2102,6 +2112,10 @@ function syncOnce(A, B, sidA, sidB, didA, didB, t1) {
     seen.equalAfterFix = !!(cmp2 && cmp2.equal);
     seen.diffAfterFix = (cmp2 && cmp2.diff) || [];
     seen.reasonAfterFix = (cmp2 && cmp2.reason) || '';
+  }
+  if (o.commit) {
+    call(A, 'commit', { sid: sidA, peerId: didB, wm: t1 - 1000, tombLossy: false });
+    call(B, 'commit', { sid: sidB, peerId: didA, wm: t1 - 1000, tombLossy: false });
   }
   return seen;
 }
@@ -2226,6 +2240,66 @@ test('dual-peer-map-tie 同一天两端都写过、都没时间戳，同步后�
   const mb = J(R(B, "appData.mustDos['2024-03-01']"));
   eq('dual-peer-map-tie 日记两端内容一致', [da, db], [db, db]);
   eq('dual-peer-map-tie 必做两端内容一致', [ma, mb], [mb, mb]);
+});
+
+test('dual-peer-idempotent 第二轮必须 0 写入（skipped 不算更新）', function () {
+  const A = fresh(), B = fresh();
+  const t0 = 1700000000000;
+  const recs = [], cds = [];
+  for (let i = 0; i < 60; i++) recs.push(mkRec('rec_' + i, 'R' + i, t0 + i));
+  for (let i = 0; i < 35; i++) cds.push({ uid: 'cd_' + i, title: 'C' + i, updatedAt: t0 + 5000 + i });
+  put(A, 'appData.records', recs);
+  put(A, 'appData.countdowns', cds);
+  put(A, 'appData.outbox', []);
+  /* B 是「之前失败那轮已经收过 35 条」的状态 */
+  put(B, 'appData.records', []);
+  put(B, 'appData.countdowns', cds.map(function (x) { return Object.assign({}, x); }));
+  put(B, 'appData.outbox', []);
+
+  const t1 = 1795320000000;
+  const r1 = syncOnce(A, B, 'sa', 'sb', 'didA', 'didB', t1, { commit: true });
+  if (!(r1.equal === true || r1.equalAfterFix === true)) {
+    console.log('      轮1 未收敛 pushed=' + r1.pushed + ' pullApplied=' + r1.pullApplied);
+  }
+
+  const r2 = syncOnce(A, B, 'sa2', 'sb2', 'didA', 'didB', t1 + 60000, { commit: true, since: t1 - 1000 });
+
+  /* 第二轮 A 会把 B 上那 35 条扫一遍 → 全部 skipped。这不是「更新 35 条」，
+     0.6.14 及以前原生把 skipped 一起相加，界面就会显示「共更新 35 条」。 */
+  ok('dual-peer-idempotent 第二轮 0 写入', Number(r2.pullApplied) === 0, 'pullApplied=' + r2.pullApplied);
+  ok('dual-peer-idempotent 第二轮首轮即相等', r2.equal === true, 'equal=' + r2.equal);
+});
+
+test('dual-peer-cat-stale 水位推进后，对方更旧的分类仍必须补过来', function () {
+  /* 真机 0.6.15「没对上的：分类」：水位是「本机最后一次变更」的全局时间戳，
+     一旦推进到今天，另一端几个月前建的分类（t < since）既不在 outbox（不会被 push），
+     又早于水位（不会被 pull），补差又只有「发起方→应答方」一个方向 ——
+     那一端的分类永远补不过来，指纹永久不等。
+     0.6.16：配置类小集合（分类/分区/奖励/愿望/目标/周重点/倒计时/备忘）每轮全量带。 */
+  const A = fresh(), B = fresh();
+  const t0 = 1700000000000;
+  const t1 = 1795320000000;
+  put(A, 'appData.habitCats', [
+    { uid: 'hcat_1_legacy_aa', id: '1', name: '学习', updatedAt: 0 }
+  ]);
+  put(B, 'appData.habitCats', [
+    { uid: 'hcat_1_legacy_aa', id: '1', name: '学习', updatedAt: t0 },
+    { uid: 'hcat_9_legacy_bb', id: '9', name: 'B 独有的分类', updatedAt: t0 + 1000 }
+  ]);
+
+  const r = syncOnce(A, B, 'sa', 'sb', 'didA', 'didB', t1, { commit: true, since: t1 - 1000 });
+  eq('dual-peer-cat-stale A 拿到对方独有的分类', R(A, 'appData.habitCats.length'), 2);
+  const namesA = R(A, 'appData.habitCats.map(function(x){return x.name}).sort()');
+  const namesB = R(B, 'appData.habitCats.map(function(x){return x.name}).sort()');
+  eq('dual-peer-cat-stale 两端分类名一致', J(namesA), J(namesB));
+  ok('dual-peer-cat-stale 指纹相等', (r.equal === true || r.equalAfterFix === true),
+    'diff=' + J(r.diffAfterFix || r.diff));
+
+  /* 幂等：再跑一轮不该再有任何写入 */
+  const r2 = syncOnce(A, B, 'sa2', 'sb2', 'didA', 'didB', t1 + 60000,
+    { commit: true, since: t1 - 1000 });
+  eq('dual-peer-cat-stale 第二轮首轮即相等', r2.equal, true);
+  eq('dual-peer-cat-stale 第二轮无新增', R(A, 'appData.habitCats.length'), 2);
 });
 
 /* ====================================================================== */

@@ -400,6 +400,9 @@ function saveCountdown() {
       c.icon = icon;
       c.note = note;
       c.pinned = pinned;
+      /* 编辑也要入队：否则「改了个名字」只在本地生效，对方永远看不到 */
+      if (typeof enqueueChange === 'function' && c.uid) enqueueChange(c.uid, 'cd', 'upsert');
+      if (typeof touchRecord === 'function') { c.updatedAt = Date.now(); }
     }
   } else {
     appData.countdowns.push({
@@ -412,6 +415,9 @@ function saveCountdown() {
       note: note,
       pinned: pinned,
     });
+    /* 新建：对象自带 uid/updatedAt，但旧实现没有入队 → 只在本机存在 */
+    const _cd = appData.countdowns[appData.countdowns.length - 1];
+    if (typeof enqueueChange === 'function' && _cd && _cd.uid) enqueueChange(_cd.uid, 'cd', 'upsert');
   }
   saveData();
   renderCountdowns();

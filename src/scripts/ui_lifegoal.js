@@ -123,7 +123,10 @@ function ensureLifeAreas() {
   Object.keys(LIFE_AREA_RENAME).forEach(function (id) {
     const a = have[id];
     const r = LIFE_AREA_RENAME[id];
-    if (a && a.name === r.from) { a.name = r.to; changed = true; }
+    if (a && a.name === r.from) {
+      a.name = r.to; changed = true;
+      if (typeof touchRecord === 'function') touchRecord(a);
+    }
   });
 
   /* ② 缺哪个补哪个（老数据只有 4 个方向时，这里会把另外 5 个补上） */
@@ -137,6 +140,7 @@ function ensureLifeAreas() {
       order: d.order,
       updatedAt: Date.now()
     });
+    if (typeof enqueueChange === 'function') enqueueChange(appData.lifeAreas[appData.lifeAreas.length - 1].uid, 'area', 'upsert');
     changed = true;
   });
 
@@ -1671,6 +1675,7 @@ function lifeAreaAdd() {
     order: 100 + maxOrder,
     updatedAt: Date.now()
   });
+  if (typeof enqueueChange === 'function') enqueueChange(appData.lifeAreas[appData.lifeAreas.length - 1].uid, 'area', 'upsert');
   saveData();
   renderLifeAreaManager();
   renderLifeGoals();

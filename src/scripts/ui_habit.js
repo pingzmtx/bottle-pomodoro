@@ -475,9 +475,19 @@ function addHabitCat() {
     if (!Array.isArray(appData.habitCats)) appData.habitCats = [];
     let hit = appData.habitCats.find(function (c) { return c && c.name === name; });
     if (!hit) {
-      hit = { id: 'hc' + Date.now().toString(36) + Math.floor(Math.random() * 1000), name: name };
+      /* 0.6.16：新建分类必须自带 uid 并**立刻入队**。
+         旧实现只给 {id,name}：运行时没有 uid → 指纹不计、同步不扫；
+         下次启动 migrateDataContract 补出带本机 deviceTag 的 legacy uid（两端不同），
+         而它从来不在 outbox 里 —— 对方永远收不到这个分类，两端条数永久不等。 */
+      hit = {
+        id: 'hc' + Date.now().toString(36) + Math.floor(Math.random() * 1000),
+        uid: newUid('hcat'),
+        name: name,
+        updatedAt: Date.now()
+      };
       appData.habitCats.push(hit);
       appData.habitCatOpen[hit.id] = true;
+      if (typeof enqueueChange === 'function') enqueueChange(hit.uid, 'hcat', 'upsert');
     }
     saveData();
     renderHabits();
@@ -497,8 +507,19 @@ function deleteHabitCat(catId) {
   const n = (appData.habits || []).filter(function (h) { return h && idEq(h.catId, catId); }).length;
   const msg = '删除分类「' + hit.name + '」？\n' + (n ? n + ' 个习惯会退回「未分类」，不会被删。' : '（里面没有习惯）');
   const run = function () {
-    appData.habits.forEach(function (h) { if (h && idEq(h.catId, catId)) h.catId = null; });
+    /* 0.6.16：删除分类以前**只在本机 filter 掉**，既不写墓碑也不入队，
+       对方那份永远删不掉 → 两端条数永久不等（真机「没对上的：分类」）。
+       现在：① 给被删分类写墓碑（会入队 delete）；② 成员换到未分类后逐个打戳，
+       否则对方不知道这些习惯已经换了分类。 */
+    const moved = [];
+    appData.habits.forEach(function (h) {
+      if (h && idEq(h.catId, catId)) { h.catId = null; moved.push(h); }
+    });
     appData.habitCats = cs.filter(function (c) { return !(c && idEq(c.id, catId)); });
+    if (hit.uid) {
+      tombstone(hit.uid, 'hcat');
+    }
+    moved.forEach(function (h) { touchRecord(h); });
     if (appData.habitCatOpen) delete appData.habitCatOpen[String(catId)];
     saveData();
     renderHabits();

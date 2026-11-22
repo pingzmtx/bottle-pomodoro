@@ -321,7 +321,14 @@ function addSelfReward() {
     return;
   }
   if (!Array.isArray(appData.selfRewards)) appData.selfRewards = [];
-  appData.selfRewards.push({ id: _nextSelfRewardId(), name: name, emoji: emoji, price: price, claimed: false });
+  /* 0.6.16：与分类同源 —— 旧对象没有 uid/updatedAt，也没有 outbox 条目，
+     对方永远收不到。 */
+  const _reward = {
+    id: _nextSelfRewardId(), uid: newUid('reward'), name: name, emoji: emoji,
+    price: price, claimed: false, updatedAt: Date.now()
+  };
+  appData.selfRewards.push(_reward);
+  if (typeof enqueueChange === 'function') enqueueChange(_reward.uid, 'reward', 'upsert');
   saveData();
   nameEl.value = '';
   priceEl.value = '';
