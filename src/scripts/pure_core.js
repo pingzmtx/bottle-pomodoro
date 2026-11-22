@@ -3472,7 +3472,15 @@ function mergeKeyedMap(localMap, remoteMap, uidOf, tsOf, tombSet) {
     }
     var cur = out[k];
     if (!cur) { out[k] = r; changed++; continue; }
-    if ((_ts(r, k) || 0) > (_ts(cur, k) || 0)) { out[k] = r; changed++; }
+    var tr = _ts(r, k) || 0, tc = _ts(cur, k) || 0;
+    if (tr > tc) { out[k] = r; changed++; continue; }
+    /* 0.6.14：平局（最常见的是两端都没 updatedAt，都是 0）按内容确定性决胜。
+       旧实现在平局时保留本地 → 两端各留各的：界面显示「同步完成」，同一天的
+       日记/必做内容却不一样，而指纹只含 key:时间，永远发现不了。
+       规则与 mergeRemoteRecords 的 _tiePick 一致：稳定序列化后取字典序更大的。 */
+    if (tr === tc && typeof _canon === 'function' && _canon(r) > _canon(cur)) {
+      out[k] = r; changed++;
+    }
   }
   return { map: out, changed: changed };
 }

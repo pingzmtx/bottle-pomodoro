@@ -299,7 +299,8 @@ else skipped++;});var out=[];order.forEach(function(k){var rec=byUid[k];if(!rec)
 function mergeKeyedMap(localMap,remoteMap,uidOf,tsOf,tombSet){var out=Object.create(null),k;var src=localMap&&typeof localMap==='object'?localMap:{};for(k in src)if(Object.prototype.hasOwnProperty.call(src,k))out[k]=src[k];if(!remoteMap||typeof remoteMap!=='object')return{map:out,changed:0};var _ts=typeof tsOf==='function'?tsOf:function(){return 0;};var changed=0;for(k in remoteMap){if(!Object.prototype.hasOwnProperty.call(remoteMap,k))continue;var r=remoteMap[k];if(!r)continue;var _uid=typeof uidOf==='function'?String(uidOf(k)):'';if(tombSet&&_uid&&tombSet[_uid]){if(out[k]!==undefined){delete out[k];changed++;}
 continue;}
 var cur=out[k];if(!cur){out[k]=r;changed++;continue;}
-if((_ts(r,k)||0)>(_ts(cur,k)||0)){out[k]=r;changed++;}}
+var tr=_ts(r,k)||0,tc=_ts(cur,k)||0;if(tr>tc){out[k]=r;changed++;continue;}
+if(tr===tc&&typeof _canon==='function'&&_canon(r)>_canon(cur)){out[k]=r;changed++;}}
 return{map:out,changed:changed};}
 function mergeSetMap(localMap,remoteMap){var out=Object.create(null),k;var src=localMap&&typeof localMap==='object'?localMap:{};for(k in src){if(!Object.prototype.hasOwnProperty.call(src,k))continue;out[k]=Array.isArray(src[k])?src[k].slice():[];}
 if(!remoteMap||typeof remoteMap!=='object')return{map:out,changed:0};var changed=0;for(k in remoteMap){if(!Object.prototype.hasOwnProperty.call(remoteMap,k))continue;var rv=Array.isArray(remoteMap[k])?remoteMap[k]:[];var lv=Array.isArray(out[k])?out[k]:(out[k]=[]);var set=Object.create(null);lv.forEach(function(d){set[String(d).slice(0,10)]=1;});for(var i=0;i<rv.length;i++){var d=String(rv[i]).slice(0,10);if(!set[d]){set[d]=1;lv.push(d);changed++;}}

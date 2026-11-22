@@ -2207,6 +2207,27 @@ test('dual-peer-legacy-ts 没有编辑时间的老记录（倒计时/分类/日�
   eq('dual-peer-legacy-ts 第二轮首轮即相等、数量不变', [ok2, R(B, 'appData.countdowns.length')], [true, 2]);
 });
 
+test('dual-peer-map-tie 同一天两端都写过、都没时间戳，同步后内容必须一致', function () {
+  /* 旧实现平局保留本地 → 两端各留各的：界面「同步完成」，日记内容却不同。
+     指纹只含 key:time，发现不了这种分歧。 */
+  const A = fresh();
+  const B = fresh();
+  put(A, 'appData.diaries', { '2024-03-01': { text: 'A 写的' } });
+  put(B, 'appData.diaries', { '2024-03-01': { text: 'B 写的' } });
+  put(A, 'appData.mustDos', { '2024-03-01': [{ uid: 'm1', text: 'A 的必做' }] });
+  put(B, 'appData.mustDos', { '2024-03-01': [{ uid: 'm2', text: 'B 的必做' }] });
+  put(A, 'appData.mustDosAt', {});
+  put(B, 'appData.mustDosAt', {});
+
+  syncOnce(A, B, 'sa', 'sb', 'didA', 'didB', Date.now());
+  const da = R(A, "appData.diaries['2024-03-01'].text");
+  const db = R(B, "appData.diaries['2024-03-01'].text");
+  const ma = J(R(A, "appData.mustDos['2024-03-01']"));
+  const mb = J(R(B, "appData.mustDos['2024-03-01']"));
+  eq('dual-peer-map-tie 日记两端内容一致', [da, db], [db, db]);
+  eq('dual-peer-map-tie 必做两端内容一致', [ma, mb], [mb, mb]);
+});
+
 /* ====================================================================== */
 
 async function main() {
