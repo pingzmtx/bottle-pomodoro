@@ -34,6 +34,10 @@ var P2P_GUARD_MS = 3000;              /* 水位推进的安全带：T0 − 3000�
 var P2P_PART_TARGET_BYTES = 512 * 1024; /* 单批目标字节（明文字节） */
 var P2P_PART_MAX_RECORDS = 2000;      /* 单批最多记录数（与 outbox 上限同量级） */
 var P2P_TOMB_BATCH_MAX_BYTES = 64 * 1024; /* 墓碑帧单片上限，超了分片（§7.3） */
+/* 0.6.13：拉取方向的墓碑上限（约 400KB，仍在单帧 4MB 之内）。
+   collect 只在一帧里顺带墓碑，不做分片 —— 超出就保留最新的这些，剩下的靠
+   水位推进后下一轮再带（`deletedAt > since` 会自然缩小）。 */
+var P2P_TOMB_IN_PULL_MAX = 6000;
 var P2P_COMMIT_WAIT_MS = 3000;        /* 等 IDB 队列兑现的上限（§9.5 第 5 步） */
 var P2P_DIAG_RING = 80;               /* 诊断环形缓冲条数 */
 var P2P_INFO_RETRY_MAX = 60;          /* 数据就绪后向原生问 sync.info 的轮询次数上限 */
@@ -345,6 +349,34 @@ function _p2pCollectSince(peerId, since, cols, cursor, maxBytes) {
   var idx = Math.max(0, Math.floor(Number(cur.idx) || 0));
   var limit = Number(maxBytes) > 0 ? Number(maxBytes) : P2P_PART_TARGET_BYTES;
   var payload = _p2pEmptyPayload();
+  /* 0.6.13（真机 FAILED_DIVERGED 的第二个根因）：**拉取方向也必须带墓碑**。
+     墓碑原先只走 push 方向的 `tomb` 帧，而应答方没有 push 通道 —— 它删过的记录
+     永远传不到发起方。于是 A 那条删不掉的记录让两端指纹永久不等，界面就是
+     「两端数据没有完全对上」，而且点多少次重试都一样（每次都在同一个地方卡住）。
+     `applyRemoteBatch` 早就认 `batch.tombstones`（mergeTombstoneLists），
+     空负载里也有这个键，这里只是把第一帧填上 —— 协议一个字都不用改。
+     只带 `deletedAt > since` 的：更早的删除，对方在自己的水位里已经知道了。
+     超过上限就按 deletedAt 降序截断（保留最新的：越新越可能还没传过去）。 */
+  if (idx === 0) {
+    var src = Array.isArray(appData.tombstones) ? appData.tombstones : [];
+    var tombs = [];
+    for (var ti = 0; ti < src.length; ti++) {
+      var tt = src[ti];
+      if (!tt || !tt.uid) continue;
+      if ((Number(tt.deletedAt) || 0) <= from) continue;
+      tombs.push(tt);
+    }
+    if (tombs.length > P2P_TOMB_IN_PULL_MAX) {
+      tombs.sort(function (a, b) {
+        return (Number(b.deletedAt) || 0) - (Number(a.deletedAt) || 0);
+      });
+      tombs = tombs.slice(0, P2P_TOMB_IN_PULL_MAX);
+    }
+    payload.tombstones = tombs;
+    if (tombs.length) {
+      _p2pLog('pull tombs=' + tombs.length + '/' + src.length + ' since=' + from);
+    }
+  }
   var bytes = 0, count = 0, i = idx;
   for (; i < snap.length; i++) {
     if (count >= P2P_PART_MAX_RECORDS) break;

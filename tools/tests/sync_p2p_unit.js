@@ -1989,6 +1989,182 @@ test('apply-batch-single-arg', function () {
 });
 
 /* ====================================================================== */
+/*  D 组：双端收敛（不是单端断言）                                          */
+/*  0.6.12 真机走到「两端数据没有完全对上」——协议已经跑完，是数据没收敛。      */
+/*  这里用两个独立沙箱按 native 的真实事件序列对推，缺一环就红。              */
+/* ====================================================================== */
+
+/** 跨 realm 取回纯数据。 */
+function call(w, ev, args) {
+  const out = w.run('window.BottleSync.onEvent(' + J({ ev: ev, args: args || {} }) + ')');
+  return out === undefined || out === null ? out : JSON.parse(J(out));
+}
+
+function mkRec(uid, title, up) {
+  return { uid: uid, title: title, startTime: up, updatedAt: up, seconds: 60 };
+}
+
+/**
+ * 跑一场完整的双向同步（严格照 SyncSession 的顺序）：
+ *   A.begin → B.begin → A.tomb/build → B.apply → B.collect → A.apply → 双方指纹 → B.compare
+ * 返回每步的观测值，供用例断言。
+ */
+function syncOnce(A, B, sidA, sidB, didA, didB, t1) {
+  const seen = { steps: [], appliedA: 0, appliedB: 0 };
+
+  const ba = call(A, 'begin', { peerId: didB, sid: sidA, endAt: t1 });
+  const bb = call(B, 'begin', { peerId: didA, sid: sidB, endAt: 0 });
+  seen.steps.push(['beginA', ba && ba.ok, ba && ba.wmLocal]);
+  seen.steps.push(['beginB', bb && bb.ok, bb && bb.wmLocal]);
+
+  /* ① A 的墓碑帧 → B */
+  let tcur = null, tn = 0;
+  for (let i = 0; i < 200; i++) {
+    const a = { sid: sidA, peerId: didB };
+    if (tcur) a.cursor = tcur;
+    const t = call(A, 'tomb', a);
+    const ap = call(B, 'apply', {
+      sid: sidB, peerId: didA, part: 20 + tn, payload: J(t.payload || {}),
+      last: !!t.last, skewMs: 0, deferSave: true, deferRender: true
+    });
+    if (ap && ap.ok === false) seen.steps.push(['tomb.apply', false, ap.error]);
+    tn++;
+    tcur = t.nextCursor;
+    if (t.last) break;
+  }
+
+  /* ② A 的变更帧 → B */
+  let cur = { part: 1000 }, part = 0, pushed = 0;
+  for (let i = 0; i < 500; i++) {
+    const t = call(A, 'build', { peerId: didB, sid: sidA, maxBytes: 512 * 1024, cursor: cur });
+    const ap = call(B, 'apply', {
+      sid: sidB, peerId: didA, part: 1000 + part, payload: J(t.payload || {}),
+      last: !!t.last, skewMs: 0, deferSave: true, deferRender: true
+    });
+    if (ap && ap.ok === false) seen.steps.push(['build.apply', false, ap.error]);
+    pushed += Number(t.count) || 0;
+    part++;
+    cur = t.nextCursor;
+    if (t.last) break;
+  }
+  seen.pushed = pushed;
+
+  /* ③ B 的数据 → A（A 是拉取方，since=0 表示全量） */
+  let pcur = { kind: 'pull', idx: 0, part: 0, endAt: t1 }, ppart = 0, pulled = 0;
+  for (let i = 0; i < 500; i++) {
+    const c = call(B, 'collect', {
+      sid: sidB, peerId: didA, since: 0, cols: null, maxBytes: 512 * 1024, cursor: pcur
+    });
+    const ap = call(A, 'apply', {
+      sid: sidA, peerId: didB, part: 500 + ppart, payload: J(c.payload || {}),
+      last: !!c.last, skewMs: 0, deferSave: true, deferRender: true
+    });
+    if (ap && ap.ok === false) seen.steps.push(['pull.apply', false, ap.error]);
+    pulled += Number(c.count) || 0;
+    ppart++;
+    pcur = c.nextCursor;
+    if (c.last) break;
+  }
+  seen.pulled = pulled;
+
+  /* ④ 指纹：A 的给 B，B 自己的 compare */
+  const fpA = call(A, 'fingerprint', {});
+  const cmp = call(B, 'compare', {
+    sid: sidB, peerId: didA, peerFp: fpA.fp, peerCounts: fpA.counts, peerTomb: fpA.tomb
+  });
+  seen.fpA = fpA.fp;
+  seen.equal = !!(cmp && cmp.equal);
+  seen.diff = (cmp && cmp.diff) || [];
+  seen.reason = (cmp && cmp.reason) || '';
+
+  /* ⑤ 不等 → A 补推全量 → B 再比 */
+  if (!seen.equal) {
+    let fcur = { kind: 'pull', idx: 0, part: 2000, endAt: t1 }, fpart = 0, fixed = 0;
+    for (let i = 0; i < 500; i++) {
+      const c = call(A, 'collect', {
+        sid: sidA, peerId: didB, since: 0, cols: null, maxBytes: 512 * 1024, cursor: fcur
+      });
+      const ap = call(B, 'apply', {
+        sid: sidB, peerId: didA, part: 2000 + fpart, payload: J(c.payload || {}),
+        last: !!c.last, skewMs: 0, deferSave: true, deferRender: true
+      });
+      if (ap && ap.ok === false) seen.steps.push(['fix.apply', false, ap.error]);
+      fixed += Number(c.count) || 0;
+      fpart++;
+      fcur = c.nextCursor;
+      if (c.last) break;
+    }
+    seen.fixed = fixed;
+    const fpA2 = call(A, 'fingerprint', {});
+    const cmp2 = call(B, 'compare', {
+      sid: sidB, peerId: didA, peerFp: fpA2.fp, peerCounts: fpA2.counts, peerTomb: fpA2.tomb
+    });
+    seen.equalAfterFix = !!(cmp2 && cmp2.equal);
+    seen.diffAfterFix = (cmp2 && cmp2.diff) || [];
+    seen.reasonAfterFix = (cmp2 && cmp2.reason) || '';
+  }
+  return seen;
+}
+
+function countsOf(w) {
+  const c = call(w, 'fingerprint', {});
+  const out = {};
+  Object.keys(c.counts).forEach(function (k) {
+    const v = c.counts[k];
+    if (v && (v.n || 0) > 0) out[k] = v.n + '/' + v.m;
+  });
+  return out;
+}
+
+test('dual-peer-converge 两台数据不同的手机，一轮同步后指纹应相等', function () {
+  const A = fresh();
+  const B = fresh();
+  const t0 = 1700000000000;   /* 2023-11，远早于会话时间，不会被 endAt 过滤 */
+  put(A, 'appData.records', [mkRec('rec_a1', 'A1', t0), mkRec('rec_a2', 'A2', t0 + 1000), mkRec('rec_sh', 'old', t0 + 2000)]);
+  put(B, 'appData.records', [mkRec('rec_b1', 'B1', t0 + 3000), mkRec('rec_sh', 'new', t0 + 4000)]);
+
+  const s = syncOnce(A, B, 'sa', 'sb', 'didA', 'didB', Date.now());
+  if (s.equalAfterFix !== true) {
+    console.log('      双端未收敛：pushed=' + s.pushed + ' pulled=' + s.pulled
+      + ' fixed=' + s.fixed + ' diff=[' + s.diff.join(',') + ']');
+    console.log('      A: ' + J(countsOf(A)));
+    console.log('      B: ' + J(countsOf(B)));
+    console.log('      reason: ' + s.reason);
+    console.log('      afterFix equal=' + s.equalAfterFix + ' diff=[' + (s.diffAfterFix || []).join(',') + '] fixed=' + s.fixed);
+  }
+  /* 首轮 push 走 outbox（没有历史数据）→ 第一次比对必然不等，这是设计：
+     真正的全量在 fix（collect since=0）。这里断言的是**整轮跑完必须收敛**。 */
+  ok('dual-peer-converge 整轮（含补差）后指纹相等', s.equalAfterFix === true,
+    'first=' + s.equal + ' afterFix=' + s.equalAfterFix + ' diff=[' + (s.diffAfterFix || []).join(',') + ']');
+
+  /* 收尾再断言一次：不靠 fix 也要一致（fix 只是兜底） */
+  ok('dual-peer-converge A/B 记录条数一致', countsOf(A).records === countsOf(B).records,
+    'A=' + J(countsOf(A).records) + ' B=' + J(countsOf(B).records));
+});
+
+test('dual-peer-tombstone 一端删过、另一端还有的记录，同步后两端都不该再看见它', function () {
+  const A = fresh();
+  const B = fresh();
+  const t0 = 1700000000000;
+  /* A 还留着 rec_sh；B 已经删了它（records 里没有，只有墓碑）。 */
+  put(A, 'appData.records', [mkRec('rec_a1', 'A1', t0), mkRec('rec_sh', 'old', t0 + 2000)]);
+  put(B, 'appData.records', [mkRec('rec_b1', 'B1', t0 + 3000)]);
+  put(B, 'appData.tombstones', [{ uid: 'rec_sh', deletedAt: t0 + 5000 }]);
+
+  const s = syncOnce(A, B, 'sa', 'sb', 'didA', 'didB', Date.now());
+  const aLeft = A.run('appData.records.map(function(r){return r.uid}).sort()');
+  const bLeft = B.run('appData.records.map(function(r){return r.uid}).sort()');
+  if (s.equalAfterFix !== true) {
+    console.log('      墓碑场景未收敛：diff=[' + s.diff.join(',') + '] A=' + J(aLeft) + ' B=' + J(bLeft));
+    console.log('      reason: ' + s.reason);
+  }
+  eq('dual-peer-tombstone 两端都不再有 rec_sh', [aLeft.indexOf('rec_sh'), bLeft.indexOf('rec_sh')], [-1, -1]);
+  ok('dual-peer-tombstone 整轮（含补差）后指纹相等', s.equalAfterFix === true,
+    'first=' + s.equal + ' afterFix=' + s.equalAfterFix + ' diff=[' + (s.diffAfterFix || []).join(',') + ']');
+});
+
+/* ====================================================================== */
+
 async function main() {
   const only = process.argv.filter(function (a) { return a.indexOf('--only=') === 0; })[0];
   const pattern = only ? only.slice('--only='.length) : '';
