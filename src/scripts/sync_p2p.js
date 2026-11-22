@@ -34,10 +34,12 @@ var P2P_GUARD_MS = 3000;              /* 水位推进的安全带：T0 − 3000�
 var P2P_PART_TARGET_BYTES = 512 * 1024; /* 单批目标字节（明文字节） */
 var P2P_PART_MAX_RECORDS = 2000;      /* 单批最多记录数（与 outbox 上限同量级） */
 var P2P_TOMB_BATCH_MAX_BYTES = 64 * 1024; /* 墓碑帧单片上限，超了分片（§7.3） */
-/* 0.6.13：拉取方向的墓碑上限（约 400KB，仍在单帧 4MB 之内）。
-   collect 只在一帧里顺带墓碑，不做分片 —— 超出就保留最新的这些，剩下的靠
-   水位推进后下一轮再带（`deletedAt > since` 会自然缩小）。 */
-var P2P_TOMB_IN_PULL_MAX = 6000;
+/* 0.6.13：拉取方向的墓碑预算（字节）。单帧硬上限 4MB，留足余量给集合数据。
+   collect 是在一帧里顺带墓碑、不分片，所以按字节截断而不是条数：
+   十几年的库删除记录可能上万条，按条数卡 6000 会把老删除永远漏在那边
+   （那正是「删不掉的记录 → 指纹永久不等」）。超出预算时保留**最新的**，
+   剩下的等水位推进后下一轮再带（`deletedAt > since` 会自然缩小）。 */
+var P2P_TOMB_IN_PULL_MAX_BYTES = 2 * 1024 * 1024;
 var P2P_COMMIT_WAIT_MS = 3000;        /* 等 IDB 队列兑现的上限（§9.5 第 5 步） */
 var P2P_DIAG_RING = 80;               /* 诊断环形缓冲条数 */
 var P2P_INFO_RETRY_MAX = 60;          /* 数据就绪后向原生问 sync.info 的轮询次数上限 */
@@ -359,22 +361,31 @@ function _p2pCollectSince(peerId, since, cols, cursor, maxBytes) {
      超过上限就按 deletedAt 降序截断（保留最新的：越新越可能还没传过去）。 */
   if (idx === 0) {
     var src = Array.isArray(appData.tombstones) ? appData.tombstones : [];
-    var tombs = [];
+    var pool = [];
     for (var ti = 0; ti < src.length; ti++) {
       var tt = src[ti];
       if (!tt || !tt.uid) continue;
       if ((Number(tt.deletedAt) || 0) <= from) continue;
-      tombs.push(tt);
+      pool.push(tt);
     }
-    if (tombs.length > P2P_TOMB_IN_PULL_MAX) {
-      tombs.sort(function (a, b) {
-        return (Number(b.deletedAt) || 0) - (Number(a.deletedAt) || 0);
-      });
-      tombs = tombs.slice(0, P2P_TOMB_IN_PULL_MAX);
+    /* 最新的优先入选（越新越可能还没传过去），再按 deletedAt 升序还原，
+       让两端对「这一帧里有哪些墓碑」算出的顺序一致。 */
+    pool.sort(function (a, b) {
+      return (Number(b.deletedAt) || 0) - (Number(a.deletedAt) || 0);
+    });
+    var tombs = [], tbytes = 0;
+    for (var pi = 0; pi < pool.length; pi++) {
+      var one = JSON.stringify(pool[pi]);
+      if (tbytes + one.length + 1 > P2P_TOMB_IN_PULL_MAX_BYTES) break;
+      tombs.push(pool[pi]);
+      tbytes += one.length + 1;
     }
+    tombs.sort(function (a, b) {
+      return (Number(a.deletedAt) || 0) - (Number(b.deletedAt) || 0);
+    });
     payload.tombstones = tombs;
     if (tombs.length) {
-      _p2pLog('pull tombs=' + tombs.length + '/' + src.length + ' since=' + from);
+      _p2pLog('pull tombs=' + tombs.length + '/' + pool.length + ' bytes=' + tbytes + ' since=' + from);
     }
   }
   var bytes = 0, count = 0, i = idx;
