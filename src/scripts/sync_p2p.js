@@ -428,6 +428,15 @@ function _p2pScanSince(since, endAt, cols) {
   var unlimited = (endAt === -1 || endAt === null || endAt === undefined);
   function inRange(ts) {
     var t = Number(ts) || 0;
+    /* 0.6.14（真机第三次 FAILED_DIVERGED）：**没有编辑时间的老记录**（t===0）。
+       倒计时、习惯分类、日记、今日必做这几类，用户十年前建完就没再改过，
+       库里根本没有 updatedAt / mustDosAt → 迁移补成 0。
+       旧判断 `0 <= since` 恒真 → 它们在全量基线（since=0）里也被当成"比水位旧"跳过，
+       于是永远传不过去、两端指纹永久不等 —— 界面就是「没对上的：倒计时、分类、日记、今日必做」，
+       而且重试多少次都卡在同一处（每次都在同一个位置漏掉同一批记录）。
+       现在：t<=0 视作"时间未知"，只在全量基线（since<=0）时带上。
+       增量阶段不带它们是对的 —— 基线已经传过，之后它们一旦被编辑就有了真实戳。 */
+    if (t <= 0) return since <= 0;
     if (t <= since) return false;
     if (!unlimited && t > Number(endAt)) return false;
     return true;

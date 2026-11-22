@@ -2163,6 +2163,50 @@ test('dual-peer-tombstone 一端删过、另一端还有的记录，同步后两
     'first=' + s.equal + ' afterFix=' + s.equalAfterFix + ' diff=[' + (s.diffAfterFix || []).join(',') + ']');
 });
 
+test('dual-peer-legacy-ts 没有编辑时间的老记录（倒计时/分类/日记/今日必做）基线必须传过去', function () {
+  /* 真机 0.6.13 的 FAILED_DIVERGED 就是这四类：用户建完十年没改过的记录，
+     库里没有 updatedAt / mustDosAt，迁移补成 0，旧判断 `0 <= since` 恒真 →
+     连全量基线都跳过它们，两端指纹永久不等。 */
+  const A = fresh();
+  const B = fresh();
+  const t0 = 1700000000000;
+  put(A, 'appData.countdowns', [
+    { uid: 'cd_old', title: '没戳的倒计时' },
+    { uid: 'cd_new', title: '有戳的倒计时', updatedAt: t0 }
+  ]);
+  put(A, 'appData.habitCats', [
+    { uid: 'hc_old', name: '没戳的分类' },
+    { uid: 'hc_new', name: '有戳的分类', updatedAt: t0 }
+  ]);
+  put(A, 'appData.diaries', {
+    '2024-01-01': { text: '没戳的日记' },
+    '2024-01-02': { text: '有戳的日记', updatedAt: t0 }
+  });
+  put(A, 'appData.mustDos', { '2024-01-01': [{ uid: 'must_1', text: 'x' }] });
+  put(A, 'appData.mustDosAt', {});
+  put(B, 'appData.countdowns', []);
+  put(B, 'appData.habitCats', []);
+  put(B, 'appData.diaries', {});
+  put(B, 'appData.mustDos', {});
+  put(B, 'appData.mustDosAt', {});
+
+  const s = syncOnce(A, B, 'sa', 'sb', 'didA', 'didB', Date.now());
+  if (s.equalAfterFix !== true) {
+    console.log('      未收敛 diff=[' + (s.diffAfterFix || []).join(',') + ']');
+  }
+  eq('dual-peer-legacy-ts 倒计时两端都有', R(B, 'appData.countdowns.map(function(x){return x.uid}).sort()'), ['cd_new', 'cd_old']);
+  eq('dual-peer-legacy-ts 分类两端都有', R(B, 'appData.habitCats.map(function(x){return x.uid}).sort()'), ['hc_new', 'hc_old']);
+  eq('dual-peer-legacy-ts 日记两端都有', R(B, 'Object.keys(appData.diaries).sort()'), ['2024-01-01', '2024-01-02']);
+  eq('dual-peer-legacy-ts 今日必做两端都有', R(B, 'Object.keys(appData.mustDos).sort()'), ['2024-01-01']);
+  ok('dual-peer-legacy-ts 整轮后指纹相等', s.equalAfterFix === true, 'diff=' + J(s.diffAfterFix));
+
+  /* 幂等：再跑一轮不该有任何变化，也不该把它们重复成两条 */
+  const s2 = syncOnce(A, B, 'sa2', 'sb2', 'didA', 'didB', Date.now() + 60000);
+  /* 第二轮首轮即相等就不会再跑补差（equalAfterFix 为 undefined），两种都算过 */
+  const ok2 = (s2.equal === true) || (s2.equalAfterFix === true);
+  eq('dual-peer-legacy-ts 第二轮首轮即相等、数量不变', [ok2, R(B, 'appData.countdowns.length')], [true, 2]);
+});
+
 /* ====================================================================== */
 
 async function main() {
